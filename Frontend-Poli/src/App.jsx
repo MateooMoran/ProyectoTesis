@@ -3,6 +3,7 @@ import { Home } from './pages/Home'
 import Login from './pages/Login'
 import Dashboard from './layout/Dashboard'
 import { useState } from 'react'
+import Register from './pages/Register'
 
 function App() {
   return (
@@ -12,6 +13,8 @@ function App() {
         <Route index element={<Home/>}/>
         <Route path='login' element={<Login/>}/>
         <Route path='dashboard' element={<Dashboard/>}/>
+        <Route path='register' element={<Register/>}/>
+
       </Routes>
     </BrowserRouter>
     </>
