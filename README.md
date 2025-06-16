@@ -1,6 +1,9 @@
-"# ProyectoTesis" 
+"# Proyecto PoliVentas#" 
+
 Integrantes:
+
 David Muela - Backend 
+
 Mateo Moran - Frontend
 
 Link del Backend (Render):
