@@ -53,7 +53,7 @@ const Login = () => {
 
                         {/* Botón de iniciar sesión */}
                         <div className="my-4">
-                            <Link to="/" className="py-2 w-full block text-center bg-blue-700 text-white border rounded-xl hover:scale-105 duration-300 hover:bg-red-600">Iniciar sesión</Link>
+                            <Link to="/" className="py-2 w-full block text-center bg-blue-700 text-white border rounded-xl hover:scale-105 duration-300 hover:bg-red-700">Iniciar sesión</Link>
                         </div>
                     </form>
 
@@ -64,21 +64,21 @@ const Login = () => {
                         <hr className="border-gray-400" />
                     </div>
 
-                    {/* Botón de inicio de sesión con Google */}
+                    {/* Botón de inicio de sesión con Google
                     <button className="bg-white border py-2 w-full rounded-xl mt-5 flex justify-center items-center text-sm hover:scale-105 duration-300 hover:bg-blue-700 hover:text-white">
                         <img className="w-5 mr-2" src="https://cdn-icons-png.flaticon.com/512/281/281764.png" alt="Google icon" />
                         Iniciar sesión con Google
-                    </button>
+                    </button> */}
 
                     {/* Olvidaste tu contraseña */}
                     <div className="mt-5 text-xs border-b-2 py-4">
-                        <Link to="/forgot/id" className="underline text-sm text-gray-700 hover:text-red-600">¿Olvidaste tu contraseña?</Link>
+                        <Link to="/forgot/id" className="underline text-sm text-gray-700 hover:text-red-700">¿Olvidaste tu contraseña?</Link>
                     </div>
 
                     {/* Enlaces para volver o registrarse */}
                     <div className="mt-3 text-sm flex justify-between items-center">
-                        <Link to="/" className="py-2 px-5 bg-red-700 text-white border rounded-xl hover:scale-110 duration-300 hover:bg-red-600">Regresar</Link>
-                        <Link to="/register" className="py-2 px-5 bg-blue-700 text-white border rounded-xl hover:scale-110 duration-300 hover:bg-red-600">Registrarse</Link>
+                        <Link to="/" className="py-2 px-5 bg-red-700 text-white border rounded-xl hover:scale-110 duration-300 hover:bg-red-700">Regresar</Link>
+                        <Link to="/register" className="py-2 px-5 bg-blue-700 text-white border rounded-xl hover:scale-110 duration-300 hover:bg-red-700">Registrarse</Link>
                     </div>
                 </div>
             </div>

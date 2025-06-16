@@ -86,19 +86,19 @@ export const Home = () => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="text-center">
                                     <img src={ropa} alt="Ropa 1" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Camiseta</p>
+                                    <p className="text-sm text-gray-700 text-left">Camiseta</p>
                                 </div>
                                 <div className="text-center">
                                     <img src={pantalon} alt="Ropa 2" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Pantalón</p>
+                                    <p className="text-sm text-gray-700 text-left">Pantalón</p>
                                 </div>
                                 <div className="text-center">
                                     <img src={Chaqueta} alt="Ropa 3" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Chaqueta</p>
+                                    <p className="text-sm text-gray-700 text-left">Chaqueta</p>
                                 </div>
                                 <div className="text-center">
                                     <img src={Zapatos} alt="Ropa 4" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Zapatos</p>
+                                    <p className="text-sm text-gray-700 text-left">Zapatos</p>
                                 </div>
                             </div>
                             <Link to="/products/ropa" className="bg-blue-950 text-white py-2 px-4 rounded-lg mt-4 inline-block hover:bg-red-700">
@@ -112,19 +112,19 @@ export const Home = () => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="text-center">
                                     <img src={libro} alt="Libro 1" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Matemáticas</p>
+                                    <p className="text-sm text-gray-700 text-left">Matemáticas</p>
                                 </div>
                                 <div className="text-center">
                                     <img src={libro} alt="Libro 2" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Historia</p>
+                                    <p className="text-sm text-gray-700 text-left">Historia</p>
                                 </div>
                                 <div className="text-center">
                                     <img src={libro} alt="Libro 3" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Ciencia</p>
+                                    <p className="text-sm text-gray-700 text-left">Ciencia</p>
                                 </div>
                                 <div className="text-center">
                                     <img src={libro} alt="Libro 4" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Arte</p>
+                                    <p className="text-sm text-gray-700 text-left">Arte</p>
                                 </div>
                             </div>
                             <Link to="/products/libros" className="bg-blue-950 text-white py-2 px-4 rounded-lg mt-4 inline-block hover:bg-red-700">
@@ -138,19 +138,19 @@ export const Home = () => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="text-center">
                                     <img src={comida} alt="Comida 1" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Pizza</p>
+                                    <p className="text-sm text-gray-700 text-left">Pizza</p>
                                 </div>
                                 <div className="text-center">
                                     <img src={comida} alt="Comida 2" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Hamburguesa</p>
+                                    <p className="text-sm text-gray-700 text-left">Hamburguesa</p>
                                 </div>
                                 <div className="text-center">
                                     <img src={comida} alt="Comida 3" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Tacos</p>
+                                    <p className="text-sm text-gray-700 text-left">Tacos</p>
                                 </div>
                                 <div className="text-center">
                                     <img src={comida} alt="Comida 4" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Sushi</p>
+                                    <p className="text-sm text-gray-700 text-left">Sushi</p>
                                 </div>
                             </div>
                             <Link to="/products/comida" className="bg-blue-950 text-white py-2 px-4 rounded-lg mt-4 inline-block hover:bg-red-700">
@@ -164,19 +164,19 @@ export const Home = () => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="text-center">
                                     <img src={comida} alt="Comida 1" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Pizza</p>
+                                    <p className="text-sm text-gray-700 text-left">Pizza</p>
                                 </div>
                                 <div className="text-center">
                                     <img src={comida} alt="Comida 2" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Hamburguesa</p>
+                                    <p className="text-sm text-gray-700 text-left">Hamburguesa</p>
                                 </div>
                                 <div className="text-center">
                                     <img src={comida} alt="Comida 3" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Tacos</p>
+                                    <p className="text-sm text-gray-700 text-left">Tacos</p>
                                 </div>
                                 <div className="text-center">
                                     <img src={comida} alt="Comida 4" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Sushi</p>
+                                    <p className="text-sm text-gray-700 text-left">Sushi</p>
                                 </div>
                             </div>
                             <Link to="/products/comida" className="bg-blue-950 text-white py-2 px-4 rounded-lg mt-4 inline-block hover:bg-red-700">
@@ -190,19 +190,19 @@ export const Home = () => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="text-center">
                                     <img src={comida} alt="Comida 1" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Pizza</p>
+                                    <p className="text-sm text-gray-700 text-left">Pizza</p>
                                 </div>
                                 <div className="text-center">
                                     <img src={comida} alt="Comida 2" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Hamburguesa</p>
+                                    <p className="text-sm text-gray-700 text-left">Hamburguesa</p>
                                 </div>
                                 <div className="text-center">
                                     <img src={comida} alt="Comida 3" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Tacos</p>
+                                    <p className="text-sm text-gray-700 text-left">Tacos</p>
                                 </div>
                                 <div className="text-center">
                                     <img src={comida} alt="Comida 4" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Sushi</p>
+                                    <p className="text-sm text-gray-700 text-left">Sushi</p>
                                 </div>
                             </div>
                             <Link to="/products/comida" className="bg-blue-950 text-white py-2 px-4 rounded-lg mt-4 inline-block hover:bg-red-700">
@@ -216,19 +216,19 @@ export const Home = () => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="text-center">
                                     <img src={comida} alt="Comida 1" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Pizza</p>
+                                    <p className="text-sm text-gray-700 text-left">Pizza</p>
                                 </div>
                                 <div className="text-center">
                                     <img src={comida} alt="Comida 2" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Hamburguesa</p>
+                                    <p className="text-sm text-gray-700 text-left">Hamburguesa</p>
                                 </div>
                                 <div className="text-center">
                                     <img src={comida} alt="Comida 3" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Tacos</p>
+                                    <p className="text-sm text-gray-700 text-left">Tacos</p>
                                 </div>
                                 <div className="text-center">
                                     <img src={comida} alt="Comida 4" className="w-full h-24 object-cover rounded-md mb-2" />
-                                    <p className="text-sm text-gray-700">Sushi</p>
+                                    <p className="text-sm text-gray-700 text-left">Sushi</p>
                                 </div>
                             </div>
                             <Link to="/products/comida" className="bg-blue-950 text-white py-2 px-4 rounded-lg mt-4 inline-block hover:bg-red-700">
@@ -243,7 +243,7 @@ export const Home = () => {
            {/* Carrusel de productos más vendidos */}
             <section className="bg-blue-50 py-10">
                 <div className="container mx-auto px-4">
-                    <h3 className="text-3xl font-bold text-blue-900 text-center mb-6">Lo más vendido</h3>
+                    <h3 className="text-3xl font-bold text-blue-900 text-center mb-6">Lo más vendido en PoliVentas</h3>
                     <Swiper
                         modules={[Navigation, Pagination]}
                         navigation
@@ -261,10 +261,10 @@ export const Home = () => {
                                     <img
                                         src={producto.imagen}
                                         alt={producto.nombre}
-                                        className="w-full h-40 object-cover rounded-md mb-4"
+                                        className="w-full h-50 object-cover rounded-md mb-4"
                                     />
                                     <h4 className="text-lg font-semibold text-blue-900">{producto.nombre}</h4>
-                                    <p className="text-gray-700">{producto.precio}</p>
+                                    <p className="text-gray-700 pb-2 h-10" >{producto.precio}</p>
                                 </div>
                             </SwiperSlide>
                         ))}

@@ -86,7 +86,7 @@ const Register = () => {
                             <label className="mb-2 block text-sm font-semibold">Contraseña</label>
                             <div className="relative">
                                 <input
-                                    type={showPassword ? "text" : "password"} // Cambia el tipo del input entre 'text' y 'password' según el estado
+                                    type={showPassword ? "text" : "password"} 
                                     placeholder="********************"
                                     className="block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-1.5 text-gray-500 pr-10"
                                     {...register("password", { required: "La contraseña es obligatorio" })}
@@ -95,7 +95,7 @@ const Register = () => {
                                 {/* Botón para mostrar/ocultar la contraseña */}
                                 <button
                                     type="button"
-                                    onClick={() => setShowPassword(!showPassword)} // Cambia el estado para mostrar/ocultar la contraseña
+                                    onClick={() => setShowPassword(!showPassword)} 
                                     className="absolute top-2 right-3 text-gray-500 hover:text-gray-700"
                                 >
                                     {/* Icono que cambia según el estado de la contraseña */}
@@ -112,14 +112,14 @@ const Register = () => {
                             </div>
                         </div>
                         <div className="mb-3">
-                            <button className="w-full py-2 my-5 bg-blue-700 text-white rounded-xl hover:bg-blue-800 duration-300">Registrarse</button>
+                            <button className="w-full py-2 my-5 bg-blue-700 text-white rounded-xl hover:scale-105 duration-300 hover:bg-red-700">Registrarse</button>
                         </div>
                     </form>
 
                     <div className="mt-4 text-center text-sm">
-                        <span className="text-gray-600">¿Ya tienes una cuenta?</span>{' '}
+                        <span className="text-gray-600 ">¿Ya tienes una cuenta?</span>{' '}
                         <Link to="/login" className="
-                        border-b-2">Iniciar Sesión</Link>
+                        border-b-2 hover:text-red-700">Iniciar Sesión</Link>
                     </div>
                 </div>
             </div>
