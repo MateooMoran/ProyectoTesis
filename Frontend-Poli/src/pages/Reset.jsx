@@ -14,16 +14,38 @@ const Reset = () => {
     const navigate = useNavigate();
 
     const changePassword = async (data) => {
-        if (data.password !== data.confirmPassword) {
+        const { password, confirmPassword } = data;
+
+        // Validar que las contraseñas coincidan
+        if (password !== confirmPassword) {
+            return;
+        }
+
+        // Validar la longitud de la contraseña
+        if (password.length < 4) {
+            toast.error('La contraseña debe tener al menos 4 caracteres.', {
+                position: 'top-right',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
             return;
         }
 
         try {
             const url = `${import.meta.env.VITE_BACKEND_URL}/nuevopassword/${token}`;
             await fetchDataBackend(url, data, 'POST');
-            setTimeout(() => navigate('/login'), 3000);
+
+            // Redirigir al login después de 3 segundos
+            setTimeout(() => {
+                navigate('/login');
+            }, 3000);
         } catch (error) {
             console.log(error);
+            
         }
     };
 
@@ -34,11 +56,12 @@ const Reset = () => {
                 await fetchDataBackend(url, null, 'GET');
                 setTokenValid(true);
             } catch (error) {
-                log.error(error);
+                console.log(error);
             }
         };
         verifyToken();
-    }, [token, fetchDataBackend]);
+    }, []);
+
 
     return (
         <div className="flex flex-col items-center justify-center h-screen bg-blue-50 px-4">

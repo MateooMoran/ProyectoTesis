@@ -12,7 +12,7 @@ const Login = () => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/login`;
         const response = await fetchDataBackend(url, data, 'POST')
         if (response) {
-            navigate('/')
+            navigate('/dashboard');
         }
     }
 

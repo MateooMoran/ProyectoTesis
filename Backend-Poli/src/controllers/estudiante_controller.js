@@ -11,7 +11,13 @@ const registro = async (req,res) => {
     
     //Verifica si existe algun correo en el base de datos
     const verificarEmailBDD = await Estudiante.findOne({email})
-    if(verificarEmailBDD) return res.status(400).json({msg:"Lo sentimos, el correo ya se encuentra registrado"})
+    if(verificarEmailBDD) return res.status(400).json({msg:"Lo sentimos, el correo ya se encuentra registrado"});
+
+    // Validar la contraseña
+    if (password.length < 4) {
+    return res.status(400).json({ msg: "La contraseña debe tener al menos 4 caracteres" });
+    }
+
     
     //Encriptar la contraseña
     const nuevoEstudiante = new Estudiante(req.body)
@@ -84,9 +90,9 @@ const crearNuevoPassword = async (req,res) => {
 
     //Validaciones
     if(Object.values(req.body).includes("")) return res.status(404).json({msg:"Lo sentimos, debes llenar todos los campos"})
+    if(password.length && confirmPassword.length < 4) return res.status(404).json({msg:"Lo sentimos, la contraseña debe tener al menos 4 caracteres"})
 
     if(password!==confirmPassword) return res.status(404).json({msg:"Lo sentimos, las contraseñas no coinciden"})
-    if(password.length < 4) return res.status(404).json({msg:"Lo sentimos, la contraseña debe tener al menos 4 caracteres"})
 
     const estudianteBDD = await Estudiante.findOne({token:req.params.token})
 

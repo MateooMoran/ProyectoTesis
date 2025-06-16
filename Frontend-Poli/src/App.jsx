@@ -6,6 +6,7 @@ import Register from './pages/Register'
 import Confirm from './pages/Confirm'
 import Forgot from './pages/Forgot'
 import Reset from './pages/Reset'
+import { Dashboard } from './layout/Dashboard'
 
 function App() {
   return (
@@ -18,6 +19,8 @@ function App() {
         <Route path='confirm/:token' element={<Confirm/>}/>
         <Route path='forgot/:id' element={<Forgot/>}/>
         <Route path='reset/:token' element={<Reset/>}/>
+        <Route path='dashboard' element={<Dashboard/>}/>
+
 
 
 
