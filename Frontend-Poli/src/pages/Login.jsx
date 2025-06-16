@@ -53,7 +53,7 @@ const Login = () => {
 
                         {/* Botón de iniciar sesión */}
                         <div className="my-4">
-                            <Link to="/dashboard" className="py-2 w-full block text-center bg-blue-700 text-white border rounded-xl hover:scale-105 duration-300 hover:bg-red-600">Iniciar sesión</Link>
+                            <Link to="/" className="py-2 w-full block text-center bg-blue-700 text-white border rounded-xl hover:scale-105 duration-300 hover:bg-red-600">Iniciar sesión</Link>
                         </div>
                     </form>
 

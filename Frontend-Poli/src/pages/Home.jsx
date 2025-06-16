@@ -1,11 +1,28 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
-import xd from '../assets/xd.jpeg';
 import comida from '../assets/comidas-rapidas.jpg';
 import ropa from '../assets/Ropa.jpeg';
 import ropa2 from '../assets/Ropa2.jpeg';
+import pantalon from '../assets/pantalon.avif';
+import Zapatos from '../assets/Zapatos.jpg';
+import Chaqueta from '../assets/chaqueta.jpg';
 import libro from '../assets/Libros.jpeg';
+
+{/* Carrusel */}
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import { Navigation, Pagination } from 'swiper/modules';
+
+// Definir productos más vendidos
+const productosMasVendidos = [
+    { id: 1, nombre: 'Chompa', precio: '$10', imagen: '' },
+    { id: 2, nombre: 'Sanduches', precio: '$2.50', imagen: 'https://via.placeholder.com/150' },
+    { id: 3, nombre: 'Zapatos Adidas', precio: '$12', imagen: 'https://via.placeholder.com/150' },
+    { id: 4, nombre: 'Libro de Ingles', precio: '$25', imagen: 'https://via.placeholder.com/150' },
+    { id: 5, nombre: 'Hoodie', precio: '$15', imagen: 'https://via.placeholder.com/150' },
+];
 
 
 
@@ -63,58 +80,159 @@ export const Home = () => {
             <section className="bg-white py-10">
                 <div className="container mx-auto px-4">
                     <h3 className="text-3xl font-bold text-blue-900 text-center mb-6">Explora nuestras categorías</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {/* Categoría: Ropa */}
-                        <div className="bg-blue-50 p-6 rounded-lg shadow-md text-center">
-                            <img src={ropa2} alt="Ropa" className="w-full h-109 object-cover rounded-md mb-4" />
-                            <h4 className="text-xl font-semibold text-blue-900">Ropa</h4>
-                            <p className="text-gray-700 mt-2">Encuentra ropa cómoda y moderna para estudiantes.</p>
+                        <div className="bg-blue-50 p-6 rounded-lg shadow-md">
+                            <h4 className="text-2xl font-semibold text-blue-900 mb-4">Vistete Con Estilo</h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="text-center">
+                                    <img src={ropa} alt="Ropa 1" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Camiseta</p>
+                                </div>
+                                <div className="text-center">
+                                    <img src={pantalon} alt="Ropa 2" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Pantalón</p>
+                                </div>
+                                <div className="text-center">
+                                    <img src={Chaqueta} alt="Ropa 3" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Chaqueta</p>
+                                </div>
+                                <div className="text-center">
+                                    <img src={Zapatos} alt="Ropa 4" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Zapatos</p>
+                                </div>
+                            </div>
                             <Link to="/products/ropa" className="bg-blue-950 text-white py-2 px-4 rounded-lg mt-4 inline-block hover:bg-red-700">
                                 Ver Más
                             </Link>
                         </div>
-                        {/* Categoría: Libros/Cursos */}
-                        <div className="bg-blue-50 p-6 rounded-lg shadow-md text-center">
-                            <img src={libro} alt="Libros y Cursos" className="w-full h object-cover rounded-md mb-4" />
-                            <h4 className="text-xl font-semibold text-blue-900">Libros y Cursos</h4>
-                            <p className="text-gray-700 mt-2">Accede a libros y cursos para mejorar tus estudios.</p>
+
+                        {/* Categoría: Libros */}
+                        <div className="bg-blue-50 p-6 rounded-lg shadow-md">
+                            <h4 className="text-2xl font-semibold text-blue-900 mb-4">Libros y Cursos</h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="text-center">
+                                    <img src={libro} alt="Libro 1" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Matemáticas</p>
+                                </div>
+                                <div className="text-center">
+                                    <img src={libro} alt="Libro 2" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Historia</p>
+                                </div>
+                                <div className="text-center">
+                                    <img src={libro} alt="Libro 3" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Ciencia</p>
+                                </div>
+                                <div className="text-center">
+                                    <img src={libro} alt="Libro 4" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Arte</p>
+                                </div>
+                            </div>
                             <Link to="/products/libros" className="bg-blue-950 text-white py-2 px-4 rounded-lg mt-4 inline-block hover:bg-red-700">
                                 Ver Más
                             </Link>
                         </div>
+
                         {/* Categoría: Comida */}
-                        <div className="bg-blue-50 p-6 rounded-lg shadow-md text-center">
-                            <img src={comida} alt="Comida" className="w-full h object-cover rounded-md mb-4" />
-                            <h4 className="text-xl font-semibold text-blue-900">Comida</h4>
-                            <p className="text-gray-700 mt-2">Descubre snacks y alimentos ideales para estudiantes.</p>
+                        <div className="bg-blue-50 p-6 rounded-lg shadow-md">
+                            <h4 className="text-2xl font-semibold text-blue-900 mb-4">Poli Comida</h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="text-center">
+                                    <img src={comida} alt="Comida 1" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Pizza</p>
+                                </div>
+                                <div className="text-center">
+                                    <img src={comida} alt="Comida 2" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Hamburguesa</p>
+                                </div>
+                                <div className="text-center">
+                                    <img src={comida} alt="Comida 3" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Tacos</p>
+                                </div>
+                                <div className="text-center">
+                                    <img src={comida} alt="Comida 4" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Sushi</p>
+                                </div>
+                            </div>
                             <Link to="/products/comida" className="bg-blue-950 text-white py-2 px-4 rounded-lg mt-4 inline-block hover:bg-red-700">
                                 Ver Más
                             </Link>
                         </div>
-                        {/* Categoría: Ropa */}
-                        <div className="bg-blue-50 p-6 rounded-lg shadow-md text-center">
-                            <img src={ropa2} alt="Ropa" className="w-full h-109 object-cover rounded-md mb-4" />
-                            <h4 className="text-xl font-semibold text-blue-900">Ropa</h4>
-                            <p className="text-gray-700 mt-2">Encuentra ropa cómoda y moderna para estudiantes.</p>
-                            <Link to="/products/ropa" className="bg-blue-950 text-white py-2 px-4 rounded-lg mt-4 inline-block hover:bg-red-700">
+
+                        {/* Categoría: Comida */}
+                        <div className="bg-blue-50 p-6 rounded-lg shadow-md">
+                            <h4 className="text-2xl font-semibold text-blue-900 mb-4">Tecnología y accesorios</h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="text-center">
+                                    <img src={comida} alt="Comida 1" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Pizza</p>
+                                </div>
+                                <div className="text-center">
+                                    <img src={comida} alt="Comida 2" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Hamburguesa</p>
+                                </div>
+                                <div className="text-center">
+                                    <img src={comida} alt="Comida 3" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Tacos</p>
+                                </div>
+                                <div className="text-center">
+                                    <img src={comida} alt="Comida 4" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Sushi</p>
+                                </div>
+                            </div>
+                            <Link to="/products/comida" className="bg-blue-950 text-white py-2 px-4 rounded-lg mt-4 inline-block hover:bg-red-700">
                                 Ver Más
                             </Link>
                         </div>
-                        {/* Categoría: Ropa */}
-                        <div className="bg-blue-50 p-6 rounded-lg shadow-md text-center">
-                            <img src={ropa2} alt="Ropa" className="w-full h-109 object-cover rounded-md mb-4" />
-                            <h4 className="text-xl font-semibold text-blue-900">Ropa</h4>
-                            <p className="text-gray-700 mt-2">Encuentra ropa cómoda y moderna para estudiantes.</p>
-                            <Link to="/products/ropa" className="bg-blue-950 text-white py-2 px-4 rounded-lg mt-4 inline-block hover:bg-red-700">
+
+                        {/* Categoría: Comida */}
+                        <div className="bg-blue-50 p-6 rounded-lg shadow-md">
+                            <h4 className="text-2xl font-semibold text-blue-900 mb-4">Joyeria</h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="text-center">
+                                    <img src={comida} alt="Comida 1" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Pizza</p>
+                                </div>
+                                <div className="text-center">
+                                    <img src={comida} alt="Comida 2" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Hamburguesa</p>
+                                </div>
+                                <div className="text-center">
+                                    <img src={comida} alt="Comida 3" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Tacos</p>
+                                </div>
+                                <div className="text-center">
+                                    <img src={comida} alt="Comida 4" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Sushi</p>
+                                </div>
+                            </div>
+                            <Link to="/products/comida" className="bg-blue-950 text-white py-2 px-4 rounded-lg mt-4 inline-block hover:bg-red-700">
                                 Ver Más
                             </Link>
                         </div>
-                        {/* Categoría: Ropa */}
-                        <div className="bg-blue-50 p-6 rounded-lg shadow-md text-center">
-                            <img src={ropa2} alt="Ropa" className="w-full h-109 object-cover rounded-md mb-4" />
-                            <h4 className="text-xl font-semibold text-blue-900">Ropa</h4>
-                            <p className="text-gray-700 mt-2">Encuentra ropa cómoda y moderna para estudiantes.</p>
-                            <Link to="/products/ropa" className="bg-blue-950 text-white py-2 px-4 rounded-lg mt-4 inline-block hover:bg-red-700">
+
+                        {/* Categoría: Comida */}
+                        <div className="bg-blue-50 p-6 rounded-lg shadow-md">
+                            <h4 className="text-2xl font-semibold text-blue-900 mb-4">Nuevo En PoliVentas</h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="text-center">
+                                    <img src={comida} alt="Comida 1" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Pizza</p>
+                                </div>
+                                <div className="text-center">
+                                    <img src={comida} alt="Comida 2" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Hamburguesa</p>
+                                </div>
+                                <div className="text-center">
+                                    <img src={comida} alt="Comida 3" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Tacos</p>
+                                </div>
+                                <div className="text-center">
+                                    <img src={comida} alt="Comida 4" className="w-full h-24 object-cover rounded-md mb-2" />
+                                    <p className="text-sm text-gray-700">Sushi</p>
+                                </div>
+                            </div>
+                            <Link to="/products/comida" className="bg-blue-950 text-white py-2 px-4 rounded-lg mt-4 inline-block hover:bg-red-700">
                                 Ver Más
                             </Link>
                         </div>
@@ -122,6 +240,39 @@ export const Home = () => {
                 </div>
             </section>
 
+
+           {/* Carrusel de productos más vendidos */}
+            <section className="bg-blue-50 py-10">
+                <div className="container mx-auto px-4">
+                    <h3 className="text-3xl font-bold text-blue-900 text-center mb-6">Lo más vendido</h3>
+                    <Swiper
+                        modules={[Navigation, Pagination]}
+                        navigation
+                        pagination={{ clickable: true }}
+                        spaceBetween={20}
+                        slidesPerView={1}
+                        breakpoints={{
+                            640: { slidesPerView: 2 },
+                            1024: { slidesPerView: 3 },
+                        }}
+                    >
+                        {productosMasVendidos.map((producto) => (
+                            <SwiperSlide key={producto.id}>
+                                <div className="bg-white p-4 rounded-lg shadow-md text-center">
+                                    <img
+                                        src={producto.imagen}
+                                        alt={producto.nombre}
+                                        className="w-full h-40 object-cover rounded-md mb-4"
+                                    />
+                                    <h4 className="text-lg font-semibold text-blue-900">{producto.nombre}</h4>
+                                    <p className="text-gray-700">{producto.precio}</p>
+                                </div>
+                            </SwiperSlide>
+                        ))}
+                    </Swiper>
+                </div>
+            </section>
+            
             {/* Footer */}
             <footer className="bg-white py-6 mt-10">
                 <div className="container mx-auto text-center">
