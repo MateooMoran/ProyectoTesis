@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import comida from '../assets/comidas-rapidas.jpg';
 import ropa from '../assets/Ropa.jpeg';
 import pantalon from '../assets/pantalon.avif';
-import Zapatos from '../assets/Zapatos.jpg';
+import Zapatos from '../assets/zapatos.jpg';
 import Chaqueta from '../assets/chaqueta.jpg';
 import libro from '../assets/Libros.jpeg';
 import logo from '../assets/logo.png';
