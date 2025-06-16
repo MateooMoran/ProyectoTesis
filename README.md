@@ -1,13 +1,11 @@
-"# Proyecto PoliVentas#" 
+# Proyecto PoliVentas 🦉
 
-Integrantes:
+## 👥 Integrantes
 
-David Muela - Backend 
+- **David Muela** – Backend  
+- **Mateo Moran** – Frontend
 
-Mateo Moran - Frontend
+## 🚀 Despliegue
 
-Link del Backend (Render):
-https://proyectotesis-t6t2.onrender.com
-
-Link del Frontend (Netlify):
-https://poliventa.netlify.app
+- 🔗 **Backend (Render):** [https://proyectotesis-t6t2.onrender.com](https://proyectotesis-t6t2.onrender.com)  
+- 🔗 **Frontend (Netlify):** [https://poliventa.netlify.app](https://poliventa.netlify.app)
