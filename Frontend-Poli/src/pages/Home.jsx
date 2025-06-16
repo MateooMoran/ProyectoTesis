@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import comida from '../assets/comidas-rapidas.jpg';
 import ropa from '../assets/Ropa.jpeg';
-import ropa2 from '../assets/Ropa2.jpeg';
 import pantalon from '../assets/pantalon.avif';
 import Zapatos from '../assets/Zapatos.jpg';
 import Chaqueta from '../assets/chaqueta.jpg';
@@ -17,11 +16,11 @@ import { Navigation, Pagination } from 'swiper/modules';
 
 // Definir productos más vendidos
 const productosMasVendidos = [
-    { id: 1, nombre: 'Chompa', precio: '$10', imagen: '' },
-    { id: 2, nombre: 'Sanduches', precio: '$2.50', imagen: 'https://via.placeholder.com/150' },
-    { id: 3, nombre: 'Zapatos Adidas', precio: '$12', imagen: 'https://via.placeholder.com/150' },
-    { id: 4, nombre: 'Libro de Ingles', precio: '$25', imagen: 'https://via.placeholder.com/150' },
-    { id: 5, nombre: 'Hoodie', precio: '$15', imagen: 'https://via.placeholder.com/150' },
+    { id: 1, nombre: 'Chompa', precio: '$10', imagen: Chaqueta },
+    { id: 2, nombre: 'Sanduches', precio: '$2.50', imagen: comida },
+    { id: 3, nombre: 'Zapatos Adidas', precio: '$12', imagen: Zapatos },
+    { id: 4, nombre: 'Libro de Ingles', precio: '$25', imagen: libro },
+    { id: 5, nombre: 'Hoodie', precio: '$15', imagen: ropa},
 ];
 
 
