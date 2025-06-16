@@ -12,12 +12,10 @@ const Reset = () => {
     const { fetchDataBackend } = useFetch();
     const { register, handleSubmit, formState: { errors } } = useForm();
     const navigate = useNavigate();
-
+    const [showPassword1, setShowPassword1] = useState(false);
+    const [showPassword2, setShowPassword2] = useState(false);
 
     const changePassword = async (data) => {
-        const [showPassword1, setShowPassword1] = useState(false);
-        const [showPassword2, setShowPassword2] = useState(false);
-
         const { password, confirmPassword } = data;
 
         // Validar que las contraseñas coincidan
