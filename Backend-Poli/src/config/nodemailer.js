@@ -37,7 +37,7 @@ let mailOptions = {
             Gracias por registrarte. Para confirmar tu cuenta, por favor haz clic en el siguiente botón:
         </p>
 
-        <a href="${process.env.URL_FRONTEND}/confirm/${token}"
+        <a href="${import.meta.env.URL_FRONTEND}/confirm/${token}"
             style="background-color: #0A2342; color: white; padding: 14px 30px; border-radius: 5px; font-weight: bold; font-size: 16px; text-decoration: none; box-shadow: 0 3px 6px rgba(0,0,0,0.2); display: inline-block; transition: background-color 0.3s;">
             Confirmar cuenta
         </a>
@@ -90,7 +90,7 @@ const sendMailToRecoveryPassword = async (userMail, token) => {
                     No te preocupes. Para reestablecer tu contraseña, haz clic en el siguiente botón:
                 </p>
 
-                <a href="${process.env.URL_FRONTEND}/reset/${token}"
+                <a href="${import.meta.env.URL_FRONTEND}/reset/${token}"
                     style="background-color: #0A2342; color: white; padding: 14px 30px; border-radius: 5px; font-weight: bold; font-size: 16px; text-decoration: none; box-shadow: 0 3px 6px rgba(0,0,0,0.2); display: inline-block; transition: background-color 0.3s;">
                     Reestablecer contraseña
                 </a>
