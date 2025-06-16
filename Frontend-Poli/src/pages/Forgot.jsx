@@ -13,39 +13,23 @@ export const Forgot = () => {
         try {
             const url = `${import.meta.env.VITE_BACKEND_URL}/recuperarpassword`;
             await fetchDataBackend(url, data, 'POST');
-            toast.success('Correo enviado correctamente. Revisa tu bandeja de entrada.', {
-                position: 'top-right',
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
         } catch (error) {
-            toast.error('Error al enviar el correo. Inténtalo de nuevo.', {
-                position: 'top-right',
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
+            console.log(error);
+            
         }
     };
 
     return (
-        <div className="flex flex-col items-center justify-center h-screen bg-blue-50">
+        <div className="flex flex-col items-center justify-center h-screen bg-blue-50 px-4">
             <ToastContainer />
 
             {/* Contenedor del formulario */}
-            <div className="w-full max-w-lg bg-white p-10 rounded-lg shadow-lg">
-                <h1 className="text-3xl font-semibold mb-2 text-center uppercase text-blue-900">
+            <div className="w-full max-w-sm sm:max-w-md bg-white p-6 sm:p-10 rounded-lg shadow-lg">
+                <h1 className="text-2xl sm:text-3xl font-semibold mb-2 text-center uppercase text-blue-900">
                     ¿Olvidaste tu contraseña?
                 </h1>
                 <small className="text-gray-500 block my-4 text-sm text-center">
-                Ingresa tu correo electrónico y recibirás un enlace para restablecerla de forma segura.
+                    Ingresa tu correo electrónico y recibirás un enlace para restablecerla de forma segura.
                 </small>
 
                 <form onSubmit={handleSubmit(sendMail)}>
@@ -91,7 +75,7 @@ export const Forgot = () => {
                 <img
                     src={forgotImage}
                     alt="Forgot Password"
-                    className="w-64 h-auto object-contain"
+                    className="w-48 sm:w-64 h-auto object-contain"
                 />
             </div>
         </div>

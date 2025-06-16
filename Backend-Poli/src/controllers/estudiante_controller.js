@@ -11,7 +11,7 @@ const registro = async (req,res) => {
     
     //Verifica si existe algun correo en el base de datos
     const verificarEmailBDD = await Estudiante.findOne({email})
-    if(verificarEmailBDD) return res.status(400).json({msg:"Lo sentimos el email ya que se encuentra registrado"})
+    if(verificarEmailBDD) return res.status(400).json({msg:"Lo sentimos, el correo ya se encuentra registrado"})
     
     //Encriptar la contraseña
     const nuevoEstudiante = new Estudiante(req.body)
@@ -23,7 +23,7 @@ const registro = async (req,res) => {
     //Enviar correo y guardar estudiante nuevo
     sendMailToRegister(nombre, email, token);
     await nuevoEstudiante.save()
-    res.status(200).json({msg:"Revisa tu correo electronico para verificar tu cuenta"})
+    res.status(200).json({msg:"Registro exitoso, revisa tu correo para confirmar tu cuenta"})
 
 }
 
@@ -53,14 +53,14 @@ const recuperarPassword = async(req,res) => {
 
     //Buscamos en la base el correo
     const estudianteBDD = await Estudiante.findOne({email})
-    if (!estudianteBDD) return res.status(404).json({msg:"Lo sentimos, el usuario no se encuentra registrado"})
+    if (!estudianteBDD) return res.status(404).json({msg:"Lo sentimos, el correo no se encuentra registrado"})
 
     //Creamos un nuevo token
     const token = estudianteBDD.createToken()
     estudianteBDD.token = token
     sendMailToRecoveryPassword(email,token)
     await estudianteBDD.save()
-    res.status(200).json({msg:"Revisa tu correo para restablecer la contraseña"})
+    res.status(200).json({msg:"Revisa tu correo electronico para cambiar tu contraseña"})
 
 }
 
@@ -70,11 +70,11 @@ const comprobarTokenPassword = async (req, res) =>{
 
     // Verificar el token con el de la BD
     const estudianteBDD = await Estudiante.findOne({token})
-    if(estudianteBDD.token !== token) return res.status(404).json({msg:"Lo sentimos no se puede validar la cuenta"})
+    if(estudianteBDD.token !== token) return res.status(404).json({msg:"Lo sentimos, no se puede confirmar la cuenta"})
     
     // Guardar 
     await estudianteBDD.save()
-    res.status(200).json({msg:"Token confirmado ya puedes crear tu contraseña"})
+    res.status(200).json({msg:"Token valido, puedes crear una nueva contraseña"})
 }
 
 
@@ -85,7 +85,8 @@ const crearNuevoPassword = async (req,res) => {
     //Validaciones
     if(Object.values(req.body).includes("")) return res.status(404).json({msg:"Lo sentimos, debes llenar todos los campos"})
 
-    if(password!==confirmPassword) return res.status(404).json({msg:"Lo sentimos, los password no coinciden"})
+    if(password!==confirmPassword) return res.status(404).json({msg:"Lo sentimos, las contraseñas no coinciden"})
+    if(password.length < 4) return res.status(404).json({msg:"Lo sentimos, la contraseña debe tener al menos 4 caracteres"})
 
     const estudianteBDD = await Estudiante.findOne({token:req.params.token})
 
@@ -96,7 +97,7 @@ const crearNuevoPassword = async (req,res) => {
     estudianteBDD.password = await estudianteBDD.encrypPassword(password)
     await estudianteBDD.save()
 
-    res.status(200).json({msg:"Felicitacioens, ya puedes inciar sesión con tu nuevo password"})
+    res.status(200).json({msg:"Contraseña cambiada correctamente, ya puedes iniciar sesión"})
 }
 
 const login = async (req,res) =>{
@@ -108,10 +109,10 @@ const login = async (req,res) =>{
 
   if(estudianteBDD?.confirmEmail === false) return res.status(403).json({msg:"Lo setimos debes confirmar tu cuenta antes de iniciar sesión"})
 
-  if(!estudianteBDD) return res.status(404).json({msg:"Lo sentimos el usuario no se encuentra registrado"});
+  if(!estudianteBDD) return res.status(404).json({msg:"Lo sentimos, el correo no se encuentra registrado"});
 
   const verificarPassword = await estudianteBDD.matchPassword(password)
-  if(!verificarPassword) return res.status(401).json({msg:"Lo sentimos el password es incorrecto"})
+  if(!verificarPassword) return res.status(401).json({msg:"Lo sentimos, la contraseña es incorrecta"})
 
   const {nombre,apellido,direccion,telefono,_id,rol} = estudianteBDD
 

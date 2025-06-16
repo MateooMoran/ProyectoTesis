@@ -15,41 +15,15 @@ const Reset = () => {
 
     const changePassword = async (data) => {
         if (data.password !== data.confirmPassword) {
-            toast.error('Las contraseñas no coinciden.', {
-                position: 'top-right',
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
             return;
         }
 
         try {
             const url = `${import.meta.env.VITE_BACKEND_URL}/nuevopassword/${token}`;
             await fetchDataBackend(url, data, 'POST');
-            toast.success('Contraseña actualizada correctamente.', {
-                position: 'top-right',
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
             setTimeout(() => navigate('/login'), 3000);
         } catch (error) {
-            toast.error('Error al actualizar la contraseña. Inténtalo de nuevo.', {
-                position: 'top-right',
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
+            console.log(error);
         }
     };
 
@@ -60,15 +34,7 @@ const Reset = () => {
                 await fetchDataBackend(url, null, 'GET');
                 setTokenValid(true);
             } catch (error) {
-                toast.error('Token inválido o expirado.', {
-                    position: 'top-right',
-                    autoClose: 3000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                });
+                log.error(error);
             }
         };
         verifyToken();

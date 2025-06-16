@@ -1,12 +1,29 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { useForm } from "react-hook-form";
+import useFetch from "../hooks/useFetch";
+import { ToastContainer } from 'react-toastify';
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
 
+    const loginUser = async (data) => {
+        console.log(data)
+        const url = `${import.meta.env.VITE_BACKEND_URL}/login`;
+        const response = await fetchDataBackend(url, data, 'POST')
+        if (response) {
+            navigate('/')
+        }
+    }
+
+    const { register, handleSubmit, formState: { errors } } = useForm();
+    const navigate = useNavigate();
+    const { fetchDataBackend } = useFetch();
+
     return (
         <div className="flex flex-col sm:flex-row h-screen">
             {/* Imagen de fondo */}
+            <ToastContainer></ToastContainer>
             <div className="w-full sm:w-1/2 h-1/3 sm:h-screen bg-[url('/src/assets/Sistemas.jpg')] 
             bg-no-repeat bg-cover bg-center sm:block hidden">
             </div>
@@ -14,25 +31,37 @@ const Login = () => {
             {/* Contenedor de formulario */}
             <div className="w-full sm:w-1/2 h-screen bg-white flex justify-center items-center">
                 <div className="md:w-4/5 sm:w-full">
-                    <h1 className="text-3xl font-semibold mb-2 text-center uppercase text-blue-700">Bienvenido(a) de nuevo</h1>
+                    <h1 className="text-3xl font-semibold mb-2 text-center uppercase text-blue-800">Bienvenido(a) de nuevo</h1>
                     <small className="text-gray-500 block my-4 text-sm">Por favor ingresa tus datos</small>
 
-                    <form>
+                    <form onSubmit={handleSubmit(loginUser)}>
                         {/* Correo electrónico */}
                         <div className="mb-3">
-                            <label className="mb-2 block text-sm font-semibold text-blue-700">Correo electrónico</label>
-                            <input type="email" placeholder="Ingresa tu correo" className="block w-full rounded-md border border-gray-300 focus:border-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-700 py-1 px-2 text-gray-700" />
+                            <label className="mb-2 block text-sm font-semibold text-blue-800">Correo electrónico</label>
+                            <input type="email" placeholder="Ingresa tu correo" className="block w-full rounded-md border border-gray-300 focus:border-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-700 py-1 px-2 text-gray-700"
+                                {...register('email', { required: "El correo es obligatoria" })}
+                            />
+
+                            {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
                         </div>
 
                         {/* Contraseña */}
                         <div className="mb-3 relative">
-                            <label className="mb-2 block text-sm font-semibold text-blue-700">Contraseña</label>
+                            <label className="mb-2 block text-sm font-semibold text-blue-800">Contraseña</label>
                             <div className="relative">
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     placeholder="********************"
                                     className="block w-full rounded-md border border-gray-300 focus:border-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-700 py-1 px-1.5 text-gray-700 pr-10"
+                                    {...register('password', {
+                                        required: "La contraseña es obligatoria",
+                                    })}
                                 />
+                                {errors.password &&
+                                    <p className="text-red-500 text-xs">
+                                        {errors.password.message}
+                                    </p>
+                                }
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
@@ -53,7 +82,7 @@ const Login = () => {
 
                         {/* Botón de iniciar sesión */}
                         <div className="my-4">
-                            <Link to="/" className="py-2 w-full block text-center bg-blue-700 text-white border rounded-xl hover:scale-105 duration-300 hover:bg-red-700">Iniciar sesión</Link>
+                            <button className="py-2 w-full block text-center bg-blue-800 text-white border rounded-xl hover:scale-105 duration-300 hover:bg-red-800">Iniciar sesión</button>
                         </div>
                     </form>
 
@@ -77,8 +106,8 @@ const Login = () => {
 
                     {/* Enlaces para volver o registrarse */}
                     <div className="mt-3 text-sm flex justify-between items-center">
-                        <Link to="/" className="py-2 px-5 bg-red-700 text-white border rounded-xl hover:scale-110 duration-300 hover:bg-red-700">Regresar</Link>
-                        <Link to="/register" className="py-2 px-5 bg-blue-700 text-white border rounded-xl hover:scale-110 duration-300 hover:bg-red-700">Registrarse</Link>
+                        <Link to="/" className="py-2 px-5 bg-red-800 text-white border rounded-xl hover:scale-110 duration-300 hover:bg-red-700">Regresar</Link>
+                        <Link to="/register" className="py-2 px-5 bg-blue-800 text-white border rounded-xl hover:scale-110 duration-300 hover:bg-red-800">Registrarse</Link>
                     </div>
                 </div>
             </div>

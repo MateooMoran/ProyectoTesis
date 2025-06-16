@@ -6,6 +6,7 @@ import pantalon from '../assets/pantalon.avif';
 import Zapatos from '../assets/Zapatos.jpg';
 import Chaqueta from '../assets/chaqueta.jpg';
 import libro from '../assets/Libros.jpeg';
+import logo from '../assets/logo.png';
 
 {/* Carrusel */}
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -33,17 +34,14 @@ export const Home = () => {
                 <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center">
 
                     {/* Logo */}
-                    <h1 className="text-3xl font-bold text-blue-900 mb-4 sm:mb-0">
-                        <span className="text-red-700">Poli</span>Ventas
-                    </h1>
-
+                    <img src={logo} alt="logo" className="w-39 h-15 object-cover mr-4" />
                     {/* Navegación */}
                     <nav className="mb-4 sm:mb-0">
-                        <ul className="flex sm:flex-row items-center gap-4 sm:gap-6 text-blue-900 font-semibold">
+                        <ul className="flex sm:flex-row items-center gap-3 sm:gap-8 text-blue-900 font-semibold">
                             <li><Link to="/" className="hover:text-red-600">Inicio</Link></li>
                             <li><Link to="/about" className="hover:text-red-700">Nosotros</Link></li>
-                            <li><Link to="/products" className="hover:text-red-700">Productos</Link></li>
-                            <li><Link to="/contact" className="hover:text-red-700">Contacto</Link></li>
+                            <li><Link to="/products" className="hover:text-red-700 ">Productos</Link></li>
+                            <li><Link to="/contact" className="hover:text-red-700 ">Contacto</Link></li>
                         </ul>
                     </nav>
 
