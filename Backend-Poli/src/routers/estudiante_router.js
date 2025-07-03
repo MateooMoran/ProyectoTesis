@@ -1,5 +1,7 @@
 import { Router } from "express";
-import { comprobarTokenPassword, confirmarMail, crearNuevoPassword, login, recuperarPassword, registro } from "../controllers/estudiante_controller.js"
+import { actualizarContraseña, actualizarPerfil, comprobarTokenPassword, confirmarMail, crearNuevoPassword, login, perfil, recuperarPassword, registro } from "../controllers/estudiante_controller.js"
+import { verifyTokenJWT } from "../middlewares/JWT.js";
+import { esEstudiante, tieneRol } from "../middlewares/roles.js";
 
 const router = Router()
 
@@ -10,5 +12,7 @@ router.get('/recuperarpassword/:token',comprobarTokenPassword)
 router.post('/nuevopassword/:token',crearNuevoPassword)
 router.post('/login',login)
 
-
+router.get('/perfil', verifyTokenJWT,tieneRol,perfil)
+router.put('/estudiante/:id',verifyTokenJWT,tieneRol,actualizarPerfil)
+router.put('/estudiante/actualizarpassword/:id',verifyTokenJWT,tieneRol,actualizarContraseña)
 export default router
