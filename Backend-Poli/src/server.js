@@ -3,7 +3,7 @@ import express from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import routerEstudiantes from './routers/estudiante_router.js'
-
+import routerAdministrador from './routers/administrador_router.js'
 // INICIAMOS
 
 const app = express()
@@ -16,7 +16,7 @@ app.use(cors())
 
 //MIDDLEWARES
 app.use(express.json())
-app.use(express.urlencoded({ extended: true })); // Para formularios tipo <form>
+app.use(express.urlencoded({ extended: true })); 
 
 
 
@@ -30,7 +30,7 @@ app.get('/',(req,res)=>{
 
 // Rutas 
 app.use('/api',routerEstudiantes)
-
+app.use('/api',routerAdministrador)
 // Rutas que no existen
 app.use((req,res)=>{res.status(404).send("Endpoint no encontrado")})
 
