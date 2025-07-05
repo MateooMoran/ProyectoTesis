@@ -9,9 +9,10 @@ const Login = () => {
 
     const loginUser = async (data) => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/login`;
+        console.log(url)
         const response = await fetchDataBackend(url, data, 'POST')
         if (response) {
-            navigate('/dashboard');
+            navigate('/register');
         }
     }
 
