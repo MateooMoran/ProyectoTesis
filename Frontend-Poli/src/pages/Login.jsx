@@ -12,7 +12,7 @@ const Login = () => {
         console.log(url)
         const response = await fetchDataBackend(url, data, 'POST')
         if (response) {
-            navigate('/register');
+            navigate('/dashboard');
         }
     }
 
