@@ -18,7 +18,7 @@ app.use(cors())
 
 //MIDDLEWARES
 app.use(express.json())
-app.use(express.urlencoded({ extended: true })); 
+
 
 
 
@@ -33,6 +33,7 @@ app.get('/',(req,res)=>{
 // Rutas 
 app.use('/api',routerEstudiantes)
 app.use('/api',routerAdministrador)
+
 app.use('/api',routerVendedor)
 // Rutas que no existen
 app.use((req,res)=>{res.status(404).send("Endpoint no encontrado")})
