@@ -4,19 +4,15 @@ const ordenSchema = new Schema(
   {
     comprador: {
       type: Schema.Types.ObjectId,
-      ref: "Usuario",
+      ref: "estudiante",
       required: true,
     },
-    producto: {
-        type: Schema.Types.ObjectId,
-        ref: "Producto",
-        required: true,
-    },
-    cantidad: {
-        type: Number,
-        required: true,
-        default: 1,
-    },
+    productos: [
+      {
+        producto: { type: Schema.Types.ObjectId, ref: "Producto", required: true },
+        cantidad: { type: Number, required: true, default: 1 },
+      }
+    ],
     total: {
       type: Number,
       required: true,

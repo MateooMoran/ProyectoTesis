@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { sendMailToRecoveryPassword, sendMailToRegister } from "../config/nodemailer.js";
 import { createTokenJWT } from "../middlewares/JWT.js";
 import Estudiante from "../models/Estudiante.js";
+import Producto from "../models/Producto.js";
 
 const registro = async (req, res) => {
 
@@ -19,8 +20,6 @@ const registro = async (req, res) => {
     if (password.length < 4) {
         return res.status(400).json({ msg: "La contraseña debe tener al menos 4 caracteres" });
     }
-
-
     //Encriptar la contraseña
     const nuevoEstudiante = new Estudiante(req.body)
     nuevoEstudiante.password = await nuevoEstudiante.encrypPassword(password)
@@ -172,6 +171,11 @@ const actualizarContraseña = async (req, res) => {
     await estudianteBDD.save()
     res.status(200).json({ msg: "Password actualizado correctamente" })
 }
+
+const visualizarProductos = async (req,res) => {
+    const productos = await Producto.find().select('-_id -createdAt -updatedAt -__v -vendedor').populate('categoria','nombreCategoria -_id')  
+    res.status(200).json(productos)
+}
 export {
     registro,
     confirmarMail,
@@ -181,5 +185,6 @@ export {
     login,
     perfil,
     actualizarPerfil,
-    actualizarContraseña
-}
+    actualizarContraseña,
+    visualizarProductos
+}   

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Categorías y Productos Completos con Estilo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 10px;
+      box-sizing: border-box;
+      background: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    h2 {
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+
+    /* Contenedor categorías */
+    #listaCategorias {
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 0;
+      list-style: none;
+    }
+
+    #listaCategorias li {
+      margin: 0;
+    }
+
+    #listaCategorias button {
+      padding: 8px 16px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #listaCategorias button:hover {
+      background: #0056b3;
+    }
+
+    /* Contenedor principal para productos */
+    .productos-container {
+      display: flex;
+      gap: 20px;
+      flex-grow: 1;
+      overflow: hidden;
+    }
+
+    /* Cada lista ocupa 50% ancho y 100vh altura, con scroll */
+    #listaProductosFiltrados,
+    #listaTodosProductos {
+      flex: 1;
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      height: 100vh;
+      overflow-y: auto;
+      list-style: none;
+      margin: 0;
+    }
+
+    /* Card individual */
+    #listaProductosFiltrados li,
+    #listaTodosProductos li {
+      background: #fafafa;
+      margin-bottom: 15px;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    #listaProductosFiltrados li img,
+    #listaTodosProductos li img {
+      max-width: 120px;
+      max-height: 90px;
+      object-fit: contain;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+
+    /* Texto info del producto */
+    .producto-info {
+      flex: 1;
+    }
+
+    .producto-info strong {
+      display: block;
+      font-size: 1.1em;
+      margin-bottom: 6px;
+      color: #333;
+    }
+
+    .producto-info span {
+      display: block;
+      margin-bottom: 4px;
+      color: #555;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>Categorías:</h2>
+  <ul id="listaCategorias"></ul>
+
+  <div class="productos-container">
+    <div>
+      <h2>Productos filtrados por categoría:</h2>
+      <ul id="listaProductosFiltrados"></ul>
+    </div>
+
+    <div>
+      <h2>Listado Completo de Productos:</h2>
+      <ul id="listaTodosProductos"></ul>
+    </div>
+  </div>
+
+  <script>
+    const urlCategorias = 'http://localhost:3000/api/vendedor/listar-categorias';
+    const urlProductosPorCategoriaBase = 'http://localhost:3000/api/vendedor/productos-por-categoria';
+    const urlListarTodosProductos = 'http://localhost:3000/api/vendedor/listar-productos';
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NjQ3OGJhYTdkZmUyOGU4NmZmOGJkZSIsInJvbCI6InZlbmRlZG9yIiwiaWF0IjoxNzUxNjgwNjQzLCJleHAiOjE3NTE3NjcwNDN9.JIKEL5UW4vDnssB9eNTPu4gmhe16fn2FaKZp7064KOM'; // reemplaza por tu token real
+
+    const listaCategorias = document.getElementById('listaCategorias');
+    const listaProductosFiltrados = document.getElementById('listaProductosFiltrados');
+    const listaTodosProductos = document.getElementById('listaTodosProductos');
+
+    async function cargarCategorias() {
+      try {
+        const res = await fetch(urlCategorias, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const categorias = await res.json();
+        listaCategorias.innerHTML = '';
+        categorias.forEach(cat => {
+          const li = document.createElement('li');
+          const btn = document.createElement('button');
+          btn.textContent = cat.nombreCategoria;
+          btn.onclick = () => cargarProductosPorCategoria(cat._id);
+          li.appendChild(btn);
+          listaCategorias.appendChild(li);
+        });
+      } catch (error) {
+        listaCategorias.innerHTML = '<li>Error al cargar categorías</li>';
+        console.error(error);
+      }
+    }
+
+    async function cargarProductosPorCategoria(idCategoria) {
+      try {
+        const res = await fetch(`${urlProductosPorCategoriaBase}/${idCategoria}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) {
+          listaProductosFiltrados.innerHTML = '<li>No se encontraron productos para esta categoría.</li>';
+          return;
+        }
+        const productos = await res.json();
+        pintarProductos(productos, listaProductosFiltrados);
+      } catch (error) {
+        listaProductosFiltrados.innerHTML = '<li>Error al cargar productos filtrados</li>';
+        console.error(error);
+      }
+    }
+
+    async function cargarTodosProductos() {
+      try {
+        const res = await fetch(urlListarTodosProductos, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) {
+          listaTodosProductos.innerHTML = '<li>No se encontraron productos.</li>';
+          return;
+        }
+        const productos = await res.json();
+        pintarProductos(productos, listaTodosProductos);
+      } catch (error) {
+        listaTodosProductos.innerHTML = '<li>Error al cargar todos los productos</li>';
+        console.error(error);
+      }
+    }
+
+    function pintarProductos(productos, listaElemento) {
+      listaElemento.innerHTML = '';
+      productos.forEach(prod => {
+        const li = document.createElement('li');
+
+        li.innerHTML = `
+          ${prod.imagen ? `<img src="${prod.imagen}" alt="${prod.nombreProducto}">` : ''}
+          <div class="producto-info">
+            <strong>${prod.nombreProducto}</strong>
+            <span>Precio: $${prod.precio}</span>
+            <span>Stock: ${prod.stock}</span>
+            <span>Descripción: ${prod.descripcion}</span>
+            <span>Categoría: ${prod.categoria?.nombreCategoria || 'Sin categoría'}</span>
+          </div>
+        `;
+
+        listaElemento.appendChild(li);
+      });
+    }
+
+    cargarCategorias();
+    cargarTodosProductos();
+  </script>
+
+</body>
+
+</html>

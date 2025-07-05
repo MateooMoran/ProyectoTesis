@@ -1,26 +1,19 @@
 import Estudiante from "../models/Estudiante.js";
 
+
 const obtenerEstudiantes = async (req, res) => {
-    const estudianteBDD = await Estudiante.find();
-    if (estudianteBDD.length === 0) {
-        return res.status(404).json({ msg: "Error al obtener estudiante" })
+    const estudianteBDD = await Estudiante.find({ rol: { $in: ['estudiante', 'vendedor'] } }).select('_id nombre apellido telefono direccion rol');
+    if (!estudianteBDD || estudianteBDD.length === 0) {
+        return res.status(404).json({ msg: "No hay estudiantes registrados" })
     }
-
-    const estudiantes = estudianteBDD.map((estudiante) => {
-        const { _id, nombre, apellido, telefono, direccion, rol } = estudiante
-        return { _id, nombre, apellido, telefono, direccion, rol }
-    })
-
-    res.status(200).json(estudiantes)
-
+    res.status(200).json(estudianteBDD);
 }
+
 
 const cambiarRolAVendedor = async (req, res) => {
     const { id } = req.params;
     const { rol } = req.body;
-    if (!['estudiante', 'vendedor'].includes(rol)) {
-        return res.status(400).json({ msg: 'Rol no válido' });
-    }
+
     const usuario = await Estudiante.findById(id);
     if (!usuario) {
         return res.status(404).json({ msg: 'Usuario no encontrado' });
@@ -34,7 +27,6 @@ const cambiarRolAVendedor = async (req, res) => {
     await usuario.save();
 
     res.json({ msg: 'Rol actualizado correctamente' });
-
 }
 
 
