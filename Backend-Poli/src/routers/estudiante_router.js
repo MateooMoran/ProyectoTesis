@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { actualizarContraseña, actualizarPerfil, comprobarTokenPassword, confirmarMail, crearNuevoPassword, login, perfil, recuperarPassword, registro, visualizarProductos } from "../controllers/estudiante_controller.js"
 import { verifyTokenJWT } from "../middlewares/JWT.js";
-import { esEstudiante, tieneRol } from "../middlewares/roles.js";
+import { tieneRol } from "../middlewares/roles.js";
 
 const router = Router()
 
