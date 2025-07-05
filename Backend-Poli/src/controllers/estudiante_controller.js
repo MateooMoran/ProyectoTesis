@@ -108,7 +108,9 @@ const crearNuevoPassword = async (req, res) => {
 }
 
 const login = async (req, res) => {
+
     const { email, password } = req.body
+    
     if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Lo sentimos debes llenar todo los campos" });
 
     const estudianteBDD = await Estudiante.findOne({ email }).select("-status -__v -updatedAt -createdAt")
