@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { sendMailToRecoveryPassword, sendMailToRegister } from "../config/nodemailer.js";
+import { createTokenJWT } from "../middlewares/JWT.js";
 import Estudiante from "../models/Estudiante.js";
 import Producto from "../models/Producto.js";
 
@@ -122,6 +123,8 @@ const login = async (req, res) => {
     if (!verificarPassword) return res.status(401).json({ msg: "Lo sentimos, la contraseña es incorrecta" })
 
     const { nombre, apellido, direccion, telefono, _id, rol } = estudianteBDD
+    const token = createTokenJWT(estudianteBDD._id, estudianteBDD.rol)
+    console.log(token)
     res.status(200).json({
         token,
         rol,
