@@ -1,17 +1,17 @@
 import axios from 'axios';
 
-import {toast} from 'react-toastify';
+import { toast } from 'react-toastify';
 
 
-function useFetch(){
+function useFetch() {
 
-    const fetchDataBackend = async(url,form=null,method='POST') => {
+    const fetchDataBackend = async (url, form = null, method = 'POST') => {
         try {
             let respuesta
-            if(method === 'POST'){
-                respuesta = await axios.post(url,form)
+            if (method === 'POST') {
+                respuesta = await axios.post(url, form)
             }
-            else if (method === 'GET'){
+            else if (method === 'GET') {
                 respuesta = await axios.get(url)
             }
             toast.success(respuesta?.data?.msg)
@@ -19,12 +19,12 @@ function useFetch(){
         } catch (error) {
             console.log(error)
             toast.error(error.response?.data?.msg)
-            const errorMsg = error.response?.data?.msg || 'Error con el servidor'
+            const errorMsg = error.response?.data?.msg || error.message || 'Error con el servidor';
             throw new Error(errorMsg)
         }
     }
 
-    return {fetchDataBackend}
+    return { fetchDataBackend }
 }
 
 
