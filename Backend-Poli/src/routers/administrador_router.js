@@ -6,7 +6,7 @@ import { verifyTokenJWT } from "../middlewares/JWT.js";
 const router = Router()
 
 router.get('/admin/estudiantes',verifyTokenJWT,esAdmin,obtenerEstudiantes)
-router.put('/admin/estudiantes/rol/:id',esAdmin,cambiarRolAVendedor)
+router.put('/admin/estudiantes/rol/:id',verifyTokenJWT,esAdmin,cambiarRolAVendedor)
 
 
 export default router

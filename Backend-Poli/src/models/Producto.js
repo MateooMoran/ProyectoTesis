@@ -2,7 +2,7 @@ import { Schema, model } from "mongoose";
 
 const productoSchema = new Schema(
   {
-    titulo: {
+    nombreProducto: {
       type: String,
       required: true,
       trim: true,
@@ -13,16 +13,28 @@ const productoSchema = new Schema(
     },
     stock: {
       type: Number,
-      default: 0,
+      default: 1,
+    },
+    descripcion: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    imagen: {
+      type: String,
+      trim: true
+    },
+    imagenIA: {
+      type: String,
+      trim: true
     },
     categoria: {
       type: Schema.Types.ObjectId,
       ref: "Categoria",
-      required: true,
     },
     vendedor: {
       type: Schema.Types.ObjectId,
-      ref: "Usuario",
+      ref: "vendedor",
       required: true,
     },
   },
