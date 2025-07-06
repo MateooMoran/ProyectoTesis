@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { sendMailToRecoveryPassword, sendMailToRegister } from "../config/nodemailer.js";
+import { createTokenJWT } from "../middlewares/JWT.js";
 import Estudiante from "../models/Estudiante.js";
 import Producto from "../models/Producto.js";
 
@@ -130,8 +131,10 @@ const login = async (req, res) => {
     }
 
     const { nombre, apellido, direccion, telefono, _id, rol } = estudianteBDD;
-    res.status(200).json({
+    const token = createTokenJWT(estudianteBDD._id, estudianteBDD.rol);
 
+    res.status(200).json({
+      token,
       rol,
       nombre,
       apellido,
