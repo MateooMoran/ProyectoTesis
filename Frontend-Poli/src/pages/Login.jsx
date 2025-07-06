@@ -5,20 +5,19 @@ import useFetch from "../hooks/useFetch";
 import { ToastContainer } from 'react-toastify';
 
 const Login = () => {
+    const navigate = useNavigate()
     const [showPassword, setShowPassword] = useState(false);
+    const { register, handleSubmit, formState: { errors } } = useForm();
+    const { fetchDataBackend } = useFetch();
 
     const loginUser = async (data) => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/login`;
-        console.log(url)
         const response = await fetchDataBackend(url, data, 'POST')
         if (response) {
             navigate('/dashboard');
         }
     }
 
-    const { register, handleSubmit, formState: { errors } } = useForm();
-    const navigate = useNavigate();
-    const { fetchDataBackend } = useFetch();
 
     return (
         <div className="flex flex-col sm:flex-row h-screen">
