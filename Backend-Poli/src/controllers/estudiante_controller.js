@@ -132,7 +132,9 @@ const login = async (req, res) => {
 
     const { nombre, apellido, direccion, telefono, _id, rol } = estudianteBDD;
     const token = createTokenJWT(estudianteBDD._id, estudianteBDD.rol);
-
+    if(!token){
+        return res.status(401).json({msg:"No se pudo crear el token"})
+    }
     res.status(200).json({
       token,
       rol,
