@@ -112,22 +112,22 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     if (Object.values(req.body).includes("")) {
-      return res.status(400).json({ msg: "Lo sentimos, debes llenar todos los campos" });
+      return res.status(400).json({ msg: "Debes llenar todos los campos." });
     }
 
-    const estudianteBDD = await Estudiante.findOne({ email }).select("-status -__v -updatedAt -createdAt");
+    const estudianteBDD = await Estudiante.findOne({ email }).select("-__v -updatedAt -createdAt");
 
     if (!estudianteBDD) {
-      return res.status(404).json({ msg: "Lo sentimos, el correo no se encuentra registrado" });
+      return res.status(404).json({ msg: "Correo no registrado." });
     }
 
-    if (estudianteBDD.confirmEmail === false) {
-      return res.status(403).json({ msg: "Lo sentimos, debes confirmar tu cuenta antes de iniciar sesión" });
+    if (estudianteBDD.emailConfirmado === false) {
+      return res.status(403).json({ msg: "Debes confirmar tu cuenta antes de iniciar sesión." });
     }
 
     const verificarPassword = await estudianteBDD.matchPassword(password);
     if (!verificarPassword) {
-      return res.status(401).json({ msg: "Lo sentimos, la contraseña es incorrecta" });
+      return res.status(401).json({ msg: "Contraseña incorrecta." });
     }
 
     const { nombre, apellido, direccion, telefono, _id, rol } = estudianteBDD;
@@ -144,10 +144,11 @@ const login = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Error en /login:", error);
+    console.error("❌ Error en login:", error);
     res.status(500).json({ msg: "Error interno del servidor" });
   }
 };
+
 
 const perfil = (req, res) => {
     const { token, confirmEmail, createdAt, updatedAt, __v, ...datosPerfil } = req.estudianteBDD
