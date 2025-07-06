@@ -19,7 +19,7 @@ const ordenSchema = new Schema(
     },
     estado: {
       type: String,
-      enum: ["pendiente", "pagado", "enviado"],
+      enum: ["pendiente", "pagado"],
       default: "pendiente",
     },
   },

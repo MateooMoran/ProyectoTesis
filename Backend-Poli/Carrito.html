@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Carrito y Productos</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { border-collapse: collapse; width: 80%; margin-bottom: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    input[type=number] { width: 60px; }
+    #carrito { margin-top: 40px; }
+  </style>
+</head>
+<body>
+
+<h1>Productos Disponibles</h1>
+<table id="productosTabla">
+  <thead>
+    <tr><th>Nombre</th><th>Precio</th><th>Stock</th><th>Cantidad</th><th>Agregar</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<h2>Carrito</h2>
+<table id="carritoTabla">
+  <thead>
+    <tr><th>Producto</th><th>Cantidad</th><th>Precio Unitario</th><th>Subtotal</th><th>Quitar</th></tr>
+  </thead>
+  <tbody></tbody>
+  <tfoot>
+    <tr>
+      <td colspan="3" style="text-align:right"><strong>Total:</strong></td>
+      <td id="totalCarrito">$0.00</td>
+      <td></td>
+    </tr>
+  </tfoot>
+</table>
+
+<button id="btnCrearOrden">Crear Orden</button>
+
+<script>
+  const API_BASE = 'http://localhost:3000/api';
+  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4Njk2ZDIyYjE2NGY0NzY2ZjYzNzdhYiIsInJvbCI6ImVzdHVkaWFudGUiLCJpYXQiOjE3NTE3NTU4NTgsImV4cCI6MTc1MTg0MjI1OH0.eGjAnM50gLx1wvl8BYqjLqbNJAgs8QuZaPOqODYvhog'; // usa el token SOLO para crear orden
+
+  let productos = [];
+  let carrito = [];
+
+  // Cargar productos SIN token
+  async function cargarProductos() {
+    const res = await fetch(`${API_BASE}/productos`);
+    if (!res.ok) {
+      alert('Error al cargar productos');
+      return;
+    }
+
+    productos = await res.json();
+    const tbody = document.querySelector('#productosTabla tbody');
+    tbody.innerHTML = '';
+    productos.forEach(p => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${p.nombreProducto}</td>
+        <td>$${p.precio.toFixed(2)}</td>
+        <td>${p.stock}</td>
+        <td><input type="number" min="1" max="${p.stock}" value="1" id="cantidad-${p._id}"></td>
+        <td><button data-id="${p._id}">Agregar</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    document.querySelectorAll('#productosTabla button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        const inputCantidad = document.getElementById(`cantidad-${id}`);
+        const cantidad = parseInt(inputCantidad.value);
+        if (cantidad > 0) agregarAlCarrito(id, cantidad);
+      });
+    });
+  }
+
+  function agregarAlCarrito(id, cantidad) {
+    const producto = productos.find(p => p._id === id);
+    if (!producto) return alert('Producto no encontrado');
+
+    const existente = carrito.find(item => item.producto._id === id);
+    if (existente) {
+      if (existente.cantidad + cantidad > producto.stock) {
+        alert('No hay suficiente stock');
+        return;
+      }
+      existente.cantidad += cantidad;
+    } else {
+      if (cantidad > producto.stock) {
+        alert('No hay suficiente stock');
+        return;
+      }
+      carrito.push({ producto, cantidad });
+    }
+    actualizarCarrito();
+  }
+
+  function quitarDelCarrito(id) {
+    carrito = carrito.filter(item => item.producto._id !== id);
+    actualizarCarrito();
+  }
+
+  function actualizarCarrito() {
+    const tbody = document.querySelector('#carritoTabla tbody');
+    tbody.innerHTML = '';
+    let total = 0;
+    carrito.forEach(item => {
+      const subtotal = item.producto.precio * item.cantidad;
+      total += subtotal;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${item.producto.nombreProducto}</td>
+        <td>${item.cantidad}</td>
+        <td>$${item.producto.precio.toFixed(2)}</td>
+        <td>$${subtotal.toFixed(2)}</td>
+        <td><button data-id="${item.producto._id}">X</button></td>
+      `;
+      tbody.appendChild(tr);
+
+      tr.querySelector('button').addEventListener('click', () => {
+        quitarDelCarrito(item.producto._id);
+      });
+    });
+    document.getElementById('totalCarrito').textContent = `$${total.toFixed(2)}`;
+  }
+
+  async function crearOrden() {
+    if (!token || token === 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4Njk2ZDIyYjE2NGY0NzY2ZjYzNzdhYiIsInJvbCI6ImVzdHVkaWFudGUiLCJpYXQiOjE3NTE3NTU4NTgsImV4cCI6MTc1MTg0MjI1OH0.eGjAnM50gLx1wvl8BYqjLqbNJAgs8QuZaPOqODYvhog.zPKA5TXYP54nap3K-z-NOR878dQeVKy0uLcUna64ALg') {
+      alert('Debes iniciar sesión para realizar una compra');
+      window.location.href = '/login.html'; // redirige si no hay token válido
+      return;
+    }
+
+    if (carrito.length === 0) {
+      alert('El carrito está vacío');
+      return;
+    }
+
+    const productosParaEnviar = carrito.map(item => ({
+      producto: item.producto._id,
+      cantidad: item.cantidad
+    }));
+
+    const res = await fetch(`${API_BASE}/estudiante/orden`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ productos: productosParaEnviar })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      alert('Orden creada correctamente');
+      carrito = [];
+      actualizarCarrito();
+      cargarProductos();
+    } else {
+      alert('Error: ' + (data.msg || 'No se pudo crear la orden'));
+    }
+  }
+
+  document.getElementById('btnCrearOrden').addEventListener('click', crearOrden);
+
+  cargarProductos();
+</script>
+
+</body>
+</html>
