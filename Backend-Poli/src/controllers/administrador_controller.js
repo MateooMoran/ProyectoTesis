@@ -1,3 +1,4 @@
+import { sendMailToAssignSeller } from "../config/nodemailer.js";
 import Estudiante from "../models/Estudiante.js";
 
 
@@ -23,7 +24,10 @@ const cambiarRolAVendedor = async (req, res) => {
         return res.status(400).json({ msg: `El usuario ya tiene el rol ${rol}` });
     }
 
+
     usuario.rol = rol;
+    sendMailToAssignSeller(usuario.email,usuario.nombre, usuario.rol);
+    
     await usuario.save();
 
     res.json({ msg: 'Rol actualizado correctamente' });

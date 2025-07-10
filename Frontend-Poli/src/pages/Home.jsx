@@ -46,7 +46,7 @@ export const Home = () => {
                     </nav>
 
                     {/* Botones de sesión */}
-                    <div className="flex sm:flex-row gap-2 sm:gap-4 mt-2 sm:mt-0">
+                    <div className="flex sm:flex-row gap-2 sm:gap-4  mt-2 sm:mt-0">
                         <Link to="/login" className="bg-blue-900 text-white py-2 px-4 rounded-lg text-center hover:bg-red-700">
                             Iniciar Sesión
                         </Link>
