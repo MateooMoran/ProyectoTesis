@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import person from "../assets/person.png";
 import { Eye, Pencil, Trash2, LogOut, Moon, Menu } from "lucide-react";
-
+import {Link} from 'react-router'
 export const Sidebar = () => {
+
   const [user] = useState("David Muela");
   const [isOpen, setIsOpen] = useState(false);
 
@@ -103,7 +104,7 @@ export const Sidebar = () => {
         <div className="p-4 text-white space-y-4">
           <div className="flex items-center gap-2 cursor-pointer hover:text-red-400 transition">
             <LogOut className="w-4 h-4" />
-            <span>Cerrar sesión</span>
+            <Link to="/">Cerrar sesión</Link>
           </div>
           <div className="flex items-center gap-2 cursor-pointer hover:text-yellow-400 transition">
             <Moon className="w-4 h-4" />
