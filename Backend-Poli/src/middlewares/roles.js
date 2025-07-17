@@ -19,6 +19,7 @@ export const esEstudiante = (req, res, next) => {
   next();
 };
 
+
 export const tieneRol = (...rolesPermitidos) => {
   return (req, res, next) => {
     if (!rolesPermitidos.includes(req.estudianteBDD.rol)) {
