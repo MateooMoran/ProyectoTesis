@@ -15,7 +15,7 @@ router.post('/login',login)
 router.get('/productos',visualizarProductos)
 
 
-router.get('/perfil', verifyTokenJWT,tieneRol,perfil)
+router.get('/perfil', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'),perfil)
 router.put('/estudiante/actualizarperfil',verifyTokenJWT,tieneRol,actualizarPerfil)
 router.put('/estudiante/actualizarpassword',verifyTokenJWT,tieneRol,actualizarContraseña)
 export default router
