@@ -1,7 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router'
 import { Home } from './pages/Home'
 import Login from './pages/Login'
-import { useState } from 'react'
 import Register from './pages/Register'
 import Confirm from './pages/Confirm'
 import Forgot from './pages/Forgot'

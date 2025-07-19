@@ -6,7 +6,7 @@ import routerEstudiantes from './routers/estudiante_router.js'
 import routerAdministrador from './routers/administrador_router.js'
 import routerVendedor from './routers/vendedor_router.js'
 import routerOrden from './routers/orden_router.js'
-import routerConversaciones from './routers/conversacion_router.js'
+import routerServicios from './routers/servicios_router.js'
 // INICIAMOS
 
 const app = express()
@@ -33,7 +33,7 @@ app.use('/api',routerEstudiantes)
 app.use('/api',routerAdministrador)
 app.use('/api',routerVendedor)
 app.use('/api',routerOrden)
-app.use('/api',routerConversaciones)
+app.use('/api',routerServicios)
 
 // Rutas que no existen
 app.use((req,res)=>{res.status(404).send("Endpoint no encontrado")})
