@@ -95,9 +95,9 @@ const listarProducto = async (req, res) => {
 }
 
 const visualizarCategoriaPorCategoria = async (req, res) => {
-    const categoria = await Producto.find({ vendedor: req.estudianteBDD._id, categoria: req.params.id }).select("-createdAt -updatedAt -__v").populate("categoria", "nombreCategoria");
+    const productos = await Producto.find({ vendedor: req.estudianteBDD._id, categoria: req.params.id }).select("-createdAt -updatedAt -__v").populate("categoria", "nombreCategoria");
 
-    if (!categoria) {
+    if (!productos || productos.length === 0) {
         return res.status(404).json({ msg: "No hay productos registrados en esta categoría" });
     }
 
