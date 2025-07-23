@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import { sendMailToRecoveryPassword, sendMailToRegister } from "../config/nodemailer.js";
 import { createTokenJWT } from "../middlewares/JWT.js";
 import Estudiante from "../models/Estudiante.js";
-import Producto from "../models/Producto.js";
 
 const registro = async (req, res) => {
 
@@ -185,10 +184,7 @@ const actualizarContraseña = async (req, res) => {
   res.status(200).json({ msg: "Password actualizado correctamente" })
 }
 
-const visualizarProductos = async (req, res) => {
-  const productos = await Producto.find().select(' -createdAt -updatedAt -__v -vendedor').populate('categoria', 'nombreCategoria -_id')
-  res.status(200).json(productos)
-}
+
 export {
   registro,
   confirmarMail,
@@ -198,6 +194,5 @@ export {
   login,
   perfil,
   actualizarPerfil,
-  actualizarContraseña,
-  visualizarProductos
+  actualizarContraseña
 }
