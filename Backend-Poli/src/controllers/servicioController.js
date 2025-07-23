@@ -1,8 +1,26 @@
 import Stripe from 'stripe'
+import Estudiante from "../models/Estudiante.js";
+
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
+// PARA CHAT EN TIEMPO REAL
+const buscarEstudiantePorNombre = async (req, res) => {
+    const { nombre } = req.query
 
+
+    const estudiantes = await Estudiante.find({
+        nombre: { $regex: nombre, $options: 'i' }
+    })
+
+    res.status(200).json(estudiantes)
+    if (!estudiantes || estudiantes.length === 0) {
+        return res.status(404).json({ msg: "No se encontraron estudiantes con ese nombre" });
+    }
+
+}
+
+// PARA PASARELAS DE PAGO
 const procesarPago = async (req, res) => {
     const { id, amount } = req.body
     try {
@@ -24,21 +42,5 @@ const procesarPago = async (req, res) => {
     }
 }
 
-const procesarReembolso = async (req, res) => {
-  const { paymentIntentId, amount } = req.body
-  try {
-    const refund = await stripe.refunds.create({
-      payment_intent: paymentIntentId,
-      amount // amount in cents, e.g., 1000 for $10.00
-    })
 
-    console.log('✅ Reembolso exitoso:', refund.id)
-    res.json({ success: true, refund })
-  } catch (error) {
-    console.error('❌ Error al procesar el reembolso:', error.message)
-    res.status(400).json({ success: false, message: error.message })
-  }
-}
-
-
-export { procesarPago, procesarReembolso }
+export { procesarPago,buscarEstudiantePorNombre}

@@ -28,4 +28,4 @@ const ordenSchema = new Schema(
   }
 );
 
-export default model("Orden", ordenSchema);
+export default model("Carrito", ordenSchema);

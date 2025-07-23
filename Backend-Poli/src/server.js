@@ -2,11 +2,11 @@
 import express from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
-import routerEstudiantes from './routers/estudiante_router.js'
-import routerAdministrador from './routers/administrador_router.js'
-import routerVendedor from './routers/vendedor_router.js'
-import routerOrden from './routers/orden_router.js'
-import routerServicios from './routers/servicios_router.js'
+import routerUsuarios from './routers/usuarioRouter.js'
+import routerVendedor from './routers/vendedorRouter.js'
+import routerAdministrador from './routers/administradorRouter.js'
+import routerEstudiante from './routers/estudianteRouter.js'
+import routerServicio from './routers/servicioRouter.js'
 // INICIAMOS
 
 const app = express()
@@ -29,11 +29,15 @@ app.get('/',(req,res)=>{
 
 
 // Rutas 
-app.use('/api',routerEstudiantes)
-app.use('/api',routerAdministrador)
+app.use('/api',routerUsuarios)
 app.use('/api',routerVendedor)
-app.use('/api',routerOrden)
-app.use('/api',routerServicios)
+app.use('/api',routerAdministrador)
+app.use('/api',routerEstudiante)
+app.use('/api',routerServicio)
+
+
+
+
 
 // Rutas que no existen
 app.use((req,res)=>{res.status(404).send("Endpoint no encontrado")})

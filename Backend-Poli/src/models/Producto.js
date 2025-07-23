@@ -9,16 +9,20 @@ const productoSchema = new Schema(
     },
     precio: {
       type: Number,
+      
       required: true,
     },
     stock: {
       type: Number,
       default: 1,
+      required: true,
+
     },
     descripcion: {
       type: String,
-      required: true,
       trim: true,
+      required: true,
+
     },
     imagen: {
       type: String,
@@ -37,6 +41,16 @@ const productoSchema = new Schema(
       ref: "vendedor",
       required: true,
     },
+    estado: {
+      type: String,
+      enum: ["disponible", "no disponible"],
+      default: "disponible",
+    },
+    activo: {
+      type: Boolean,
+      default: true,
+    }
+
   },
   {
     timestamps: true,
