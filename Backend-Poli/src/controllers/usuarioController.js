@@ -20,7 +20,10 @@ const registro = async (req, res) => {
     return res.status(400).json({ msg: "La contraseña debe tener al menos 4 caracteres" });
   }
   //Encriptar la contraseña
-  const nuevoEstudiante = new Estudiante(req.body)
+  const nuevoEstudiante = new Estudiante({
+    ...req.body,
+    rol: "estudiante"
+  })
   nuevoEstudiante.password = await nuevoEstudiante.encrypPassword(password)
 
   //Crer un token

@@ -4,17 +4,19 @@ import { tieneRol } from "../middlewares/roles.js";
 import { Router } from "express";
 
 const router = Router()
+//REGISTRO
 router.post('/registro',registro,)
 router.get('/confirmar/:token',confirmarMail)
 
+//LOGIN
 router.post('/login',login)
 
+//RECUPERAR CONTRASEÑA
 router.post('/recuperarpassword',recuperarPassword)
 router.get('/recuperarpassword/:token',comprobarTokenPassword)
 router.post('/nuevopassword/:token',crearNuevoPassword)
 
-
-
+// PERFIL
 router.get('/perfil', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'),perfil)
 router.put('/perfil/actualizarperfil',verifyTokenJWT,tieneRol('estudiante', 'admin', 'vendedor'),actualizarPerfil)
 router.put('/perfil/actualizarpassword',verifyTokenJWT,tieneRol('estudiante', 'admin', 'vendedor'),actualizarContraseña)

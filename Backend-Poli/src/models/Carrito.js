@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 
-const ordenSchema = new Schema(
+const carritoSchema  = new Schema(
   {
     comprador: {
       type: Schema.Types.ObjectId,
@@ -11,21 +11,18 @@ const ordenSchema = new Schema(
       {
         producto: { type: Schema.Types.ObjectId, ref: "Producto", required: true },
         cantidad: { type: Number, required: true, default: 1 },
+        precioUnitario: {type:Number, required:true},
+        subtotal: {type:Number, required:true}
       }
     ],
     total: {
       type: Number,
       required: true,
-    },
-    estado: {
-      type: String,
-      enum: ["pendiente", "pagado"],
-      default: "pendiente",
-    },
+    }
   },
   {
     timestamps: true,
   }
 );
 
-export default model("Carrito", ordenSchema);
+export default model("Carrito", carritoSchema);

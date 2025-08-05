@@ -9,7 +9,6 @@ const productoSchema = new Schema(
     },
     precio: {
       type: Number,
-      
       required: true,
     },
     stock: {
@@ -24,6 +23,10 @@ const productoSchema = new Schema(
       required: true,
 
     },
+    imagenID: {
+      type: String,
+      trim: true,
+    },
     imagen: {
       type: String,
       trim: true
@@ -34,11 +37,13 @@ const productoSchema = new Schema(
     },
     categoria: {
       type: Schema.Types.ObjectId,
-      ref: "Categoria",
+      ref: "categoria",
+      required: true
+
     },
     vendedor: {
       type: Schema.Types.ObjectId,
-      ref: "vendedor",
+      ref: "estudiante",
       required: true,
     },
     estado: {
@@ -49,8 +54,11 @@ const productoSchema = new Schema(
     activo: {
       type: Boolean,
       default: true,
+    },
+    vendidos: {
+      type: Number,
+      default: 0
     }
-
   },
   {
     timestamps: true,
