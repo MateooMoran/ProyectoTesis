@@ -156,11 +156,12 @@ const perfil = (req, res) => {
 }
 
 const actualizarPerfil = async (req, res) => {
+  const { id } = req.params
   const { nombre, apellido, telefono, direccion, email } = req.body
   if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).json({ msg: "Lo sentimos id no valida" })
   if (Object.values(req.body).includes("")) return res.status(404).json({ msg: "Lo sentimos deben llenarse todo los campos" });
 
-  const estudianteBDD = await Estudiante.findById(req.estudianteBDD._id)
+  const estudianteBDD = await Estudiante.findById(id)
   if (!estudianteBDD) return res.status(404).json({ msg: `Lo sentimos, no existe el estudiante ${id}` });
   if (estudianteBDD.email != email) {
     const estudianteBDDMail = await Estudiante.findOne({ email })

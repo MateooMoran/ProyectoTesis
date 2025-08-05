@@ -18,7 +18,7 @@ router.post('/nuevopassword/:token',crearNuevoPassword)
 
 // PERFIL
 router.get('/perfil', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'),perfil)
-router.put('/perfil/actualizarperfil',verifyTokenJWT,tieneRol('estudiante', 'admin', 'vendedor'),actualizarPerfil)
-router.put('/perfil/actualizarpassword',verifyTokenJWT,tieneRol('estudiante', 'admin', 'vendedor'),actualizarContraseña)
+router.put('/perfil/actualizarperfil/:id',verifyTokenJWT,tieneRol('estudiante', 'admin', 'vendedor'),actualizarPerfil)
+router.put('/perfil/actualizarpassword/:id',verifyTokenJWT,tieneRol('estudiante', 'admin', 'vendedor'),actualizarContraseña)
 
 export default router;
