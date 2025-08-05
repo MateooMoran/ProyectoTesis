@@ -165,6 +165,7 @@ const sendMailToAssignSeller = async (userMail, nombreVendedor, rol) => {
                 <p style="font-size: 16px; color: #333; margin-bottom: 30px;">
                     Se te ha quitado el rol de <strong>vendedor</strong> en <strong>PoliVentas</strong>.
                     Ahora tienes permisos como <strong>${rol}</strong>.
+                    Puedes seguir accediendo a tu cuenta, pero tus productos y ventas se encuentran inactivos.
                 </p>
 
                 <p style="font-size: 14px; color: #555; margin-top: 30px;">

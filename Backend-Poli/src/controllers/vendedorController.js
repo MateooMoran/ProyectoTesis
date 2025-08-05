@@ -1,15 +1,19 @@
 import Categoria from "../models/Categoria.js";
 import Producto from "../models/Producto.js";
+import { v2 as cloudinary } from 'cloudinary'
+import fs from "fs-extra"
+import Notificacion from "../models/Notificacion.js";
+
+// CATEGORIAS
 
 const crearCategoria = async (req, res) => {
     const { nombreCategoria } = req.body
-
     if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Debe llenar todo los campo" })
 
     const verificarCategoriaBDD = await Categoria.findOne({ nombreCategoria })
     if (verificarCategoriaBDD) return res.status(400).json({ msg: "Lo sentimos esa categoria ya se encuentra creado" });
 
-    const nuevaCategoria = new Categoria(req.body)
+    const nuevaCategoria = new Categoria({ nombreCategoria })
     await nuevaCategoria.save()
     res.status(200).json({ msg: "Categoría creada correctamente" })
 }
@@ -20,20 +24,24 @@ const listarCategorias = async (req, res) => {
 };
 
 const eliminarCategoria = async (req, res) => {
-    const { id } = req.params
-    const productoValidar = await Producto.find({ categoria: id })
-    if (productoValidar.length > 0) return res.status(400).json({ msg: "No se puede eliminiar debido a que se encuentra registros en esa categoria" })
-    const eliminar = await Categoria.findByIdAndDelete(id)
-    if (!eliminar) return res.status(400).json({ msg: "No se encuentra esa categoria" })
-    res.status(200).json({ msg: "Categoria eliminada correctamente" })
-}
+    const { id } = req.params;
+
+    const productos = await Producto.find({ categoria: id });
+    if (productos.length > 0) { return res.status(400).json({ msg: "No se puede eliminar porque hay productos asociados" }); }
+    const eliminar = await Categoria.findByIdAndDelete(id);
+    if (!eliminar) return res.status(404).json({ msg: "Categoría no encontrada" });
+
+    res.status(200).json({ msg: "Categoría eliminada correctamente" });
+};
+
+// PRODUCTOS
 
 const crearProducto = async (req, res) => {
     const { precio } = req.body
     if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Debe llenar todo los campo" })
 
-    if (precio < 0) {
-        return res.status(400).json({ msg: "Ingresa solo valores positivos" })
+    if (precio < 0 || stock < 0) {
+        return res.status(400).json({ msg: "Precio y stock deben ser positivos" });
     }
 
     const nuevoProducto = new Producto({
@@ -42,10 +50,34 @@ const crearProducto = async (req, res) => {
         estado: "disponible",
         activo: true,
     });
+    if (req.files?.imagen) {
+        const { secure_url, public_id } = await cloudinary.uploader.upload(req.files.imagen.tempFilePath, { folder: 'ImagenesProductos' })
+        nuevoProducto.imagen = secure_url
+        nuevoProducto.imagenID = public_id
+    }
+    await fs.unlink(req.files.imagen.tempFilePath)
+
+    if (req.body?.imagenIA) {
+        const base64Data = req.body.imagenIA.replace(/^data:image\/\w+;base64,/, '')
+        const buffer = Buffer.from(base64Data, 'base64')
+
+        const { secure_url } = await new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream({ folder: 'ImagenesProductosIA', resource_type: 'auto' }, (error, response) => {
+                if (error) {
+                    reject(error)
+                } else {
+                    resolve(response)
+                }
+            })
+            stream.end(buffer)
+        })
+        nuevoProducto.imagenIA = secure_url
+        nuevoProducto.imagenID = public_id
+
+    }
 
     await nuevoProducto.save()
     res.status(200).json({ msg: "Producto creado correctamente" })
-
 }
 
 const actualizarProducto = async (req, res) => {
@@ -54,12 +86,12 @@ const actualizarProducto = async (req, res) => {
     if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Debe llenar todo los campo" });
 
     const producto = await Producto.findOne({ _id: id, vendedor: req.estudianteBDD._id });
-    
+
     if (!producto)
         return res.status(403).json({ msg: "Producto no encontrado" }) //no tiene permiso para actualizar este producto
 
     if (precio < 0 || stock < 0) {
-        return res.status(400).json({ msg: "Precio y/o stock deben ser positivos" });
+        return res.status(400).json({ msg: "Precio y stock deben ser positivos" });
     }
 
     producto.nombreProducto = nombreProducto ?? producto.nombreProducto;
@@ -72,19 +104,16 @@ const actualizarProducto = async (req, res) => {
     producto.activo = activo ?? producto.activo;
 
     await producto.save();
-
     res.status(200).json({ msg: "Producto actualizado correctamente" });
-};
 
+};
 
 
 const eliminarProducto = async (req, res) => {
     const { id } = req.params;
 
     const producto = await Producto.findOne({ _id: id, vendedor: req.estudianteBDD._id });
-    if (!producto) {
-        return res.status(404).json({ msg: "Producto no encontrado" });
-    }
+    if (!producto) { return res.status(404).json({ msg: "Producto no encontrado" }) }
 
     await producto.deleteOne();
     res.status(200).json({ msg: "Producto eliminado correctamente" });
@@ -92,9 +121,8 @@ const eliminarProducto = async (req, res) => {
 
 
 const listarProducto = async (req, res) => {
-    const productos = await Producto.find({
-        vendedor: req.estudianteBDD._id,
-    }).select("-createdAt -updatedAt -__v")
+    const productos = await Producto.find({ vendedor: req.estudianteBDD._id })
+        .select("-createdAt -updatedAt -__v")
         .populate('categoria', 'nombreCategoria');
 
     if (!productos || productos.length === 0) {
@@ -114,7 +142,45 @@ const visualizarProductoCategoria = async (req, res) => {
     res.status(200).json(productos);
 };
 
+// Visualizar historial de ventas
+const visualizarHistorialVentasVendedor = async (req, res) => {
+    const historial = await Orden.find({ vendedor: req.estudianteBDD._id })
+        .populate("comprador", "nombres apellido")
+        .populate("productos.producto", "nombreProducto precio imagen")
+        .sort({ createdAt: -1 });
 
+    if (!historial.length) {
+        return res.status(404).json({ msg: "No tienes ventas registradas" });
+    }
+
+    res.status(200).json(historial);
+};
+
+// Notificaciones
+
+const verNotificaciones = async (req, res) => {
+    const notificaciones = await Notificacion.find({ usuario: req.usuarioBDD._id })
+        .sort({ createdAt: -1 });
+    res.status(200).json(notificaciones);
+};
+
+const marcarComoLeida = async (req, res) => {
+    const { id } = req.params;
+    const noti = await Notificacion.findOne({ _id: id, usuario: req.usuarioBDD._id });
+    if (!noti) return res.status(404).json({ msg: "Notificación no encontrada" });
+
+    noti.leido = true;
+    await noti.save();
+    res.status(200).json({ msg: "Notificación marcada como leída" });
+};
+
+const eliminarNotificacion = async (req, res) => {
+    const { id } = req.params;
+    const eliminar = await Notificacion.findOneAndDelete({ _id: id, usuario: req.usuarioBDD._id });
+    if (!eliminar) return res.status(404).json({ msg: "No se encontró la notificación" });
+
+    res.status(200).json({ msg: "Notificación eliminada" });
+};
 export {
 
     crearCategoria,
@@ -124,5 +190,9 @@ export {
     actualizarProducto,
     eliminarProducto,
     listarProducto,
-    visualizarProductoCategoria
+    visualizarProductoCategoria,
+    visualizarHistorialVentasVendedor,
+    verNotificaciones,
+    marcarComoLeida,
+    eliminarNotificacion
 }

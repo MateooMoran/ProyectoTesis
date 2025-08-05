@@ -7,10 +7,26 @@ import routerVendedor from './routers/vendedorRouter.js'
 import routerAdministrador from './routers/administradorRouter.js'
 import routerEstudiante from './routers/estudianteRouter.js'
 import routerServicio from './routers/servicioRouter.js'
+import cloudinary from 'cloudinary'
+import fileUpload from 'express-fileupload'
 // INICIAMOS
 
 const app = express()
 dotenv.config()
+
+// Cloudinary configuration
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+})
+
+// Configuración de fileUpload
+// Esto permite manejar archivos subidos en las rutas
+app.use(fileUpload({
+    useTempFiles: true,
+    tempFileDir: './uploads',
+}))
 
 // CONFIGURAMOS
 
