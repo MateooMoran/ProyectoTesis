@@ -14,6 +14,7 @@ router.get('/admin/quejas-sugerencias', verifyTokenJWT, esAdmin, listarTodasLasQ
 router.put('/admin/quejas-sugerencias/:id', verifyTokenJWT, esAdmin, responderQuejaSugerencia);
 
 // NOTIFICACIONES
-router.get("/notificaciones", listarNotificacionesAdmin);
-router.put("/notificaciones/leida/:id", marcarNotificacionLeida);
+router.get("/admin/notificaciones", verifyTokenJWT, esAdmin, listarNotificacionesAdmin);
+router.put("/admin/notificaciones/leida/:id", verifyTokenJWT, esAdmin, marcarNotificacionLeida);
+
 export default router
