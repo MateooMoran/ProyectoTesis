@@ -3,14 +3,15 @@ import Producto from "../models/Producto.js";
 import { v2 as cloudinary } from 'cloudinary'
 import fs from "fs-extra"
 import Notificacion from "../models/Notificacion.js";
+import Orden from "../models/Orden.js";
 
 // CATEGORIAS
 
 const crearCategoria = async (req, res) => {
     const { nombreCategoria } = req.body
-    if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Debe llenar todo los campo" })
+    if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Debe llenar el campo" })
 
-    const verificarCategoriaBDD = await Categoria.findOne({ nombreCategoria })
+    const verificarCategoriaBDD = await Categoria.findOne({ nombreCategoria: {$regex:`^${nombreCategoria}$`, $options: "i"} })
     if (verificarCategoriaBDD) return res.status(400).json({ msg: "Lo sentimos esa categoria ya se encuentra creado" });
 
     const nuevaCategoria = new Categoria({ nombreCategoria })
