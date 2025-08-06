@@ -3,19 +3,19 @@ import { Schema, model } from "mongoose";
 const ordenSchema = new Schema({
   comprador: {
     type: Schema.Types.ObjectId,
-    ref: "estudiante",
+    ref: "Estudiantes",
     required: true
   },
   vendedor: {
     type: Schema.Types.ObjectId,
-    ref: "estudiante",
+    ref: "Estudiantes",
     required: true
   },
   productos: [
     {
       producto: {
         type: Schema.Types.ObjectId,
-        ref: "producto",
+        ref: "Producto",
         required: true
       },
       cantidad: {

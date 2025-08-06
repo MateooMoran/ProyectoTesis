@@ -4,6 +4,7 @@ import { v2 as cloudinary } from 'cloudinary'
 import fs from "fs-extra"
 import Notificacion from "../models/Notificacion.js";
 import Orden from "../models/Orden.js";
+import mongoose from 'mongoose';
 
 // CATEGORIAS
 
@@ -11,7 +12,7 @@ const crearCategoria = async (req, res) => {
     const { nombreCategoria } = req.body
     if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Debe llenar el campo" })
 
-    const verificarCategoriaBDD = await Categoria.findOne({ nombreCategoria: {$regex:`^${nombreCategoria}$`, $options: "i"} })
+    const verificarCategoriaBDD = await Categoria.findOne({ nombreCategoria: { $regex: `^${nombreCategoria}$`, $options: "i" } })
     if (verificarCategoriaBDD) return res.status(400).json({ msg: "Lo sentimos esa categoria ya se encuentra creado" });
 
     const nuevaCategoria = new Categoria({ nombreCategoria })
@@ -38,9 +39,11 @@ const eliminarCategoria = async (req, res) => {
 // PRODUCTOS
 
 const crearProducto = async (req, res) => {
-    const { precio,stock } = req.body
+    const { precio, stock, categoria } = req.body
     if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Debe llenar todo los campo" })
-
+    if (!mongoose.Types.ObjectId.isValid(categoria)) {
+        return res.status(400).json({ msg: 'ID de categoría no válido' });
+    }
     if (precio < 0 || stock < 0) {
         return res.status(400).json({ msg: "Precio y stock deben ser positivos" });
     }
@@ -82,31 +85,70 @@ const crearProducto = async (req, res) => {
 }
 
 const actualizarProducto = async (req, res) => {
-    const { id } = req.params;
-    const { nombreProducto, precio, stock, descripcion, imagen, categoria, estado, activo } = req.body;
-    if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Debe llenar todo los campo" });
+  const { id } = req.params;
+  const { nombreProducto, precio, stock, descripcion, imagen, categoria, estado, activo } = req.body;
 
-    const producto = await Producto.findOne({ _id: id, vendedor: req.estudianteBDD._id });
+  if (Object.values(req.body).includes(""))
+    return res.status(400).json({ msg: "Debe llenar todos los campos" });
 
-    if (!producto)
-        return res.status(403).json({ msg: "Producto no encontrado" }) //no tiene permiso para actualizar este producto
+  const producto = await Producto.findOne({ _id: id, vendedor: req.estudianteBDD._id });
 
-    if (precio < 0 || stock < 0) {
-        return res.status(400).json({ msg: "Precio y stock deben ser positivos" });
+  if (!producto)
+    return res.status(403).json({ msg: "Producto no encontrado" });
+
+  if (precio < 0 || stock < 0)
+    return res.status(400).json({ msg: "Precio y stock deben ser positivos" });
+
+  producto.nombreProducto = nombreProducto ?? producto.nombreProducto;
+  producto.precio = precio ?? producto.precio;
+  producto.stock = stock ?? producto.stock;
+  producto.descripcion = descripcion ?? producto.descripcion;
+  producto.categoria = categoria ?? producto.categoria;
+  producto.estado = estado ?? producto.estado;
+  producto.activo = activo ?? producto.activo;
+
+  if (req.files?.imagen) {
+    if (producto.imagenID) {
+      await cloudinary.uploader.destroy(producto.imagenID);
     }
 
-    producto.nombreProducto = nombreProducto ?? producto.nombreProducto;
-    producto.precio = precio ?? producto.precio;
-    producto.stock = stock ?? producto.stock;
-    producto.descripcion = descripcion ?? producto.descripcion;
-    producto.imagen = imagen ?? producto.imagen;
-    producto.categoria = categoria ?? producto.categoria;
-    producto.estado = estado ?? producto.estado;
-    producto.activo = activo ?? producto.activo;
+    const { secure_url, public_id } = await cloudinary.uploader.upload(
+      req.files.imagen.tempFilePath,
+      { folder: 'ImagenesProductos' }
+    );
 
-    await producto.save();
-    res.status(200).json({ msg: "Producto actualizado correctamente" });
+    producto.imagen = secure_url;
+    producto.imagenID = public_id;
 
+    await fs.unlink(req.files.imagen.tempFilePath);
+  }
+
+  if (req.body?.imagenIA) {
+    if (producto.imagenID) {
+      await cloudinary.uploader.destroy(producto.imagenID);
+    }
+
+    const base64Data = req.body.imagenIA.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(base64Data, 'base64');
+
+    const { secure_url, public_id } = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { folder: 'ImagenesProductosIA', resource_type: 'auto' },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      stream.end(buffer);
+    });
+
+    producto.imagenIA = secure_url;
+    producto.imagenID = public_id;
+  }
+
+  await producto.save();
+
+  res.status(200).json({ msg: "Producto actualizado correctamente" });
 };
 
 
