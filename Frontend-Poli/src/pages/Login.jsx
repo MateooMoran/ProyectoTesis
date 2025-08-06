@@ -88,15 +88,22 @@ const Login = () => {
                     {/* Separador con opción de "O" */}
                     <div className="mt-6 grid grid-cols-3 items-center text-gray-400">
                         <hr className="border-gray-400" />
-                        <p className="text-center text-sm">O</p>
+                        <p className="text-center text-sm">O </p>
                         <hr className="border-gray-400" />
                     </div>
 
-                    {/* Botón de inicio de sesión con Google
-                    <button className="bg-white border py-2 w-full rounded-xl mt-5 flex justify-center items-center text-sm hover:scale-105 duration-300 hover:bg-blue-700 hover:text-white">
+                    {/* Botón de inicio de sesión con Google */}
+                    <button
+                        type="button"
+                        className="bg-white border py-2 w-full rounded-xl mt-5 flex justify-center items-center text-sm hover:scale-105 duration-300 hover:bg-blue-700 hover:text-white"
+                        onClick={() => {
+                            window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/google`;
+                        }}
+                    >
                         <img className="w-5 mr-2" src="https://cdn-icons-png.flaticon.com/512/281/281764.png" alt="Google icon" />
                         Iniciar sesión con Google
-                    </button> */}
+                    </button>
+
 
                     {/* Olvidaste tu contraseña */}
                     <div className="mt-5 text-xs border-b-2 py-4">
