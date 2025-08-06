@@ -85,78 +85,89 @@ const crearProducto = async (req, res) => {
 }
 
 const actualizarProducto = async (req, res) => {
-  const { id } = req.params;
-  const { nombreProducto, precio, stock, descripcion, imagen, categoria, estado, activo } = req.body;
+    const { id } = req.params;
+    const { nombreProducto, precio, stock, descripcion, imagen, categoria, estado, activo } = req.body;
 
-  if (Object.values(req.body).includes(""))
-    return res.status(400).json({ msg: "Debe llenar todos los campos" });
-
-  const producto = await Producto.findOne({ _id: id, vendedor: req.estudianteBDD._id });
-
-  if (!producto)
-    return res.status(403).json({ msg: "Producto no encontrado" });
-
-  if (precio < 0 || stock < 0)
-    return res.status(400).json({ msg: "Precio y stock deben ser positivos" });
-
-  producto.nombreProducto = nombreProducto ?? producto.nombreProducto;
-  producto.precio = precio ?? producto.precio;
-  producto.stock = stock ?? producto.stock;
-  producto.descripcion = descripcion ?? producto.descripcion;
-  producto.categoria = categoria ?? producto.categoria;
-  producto.estado = estado ?? producto.estado;
-  producto.activo = activo ?? producto.activo;
-
-  if (req.files?.imagen) {
-    if (producto.imagenID) {
-      await cloudinary.uploader.destroy(producto.imagenID);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ msg: 'ID de producto no válido' });
     }
 
-    const { secure_url, public_id } = await cloudinary.uploader.upload(
-      req.files.imagen.tempFilePath,
-      { folder: 'ImagenesProductos' }
-    );
-
-    producto.imagen = secure_url;
-    producto.imagenID = public_id;
-
-    await fs.unlink(req.files.imagen.tempFilePath);
-  }
-
-  if (req.body?.imagenIA) {
-    if (producto.imagenID) {
-      await cloudinary.uploader.destroy(producto.imagenID);
+    if (Object.values(req.body).includes("")) {
+        return res.status(400).json({ msg: "Debe llenar todos los campos" });
+    }
+    if (!mongoose.Types.ObjectId.isValid(categoria)) {
+        return res.status(400).json({ msg: 'ID de categoría no válido' });
     }
 
-    const base64Data = req.body.imagenIA.replace(/^data:image\/\w+;base64,/, '');
-    const buffer = Buffer.from(base64Data, 'base64');
+    if (precio < 0 || stock < 0) {
+        return res.status(400).json({ msg: "Precio y stock deben ser positivos" });
+    }
+    const producto = await Producto.findOne({ _id: id, vendedor: req.estudianteBDD._id });
 
-    const { secure_url, public_id } = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        { folder: 'ImagenesProductosIA', resource_type: 'auto' },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
+    if (!producto)
+        return res.status(403).json({ msg: "Producto no encontrado o sin permisos" });
+
+
+    producto.nombreProducto = nombreProducto ?? producto.nombreProducto;
+    producto.precio = precio ?? producto.precio;
+    producto.stock = stock ?? producto.stock;
+    producto.descripcion = descripcion ?? producto.descripcion;
+    producto.categoria = categoria ?? producto.categoria;
+    producto.estado = estado ?? producto.estado;
+    producto.activo = activo ?? producto.activo;
+
+    if (req.files?.imagen) {
+        if (producto.imagenID) {
+            await cloudinary.uploader.destroy(producto.imagenID);
         }
-      );
-      stream.end(buffer);
-    });
 
-    producto.imagenIA = secure_url;
-    producto.imagenID = public_id;
-  }
+        const { secure_url, public_id } = await cloudinary.uploader.upload(
+            req.files.imagen.tempFilePath,
+            { folder: 'ImagenesProductos' }
+        );
 
-  await producto.save();
+        producto.imagen = secure_url;
+        producto.imagenID = public_id;
 
-  res.status(200).json({ msg: "Producto actualizado correctamente" });
+        await fs.unlink(req.files.imagen.tempFilePath);
+    }
+
+    if (req.body?.imagenIA) {
+        if (producto.imagenID) {
+            await cloudinary.uploader.destroy(producto.imagenID);
+        }
+
+        const base64Data = req.body.imagenIA.replace(/^data:image\/\w+;base64,/, '');
+        const buffer = Buffer.from(base64Data, 'base64');
+
+        const { secure_url, public_id } = await new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+                { folder: 'ImagenesProductosIA', resource_type: 'auto' },
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result);
+                }
+            );
+            stream.end(buffer);
+        });
+
+        producto.imagenIA = secure_url;
+        producto.imagenID = public_id;
+    }
+
+    await producto.save();
+
+    res.status(200).json({ msg: "Producto actualizado correctamente" });
 };
 
 
 const eliminarProducto = async (req, res) => {
     const { id } = req.params;
-
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ msg: 'ID de producto no válido' });
+    }
     const producto = await Producto.findOne({ _id: id, vendedor: req.estudianteBDD._id });
-    if (!producto) { return res.status(404).json({ msg: "Producto no encontrado" }) }
+    if (!producto) { return res.status(404).json({ msg: "Producto no encontrado o no correspondiente" }) }
 
     await producto.deleteOne();
     res.status(200).json({ msg: "Producto eliminado correctamente" });
