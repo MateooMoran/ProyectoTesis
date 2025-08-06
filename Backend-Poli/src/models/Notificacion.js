@@ -4,7 +4,7 @@ import { Schema, model } from "mongoose";
 const notificacionSchema = new Schema({
   usuario: {
     type: Schema.Types.ObjectId,
-    ref: "estudiante", 
+    ref: "Estudiantes", 
     required: true
   },
   mensaje: {

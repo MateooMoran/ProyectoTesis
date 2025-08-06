@@ -4,7 +4,7 @@ const carritoSchema  = new Schema(
   {
     comprador: {
       type: Schema.Types.ObjectId,
-      ref: "estudiante",
+      ref: "Estudiantes",
       required: true,
     },
     productos: [
