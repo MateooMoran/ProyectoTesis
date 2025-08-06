@@ -78,6 +78,9 @@ const responderQuejaSugerencia = async (req, res) => {
     res.status(200).json({ msg: "Respuesta enviada correctamente" });
 
 }
+
+// NOTIFICACIONES 
+
 const listarNotificacionesAdmin = async (req, res) => {
     const notificaciones = await Notificacion.find()
         .sort({ createdAt: -1 });
