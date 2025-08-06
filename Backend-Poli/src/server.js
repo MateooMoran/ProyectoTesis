@@ -13,9 +13,6 @@ import session from "express-session";
 import passport from "passport";
 import './Auth/passport.js';
 
-
-
-
 // INICIAMOS
 
 const app = express()
