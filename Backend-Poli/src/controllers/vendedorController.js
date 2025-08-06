@@ -37,7 +37,7 @@ const eliminarCategoria = async (req, res) => {
 // PRODUCTOS
 
 const crearProducto = async (req, res) => {
-    const { precio } = req.body
+    const { precio,stock } = req.body
     if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Debe llenar todo los campo" })
 
     if (precio < 0 || stock < 0) {

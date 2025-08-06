@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "dev": "node --watch src/index.js",
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -24,5 +25,9 @@
     "nodemailer": "^7.0.3",
     "socket.io": "^4.8.1",
     "stripe": "^18.3.0"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.28.0",
+    "jest": "^30.0.5"
   }
 }
