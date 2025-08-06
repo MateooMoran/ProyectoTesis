@@ -2,7 +2,6 @@ import Stripe from 'stripe'
 import Estudiante from "../models/Estudiante.js";
 
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
 // PARA CHAT EN TIEMPO REAL
 const buscarEstudiantePorNombre = async (req, res) => {
