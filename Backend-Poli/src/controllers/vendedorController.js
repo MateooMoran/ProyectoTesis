@@ -201,8 +201,8 @@ const visualizarProductoCategoria = async (req, res) => {
 // Visualizar historial de ventas
 const visualizarHistorialVentasVendedor = async (req, res) => {
     const historial = await Orden.find({ vendedor: req.estudianteBDD._id })
-        .populate("comprador", "nombres apellido")
-        .populate("productos.producto", "nombreProducto precio imagen")
+        .populate("comprador", "nombre apellido")
+        .populate("productos.producto", "nombreProducto precio imagen estado activo vendidos")
         .sort({ createdAt: -1 });
 
     if (!historial.length) {
