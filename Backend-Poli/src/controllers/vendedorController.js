@@ -188,7 +188,9 @@ const listarProducto = async (req, res) => {
 
 const visualizarProductoCategoria = async (req, res) => {
     const productos = await Producto.find({ vendedor: req.estudianteBDD._id, categoria: req.params.id }).select("-createdAt -updatedAt -__v").populate("categoria", "nombreCategoria");
-
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        return res.status(400).json({ msg: 'ID de categoría no válido' });
+    }
     if (!productos || productos.length === 0) {
         return res.status(404).json({ msg: "No hay productos registrados en esta categoría" });
     }
@@ -213,14 +215,21 @@ const visualizarHistorialVentasVendedor = async (req, res) => {
 // Notificaciones
 
 const verNotificaciones = async (req, res) => {
-    const notificaciones = await Notificacion.find({ usuario: req.usuarioBDD._id })
+    const notificaciones = await Notificacion.find({ usuario: req.estudianteBDD._id })
         .sort({ createdAt: -1 });
+
+    if (!notificaciones.length) {
+        return res.status(404).json({ msg: "No tienes notificaciones" });
+    }
     res.status(200).json(notificaciones);
 };
 
 const marcarComoLeida = async (req, res) => {
     const { id } = req.params;
-    const noti = await Notificacion.findOne({ _id: id, usuario: req.usuarioBDD._id });
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ msg: 'ID de notificación no válido' });
+    }
+    const noti = await Notificacion.findOne({ _id: id, usuario: req.estudianteBDD._id });
     if (!noti) return res.status(404).json({ msg: "Notificación no encontrada" });
 
     noti.leido = true;
@@ -230,7 +239,10 @@ const marcarComoLeida = async (req, res) => {
 
 const eliminarNotificacion = async (req, res) => {
     const { id } = req.params;
-    const eliminar = await Notificacion.findOneAndDelete({ _id: id, usuario: req.usuarioBDD._id });
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ msg: 'ID de notificación no válido' });
+    }
+    const eliminar = await Notificacion.findOneAndDelete({ _id: id, usuario: req.estudianteBDD._id });
     if (!eliminar) return res.status(404).json({ msg: "No se encontró la notificación" });
 
     res.status(200).json({ msg: "Notificación eliminada" });

@@ -5,6 +5,8 @@ import Orden from "../models/Orden.js";
 import Stripe from 'stripe'
 import QuejasSugerencias from "../models/QuejasSugerencias.js";
 import Notificacion from "../models/Notificacion.js";
+import mongoose from "mongoose";
+import Estudiante from "../models/Estudiante.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
@@ -35,18 +37,23 @@ const crearCarrito = async (req, res) => {
             total: 0
         });
     }
+    console.log("req.body.productos", productos);
 
     let totalActual = carrito.total || 0;
-
     for (const item of productos) {
         const productoid = item.producto;
-        const stockReservado = item.cantidad;
+        console.log("productoid:", productoid);
 
+        console.log(productoid)
+        const stockReservado = item.cantidad;
+        console.log(stockReservado)
         if (!productoid || stockReservado <= 0) {
             return res.status(400).json({ msg: "Producto o cantidad inválida" });
         }
-
-        const productoDB = await Producto.findById(productoid).select("stock precio");
+        if (!mongoose.Types.ObjectId.isValid(productoid)) {
+            return res.status(400).json({ msg: `ID de producto inválido: ${productoid}` });
+        }
+        const productoDB = await Producto.findById(productoid).select("stock precio activo");
         if (!productoDB || !productoDB.activo) {
             return res.status(404).json({ msg: `Producto con id ${productoid} no encontrado` });
         }
@@ -90,8 +97,39 @@ const visualizarCarrito = async (req, res) => {
     res.status(200).json(carrito);
 };
 
+const disminuirCantidadProducto = async (req, res) => {
+    const { id } = req.params;
+    const carrito = await Carrito.findOne({ comprador: req.estudianteBDD._id });
+    if(!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ msg: "ID de producto inválido" });
+    }
+    if (!carrito || carrito.productos.length === 0) {
+        return res.status(400).json({ msg: "No hay productos en el carrito" });
+    }
+
+    const index = carrito.productos.findIndex(p => p._id.toString() === id);
+    if (index === -1) return res.status(404).json({ msg: "Producto no encontrado en el carrito" });
+
+    const item = carrito.productos[index];
+
+    if (item.cantidad > 1) {
+        item.cantidad -= 1;
+        item.subtotal = item.cantidad * item.precioUnitario;
+    } else {
+        carrito.productos.splice(index, 1);
+    }
+
+    carrito.total = carrito.productos.reduce((acc, p) => acc + p.subtotal, 0);
+    await carrito.save();
+
+    res.status(200).json({ msg: "Cantidad actualizada correctamente", carrito });
+};
+
 const eliminarProductoCarrito = async (req, res) => {
     const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ msg: "ID de producto inválido" });
+    }
     const carrito = await Carrito.findOne({ comprador: req.estudianteBDD._id })
         .populate('productos.producto');
 
@@ -109,8 +147,58 @@ const eliminarProductoCarrito = async (req, res) => {
     res.status(200).json({ msg: "Producto eliminado correctamente", carrito });
 };
 
+const vaciarCarrito = async (req, res) => {
+    const carrito = await Carrito.findOne({ comprador: req.estudianteBDD._id });
+
+    if (!carrito) return res.status(404).json({ msg: "Carrito no encontrado" });
+
+    carrito.productos = [];
+    carrito.total = 0;
+    await carrito.save();
+
+    res.status(200).json({ msg: "Carrito vaciado correctamente", carrito });
+};
+
 
 // PAGOS
+const cearOrdenPendiente = async (req, res) => {
+    const { metodoPago = "tarjeta" } = req.body;
+    if (!["efectivo", "transferencia"].includes(metodoPago)) {
+        return res.status(400).json({ msg: "Método de pago inválido" });
+    }
+    const carrito = await Carrito.findOne({ comprador: req.estudianteBDD._id });
+    if (!carrito || carrito.productos.length === 0) {
+        return res.status(400).json({ msg: "El carrito está vacío" });
+    }
+
+    for (const item of carrito.productos) {
+        const producto = await Producto.findById(item.producto);
+        if (!producto || producto.stock < item.cantidad) {
+            return res.status(400).json({ msg: `Stock insuficiente para ${producto?.nombreProducto || "producto no disponible"}` });
+        }
+    }
+
+    for (const item of carrito.productos) {
+        const producto = await Producto.findById(item.producto);
+        const orden = new Orden({
+            comprador: req.estudianteBDD._id,
+            vendedor: producto.vendedor,
+            productos: [item],
+            total: item.subtotal,
+            estado: "pendiente",
+            metodoPago
+        });
+        await orden.save();
+        await Notificacion.create({
+            usuario: producto.vendedor,
+            mensaje: `Tienes una nueva orden pendiente por ${item.cantidad} unidad(es) de "${producto.nombreProducto}"`,
+            tipo: "venta"
+        })
+    }
+    await Carrito.findByIdAndDelete(carrito._id);
+    res.status(200).json({ msg: "Orden creada con estado pendiente maximo pagar en 12 horas." });
+}
+
 const procesarPago = async (req, res) => {
     const { paymentMethodId, metodoPago = "tarjeta" } = req.body;
 
@@ -177,6 +265,90 @@ const procesarPago = async (req, res) => {
     res.status(200).json({ msg: "Pago procesado correctamente", paymentIntent });
 };
 
+const cancelarOrden = async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ msg: "ID de orden inválido" });
+    }
+    const orden = await Orden.findById(id);
+    if (!orden) return res.status(404).json({ msg: "Orden no encontrada" });
+    if (!orden.comprador.equals(req.estudianteBDD._id)) {
+        return res.status(403).json({ msg: "No autorizado para cancelar esta orden" });
+    }
+    if (orden.estado !== "pendiente") {
+        return res.status(400).json({ msg: "Solo se pueden cancelar órdenes pendientes" });
+    }
+    for (const item of orden.productos) {
+        const producto = await Producto.findById(item.producto);
+        if (!producto) continue;
+        producto.stock += item.cantidad;
+        if (producto.stock > 0) {
+            producto.estado = "disponible";
+            producto.activo = true;
+        }
+        await producto.save();
+        await Notificacion.create({
+            usuario: producto.vendedor,
+            mensaje: `Se liberó el stock de "${producto.nombreProducto}" por cancelación manual de orden.`,
+            tipo: "sistema"
+        });
+    }
+    orden.estado = "cancelado";
+    await orden.save();
+    await Notificacion.create({
+        usuario: orden.comprador,
+        mensaje: `Tu orden con ID ${orden._id} ha sido cancelada.`,
+        tipo: "sistema"
+    });
+    res.status(200).json({ msg: "Orden cancelada correctamente", orden });
+
+}
+const cancelarOrdenesVencidas = async () => {
+    try {
+        const ahora = new Date();
+        const hace12Horas = new Date(ahora.getTime() - 12 * 60 * 60 * 1000);
+
+        const ordenesPendientes = await Orden.find({
+            estado: "pendiente",
+            createdAt: { $lte: hace12Horas }
+        });
+
+        for (const orden of ordenesPendientes) {
+            for (const item of orden.productos) {
+                const producto = await Producto.findById(item.producto);
+                if (!producto) continue;
+
+                producto.stock += item.cantidad;
+                if (producto.stock > 0) {
+                    producto.estado = "disponible";
+                    producto.activo = true;
+                }
+                await producto.save();
+
+                await Notificacion.create({
+                    usuario: producto.vendedor,
+                    mensaje: `Se liberó el stock de "${producto.nombreProducto}" por vencimiento de orden.`,
+                    tipo: "sistema"
+                });
+            }
+
+            orden.estado = "cancelado";
+            await orden.save();
+
+            await Notificacion.create({
+                usuario: orden.comprador,
+                mensaje: `Tu orden con ID ${orden._id} fue cancelada por no completarse en 12 horas.`,
+                tipo: "sistema"
+            });
+        }
+
+        console.log(`Órdenes vencidas canceladas: ${ordenesPendientes.length}`);
+    } catch (error) {
+        console.error("Error cancelando órdenes vencidas:", error);
+    }
+};
+
+
 const visualizarHistorialPagos = async (req, res) => {
     const historial = await Orden.find({ comprador: req.estudianteBDD._id })
         .populate('productos.producto', 'nombreProducto precio imagen')
@@ -199,6 +371,21 @@ const crearQuejasSugerencias = async (req, res) => {
         usuario: req.estudianteBDD._id,
     });
 
+    const notificacion = new Notificacion({
+        usuario: req.estudianteBDD._id,
+        mensaje: `Tu ${tipo} ha sido registrada correctamente.`,
+        tipo: "sistema"
+    });
+
+    const admin = await Estudiante.findOne({ rol: "admin" });
+    const notificacionAdmin = new Notificacion({
+        usuario: admin._id,
+        mensaje: `Nuevo mensaje recibido del tipo (${tipo.toUpperCase()}) del usuario: ${req.estudianteBDD.nombre} ${req.estudianteBDD.apellido}`,
+
+        tipo: "sistema"
+    });
+    await notificacionAdmin.save();
+    await notificacion.save();
     await nueva.save();
     res.status(200).json({ msg: "Queja/Sugerencia enviada correctamente" });
 };
@@ -210,18 +397,39 @@ const visualizarQuejasSugerencias = async (req, res) => {
     res.status(200).json(datos);
 };
 
+const eliminarQuejaSugerencia = async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ msg: "ID inválido" });
+    }
+
+    const queja = await QuejasSugerencias.findById(id);
+    if (!queja) return res.status(404).json({ msg: "Queja/Sugerencia no encontrada" });
+
+    if (!queja.usuario.equals(req.estudianteBDD._id)) {
+        return res.status(403).json({ msg: "No autorizado para eliminar esta queja/sugerencia" });
+    }
+
+    await queja.deleteOne();
+    res.status(200).json({ msg: "Queja/Sugerencia eliminada correctamente" });
+}
+
 // NOTIFICACIONES
 
 const listarNotificacionesEstudiante = async (req, res) => {
     const notificaciones = await Notificacion.find({ usuario: req.estudianteBDD._id })
         .sort({ createdAt: -1 });
-
+    if (!notificaciones.length) {
+        return res.status(404).json({ msg: "No tienes notificaciones" });
+    }
     res.status(200).json(notificaciones);
 }
 
 const marcarNotificacionLeidaEstudiante = async (req, res) => {
     const { id } = req.params;
-
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ msg: "ID de notificación inválido" });
+    }
     const notificacion = await Notificacion.findById(id);
     if (!notificacion) return res.status(404).json({ msg: "Notificación no encontrada" });
 
@@ -235,14 +443,15 @@ const marcarNotificacionLeidaEstudiante = async (req, res) => {
     res.status(200).json({ msg: "Notificación marcada como leída" });
 }
 const eliminarNotificacionEstudiante = async (req, res) => {
-  const { id } = req.params;
-
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ msg: "ID de notificación inválido" });
+    }
     const notificacion = await Notificacion.findById(id);
     if (!notificacion) return res.status(404).json({ msg: "Notificación no encontrada" });
 
-    // Validar que el usuario que intenta eliminar es el dueño
     if (notificacion.usuario.toString() !== req.estudianteBDD._id.toString()) {
-      return res.status(403).json({ msg: "No autorizado" });
+        return res.status(403).json({ msg: "No autorizado" });
     }
 
     await notificacion.deleteOne();
@@ -255,11 +464,17 @@ export {
     verProductos,
     crearCarrito,
     visualizarCarrito,
+    disminuirCantidadProducto,
     eliminarProductoCarrito,
+    vaciarCarrito,
+    cearOrdenPendiente,
     procesarPago,
+    cancelarOrden,
+    cancelarOrdenesVencidas,
     visualizarHistorialPagos,
     crearQuejasSugerencias,
     visualizarQuejasSugerencias,
+    eliminarQuejaSugerencia,
     listarNotificacionesEstudiante,
     marcarNotificacionLeidaEstudiante,
     eliminarNotificacionEstudiante

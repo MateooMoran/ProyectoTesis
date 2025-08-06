@@ -43,7 +43,7 @@ const ordenSchema = new Schema({
   },
   metodoPago: {
     type: String,
-    enum: ["efectivo", "tarjeta", "transferencia", "otro"],
+    enum: ["efectivo", "tarjeta", "transferencia"],
     default: "efectivo"
   }
 }, {

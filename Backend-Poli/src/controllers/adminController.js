@@ -3,6 +3,7 @@ import Estudiante from "../models/Estudiante.js";
 import Producto from "../models/Producto.js";
 import QuejasSugerencias from "../models/QuejasSugerencias.js";
 import Notificacion from "../models/Notificacion.js";
+import mongoose from "mongoose";
 
 // CAMBIO ROL 
 const obtenerUsuarios = async (req, res) => {
@@ -16,7 +17,15 @@ const obtenerUsuarios = async (req, res) => {
 const cambioRol = async (req, res) => {
     const { id } = req.params;
     const { rol } = req.body;
-
+    if (!rol) {
+        return res.status(400).json({ msg: "Rol es requerido" });
+    }
+    if (!id) {
+        return res.status(400).json({ msg: "ID de usuario es requerido" });
+    }
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ msg: "ID de usuario no válido" });
+    }
     const usuario = await Estudiante.findById(id);
 
     if (!['vendedor', 'estudiante'].includes(rol)) {
@@ -50,13 +59,18 @@ const listarTodasLasQuejasSugerencias = async (req, res) => {
     const quejas = await QuejasSugerencias.find()
         .populate("usuario", "nombre apellido telefono rol")
         .sort({ createdAt: -1 })
+    if (quejas.length === 0) {
+        return res.status(404).json({ msg: "No hay quejas o sugerencias registradas" });
+    }
     res.status(200).json(quejas)
 }
 
 const responderQuejaSugerencia = async (req, res) => {
     const { id } = req.params
     const { respuesta } = req.body
-
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ msg: "ID de queja/sugerencia no válido" });
+    }
     if (!respuesta || respuesta.trim() === "") {
         return res.status(400).json({ msg: "La respuesta no puede estar vacía" });
     }
@@ -82,12 +96,19 @@ const responderQuejaSugerencia = async (req, res) => {
 // NOTIFICACIONES 
 
 const listarNotificacionesAdmin = async (req, res) => {
-    const notificaciones = await Notificacion.find()
+    const adminId = req.estudianteBDD._id;
+    const notificaciones = await Notificacion.find({ usuario: adminId })
         .sort({ createdAt: -1 });
+
     res.status(200).json(notificaciones);
 }
+
 const marcarNotificacionLeida = async (req, res) => {
     const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ msg: 'ID de notifacion invalida' });
+    }
+
     const notificacion = await Notificacion.findById(id);
     if (!notificacion) return res.status(404).json({ msg: "Notificación no encontrada" });
 

@@ -9,10 +9,26 @@ import routerEstudiante from './routers/estudianteRouter.js'
 import routerServicio from './routers/servicioRouter.js'
 import cloudinary from 'cloudinary'
 import fileUpload from 'express-fileupload'
+import session from "express-session";
+import passport from "passport";
+import './Auth/passport.js';
+
+
+
+
 // INICIAMOS
 
 const app = express()
 dotenv.config()
+
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Cloudinary configuration
 cloudinary.config({
