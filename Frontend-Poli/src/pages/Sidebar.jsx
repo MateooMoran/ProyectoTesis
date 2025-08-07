@@ -1,17 +1,25 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import person from "../assets/person.png";
-import { Eye, Pencil, Trash2, LogOut, Moon, Menu } from "lucide-react";
-import {Link} from 'react-router'
-export const Sidebar = () => {
+import { ShoppingBag, LogOut, Moon, Menu, User } from "lucide-react";
+import { Link } from 'react-router-dom';
+import storeAuth from '../context/storeAuth';
+import storeProfile from '../context/storeProfile'; 
 
-  const [user] = useState("David Muela");
+
+export const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { clearToken } = storeAuth();
+  const { user, profile } = storeProfile(); 
+
+  useEffect(() => {
+    profile(); 
+  }, [profile]);
 
   return (
     <>
       {/* Botón hamburguesa (solo móviles) */}
       <button
-        className="md:hidden p-4 text-black  flex items-center gap-2 z-50 relative"
+        className="md:hidden p-4 text-black flex items-center gap-2 z-50 relative"
         onClick={() => setIsOpen(true)}
       >
         <Menu className="w-12 h-12" />
@@ -20,98 +28,65 @@ export const Sidebar = () => {
       {/* Overlay (solo cuando isOpen) */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/40 bg-opacity-40 z-40 md:hidden"
+          className="fixed inset-0 bg-black/40 z-40 md:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <nav
-        className={`fixed md:static top-0 left-0 h-screen bg-blue-950 shadow-md flex flex-col justify-between z-50 transform transition-transform duration-300
-    ${isOpen ? "translate-x-0" : "-translate-x-full"}
-    md:translate-x-0 w-56 sm:w-56 md:w-56 lg:w-56 xl:w-60
-  `}
+        className={`fixed md:static top-0 left-0 h-screen bg-blue-950 shadow-lg flex flex-col justify-between z-50 transform transition-transform duration-300
+        ${isOpen ? "translate-x-0" : "-translate-x-full"}
+        md:translate-x-0 w-56 xl:w-60
+      `}
       >
-
         {/* Sección Usuario */}
-        <div className="pt-4 flex items-center flex-col">
+        <div className="pt-6 flex flex-col items-center gap-2">
           <img
             src={person}
             alt="avatar"
-            className="h-20 w-20 rounded-full object-cover"
+            className="h-20 w-20 rounded-full object-cover border-4 border-blue-800"
           />
-          <div>
-            <h2 className="text-[22px] text-white font-semibold">
-              Bienvenido
-            </h2>
-            <p className="text-sm text-gray-300 font-bold text-center">{user}</p>
-          </div>
+          <h2 className="text-xl text-white font-bold mt-2">Bienvenido  {user?.nombre}</h2>
+          <p className="text-sm text-blue-300 font-semibold">
+          {user ? user?.rol.toUpperCase() : "CARGANDO..."}</p>
         </div>
 
-        {/* Navegación */}
-        <div className="flex flex-col gap-2 p-4 text-white">
-          <div className="flex items-center gap-2 px-4 py-2 rounded hover:bg-blue-700 cursor-pointer transition">
-            <Eye className="w-4 h-4" />
-            <span>Visualizar</span>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded hover:bg-blue-700 cursor-pointer transition">
-            <Eye className="w-4 h-4" />
-            <span>Visualizar</span>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded hover:bg-blue-700 cursor-pointer transition">
-            <Pencil className="w-4 h-4" />
-            <span>Editar</span>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded hover:bg-blue-700 cursor-pointer transition">
-            <Trash2 className="w-4 h-4" />
-            <span>Eliminar</span>
-          </div>
-                    <div className="flex items-center gap-2 px-4 py-2 rounded hover:bg-blue-700 cursor-pointer transition">
-            <Eye className="w-4 h-4" />
-            <span>Visualizar</span>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded hover:bg-blue-700 cursor-pointer transition">
-            <Eye className="w-4 h-4" />
-            <span>Visualizar</span>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded hover:bg-blue-700 cursor-pointer transition">
-            <Pencil className="w-4 h-4" />
-            <span>Editar</span>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded hover:bg-blue-700 cursor-pointer transition">
-            <Trash2 className="w-4 h-4" />
-            <span>Eliminar</span>
-          </div>
-                    <div className="flex items-center gap-2 px-4 py-2 rounded hover:bg-blue-700 cursor-pointer transition">
-            <Eye className="w-4 h-4" />
-            <span>Visualizar</span>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded hover:bg-blue-700 cursor-pointer transition">
-            <Eye className="w-4 h-4" />
-            <span>Visualizar</span>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded hover:bg-blue-700 cursor-pointer transition">
-            <Pencil className="w-4 h-4" />
-            <span>Editar</span>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded hover:bg-blue-700 cursor-pointer transition">
-            <Trash2 className="w-4 h-4" />
-            <span>Eliminar</span>
-          </div>
+        {/* Botón destacado para ir a la tienda */}
+        <div className="px-6 mt-8">
+          <Link
+            to="/dashboard/listarProd"
+            className="flex items-center justify-center gap-2 py-3 px-4 bg-blue-800 text-white rounded-xl font-bold text-lg shadow hover:bg-red-800 transition duration-300"
+          >
+            <ShoppingBag className="w- h-5" />
+            Ir a la tienda
+          </Link>
+        </div>
+
+        {/* Navegación de usuario */}
+        <div className="flex flex-col gap-2 px-6 mt-1 text-white">
+          <Link to="/Profile" className="flex items-center gap-2 px-4 py-2 rounded hover:bg-blue-700 cursor-pointer transition">
+            <User className="w-4 h-4" />
+            <span>Mi perfil</span>
+          </Link>
+          {/* Puedes agregar más enlaces aquí según el rol */}
         </div>
 
         {/* Footer */}
-        <div className="p-4 text-white space-y-4">
-          <div className="flex items-center gap-2 cursor-pointer hover:text-red-400 transition">
+        <div className="p-6 text-white space-y-4">
+          <div className="flex items-center gap-2">
             <LogOut className="w-4 h-4" />
-            <Link to="/">Cerrar sesión</Link>
+            <button
+              className="text-white mr-3 text-md block hover:bg-red-900 text-center bg-red-800 px-4 py-1 rounded-lg"
+              onClick={() => clearToken()}
+            >
+              Salir
+            </button>
           </div>
-          <div className="flex items-center gap-2 cursor-pointer hover:text-yellow-400 transition">
-            <Moon className="w-4 h-4" />
-            <span>Cambiar tema</span>
-          </div>
+          
         </div>
       </nav>
     </>
   );
 };
+export default Sidebar;

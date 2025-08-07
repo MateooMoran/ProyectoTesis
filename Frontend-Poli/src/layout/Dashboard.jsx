@@ -1,14 +1,26 @@
-import { Sidebar } from "../pages/Sidebar";
+import { Outlet } from 'react-router-dom';
+import Sidebar from '../pages/Sidebar';
+const Dashboard = () => {
+    return (
+        <div className='md:flex md:min-h-screen bg-blue-50'>
+            {/* Sidebar */}
+            <Sidebar />
 
-export const Dashboard = () => {
-  return (
-    <div className="flex">
-      <Sidebar></Sidebar>
-      <main className="flex-1 p-6">
-        <h1 className="text-4xl font-bold text-blue-950">Bienvenido al Panel</h1>
-        <h2>Complete</h2>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Illum, repellat. Accusamus consectetur sapiente labore mollitia dignissimos, illo dolorum repudiandae, amet iure quis sequi voluptatum tempora eos fuga. Cupiditate, eveniet quaerat.</p>
-      </main>
-    </div>
-  );
+            {/* Main */}
+            <div className='flex-1 flex flex-col justify-between h-screen bg-blue-50'>
+                {/* Content */}
+                <main className='overflow-y-scroll p-8'>
+                    <Outlet />
+                </main>
+                {/* Footer */}
+                <footer className='bg-blue-950 h-12'>
+                    <p className='text-center text-white leading-[2.9rem] underline'>
+                        © 2025 PoliVentas - Todos los derechos reservados.
+                    </p>
+                </footer>
+            </div>
+        </div>
+    );
 };
+
+export default Dashboard;
