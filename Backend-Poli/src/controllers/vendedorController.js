@@ -1,7 +1,6 @@
 import Categoria from "../models/Categoria.js";
 import Producto from "../models/Producto.js";
 import { v2 as cloudinary } from 'cloudinary'
-import fs from "fs-extra"
 import Notificacion from "../models/Notificacion.js";
 import Orden from "../models/Orden.js";
 import mongoose from 'mongoose';
@@ -39,49 +38,54 @@ const eliminarCategoria = async (req, res) => {
 // PRODUCTOS
 
 const crearProducto = async (req, res) => {
-    const { precio, stock, categoria } = req.body
-    if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Debe llenar todo los campo" })
-    if (!mongoose.Types.ObjectId.isValid(categoria)) {
-        return res.status(400).json({ msg: 'ID de categoría no válido' });
-    }
-    if (precio < 0 || stock < 0) {
-        return res.status(400).json({ msg: "Precio y stock deben ser positivos" });
-    }
+    try {
+        const { precio, stock, categoria } = req.body
+        if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Debe llenar todo los campo" })
+        if (!mongoose.Types.ObjectId.isValid(categoria)) {
+            return res.status(400).json({ msg: 'ID de categoría no válido' });
+        }
+        if (precio < 0 || stock < 0) {
+            return res.status(400).json({ msg: "Precio y stock deben ser positivos" });
+        }
 
-    const nuevoProducto = new Producto({
-        ...req.body,
-        vendedor: req.estudianteBDD._id,
-        estado: "disponible",
-        activo: true,
-    });
-    if (req.files?.imagen) {
-        const { secure_url, public_id } = await cloudinary.uploader.upload(req.files.imagen.tempFilePath, { folder: 'ImagenesProductos' })
-        nuevoProducto.imagen = secure_url
-        nuevoProducto.imagenID = public_id
-    }
-    await fs.unlink(req.files.imagen.tempFilePath)
+        const nuevoProducto = new Producto({
+            ...req.body,
+            vendedor: req.estudianteBDD._id,
+            estado: "disponible",
+            activo: true,
+        });
+        if (req.files?.imagen) {
+            const { secure_url, public_id } = await cloudinary.uploader.upload(req.files.imagen.tempFilePath, { folder: 'ImagenesProductos' })
+            nuevoProducto.imagen = secure_url
+            nuevoProducto.imagenID = public_id
+            const fs = require('fs-extra');
 
-    if (req.body?.imagenIA) {
-        const base64Data = req.body.imagenIA.replace(/^data:image\/\w+;base64,/, '')
-        const buffer = Buffer.from(base64Data, 'base64')
+            await fs.unlink(req.files.imagen.tempFilePath)
+        }
 
-        const { secure_url } = await new Promise((resolve, reject) => {
-            const stream = cloudinary.uploader.upload_stream({ folder: 'ImagenesProductosIA', resource_type: 'auto' }, (error, response) => {
-                if (error) {
-                    reject(error)
-                } else {
-                    resolve(response)
-                }
+        if (req.body?.imagenIA) {
+            const base64Data = req.body.imagenIA.replace(/^data:image\/\w+;base64,/, '')
+            const buffer = Buffer.from(base64Data, 'base64')
+
+            const { secure_url } = await new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream({ folder: 'ImagenesProductosIA', resource_type: 'auto' }, (error, response) => {
+                    if (error) {
+                        reject(error)
+                    } else {
+                        resolve(response)
+                    }
+                })
+                stream.end(buffer)
             })
-            stream.end(buffer)
-        })
-        nuevoProducto.imagenIA = secure_url
-        nuevoProducto.imagenID = public_id
+            nuevoProducto.imagenIA = secure_url
 
+        }
+
+        await nuevoProducto.save()
+        res.status(200).json({ msg: "Producto creado correctamente" })
+    } catch (error) {
+        res.status(500).json({ msg: 'Error interno del servidor' });
     }
-
-    await nuevoProducto.save()
-    res.status(200).json({ msg: "Producto creado correctamente" })
 }
 
 const actualizarProducto = async (req, res) => {
