@@ -5,10 +5,10 @@ import { crearCarrito,eliminarQuejaSugerencia, cearOrdenPendiente,crearQuejasSug
 const router = Router()
 
 // VER CATEGORIAS
-router.get('/estudiante/categoria',verifyTokenJWT,esEstudiante,verCategorias)
+router.get('/estudiante/categoria',verCategorias)
 
 // VER PRODUCTOS
-router.get('/estudiante/productos',verifyTokenJWT,esEstudiante,verProductos)
+router.get('/estudiante/productos',verProductos)
 
 // CARRITO
 router.post('/estudiante/carrito', verifyTokenJWT, esEstudiante, crearCarrito);
