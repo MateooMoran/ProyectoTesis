@@ -17,21 +17,12 @@ const storeProductos = create((set) => ({
     set({ loadingProductos: true, error: null });
 
     try {
-      let url;
+      let url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/productos`;
       let config = token ? { config: { headers: { Authorization: `Bearer ${token}` } } } : {};
-      
-      if (!token) {
-        // Endpoint público (si existe, ajustar según backend)
-        url = `${import.meta.env.VITE_BACKEND_URL}/productos`;
-        console.log('Intentando endpoint público:', url);
-      } else if (user?.rol === 'estudiante' || user?.rol === 'admin') {
-        url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/productos`;
-        console.log('Usando endpoint estudiante:', url);
-      } else if (user?.rol === 'vendedor') {
+
+      if (token && user?.rol === 'vendedor') {
         url = `${import.meta.env.VITE_BACKEND_URL}/vendedor/visualizar/producto`;
         console.log('Usando endpoint vendedor:', url);
-      } else {
-        throw new Error('Rol no permitido para ver productos.');
       }
 
       const response = await fetchDataBackend(url, { method: 'GET', ...config });
@@ -52,22 +43,12 @@ const storeProductos = create((set) => ({
     set({ loadingCategorias: true, error: null });
 
     try {
-      let url;
-      const config = token ? { config: { headers: { Authorization: `Bearer ${token}` } } } : {};
+      let url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/categoria`;
+      let config = token ? { config: { headers: { Authorization: `Bearer ${token}` } } } : {};
 
-      if (!token) {
-        set({ error: 'No estás autenticado para ver categorías.', loadingCategorias: false });
-        return;
-      }
-
-      if (user?.rol === 'estudiante' || user?.rol === 'admin') {
-        url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/categoria`;
-        console.log('Usando endpoint estudiante/categoria:', url);
-      } else if (user?.rol === 'vendedor') {
+      if (token && user?.rol === 'vendedor') {
         url = `${import.meta.env.VITE_BACKEND_URL}/vendedor/visualizar/categoria`;
         console.log('Usando endpoint vendedor/categoria:', url);
-      } else {
-        throw new Error('Rol no permitido para ver categorías.');
       }
 
       const response = await fetchDataBackend(url, { method: 'GET', ...config });
