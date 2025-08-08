@@ -152,7 +152,7 @@ export const Home = () => {
             Descubre productos únicos creados por estudiantes para estudiantes. ¡Explora, compra y apoya a tu comunidad universitaria!
           </p>
           <Link
-            to="/products"
+            to="/dashboard/listarProd"
             className="bg-blue-950 text-white py-2 px-6 rounded-lg font-semibold hover:bg-red-700"
           >
             Comprar Ahora
