@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import storeAuth from '../context/storeAuth'; 
+import storeAuth from '../context/storeAuth';
 
 const storeProfile = create(
   persist(
@@ -52,12 +52,12 @@ const storeProfile = create(
         }
       },
 
-      updatePasswordProfile: async (data, id) => {
+      updatePasswordProfile: async ({ passwordactual, passwordnuevo }, id) => {
         try {
           const { token } = storeAuth.getState();
           if (!token) throw new Error('No hay token');
           const url = `${import.meta.env.VITE_BACKEND_URL}/perfil/actualizarpassword/${id}`;
-          const respuesta = await axios.put(url, data, {
+          const respuesta = await axios.put(url, { passwordactual, passwordnuevo }, {
             headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${token}`,
