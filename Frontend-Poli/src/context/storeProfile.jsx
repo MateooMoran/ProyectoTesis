@@ -11,7 +11,6 @@ const getAuthHeaders = () => {
     }
 }
 
-
 const storProfile = create(set => ({
     user: null,
     clearUser: () => set({ user: null }),
