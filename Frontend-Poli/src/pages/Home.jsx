@@ -10,7 +10,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import { Navigation, Pagination } from 'swiper/modules';
+import { Autoplay, Navigation, Pagination } from 'swiper/modules';
 
 const placeholderImage = 'https://via.placeholder.com/150?text=Sin+Imagen';
 
@@ -58,9 +58,10 @@ export const Home = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    console.log('Buscar:', searchQuery);
-    // Implementar búsqueda con endpoint GET /estudiante/productos?search=query
-    // navigate(`/products?search=${searchQuery}`);
+    if (searchQuery.trim()) {
+      console.log('Buscar:', searchQuery);
+      navigate(`/productos/buscar?query=${encodeURIComponent(searchQuery)}`);
+    }
   };
 
   return (
@@ -80,8 +81,8 @@ export const Home = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar productos..."
-                className="w-full py-1 px-4 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 transition-colors"
+                placeholder="Buscar productos en PoliVentas..."
+                className="w-full py-2 px-4 pr-12 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-800 transition-colors text-gray-700"
               />
               <button type="submit" className="absolute right-2 top-1/2 transform -translate-y-1/2">
                 <Search className="w-5 h-5 text-gray-500" />
@@ -214,11 +215,12 @@ export const Home = () => {
             )}
             {!loadingProductos && !error && productos.length > 0 && (
               <Swiper
-                modules={[Navigation, Pagination]}
+                modules={[Navigation, Pagination, Autoplay]}
                 navigation
                 pagination={{ clickable: true }}
                 spaceBetween={20}
                 slidesPerView={2}
+                autoplay={{ delay: 2000, disableOnInteraction: false }}
                 breakpoints={{
                   640: { slidesPerView: 3 },
                   1024: { slidesPerView: 5 },
@@ -240,7 +242,7 @@ export const Home = () => {
                             </span>
                           )}
                         </div>
-                        <h3 className="text-base font-semibold text-gray-800 line-clamp-2 h-12">{producto.nombreProducto}</h3>
+                        <h3 className="text-base font-semibold text-blue-800 line-clamp-2 h-12">{producto.nombreProducto}</h3>
                         <div className="mt-2">
                           <p className="text-lg font-bold text-red-700">${producto.precio.toFixed(2)}</p>
                           {producto.descuento && (

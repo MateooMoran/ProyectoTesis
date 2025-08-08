@@ -1,55 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import useFetch from '../hooks/useFetch';
 
 const placeholderImage = 'https://via.placeholder.com/150?text=Sin+Imagen';
 
-const CategoriaProductos = () => {
-  const { id } = useParams();
+const ProductosBuscados = () => {
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get('query') || '';
   const { fetchDataBackend } = useFetch();
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [categoriaNombre, setCategoriaNombre] = useState('');
 
   useEffect(() => {
-    const fetchProductosPorCategoria = async () => {
+    const fetchProductosBuscados = async () => {
       setLoading(true);
       setError(null);
       try {
-        const url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/productos/categoria/${id}`;
-        console.log('Solicitando productos de categoría:', url);
-        const response = await fetchDataBackend(url, { method: 'GET' });
-        console.log('Respuesta de productos por categoría:', response);
-        if (!response || response.length === 0) {
-          setError('No se encontraron productos para esta categoría');
-        } else {
-          setProductos(response);
-          setCategoriaNombre(response[0]?.categoria?.nombreCategoria || 'Categoría');
-        }
+        const response = await fetchDataBackend(`${import.meta.env.VITE_BACKEND_URL}/estudiante/productos/buscar?query=${encodeURIComponent(query)}`, {
+          method: 'GET',
+        });
+        console.log('Productos buscados:', response);
+        setProductos(response);
         setLoading(false);
       } catch (err) {
-        const errorMessage = err.message || 'Error al cargar los productos';
-        console.error('Error en fetchProductosPorCategoria:', errorMessage, err);
-        setError(errorMessage);
+        setError(err.message || 'Error al buscar productos');
         setLoading(false);
       }
     };
-    fetchProductosPorCategoria();
-  }, [id, fetchDataBackend]);
+    if (query.trim()) {
+      fetchProductosBuscados();
+    }
+  }, [query, fetchDataBackend]);
 
   return (
     <div className="bg-blue-50 min-h-screen py-10">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-blue-800 text-center mb-6">
-          Productos en {categoriaNombre}
+          Resultados para "{query}"
         </h2>
         {loading && <p className="text-center text-gray-700">Cargando productos...</p>}
         {error && (
           <p className="text-center text-red-700">{error}</p>
         )}
         {!loading && !error && productos.length === 0 && (
-          <p className="text-center text-gray-700">No hay productos en esta categoría.</p>
+          <p className="text-center text-gray-700">No se encontraron productos para "{query}".</p>
         )}
         {!loading && !error && productos.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -86,4 +81,4 @@ const CategoriaProductos = () => {
   );
 };
 
-export default CategoriaProductos;
+export default ProductosBuscados;
