@@ -10,12 +10,13 @@ import { User, LogOut, ShoppingCart, Search, Star } from 'lucide-react';
 
 const Perfil = () => {
   const navigate = useNavigate();
-  const { user, setUser } = storeProfile();
+  const { user, profile, updateProfile, updatePasswordProfile, clearUser } = storeProfile();
   const { token, rol, clearToken } = storeAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showPasswordFields, setShowPasswordFields] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const categoriesRef = useRef(null);
   const userDropdownRef = useRef(null);
   const { register: registerProfile, handleSubmit: handleSubmitProfile, reset: resetProfile, formState: { errors: profileErrors } } = useForm();
@@ -43,71 +44,50 @@ const Perfil = () => {
   }, []);
 
   const fetchProfile = async () => {
+    setIsLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/perfil`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) throw new Error('Error al obtener el perfil');
-      const data = await response.json();
-      setUser(data);
-      resetProfile({
-        nombre: data.nombre,
-        apellido: data.apellido,
-        direccion: data.direccion,
-        telefono: data.telefono,
-      });
+      await profile();
+      setIsLoading(false);
+      if (user) {
+        resetProfile({
+          nombre: user.nombre,
+          apellido: user.apellido,
+          direccion: user.direccion,
+          telefono: user.telefono,
+        });
+      }
     } catch (err) {
-      toast.error(err.message || 'Error al cargar el perfil');
+      setIsLoading(false);
+      toast.error('Error al cargar el perfil');
     }
   };
 
-  const updateProfile = async (data) => {
+  const handleUpdateProfile = async (data) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/perfil/actualizarperfil/${user._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error('Error al actualizar el perfil');
-      const updatedUser = await response.json();
-      setUser(updatedUser);
-      toast.success('Perfil actualizado con éxito');
+      await updateProfile(data, user._id);
+      resetProfile(data); // Mantener los valores actuales en el formulario
     } catch (err) {
-      toast.error(err.message || 'Error al actualizar el perfil');
+      // Error ya manejado en storeProfile
     }
   };
 
-  const updatePassword = async (data) => {
+  const handleUpdatePassword = async (data) => {
     if (data.newPassword !== data.confirmNewPassword) {
       toast.error('Las contraseñas nuevas no coinciden');
       return;
     }
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/perfil/actualizarpassword/${user._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ password: data.newPassword }),
-      });
-      if (!response.ok) throw new Error('Error al actualizar la contraseña');
-      toast.success('Contraseña actualizada con éxito');
+      await updatePasswordProfile({ password: data.newPassword }, user._id);
       resetPassword();
       setShowPasswordFields(false);
     } catch (err) {
-      toast.error(err.message || 'Error al actualizar la contraseña');
+      // Error ya manejado en storeProfile
     }
   };
 
   const handleLogout = () => {
     clearToken();
-    setUser(null);
+    clearUser();
     navigate('/login');
   };
 
@@ -125,7 +105,6 @@ const Perfil = () => {
   return (
     <div className="bg-blue-50 min-h-screen">
       <ToastContainer />
-      {/* Header */}
       <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50">
         <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
           <Link to="/productos">
@@ -228,16 +207,15 @@ const Perfil = () => {
         </div>
       </header>
 
-      {/* Espacio para el header fijo */}
       <div className="h-20 sm:h-24"></div>
 
-      {/* Main Section */}
       <main className="bg-blue-50 py-10">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-blue-800 text-center mb-8">Mi Perfil</h2>
-          {user ? (
+          {isLoading ? (
+            <p className="text-center text-gray-700">Cargando perfil...</p>
+          ) : user ? (
             <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
-              {/* Información del perfil */}
               <div className="mb-8">
                 <h3 className="text-xl font-semibold text-blue-800 mb-4">Información Personal</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -268,15 +246,15 @@ const Perfil = () => {
                 </div>
               </div>
 
-              {/* Formulario para actualizar perfil */}
               <div className="mb-8">
                 <h3 className="text-xl font-semibold text-blue-800 mb-4">Actualizar Perfil</h3>
-                <form onSubmit={handleSubmitProfile(updateProfile)}>
+                <form onSubmit={handleSubmitProfile(handleUpdateProfile)}>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-blue-800 mb-2">Nombre</label>
                       <input
                         type="text"
+                        defaultValue={user.nombre}
                         className="w-full py-2 px-4 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-800 text-gray-700"
                         {...registerProfile('nombre', { required: 'El nombre es obligatorio' })}
                       />
@@ -288,6 +266,7 @@ const Perfil = () => {
                       <label className="block text-sm font-semibold text-blue-800 mb-2">Apellido</label>
                       <input
                         type="text"
+                        defaultValue={user.apellido}
                         className="w-full py-2 px-4 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-800 text-gray-700"
                         {...registerProfile('apellido', { required: 'El apellido es obligatorio' })}
                       />
@@ -299,6 +278,7 @@ const Perfil = () => {
                       <label className="block text-sm font-semibold text-blue-800 mb-2">Dirección</label>
                       <input
                         type="text"
+                        defaultValue={user.direccion}
                         className="w-full py-2 px-4 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-800 text-gray-700"
                         {...registerProfile('direccion')}
                       />
@@ -307,6 +287,7 @@ const Perfil = () => {
                       <label className="block text-sm font-semibold text-blue-800 mb-2">Teléfono</label>
                       <input
                         type="text"
+                        defaultValue={user.telefono}
                         className="w-full py-2 px-4 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-800 text-gray-700"
                         {...registerProfile('telefono')}
                       />
@@ -321,7 +302,6 @@ const Perfil = () => {
                 </form>
               </div>
 
-              {/* Formulario para cambiar contraseña */}
               <div>
                 <h3 className="text-xl font-semibold text-blue-800 mb-4">
                   <button
@@ -332,7 +312,7 @@ const Perfil = () => {
                   </button>
                 </h3>
                 {showPasswordFields && (
-                  <form onSubmit={handleSubmitPassword(updatePassword)}>
+                  <form onSubmit={handleSubmitPassword(handleUpdatePassword)}>
                     <div className="grid grid-cols-1 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-blue-800 mb-2">Contraseña Actual</label>
@@ -382,12 +362,11 @@ const Perfil = () => {
               </div>
             </div>
           ) : (
-            <p className="text-center text-gray-700">Cargando perfil...</p>
+            <p className="text-center text-red-700">Error al cargar el perfil</p>
           )}
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="bg-blue-100 py-6 mt-10">
         <div className="container mx-auto text-center">
           <p className="text-gray-800 font-semibold">
