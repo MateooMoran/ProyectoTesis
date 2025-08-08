@@ -143,16 +143,57 @@ export const Home = () => {
       <div className="h-20 sm:h-24"></div>
 
       {/* Hero Section */}
-      <main className="bg-blue-50 py-10">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl font-extrabold text-blue-800 mb-4">
-            Bienvenido a <span className="text-red-800">PoliVentas</span>
-          </h2>
-          <p className="text-lg text-gray-700 mb-6">
-            Descubre productos únicos creados por estudiantes para estudiantes. ¡Explora, compra y apoya a tu comunidad universitaria!
-          </p>
-        </div>
-      </main>
+<main className="bg-blue-50 py-10">
+  <div className="container mx-auto px-4 text-center">
+    <h2 className="text-4xl font-extrabold text-blue-900 mb-4">
+      Bienvenido a <span className="text-red-700">PoliVentas</span>
+    </h2>
+    <p className="text-lg text-gray-700 mb-6">
+      Descubre productos únicos creados por estudiantes para estudiantes. ¡Explora, compra y apoya a tu comunidad universitaria!
+    </p>
+
+    {/* Aquí insertamos la cuadrícula de productos */}
+    {loadingProductos && <p className="text-center text-gray-700">Cargando productos...</p>}
+    {error && (
+      <p className="text-center text-red-700">
+        {error}{' '}
+        {error.includes('autenticado') && (
+          <Link to="/login" className="underline hover:text-blue-900">
+            Inicia sesión
+          </Link>
+        )}
+      </p>
+    )}
+    {!loadingProductos && !error && productos.length === 0 && (
+      <p className="text-center text-gray-700">No hay productos disponibles.</p>
+    )}
+    {!loadingProductos && !error && productos.length > 0 && (
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
+        {productos.map((producto) => (
+          <div
+            key={producto._id}
+            className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-300 p-4 flex flex-col items-center cursor-pointer"
+          >
+            <div className="w-full aspect-square overflow-hidden rounded-lg mb-3">
+              <img
+                src={producto.imagen || placeholderImage}
+                alt={producto.nombreProducto}
+                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+              />
+            </div>
+            <h4 className="text-lg font-semibold text-blue-900 mb-1 text-center line-clamp-2">
+              {producto.nombreProducto}
+            </h4>
+            <p className="text-red-700 font-bold text-xl">${producto.precio.toFixed(2)}</p>
+            <p className="text-gray-600 text-sm mt-2 line-clamp-3 text-center">
+              {producto.descripcion}
+            </p>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+</main>
 
       {/* Productos Destacados */}
       <section className="bg-white py-10">
