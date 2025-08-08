@@ -61,7 +61,7 @@ export const Home = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar productos..."
-                className="w-full py-2 px-4 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-950"
+                className="w-full py-2 px-4 pr-10 rounded-full border border-gray-300 focus:outline-none focus:border-blue-600"
               />
               <button type="submit" className="absolute right-2 top-1/2 transform -translate-y-1/2">
                 <Search className="w-5 h-5 text-gray-500" />
@@ -74,7 +74,7 @@ export const Home = () => {
             {/* Botón Categorías */}
             <Link
               to="/products"
-              className="text-blue-900 font-semibold hover:text-red-700"
+              className="text-blue-800 font-semibold hover:text-red-800 transition-colors"
             >
               Categorías
             </Link>
@@ -82,7 +82,7 @@ export const Home = () => {
             {/* Botón Carrito (solo para estudiantes autenticados) */}
             {token && user?.rol === 'estudiante' && (
               <Link to="/estudiante/carrito" className="relative">
-                <ShoppingCart className="w-6 h-6 text-blue-900 hover:text-red-700" />
+                <ShoppingCart className="w-6 h-6 text-blue-800 hover:text-red-800 transition-colors" />
               </Link>
             )}
 
@@ -90,7 +90,7 @@ export const Home = () => {
             {token ? (
               <div className="relative">
                 <button
-                  className="flex items-center gap-2 text-blue-900 font-bold text-lg hover:text-red-700"
+                  className="flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 >
                   <User className="w-5 h-5" />
@@ -98,19 +98,19 @@ export const Home = () => {
                 </button>
                 {isDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
-                    <div className="px-4 py-2 text-sm text-blue-900 border-b">
+                    <div className="px-4 py-2 text-sm text-blue-800 border-b">
                       <p><strong>Nombre:</strong> {user?.nombre || "Usuario"}</p>
                       <p><strong>Rol:</strong> {user?.rol ? user.rol.toUpperCase() : "N/A"}</p>
                     </div>
                     <Link
                       to="/perfil"
-                      className="block px-4 py-2 text-blue-900 hover:bg-blue-100"
+                      className="block px-4 py-2 text-blue-800 hover:bg-blue-50"
                       onClick={() => setIsDropdownOpen(false)}
                     >
                       Mi Perfil
                     </Link>
                     <button
-                      className="block w-full text-left px-4 py-2 text-blue-900 hover:bg-blue-100"
+                      className="block w-full text-left px-4 py-2 text-blue-800 hover:bg-blue-50"
                       onClick={handleLogout}
                     >
                       <LogOut className="w-4 h-4 inline mr-2" />
@@ -123,13 +123,13 @@ export const Home = () => {
               <div className="flex gap-4">
                 <Link
                   to="/login"
-                  className="text-blue-900 font-semibold hover:text-red-700"
+                  className="bg-blue-800 text-white py-2 px-6 rounded-full font-semibold hover:bg-red-800 transition-colors"
                 >
                   Iniciar Sesión
                 </Link>
                 <Link
                   to="/register"
-                  className="text-blue-900 font-semibold hover:text-red-700"
+                  className="bg-blue-800 text-white py-2 px-6 rounded-full font-semibold hover:bg-red-800 transition-colors"
                 >
                   Registrarse
                 </Link>
@@ -145,31 +145,25 @@ export const Home = () => {
       {/* Hero Section */}
       <main className="bg-blue-50 py-10">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl font-extrabold text-blue-900 mb-4">
-            Bienvenido a <span className="text-red-700">PoliVentas</span>
+          <h2 className="text-4xl font-extrabold text-blue-800 mb-4">
+            Bienvenido a <span className="text-red-800">PoliVentas</span>
           </h2>
           <p className="text-lg text-gray-700 mb-6">
             Descubre productos únicos creados por estudiantes para estudiantes. ¡Explora, compra y apoya a tu comunidad universitaria!
           </p>
-          <Link
-            to="/dashboard/listarProd"
-            className="bg-blue-950 text-white py-2 px-6 rounded-lg font-semibold hover:bg-red-700"
-          >
-            Comprar Ahora
-          </Link>
         </div>
       </main>
 
       {/* Productos Destacados */}
       <section className="bg-white py-10">
         <div className="container mx-auto px-4">
-          <h3 className="text-3xl font-bold text-blue-900 text-center mb-6">Productos Destacados</h3>
+          <h3 className="text-3xl font-bold text-blue-800 text-center mb-6">Productos Destacados</h3>
           {loadingProductos && <p className="text-center text-gray-700">Cargando productos...</p>}
           {error && (
-            <p className="text-center text-red-700">
+            <p className="text-center text-red-800">
               {error}{' '}
               {error.includes('autenticado') && (
-                <Link to="/login" className="underline hover:text-blue-900">
+                <Link to="/login" className="underline hover:text-blue-800">
                   Inicia sesión
                 </Link>
               )}
@@ -184,28 +178,38 @@ export const Home = () => {
               navigation
               pagination={{ clickable: true }}
               spaceBetween={20}
-              slidesPerView={1}
+              slidesPerView={2}
               breakpoints={{
-                640: { slidesPerView: 2 },
-                1024: { slidesPerView: 3 },
+                640: { slidesPerView: 3 },
+                1024: { slidesPerView: 5 },
               }}
             >
               {productos.map((producto) => (
                 <SwiperSlide key={producto._id}>
-                  <div className="bg-white p-4 rounded-lg shadow-md text-center">
-                    <img
-                      src={producto.imagen || placeholderImage}
-                      alt={producto.nombreProducto}
-                      className="w-full h-48 object-cover rounded-md mb-4"
-                    />
-                    <h4 className="text-lg font-semibold text-blue-900">{producto.nombreProducto}</h4>
-                    <p className="text-gray-700 pb-2">${producto.precio.toFixed(2)}</p>
-                    <p className="text-sm text-gray-600">{producto.descripcion}</p>
-                    <p className="text-sm text-gray-600">Stock: {producto.stock}</p>
-                    <p className="text-sm text-gray-600">
-                      Categoría: {producto.categoria?.nombreCategoria || 'N/A'}
-                    </p>
-                  </div>
+                  <Link to={`/producto/${producto._id}`} className="block">
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 p-4">
+                      <div className="relative">
+                        <img
+                          src={producto.imagen || placeholderImage}
+                          alt={producto.nombreProducto}
+                          className="w-full h-48 object-contain rounded-md mb-3"
+                        />
+                        {producto.stock <= 5 && (
+                          <span className="absolute top-2 left-2 bg-red-800 text-white text-xs font-semibold px-2 py-1 rounded">
+                            ¡Solo {producto.stock} disponibles!
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="text-base font-semibold text-gray-800 line-clamp-2 h-12">{producto.nombreProducto}</h3>
+                      <div className="mt-2">
+                        <p className="text-lg font-bold text-red-800">${producto.precio.toFixed(2)}</p>
+                        {producto.descuento && (
+                          <p className="text-sm text-gray-500 line-through">${(producto.precio * 1.2).toFixed(2)}</p>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">{producto.descripcion}</p>
+                    </div>
+                  </Link>
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -214,19 +218,19 @@ export const Home = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-white py-6 mt-10">
+      <footer className="bg-blue-800 py-6 mt-10">
         <div className="container mx-auto text-center">
-          <p className="text-gray-700 font-semibold">
+          <p className="text-white font-semibold">
             © 2025 PoliVentas - Todos los derechos reservados.
           </p>
           <div className="flex justify-center gap-4 mt-4">
-            <a href="#" className="text-blue-900 hover:text-red-700">
+            <a href="#" className="text-white hover:text-red-800 transition-colors">
               Facebook
             </a>
-            <a href="#" className="text-blue-900 hover:text-red-700">
+            <a href="#" className="text-white hover:text-red-800 transition-colors">
               Instagram
             </a>
-            <a href="#" className="text-blue-900 hover:text-red-700">
+            <a href="#" className="text-white hover:text-red-800 transition-colors">
               Twitter
             </a>
           </div>
