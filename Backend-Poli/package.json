@@ -31,6 +31,8 @@
   },
   "devDependencies": {
     "@babel/preset-env": "^7.28.0",
-    "jest": "^30.0.5"
+    "jest": "^30.0.5",
+    "multer": "^2.0.2",
+    "supertest": "^7.1.4"
   }
 }
