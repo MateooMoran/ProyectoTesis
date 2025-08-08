@@ -65,7 +65,7 @@ const Perfil = () => {
   const handleUpdateProfile = async (data) => {
     try {
       await updateProfile(data, user._id);
-      resetProfile(data); // Mantener los valores actuales en el formulario
+      resetProfile(data);
     } catch (err) {
       // Error ya manejado en storeProfile
     }
@@ -77,7 +77,7 @@ const Perfil = () => {
       return;
     }
     try {
-      await updatePasswordProfile({ password: data.newPassword }, user._id);
+      await updatePasswordProfile({ passwordactual: data.currentPassword, passwordnuevo: data.newPassword }, user._id);
       resetPassword();
       setShowPasswordFields(false);
     } catch (err) {
@@ -107,7 +107,7 @@ const Perfil = () => {
       <ToastContainer />
       <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50">
         <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <Link to="/productos">
+          <Link to="/dashboard">
             <img src={logo} alt="PoliVentas" className="w-36 h-12 object-cover" />
           </Link>
           <form onSubmit={handleSearch} className="flex-1 max-w-lg mx-4">
@@ -332,7 +332,7 @@ const Perfil = () => {
                           className="w-full py-2 px-4 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-800 text-gray-700"
                           {...registerPassword('newPassword', {
                             required: 'La nueva contraseña es obligatoria',
-                            minLength: { value: 6, message: 'La contraseña debe tener al menos 6 caracteres' },
+                            minLength: { value: 4, message: 'La contraseña debe tener al menos 4 caracteres' },
                           })}
                         />
                         {passwordErrors.newPassword && (
