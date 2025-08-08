@@ -20,6 +20,7 @@ const storeProductos = create((set) => ({
       let url;
       let config = token ? { config: { headers: { Authorization: `Bearer ${token}` } } } : {};
       if (!token) {
+        // Endpoint público (debe implementarse en el backend)
         url = `${import.meta.env.VITE_BACKEND_URL}/productos`;
         console.log('Intentando endpoint público:', url);
       } else if (user?.rol === 'estudiante') {
@@ -37,8 +38,7 @@ const storeProductos = create((set) => ({
 
       const response = await fetchDataBackend(url, { method: 'GET', ...config });
       console.log('Respuesta de productos:', response);
-      const productos = response.data || response; // Manejar { msg, data } o array directo
-      set({ productos, loadingProductos: false });
+      set({ productos: response, loadingProductos: false });
     } catch (error) {
       const errorMessage = error.message || 'Error al cargar los productos';
       console.error('Error en fetchProductos:', errorMessage, error);
@@ -72,8 +72,7 @@ const storeProductos = create((set) => ({
 
       const response = await fetchDataBackend(url, { method: 'GET', ...config });
       console.log('Respuesta de categorías:', response);
-      const categorias = response.data || response; // Manejar { msg, data } o array directo
-      set({ categorias, loadingCategorias: false });
+      set({ categorias: response, loadingCategorias: false });
     } catch (error) {
       const errorMessage = error.message || 'Error al cargar las categorías';
       console.error('Error en fetchCategorias:', errorMessage, error);

@@ -30,13 +30,13 @@ const Register = () => {
             {/* Contenedor del formulario */}
             <div className="w-full sm:w-1/2 h-screen bg-white flex justify-center items-center">
                 <div className="md:w-4/5 sm:w-full">
-                    <h1 className="text-3xl font-semibold mb-2 text-center uppercase text-blue-700">Crear cuenta</h1>
+                    <h1 className="text-3xl font-semibold mb-2 text-center uppercase text-blue-800">Crear cuenta</h1>
                     <small className="text-gray-500 block my-4 text-sm">Llena los siguientes campos</small>
 
                     <form onSubmit={handleSubmit(registro)}>
                         <div className="mb-3">
-                            <label className="mb-2 block text-sm font-semibold text-blue-700">Nombre</label>
-                            <input type="text" placeholder="Ingresa tu nombre" className="block w-full rounded-md border border-gray-300 focus:border-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-700 py-1 px-2 text-gray-700"
+                            <label className="mb-2 block text-sm font-semibold text-blue-800">Nombre</label>
+                            <input type="text" placeholder="Ingresa tu nombre" className="block w-full rounded-md border border-gray-300 focus:border-blue-800 focus:outline-none focus:ring-1 focus:ring-blue-800 py-1 px-2 text-gray-800"
                                 {...register("nombre", { required: "El nombre es obligatorio" })}
                             />
                             {errors.nombre && <p className="text-red-800">{errors.nombre.message}</p>}
@@ -44,8 +44,8 @@ const Register = () => {
                         </div>
 
                         <div className="mb-3">
-                            <label className="mb-2 block text-sm font-semibold text-blue-700">Apellido</label>
-                            <input type="text" placeholder="Ingresa tu apellido" className="block w-full rounded-md border border-gray-300 focus:border-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-700 py-1 px-2 text-gray-700"
+                            <label className="mb-2 block text-sm font-semibold text-blue-800">Apellido</label>
+                            <input type="text" placeholder="Ingresa tu apellido" className="block w-full rounded-md border border-gray-300 focus:border-blue-800 focus:outline-none focus:ring-1 focus:ring-blue-800 py-1 px-2 text-gray-800"
                                 {...register("apellido", { required: "El apellido es obligatorio" })}
 
                             />
@@ -54,8 +54,8 @@ const Register = () => {
                         </div>
 
                         <div className="mb-3">
-                            <label className="mb-2 block text-sm font-semibold text-blue-700">Teléfono</label>
-                            <input type="text" placeholder="Ingresa tu número de teléfono" className="block w-full rounded-md border border-gray-300 focus:border-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-700 py-1 px-2 text-gray-700"                             {...register("telefono", { required: "La direccion es obligatorio" })}
+                            <label className="mb-2 block text-sm font-semibold text-blue-800">Teléfono</label>
+                            <input type="text" placeholder="Ingresa tu número de teléfono" className="block w-full rounded-md border border-gray-300 focus:border-blue-800 focus:outline-none focus:ring-1 focus:ring-blue-800 py-1 px-2 text-gray-800"                             {...register("telefono", { required: "La direccion es obligatorio" })}
 
                             />
                             {errors.telefono && <p className="text-red-800">{errors.telefono.message}</p>}
@@ -63,8 +63,8 @@ const Register = () => {
                         </div>
 
                         <div className="mb-3">
-                            <label className="mb-2 block text-sm font-semibold text-blue-700">Dirección</label>
-                            <input type="text" placeholder="Ingresa tu dirección" className="block w-full rounded-md border border-gray-300 focus:border-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-700 py-1 px-2 text-gray-700"
+                            <label className="mb-2 block text-sm font-semibold text-blue-800">Dirección</label>
+                            <input type="text" placeholder="Ingresa tu dirección" className="block w-full rounded-md border border-gray-300 focus:border-blue-800 focus:outline-none focus:ring-1 focus:ring-blue-800 py-1 px-2 text-gray-800"
                                 {...register("direccion", { required: "La direccion es obligatorio" })}
 
                             />
@@ -73,8 +73,8 @@ const Register = () => {
                         </div>
 
                         <div className="mb-3">
-                            <label className="mb-2 block text-sm font-semibold text-blue-700">Correo electrónico</label>
-                            <input type="email" placeholder="Ingresa tu correo" className="block w-full rounded-md border border-gray-300 focus:border-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-700 py-1 px-2 text-gray-700"
+                            <label className="mb-2 block text-sm font-semibold text-blue-800">Correo electrónico</label>
+                            <input type="email" placeholder="Ingresa tu correo" className="block w-full rounded-md border border-gray-300 focus:border-blue-800 focus:outline-none focus:ring-1 focus:ring-blue-800 py-1 px-2 text-gray-700"
                                 {...register("email", { required: "El correo electrónico es obligatorio" })}
                             />
                             {errors.email && <p className="text-red-800">{errors.email.message}</p>}
@@ -82,13 +82,13 @@ const Register = () => {
                         </div>
 
                         {/* Campo para contraseña */}
-                        <div className="mb-3 relative">
+                        <div className="mb-3 relative text-blue-800">
                             <label className="mb-2 block text-sm font-semibold">Contraseña</label>
                             <div className="relative">
                                 <input
                                     type={showPassword ? "text" : "password"} 
                                     placeholder="********************"
-                                    className="block w-full rounded-md border border-gray-300 focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700 py-1 px-1.5 text-gray-500 pr-10"
+                                    className="block w-full rounded-md border border-gray-300 focus:border-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-700 py-1 px-1.5 text-gray-500 pr-10"
                                     {...register("password", { required: "La contraseña es obligatorio" })}
                                 />
                                 {errors.password && <p className="text-red-800">{errors.password.message}</p>}
@@ -112,7 +112,7 @@ const Register = () => {
                             </div>
                         </div>
                         <div className="mb-3">
-                            <button className="w-full py-2 my-5 bg-blue-700 text-white rounded-xl hover:scale-105 duration-300 hover:bg-red-700">Registrarse</button>
+                            <button className="w-full py-2 my-5 bg-blue-800 text-white rounded-xl hover:scale-105 duration-300 hover:bg-red-700">Registrarse</button>
                         </div>
                     </form>
 

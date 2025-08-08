@@ -65,9 +65,6 @@ app.use('/api',routerEstudiante)
 app.use('/api',routerServicio)
 
 
-
-
-
 // Rutas que no existen
 app.use((req,res)=>{res.status(404).send("Endpoint no encontrado")})
 
