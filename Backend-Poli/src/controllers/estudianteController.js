@@ -23,6 +23,54 @@ const verProductos = async (req, res) => {
     res.status(200).json(productos);
 };
 
+const verProductoPorId = async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ msg: "ID de producto inválido" });
+    }
+    const producto = await Producto.findById(id)
+        .populate('categoria', 'nombreCategoria _id');
+    if (!producto) {
+        return res.status(404).json({ msg: "Producto no encontrado" });
+    }
+    res.status(200).json(producto);
+};
+
+const buscarProductos = async (req, res) => {
+    const { query } = req.query;
+    if (!query) {
+        return res.status(400).json({ msg: "Consulta de búsqueda requerida" });
+    }
+    const productos = await Producto.find({
+        $or: [
+            { nombreProducto: new RegExp(query, 'i') },
+            { descripcion: new RegExp(query, 'i') }
+        ],
+        disponible: true
+    })
+        .select('nombreProducto precio imagen stock categoria estado descripcion')
+        .populate('categoria', 'nombreCategoria _id');
+    if (!productos.length) {
+        return res.status(404).json({ msg: "No se encontraron productos" });
+    }
+    res.status(200).json(productos);
+};
+
+const verProductosPorCategoria = async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ msg: "ID de categoría inválido" });
+    }
+    const productos = await Producto.find({ categoria: id, disponible: true })
+        .select('nombreProducto precio imagen stock categoria estado descripcion')
+        .populate('categoria', 'nombreCategoria _id');
+    if (!productos.length) {
+        return res.status(404).json({ msg: "No se encontraron productos en esta categoría" });
+    }
+    res.status(200).json(productos);
+};
+
+
 // CARRITO
 
 const crearCarrito = async (req, res) => {
@@ -100,7 +148,7 @@ const visualizarCarrito = async (req, res) => {
 const disminuirCantidadProducto = async (req, res) => {
     const { id } = req.params;
     const carrito = await Carrito.findOne({ comprador: req.estudianteBDD._id });
-    if(!mongoose.Types.ObjectId.isValid(id)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ msg: "ID de producto inválido" });
     }
     if (!carrito || carrito.productos.length === 0) {
@@ -462,6 +510,9 @@ const eliminarNotificacionEstudiante = async (req, res) => {
 export {
     verCategorias,
     verProductos,
+    verProductoPorId,
+    buscarProductos,
+    verProductosPorCategoria,
     crearCarrito,
     visualizarCarrito,
     disminuirCantidadProducto,
