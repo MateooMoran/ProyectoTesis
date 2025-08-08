@@ -123,13 +123,13 @@ export const Home = () => {
               <div className="flex gap-4">
                 <Link
                   to="/login"
-                  className="bg-blue-800 text-white py-2 px-6 rounded-full font-semibold hover:bg-red-800 transition-colors"
+                  className="bg-blue-800 text-white py-2 px-6 rounded-xl font-semibold border hover:bg-red-800 transition-colors hover:scale-105 duration-300"
                 >
                   Iniciar Sesión
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-blue-800 text-white py-2 px-6 rounded-full font-semibold hover:bg-red-800 transition-colors"
+                  className="bg-blue-800 text-white py-2 px-6 rounded-xl font-semibold border hover:bg-red-800 transition-colors hover:scale-105 duration-300"
                 >
                   Registrarse
                 </Link>
