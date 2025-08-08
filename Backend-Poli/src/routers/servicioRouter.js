@@ -3,22 +3,33 @@ import { verifyTokenJWT } from "../middlewares/JWT.js";
 import { tieneRol } from "../middlewares/roles.js";
 import { buscarEstudiantePorNombre } from "../controllers/servicioController.js";
 import passport from 'passport';
-const router = Router()
+import jwt from 'jsonwebtoken';
 
-router.get('/chat/buscar', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), buscarEstudiantePorNombre)
+const router = Router();
 
+router.get('/chat/buscar', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), buscarEstudiantePorNombre);
 
 router.get('/auth/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
+  passport.authenticate('google', { scope: ['profile', 'email'], session: false })
 );
 
 router.get('/auth/google/callback',
-  passport.authenticate('google', {
-    failureRedirect: '/login', 
-    session: true
-  }),
+  passport.authenticate('google', { failureRedirect: '/login', session: false }),
   (req, res) => {
-    res.redirect('http://localhost:5173/dashboard'); 
+    try {
+      const user = req.user;
+      const token = jwt.sign(
+        { id: user._id, rol: user.rol },
+        process.env.JWT_SECRET,
+        { expiresIn: '1d' }
+      );
+
+      // Redirigir al frontend con token y rol
+      res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}&rol=${user.rol}`);
+    } catch (err) {
+      console.error('Error en google callback:', err);
+      res.redirect(`${process.env.FRONTEND_URL}/login`);
+    }
   }
 );
 
@@ -33,9 +44,8 @@ router.get('/auth/usuario', (req, res) => {
 // Cerrar sesión
 router.get('/auth/logout', (req, res) => {
   req.logout(() => {
-    res.redirect('/'); 
+    res.redirect(`${process.env.FRONTEND_URL}`);
   });
 });
 
-
-export default router
+export default router;

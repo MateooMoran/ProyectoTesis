@@ -6,6 +6,7 @@ import storeAuth from '../context/storeAuth';
 import storeProductos from '../context/storeProductos';
 import { User, LogOut, ShoppingCart, Search, Star } from 'lucide-react';
 
+
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -160,7 +161,7 @@ const Productos = () => {
               <div className="relative" ref={userDropdownRef}>
                 <button
                   className="flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  onMouseEnter={() => setIsDropdownOpen(!isDropdownOpen)}
                 >
                   <User className="w-5 h-5" />
                   <span>{user?.nombre ? `Hola, ${user.nombre}` : 'Usuario'}</span>
@@ -172,7 +173,7 @@ const Productos = () => {
                       <p><strong>Rol:</strong> {user?.rol ? user.rol.toUpperCase() : 'N/A'}</p>
                     </div>
                     <Link
-                      to="/perfil"
+                      to="/dashboard/perfil"
                       className="block px-4 py-2 text-blue-800 hover:bg-blue-50"
                       onClick={() => setIsDropdownOpen(false)}
                     >

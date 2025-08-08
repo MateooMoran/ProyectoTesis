@@ -10,8 +10,9 @@ import PublicRoute from './routes/PublicRoute'
 import ProtectedRoute from './routes/ProtectedRoute'
 import Productos from './pages/Productos';
 import CategoriaProductos from './pages/Categorias';
-import Profile from "./pages/Profile";
+import Perfil from "./pages/Perfil";
 import ProductoBuscado from './pages/ProductoBuscado';
+import AuthCallback from './pages/AuthCallback';
 
 
 import { useEffect } from 'react'
@@ -35,6 +36,7 @@ function App() {
           <Route element={<PublicRoute />}>
             <Route index element={<Home />} />
             <Route path='login' element={<Login />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path='register' element={<Register />} />
             <Route path='forgot/:id' element={<Forgot />} />
             <Route path='confirm/:token' element={<Confirm />} />
@@ -46,7 +48,7 @@ function App() {
             <ProtectedRoute>
               <Routes>
                 <Route element={<Dashboard />}>
-                  <Route index element={<Profile />} />
+                  <Route index element={<Productos />} />
                   <Route path='listarProd' element={<Productos />} />
                   <Route path="/productos/categoria/:id" element={<CategoriaProductos />} />
                   <Route path="/productos/buscar" element={<ProductoBuscado />} />
@@ -57,7 +59,8 @@ function App() {
                   <Route path='actualizar/:id' element={<Update />} />
                   <Route path='chat' element={<Chat />} />
                   */}
-                </Route>
+                </Route>  
+                <Route path='perfil' element={<Perfil />} />
               </Routes>
             </ProtectedRoute>
           } />
@@ -68,6 +71,4 @@ function App() {
     </>
   )
 }
-
-
 export default App

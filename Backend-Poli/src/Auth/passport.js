@@ -10,16 +10,23 @@ passport.use(new GoogleStrategy({
   async (accessToken, refreshToken, profile, done) => {
     try {
       // Buscar usuario en DB
-      const existingUser = await Estudiante.findOne({ email: profile.emails[0].value });
+      let existingUser = await Estudiante.findOne({ email: profile.emails[0].value });
 
-      if (existingUser) return done(null, existingUser);
+      if (existingUser) {
+        // Si el usuario ya existe, verificar si tiene googleId
+        if (!existingUser.googleId) {
+          existingUser.googleId = profile.id;
+          await existingUser.save();
+        }
+        return done(null, existingUser);
+      }
 
       // Si no existe, crear uno nuevo
       const nuevoEstudiante = await Estudiante.create({
-        nombre: profile.name?.givenName,
+        googleId: profile.id,
+        nombre: profile.name?.givenName || 'Usuario',
         apellido: profile.name?.familyName || 'Google',
         email: profile.emails[0].value,
-        password: ':)',
         rol: "estudiante",
         direccion: "Google",
         telefono: "Google"
@@ -27,15 +34,23 @@ passport.use(new GoogleStrategy({
 
       return done(null, nuevoEstudiante);
     } catch (error) {
+      console.error('Error en Google Strategy:', error);
       return done(error, null);
     }
   }
 ));
+
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
 passport.deserializeUser(async (id, done) => {
-  const user = await Estudiante.findById(id);
-  done(null, user);
+  try {
+    const user = await Estudiante.findById(id);
+    done(null, user);
+  } catch (err) {
+    done(err, null);
+  }
 });
+
+export default passport;
