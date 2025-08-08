@@ -303,19 +303,28 @@ export const Home = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-blue-100 py-6 mt-10">
-        <div className="container mx-auto text-center">
-          <p className="text-gray-800 font-semibold">
+      <footer className="bg-blue-950 py-4">
+        <div className="text-center">
+          <p className="text-white underline mb-2">
             © 2025 PoliVentas - Todos los derechos reservados.
           </p>
-          <div className="flex justify-center gap-4 mt-4">
-            <a href="#" className="text-gray-800 hover:text-red-800 transition-colors">
+          <div className="flex justify-center gap-6">
+            <a
+              href="#"
+              className="text-white hover:text-red-400 transition-colors"
+            >
               Facebook
             </a>
-            <a href="#" className="text-gray-800 hover:text-red-800 transition-colors">
+            <a
+              href="#"
+              className="text-white hover:text-red-400 transition-colors"
+            >
               Instagram
             </a>
-            <a href="#" className="text-gray-800 hover:text-red-800 transition-colors">
+            <a
+              href="#"
+              className="text-white hover:text-red-400 transition-colors"
+            >
               Twitter
             </a>
           </div>

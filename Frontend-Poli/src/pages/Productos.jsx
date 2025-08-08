@@ -12,12 +12,11 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 
-const placeholderImage = 'https://via.placeholder.com/300?text=Sin+Imagen';
+const placeholderImage = 'https://via.placeholder.com/150?text=Sin+Imagen';
 const categoryImages = {
   Tecnologia: 'https://via.placeholder.com/300x150/1E3A8A?text=Tecnología',
   Libros: 'https://via.placeholder.com/300x150/1E3A8A?text=Libros',
   Ropa: 'https://via.placeholder.com/300x150/1E3A8A?text=Ropa',
-  // Agrega más imágenes por categoría si están disponibles
 };
 
 const Productos = () => {
@@ -73,17 +72,17 @@ const Productos = () => {
   };
 
   return (
-    <div className="bg-blue-50 min-h-screen">
+    <>
       {/* Header */}
-      <header className="bg-white shadow-lg py-4 fixed top-0 left-0 right-0 z-50">
-        <div className="container mx-auto px-4 flex items-center justify-between gap-4">
+      <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50">
+        <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
           {/* Logo */}
           <Link to="/productos">
-            <img src={logo} alt="PoliVentas" className="w-32 h-10 object-contain" />
+            <img src={logo} alt="PoliVentas" className="w-36 h-12 object-cover" />
           </Link>
 
           {/* Barra de Búsqueda */}
-          <form onSubmit={handleSearch} className="flex-1 max-w-xl mx-4">
+          <form onSubmit={handleSearch} className="flex-1 max-w-lg mx-4">
             <div className="relative">
               <input
                 type="text"
@@ -92,14 +91,14 @@ const Productos = () => {
                 placeholder="Buscar productos en PoliVentas..."
                 className="w-full py-2 px-4 pr-12 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-800 transition-colors text-gray-700"
               />
-              <button type="submit" className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                <Search className="w-5 h-5 text-blue-800" />
+              <button type="submit" className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                <Search className="w-5 h-5 text-gray-500" />
               </button>
             </div>
           </form>
 
           {/* Botones */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             {/* Botón Destacado */}
             <button
               onClick={scrollToCarousel}
@@ -108,10 +107,22 @@ const Productos = () => {
               <Star className="w-5 h-5" />
               Destacado
             </button>
-            <div className="relative" ref={categoriesRef}>
 
+            {/* Botón Categorías con Dropdown */}
+            <div className="relative" ref={categoriesRef}>
+              <button
+                className="text-blue-800 font-semibold hover:text-red-800 transition-colors"
+                onMouseEnter={() => setIsCategoriesOpen(true)}
+                onMouseLeave={() => setIsCategoriesOpen(false)}
+              >
+                Categorías
+              </button>
               {isCategoriesOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 border border-gray-200">
+                <div
+                  className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200"
+                  onMouseEnter={() => setIsCategoriesOpen(true)}
+                  onMouseLeave={() => setIsCategoriesOpen(false)}
+                >
                   {loadingCategorias && (
                     <p className="px-4 py-2 text-gray-500 text-sm">Cargando categorías...</p>
                   )}
@@ -137,17 +148,12 @@ const Productos = () => {
               )}
             </div>
 
-            {/* Carrito */}
+            {/* Botón Carrito */}
             {token && user?.rol === 'estudiante' && (
-              <Link
-                to="/estudiante/carrito"
-                className="relative flex items-center gap-1 text-blue-800 font-semibold hover:text-red-800 transition-colors"
-              >
-                <ShoppingCart className="w-6 h-6" />
-                <span>Carrito</span>
+              <Link to="/estudiante/carrito" className="relative">
+                <ShoppingCart className="w-6 h-6 text-blue-800 hover:text-red-800 transition-colors" />
               </Link>
             )}
-
 
             {/* Perfil */}
             {token ? (
@@ -157,23 +163,23 @@ const Productos = () => {
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 >
                   <User className="w-5 h-5" />
-                  <span>{user?.nombre ? user.nombre : 'Usuario'}</span>
+                  <span>{user?.nombre ? `Hola, ${user.nombre}` : 'Usuario'}</span>
                 </button>
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50 border border-gray-200">
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200">
                     <div className="px-4 py-2 text-sm text-blue-800 border-b">
                       <p><strong>Nombre:</strong> {user?.nombre || 'Usuario'}</p>
                       <p><strong>Rol:</strong> {user?.rol ? user.rol.toUpperCase() : 'N/A'}</p>
                     </div>
                     <Link
                       to="/perfil"
-                      className="block px-4 py-2 text-blue-800 hover:bg-blue-100"
+                      className="block px-4 py-2 text-blue-800 hover:bg-blue-50"
                       onClick={() => setIsDropdownOpen(false)}
                     >
                       Mi Perfil
                     </Link>
                     <button
-                      className="block w-full text-left px-4 py-2 text-blue-800 hover:bg-blue-100"
+                      className="block w-full text-left px-4 py-2 text-blue-800 hover:bg-blue-50"
                       onClick={handleLogout}
                     >
                       <LogOut className="w-4 h-4 inline mr-2" />
@@ -186,13 +192,13 @@ const Productos = () => {
               <div className="flex gap-4">
                 <Link
                   to="/login"
-                  className="bg-blue-800 text-white py-2 px-4 rounded-full font-semibold hover:bg-red-800 transition-colors"
+                  className="bg-blue-800 text-white py-2 px-6 rounded-xl font-semibold border hover:bg-red-800 transition-colors hover:scale-105 duration-300"
                 >
                   Iniciar Sesión
                 </Link>
                 <Link
-                  to="/registro"
-                  className="bg-blue-800 text-white py-2 px-4 rounded-full font-semibold hover:bg-red-800 transition-colors"
+                  to="/register"
+                  className="bg-blue-800 text-white py-2 px-6 rounded-xl font-semibold border hover:bg-red-800 transition-colors hover:scale-105 duration-300"
                 >
                   Registrarse
                 </Link>
@@ -203,152 +209,166 @@ const Productos = () => {
       </header>
 
       {/* Espacio para el header fijo */}
-      <div className="h-16 sm:h-20"></div>
+      <div className="h-20 sm:h-24"></div>
 
-      {/* Carrusel de productos destacados */}
-      <section ref={carouselRef} className="bg-blue-50 py-12">
+      {/* Main Section */}
+      <main className="bg-blue-50 py-10">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-blue-900 text-center mb-8">Productos Destacados</h2>
-          {loadingProductos && <p className="text-center text-gray-700">Cargando productos...</p>}
-          {error && <p className="text-center text-red-700">{error}</p>}
-          {!loadingProductos && !error && productos.length === 0 && (
-            <p className="text-center text-gray-700">No hay productos disponibles.</p>
-          )}
-          {!loadingProductos && !error && productos.length > 0 && (
-            <Swiper
-              modules={[Navigation, Pagination, Autoplay]}
-              navigation
-              pagination={{ clickable: true }}
-              spaceBetween={20}
-              slidesPerView={1}
-              autoplay={{ delay: 5000, disableOnInteraction: false }}
-              breakpoints={{
-                640: { slidesPerView: 2 },
-                1024: { slidesPerView: 3 },
-              }}
-            >
-              {productos.slice(0, 6).map((producto) => (
-                <SwiperSlide key={producto._id}>
-                  <Link to={`/producto/${producto._id}`} className="block">
-                    <div className="relative bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+          {/* Hero Section */}
+          <div className="text-center mb-10">
+            <h2 className="text-4xl font-extrabold text-blue-800 mb-4">
+              Bienvenido a <span className="text-red-700">PoliVentas</span>
+            </h2>
+            <p className="text-lg text-gray-700 mb-6">
+              Descubre productos únicos creados por estudiantes para estudiantes. ¡Explora, compra y apoya a tu comunidad universitaria!
+            </p>
+          </div>
+
+          {/* Productos Destacados (Carrusel) */}
+          <section ref={carouselRef} className="mb-12">
+            <h3 className="text-3xl font-bold text-blue-800 text-center mb-6">Productos Destacados</h3>
+            {loadingProductos && <p className="text-center text-gray-700">Cargando productos...</p>}
+            {error && (
+              <p className="text-center text-red-700">{error}</p>
+            )}
+            {!loadingProductos && !error && productos.length === 0 && (
+              <p className="text-center text-gray-700">No hay productos disponibles.</p>
+            )}
+            {!loadingProductos && !error && productos.length > 0 && (
+              <Swiper
+                modules={[Navigation, Pagination, Autoplay]}
+                navigation
+                pagination={{ clickable: true }}
+                spaceBetween={20}
+                slidesPerView={2}
+                autoplay={{ delay: 2000, disableOnInteraction: false }}
+                breakpoints={{
+                  640: { slidesPerView: 3 },
+                  1024: { slidesPerView: 5 },
+                }}
+              >
+                {productos.map((producto) => (
+                  <SwiperSlide key={producto._id}>
+                    <Link to={`/producto/${producto._id}`} className="block">
+                      <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 p-4">
+                        <div className="relative">
+                          <img
+                            src={producto.imagen || placeholderImage}
+                            alt={producto.nombreProducto}
+                            className="w-full h-48 object-contain rounded-md mb-3"
+                          />
+                          {producto.stock <= 5 && (
+                            <span className="absolute top-2 left-2 bg-red-800 text-white text-xs font-semibold px-2 py-1 rounded">
+                              ¡Solo {producto.stock} disponibles!
+                            </span>
+                          )}
+                        </div>
+                        <h3 className="text-base font-semibold text-blue-800 line-clamp-2 h-12">{producto.nombreProducto}</h3>
+                        <div className="mt-2">
+                          <p className="text-lg font-bold text-red-700">${producto.precio.toFixed(2)}</p>
+                          {producto.descuento && (
+                            <p className="text-sm text-gray-500 line-through">${(producto.precio * 1.2).toFixed(2)}</p>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-700 mt-1 line-clamp-2 mb-5">{producto.descripcion}</p>
+                      </div>
+                    </Link>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            )}
+          </section>
+
+          {/* Categorías */}
+          <section className="bg-blue-100 py-12">
+            <div className="container mx-auto px-4">
+              <h3 className="text-3xl font-bold text-blue-800 text-center mb-6">Explora por Categorías</h3>
+              {loadingCategorias && <p className="text-center text-gray-700">Cargando categorías...</p>}
+              {error && (
+                <p className="text-center text-red-700">
+                  {error}{' '}
+                  {error.includes('autenticado') && (
+                    <Link to="/login" className="underline hover:text-blue-800">
+                      Inicia sesión
+                    </Link>
+                  )}
+                </p>
+              )}
+              {!loadingCategorias && !error && categorias.length === 0 && (
+                <p className="text-center text-gray-700">No hay categorías disponibles.</p>
+              )}
+              {!loadingCategorias && !error && categorias.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {categorias.map((categoria) => (
+                    <Link
+                      key={categoria._id}
+                      to={`/productos/categoria/${categoria._id}`}
+                      className="relative block bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden"
+                    >
                       <img
-                        src={producto.imagen || placeholderImage}
-                        alt={producto.nombreProducto}
-                        className="w-full h-64 object-contain"
+                        src={categoryImages[categoria.nombreCategoria] || placeholderImage}
+                        alt={categoria.nombreCategoria}
+                        className="w-full h-40 object-cover"
                       />
-                      {producto.stock <= 5 && (
-                        <span className="absolute top-4 left-4 bg-red-800 text-white text-xs font-semibold px-3 py-1 rounded-lg">
-                          ¡Solo {producto.stock} disponibles!
-                        </span>
-                      )}
-                      <div className="p-6">
-                        <h3 className="text-xl font-semibold text-blue-900 line-clamp-2">{producto.nombreProducto}</h3>
-                        <p className="text-red-700 text-lg font-bold mt-2">${producto.precio.toFixed(2)}</p>
-                        <p className="text-sm text-gray-900 mt-1 font-semibold  ">{producto.categoria?.nombreCategoria || 'N/A'}</p>
-                        <p className="text-xx text-gray-700 mt-1 line-clamp-2 mb-5">{producto.descripcion}</p>
-                        <button className="mt-4 w-full bg-blue-800 text-white py-2 rounded-lg hover:bg-red-800 transition-colors mb-5">
-                          Ver Producto
+                      <div className="p-4">
+                        <h3 className="text-lg font-semibold text-blue-800 text-center">{categoria.nombreCategoria}</h3>
+                        <button className="mt-2 w-full bg-blue-800 text-white py-2 rounded-lg hover:bg-red-800 transition-colors">
+                          Explorar
                         </button>
                       </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* Todos los Productos (Cuadrícula) */}
+          <section>
+            <h3 className="text-3xl font-bold text-blue-800 text-center mb-6">Todos los Productos</h3>
+            {loadingProductos && <p className="text-center text-gray-700">Cargando productos...</p>}
+            {error && (
+              <p className="text-center text-red-700">{error}</p>
+            )}
+            {!loadingProductos && !error && productos.length === 0 && (
+              <p className="text-center text-gray-700">No hay productos disponibles.</p>
+            )}
+            {!loadingProductos && !error && productos.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {productos.map((producto) => (
+                  <Link to={`/producto/${producto._id}`} className="block" key={producto._id}>
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 p-4">
+                      <div className="relative">
+                        <img
+                          src={producto.imagen || placeholderImage}
+                          alt={producto.nombreProducto}
+                          className="w-full h-48 object-contain rounded-md mb-3"
+                        />
+                        {producto.stock <= 5 && (
+                          <span className="absolute top-2 left-2 bg-red-800 text-white text-xs font-semibold px-2 py-1 rounded">
+                            ¡Solo {producto.stock} disponibles!
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="text-base font-semibold text-blue-800 line-clamp-2 h-12">{producto.nombreProducto}</h3>
+                      <div className="mt-2">
+                        <p className="text-lg font-bold text-red-700">${producto.precio.toFixed(2)}</p>
+                        {producto.descuento && (
+                          <p className="text-sm text-gray-500 line-through">${(producto.precio * 1.2).toFixed(2)}</p>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-700 mt-1 line-clamp-2">{producto.descripcion}</p>
                     </div>
                   </Link>
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          )}
+                ))}
+              </div>
+            )}
+          </section>
         </div>
-      </section>
+      </main>
 
-      {/* Categorías */}
-      <section className="bg-blue-100 py-12">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-blue-900 text-center mb-8">Explora por Categorías</h2>
-          {loadingCategorias && <p className="text-center text-gray-700">Cargando categorías...</p>}
-          {error && (
-            <p className="text-center text-red-700">
-              {error}{' '}
-              {error.includes('autenticado') && (
-                <Link to="/login" className="underline hover:text-blue-800">
-                  Inicia sesión
-                </Link>
-              )}
-            </p>
-          )}
-          {!loadingCategorias && !error && categorias.length === 0 && (
-            <p className="text-center text-gray-700">No hay categorías disponibles.</p>
-          )}
-          {!loadingCategorias && !error && categorias.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {categorias.map((categoria) => (
-                <Link
-                  key={categoria._id}
-                  to={`/productos/categoria/${categoria._id}`}
-                  className="relative block rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300"
-                >
-                  <img
-                    src={categoryImages[categoria.nombreCategoria] || placeholderImage}
-                    alt={categoria.nombreCategoria}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                    <div className="text-center">
-                      <h3 className="text-2xl font-bold text-white">{categoria.nombreCategoria}</h3>
-                      <button className="mt-4 bg-blue-800 text-white py-2 px-6 rounded-lg hover:bg-red-800 transition-colors">
-                        Explorar
-                      </button>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Productos en cuadrícula */}
-      <section className="bg-blue-50 py-12">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-blue-900 text-center mb-8">Nuestros Productos</h2>
-          {loadingProductos && <p className="text-center text-gray-700">Cargando productos...</p>}
-          {error && <p className="text-center text-red-700">{error}</p>}
-          {!loadingProductos && !error && productos.length === 0 && (
-            <p className="text-center text-gray-700">No hay productos disponibles.</p>
-          )}
-          {!loadingProductos && !error && productos.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {productos.map((producto) => (
-                <Link
-                  key={producto._id}
-                  to={`/producto/${producto._id}`}
-                  className="block bg-white rounded-xl shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300"
-                >
-                  <div className="relative">
-                    <img
-                      src={producto.imagen || placeholderImage}
-                      alt={producto.nombreProducto}
-                      className="w-full h-48 object-contain rounded-t-xl"
-                    />
-                    {producto.stock <= 5 && (
-                      <span className="absolute top-4 left-4 bg-red-800 text-white text-xs font-semibold px-3 py-1 rounded-lg">
-                        ¡Solo {producto.stock} disponibles!
-                      </span>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold text-blue-900 line-clamp-2 h-12">{producto.nombreProducto}</h3>
-                    <p className="text-red-700 font-bold text-lg mt-2">${producto.precio.toFixed(2)}</p>
-                    <p className="text-sm text-gray-800 mt-1 line-clamp-2">{producto.descripcion}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Footer */}
-
-    </div>
+      
+    </>
   );
 };
 

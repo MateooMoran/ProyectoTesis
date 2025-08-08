@@ -4,7 +4,6 @@ const Dashboard = () => {
     return (
         <div className='md:flex md:min-h-screen bg-blue-50'>
             {/* Sidebar */}
-            <Sidebar />
 
             {/* Main */}
             <div className='flex-1 flex flex-col justify-between h-screen bg-blue-50'>
@@ -13,10 +12,32 @@ const Dashboard = () => {
                     <Outlet />
                 </main>
                 {/* Footer */}
-                <footer className='bg-blue-950 h-12'>
-                    <p className='text-center text-white leading-[2.9rem] underline'>
-                        © 2025 PoliVentas - Todos los derechos reservados.
-                    </p>
+                <footer className="bg-blue-950 py-4">
+                    <div className="text-center">
+                        <p className="text-white underline mb-2">
+                            © 2025 PoliVentas - Todos los derechos reservados.
+                        </p>
+                        <div className="flex justify-center gap-6">
+                            <a
+                                href="#"
+                                className="text-white hover:text-red-400 transition-colors"
+                            >
+                                Facebook
+                            </a>
+                            <a
+                                href="#"
+                                className="text-white hover:text-red-400 transition-colors"
+                            >
+                                Instagram
+                            </a>
+                            <a
+                                href="#"
+                                className="text-white hover:text-red-400 transition-colors"
+                            >
+                                Twitter
+                            </a>
+                        </div>
+                    </div>
                 </footer>
             </div>
         </div>
@@ -24,3 +45,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
