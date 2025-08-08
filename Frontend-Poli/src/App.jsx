@@ -9,6 +9,7 @@ import Dashboard  from './layout/Dashboard'
 import PublicRoute from './routes/PublicRoute'
 import ProtectedRoute from './routes/ProtectedRoute'
 import Productos from './pages/Productos';
+import CategoriaProductos from './pages/Categorias';
 import Profile from "./pages/Profile";
 
 import { useEffect } from 'react'
@@ -45,6 +46,7 @@ function App() {
                 <Route element={<Dashboard />}>
                   <Route index element={<Profile />} />
                   <Route path='listarProd' element={<Productos />} />
+                  <Route path="/productos/categoria/:id" element={<CategoriaProductos />} />
                   {/* Aquí puedes agregar más rutas dentro del Dashboard 
                   <Route path='listar' element={<List />} />
                   <Route path='visualizar/:id' element={<Details />} />
