@@ -6,12 +6,14 @@ import 'react-toastify/dist/ReactToastify.css';
 import logo from '../assets/logo.png';
 import storeProfile from '../context/storeProfile';
 import storeAuth from '../context/storeAuth';
+import storeProductos from '../context/storeProductos';
 import { User, LogOut, ShoppingCart, Search, Star } from 'lucide-react';
 
 const Perfil = () => {
   const navigate = useNavigate();
   const { user, profile, updateProfile, updatePasswordProfile, clearUser } = storeProfile();
   const { token, rol, clearToken } = storeAuth();
+  const { categorias, loadingCategorias, error, fetchCategorias } = storeProductos();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,8 +29,9 @@ const Perfil = () => {
       navigate('/login');
     } else {
       fetchProfile();
+      fetchCategorias();
     }
-  }, [token, navigate]);
+  }, [token, navigate, fetchCategorias]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -126,7 +129,7 @@ const Perfil = () => {
           </form>
           <div className="flex items-center gap-4">
             <button
-              onClick={scrollToCarousel}
+              onClick={() => navigate("/dashboard")}
               className="flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"
             >
               <Star className="w-5 h-5" />
@@ -146,7 +149,24 @@ const Perfil = () => {
                   onMouseEnter={() => setIsCategoriesOpen(true)}
                   onMouseLeave={() => setIsCategoriesOpen(false)}
                 >
-                  <p className="px-4 py-2 text-gray-500 text-sm">Cargando categorías...</p>
+                  {loadingCategorias ? (
+                    <p className="px-4 py-2 text-gray-500 text-sm">Cargando categorías...</p>
+                  ) : error ? (
+                    <p className="px-4 py-2 text-red-700 text-sm">{error}</p>
+                  ) : categorias.length === 0 ? (
+                    <p className="px-4 py-2 text-gray-500 text-sm">No hay categorías disponibles</p>
+                  ) : (
+                    categorias.map((cat) => (
+                      <Link
+                        key={cat._id}
+                        to={`/productos/categoria/${cat._id}`}
+                        className="block px-4 py-2 text-blue-800 hover:bg-red-100 hover:text-red-700 text-sm"
+                        onClick={() => setIsCategoriesOpen(false)}
+                      >
+                        {cat.nombreCategoria}
+                      </Link>
+                    ))
+                  )}
                 </div>
               )}
             </div>
@@ -353,8 +373,7 @@ const Perfil = () => {
                     </div>
                     <button
                       type="submit"
-                      className="mt-4 w-full bg-blue-800 text-white py-2 rounded-xl font-semibold hover:bg-red-800 transition-colors hover:scale-105 duration-300"
-                    >
+                      className=" mt-4 w-full bg-blue-800 text-white py-2 rounded-xl font-semibold hover:bg-red-800 transition-colors hover:scale-105 duration-300"                    >
                       Cambiar Contraseña
                     </button>
                   </form>
