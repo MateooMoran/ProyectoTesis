@@ -29,7 +29,8 @@ const verProductoPorId = async (req, res) => {
         return res.status(400).json({ msg: "ID de producto inválido" });
     }
     const producto = await Producto.findById(id)
-        .populate('categoria', 'nombreCategoria _id');
+        .populate('categoria', 'nombreCategoria _id')
+        .select("-createdAt -updatedAt -__v")
     if (!producto) {
         return res.status(404).json({ msg: "Producto no encontrado" });
     }

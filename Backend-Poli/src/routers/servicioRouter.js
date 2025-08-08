@@ -23,7 +23,7 @@ router.get('/auth/google/callback',
   }),
   async (req, res) => {
     try {
-      const estudianteBDD = req.user; 
+      const estudianteBDD = req.user;
 
       if (!estudianteBDD.emailConfirmado) {
         return res.status(403).json({ msg: "Debes confirmar tu cuenta antes de iniciar sesión." });
@@ -34,17 +34,9 @@ router.get('/auth/google/callback',
         return res.status(401).json({ msg: "No se pudo crear el token" });
       }
 
-      const { nombre, apellido, direccion, telefono, _id, rol } = estudianteBDD;
+      const frontendUrl = `${process.env.URL_FRONTEND}/dashboard?token=${encodeURIComponent(token)}&rol=${encodeURIComponent(estudianteBDD.rol)}&nombre=${encodeURIComponent(estudianteBDD.nombre)}&apellido=${encodeURIComponent(estudianteBDD.apellido)}&direccion=${encodeURIComponent(estudianteBDD.direccion || '')}&telefono=${encodeURIComponent(estudianteBDD.telefono || '')}&_id=${encodeURIComponent(estudianteBDD._id)}`;
 
-      res.status(200).json({
-        token,
-        rol,
-        nombre,
-        apellido,
-        direccion,
-        telefono,
-        _id,
-      });
+      res.redirect(frontendUrl);
 
     } catch (error) {
       console.error("Error en login Google:", error);
@@ -52,6 +44,7 @@ router.get('/auth/google/callback',
     }
   }
 );
+
 router.get('/auth/usuario', (req, res) => {
   if (req.isAuthenticated()) {
     res.json(req.user);
