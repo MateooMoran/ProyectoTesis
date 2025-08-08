@@ -207,7 +207,7 @@ export const Home = () => {
                           <p className="text-sm text-gray-500 line-through">${(producto.precio * 1.2).toFixed(2)}</p>
                         )}
                       </div>
-                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">{producto.descripcion}</p>
+                      <p className="text-sm text-gray-700 mt-1 line-clamp-2 mb-5">{producto.descripcion}</p>
                     </div>
                   </Link>
                 </SwiperSlide>
@@ -218,19 +218,19 @@ export const Home = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-blue-800 py-6 mt-10">
+      <footer className="bg-blue-100 py-6 mt-10">
         <div className="container mx-auto text-center">
-          <p className="text-white font-semibold">
+          <p className="text-gray-800 font-semibold">
             © 2025 PoliVentas - Todos los derechos reservados.
           </p>
           <div className="flex justify-center gap-4 mt-4">
-            <a href="#" className="text-white hover:text-red-800 transition-colors">
+            <a href="#" className="text-gray-800 hover:text-red-800 transition-colors">
               Facebook
             </a>
-            <a href="#" className="text-white hover:text-red-800 transition-colors">
+            <a href="#" className="text-gray-800 hover:text-red-800 transition-colors">
               Instagram
             </a>
-            <a href="#" className="text-white hover:text-red-800 transition-colors">
+            <a href="#" className="text-gray-800 hover:text-red-800 transition-colors">
               Twitter
             </a>
           </div>
