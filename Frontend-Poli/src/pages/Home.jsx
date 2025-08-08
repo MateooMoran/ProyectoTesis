@@ -228,7 +228,7 @@ export const Home = () => {
               >
                 {productos.map((producto) => (
                   <SwiperSlide key={producto._id}>
-                    <Link to={`/producto/${producto._id}`} className="block">
+                    <Link to={`/productos/${producto._id}`} className="block">
                       <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 p-4">
                         <div className="relative">
                           <img
