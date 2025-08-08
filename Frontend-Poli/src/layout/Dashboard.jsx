@@ -10,7 +10,7 @@ const Dashboard = () => {
             <div className='flex-1 flex flex-col justify-between h-screen bg-blue-50'>
                 {/* Content */}
                 <main className='overflow-y-scroll p-8'>
-                    < Productos/>
+                    < Outlet/>
                 </main>
                 {/* Footer */}
                 <footer className="bg-blue-950 py-4">

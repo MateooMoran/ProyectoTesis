@@ -171,7 +171,7 @@ const Perfil = () => {
               )}
             </div>
             {token && rol === 'estudiante' && (
-              <Link to="/estudiante/carrito" className="relative">
+              <Link to="/dashboard/estudiante/carrito" className="relative">
                 <ShoppingCart className="w-6 h-6 text-blue-800 hover:text-red-800 transition-colors" />
               </Link>
             )}
