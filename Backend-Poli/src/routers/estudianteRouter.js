@@ -15,8 +15,6 @@ router.get('/estudiante/categoria',verCategorias)
 // VER PRODUCTOS
 router.get('/estudiante/productos',verProductos)
 
-
-
 // CARRITO
 router.post('/estudiante/carrito', verifyTokenJWT, esEstudiante, crearCarrito);
 router.get('/estudiante/carrito', verifyTokenJWT, esEstudiante, visualizarCarrito);

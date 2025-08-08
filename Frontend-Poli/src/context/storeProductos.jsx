@@ -17,23 +17,15 @@ const storeProductos = create((set) => ({
     set({ loadingProductos: true, error: null });
 
     try {
-      let url;
-      let config = token ? { config: { headers: { Authorization: `Bearer ${token}` } } } : {};
-      if (!token) {
-        // Endpoint público (debe implementarse en el backend)
-        url = `${import.meta.env.VITE_BACKEND_URL}/productos`;
-        console.log('Intentando endpoint público:', url);
-      } else if (user?.rol === 'estudiante') {
-        url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/productos`;
-        console.log('Usando endpoint estudiante:', url);
-      } else if (user?.rol === 'vendedor') {
+      let url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/productos`;
+      let config = {};
+
+      if (token && user?.rol === 'vendedor') {
         url = `${import.meta.env.VITE_BACKEND_URL}/vendedor/visualizar/producto`;
+        config = { config: { headers: { Authorization: `Bearer ${token}` } } };
         console.log('Usando endpoint vendedor:', url);
-      } else if (user?.rol === 'admin') {
-        url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/productos`; // Fallback
-        console.log('Usando endpoint admin (fallback):', url);
       } else {
-        throw new Error('Rol no permitido para ver productos.');
+        console.log('Usando endpoint público:', url);
       }
 
       const response = await fetchDataBackend(url, { method: 'GET', ...config });
@@ -51,23 +43,18 @@ const storeProductos = create((set) => ({
     const { token, user } = storeAuth.getState();
     console.log('fetchCategorias: token=', token, 'user.rol=', user?.rol);
 
-    if (!token) {
-      set({ error: 'No estás autenticado para ver categorías.', loadingCategorias: false });
-      return;
-    }
-
     set({ loadingCategorias: true, error: null });
+
     try {
-      let url;
-      const config = { config: { headers: { Authorization: `Bearer ${token}` } } };
-      if (user?.rol === 'estudiante') {
-        url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/categoria`;
-      } else if (user?.rol === 'vendedor') {
+      let url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/categoria`;
+      let config = {};
+
+      if (token && user?.rol === 'vendedor') {
         url = `${import.meta.env.VITE_BACKEND_URL}/vendedor/visualizar/categoria`;
-      } else if (user?.rol === 'admin') {
-        url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/categoria`; // Fallback
+        config = { config: { headers: { Authorization: `Bearer ${token}` } } };
+        console.log('Usando endpoint vendedor/categoria:', url);
       } else {
-        throw new Error('Rol no permitido para ver categorías.');
+        console.log('Usando endpoint público:', url);
       }
 
       const response = await fetchDataBackend(url, { method: 'GET', ...config });
@@ -80,9 +67,9 @@ const storeProductos = create((set) => ({
     }
   },
 
-  getProductosPorCategoria: (categoriaNombre) => {
+  getProductosPorCategoria: (categoriaId) => {
     return storeProductos.getState().productos.filter(
-      (producto) => producto.categoria?.nombreCategoria?.toLowerCase() === categoriaNombre.toLowerCase()
+      (producto) => producto.categoria?._id === categoriaId
     );
   },
 }));
