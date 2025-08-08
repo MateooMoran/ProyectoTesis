@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import storeProfile from '../context/storeProfile';
@@ -17,19 +17,35 @@ const placeholderImage = 'https://via.placeholder.com/150?text=Sin+Imagen';
 export const Home = () => {
   const { user } = storeProfile();
   const { token, clearToken } = storeAuth();
-  const { productos, loadingProductos, error, fetchProductos } = storeProductos();
+  const { productos, loadingProductos, error, fetchProductos, categorias, loadingCategorias, error: errorCategorias, fetchCategorias } = storeProductos();
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
-    console.log('Home: Iniciando fetchProductos');
     fetchProductos();
   }, [fetchProductos]);
 
   useEffect(() => {
-    console.log('Home: Estado actual - productos:', productos, 'loading:', loadingProductos, 'error:', error);
-  }, [productos, loadingProductos, error]);
+    if (token) {
+      fetchCategorias();
+    }
+  }, [token, fetchCategorias]);
+
+  // Cerrar dropdown si clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
     clearToken();
@@ -39,7 +55,6 @@ export const Home = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     console.log('Buscar:', searchQuery);
-    // Implementar búsqueda con endpoint GET /productos?search=query
     // navigate(`/products?search=${searchQuery}`);
   };
 
@@ -70,14 +85,44 @@ export const Home = () => {
           </form>
 
           {/* Botones */}
-          <div className="flex items-center gap-4">
-            {/* Botón Categorías */}
-            <Link
-              to="/products"
-              className="text-blue-800 font-semibold hover:text-red-800 transition-colors"
+          <div className="flex items-center gap-4 relative">
+            {/* Botón Categorías con dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setIsDropdownOpen(true)}
+              onMouseLeave={() => setIsDropdownOpen(false)}
+              ref={dropdownRef}
             >
-              Categorías
-            </Link>
+              <button className="text-blue-800 font-semibold hover:text-red-800 transition-colors">
+                Categorías
+              </button>
+
+              {/* Dropdown */}
+              {isDropdownOpen && (
+                <div className="absolute top-full mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200">
+                  {loadingCategorias && (
+                    <p className="px-4 py-2 text-gray-500 text-sm">Cargando categorías...</p>
+                  )}
+                  {errorCategorias && (
+                    <p className="px-4 py-2 text-red-700 text-sm">{errorCategorias}</p>
+                  )}
+                  {!loadingCategorias && !errorCategorias && categorias.length === 0 && (
+                    <p className="px-4 py-2 text-gray-500 text-sm">No hay categorías.</p>
+                  )}
+                  {!loadingCategorias &&
+                    categorias.map((cat) => (
+                      <Link
+                        key={cat._id}
+                        to={`/products?categoria=${encodeURIComponent(cat.nombreCategoria)}`}
+                        className="block px-4 py-2 text-blue-800 hover:bg-red-100 hover:text-red-700 cursor-pointer text-sm"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        {cat.nombreCategoria}
+                      </Link>
+                    ))}
+                </div>
+              )}
+            </div>
 
             {/* Botón Carrito (solo para estudiantes autenticados) */}
             {token && user?.rol === 'estudiante' && (
@@ -143,59 +188,16 @@ export const Home = () => {
       <div className="h-20 sm:h-24"></div>
 
       {/* Hero Section */}
-<main className="bg-blue-50 py-10">
-  <div className="container mx-auto px-4 text-center">
-    <h2 className="text-4xl font-extrabold text-blue-900 mb-4">
-      Bienvenido a <span className="text-red-700">PoliVentas</span>
-    </h2>
-    <p className="text-lg text-gray-700 mb-6">
-      Descubre productos únicos creados por estudiantes para estudiantes. ¡Explora, compra y apoya a tu comunidad universitaria!
-    </p>
+      <main className="bg-blue-50 py-10">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-4xl font-extrabold text-blue-900 mb-4">
+            Bienvenido a <span className="text-red-700">PoliVentas</span>
+          </h2>
+          <p className="text-lg text-gray-700 mb-6">
+            Descubre productos únicos creados por estudiantes para estudiantes. ¡Explora, compra y apoya a tu comunidad universitaria!
+          </p>
 
-    {/* Aquí insertamos la cuadrícula de productos */}
-    {loadingProductos && <p className="text-center text-gray-700">Cargando productos...</p>}
-    {error && (
-      <p className="text-center text-red-700">
-        {error}{' '}
-        {error.includes('autenticado') && (
-          <Link to="/login" className="underline hover:text-blue-900">
-            Inicia sesión
-          </Link>
-        )}
-      </p>
-    )}
-    {!loadingProductos && !error && productos.length === 0 && (
-      <p className="text-center text-gray-700">No hay productos disponibles.</p>
-    )}
-    {!loadingProductos && !error && productos.length > 0 && (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
-        {productos.map((producto) => (
-          <div
-            key={producto._id}
-            className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-300 p-4 flex flex-col items-center cursor-pointer"
-          >
-            <div className="w-full aspect-square overflow-hidden rounded-lg mb-3">
-              <img
-                src={producto.imagen || placeholderImage}
-                alt={producto.nombreProducto}
-                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-              />
-            </div>
-            <h4 className="text-lg font-semibold text-blue-900 mb-1 text-center line-clamp-2">
-              {producto.nombreProducto}
-            </h4>
-            <p className="text-red-700 font-bold text-xl">${producto.precio.toFixed(2)}</p>
-            <p className="text-gray-600 text-sm mt-2 line-clamp-3 text-center">
-              {producto.descripcion}
-            </p>
-          </div>
-        ))}
-      </div>
-    )}
-  </div>
-</main>
-
-      {/* Productos Destacados */}
+           {/* Productos Destacados */}
       <section className="bg-white py-10">
         <div className="container mx-auto px-4">
           <h3 className="text-3xl font-bold text-blue-800 text-center mb-6">Productos Destacados</h3>
@@ -258,6 +260,50 @@ export const Home = () => {
         </div>
       </section>
 
+          {/* Aquí insertamos la cuadrícula de productos */}
+          {loadingProductos && <p className="text-center text-gray-700">Cargando productos...</p>}
+          {error && (
+            <p className="text-center text-red-700">
+              {error}{' '}
+              {error.includes('autenticado') && (
+                <Link to="/login" className="underline hover:text-blue-900">
+                  Inicia sesión
+                </Link>
+              )}
+            </p>
+          )}
+          {!loadingProductos && !error && productos.length === 0 && (
+            <p className="text-center text-gray-700">No hay productos disponibles.</p>
+          )}
+          {!loadingProductos && !error && productos.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
+              {productos.map((producto) => (
+                <div
+                  key={producto._id}
+                  className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-300 p-4 flex flex-col items-center cursor-pointer"
+                >
+                  <div className="w-full aspect-square overflow-hidden rounded-lg mb-3">
+                    <img
+                      src={producto.imagen || placeholderImage}
+                      alt={producto.nombreProducto}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    />
+                  </div>
+                  <h4 className="text-lg font-semibold text-blue-900 mb-1 text-center line-clamp-2">
+                    {producto.nombreProducto}
+                  </h4>
+                  <p className="text-red-700 font-bold text-xl">${producto.precio.toFixed(2)}</p>
+                  <p className="text-gray-600 text-sm mt-2 line-clamp-3 text-center">
+                    {producto.descripcion}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </main>
+
+     
       {/* Footer */}
       <footer className="bg-blue-100 py-6 mt-10">
         <div className="container mx-auto text-center">
