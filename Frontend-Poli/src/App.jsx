@@ -18,6 +18,7 @@ import AuthCallback from './pages/AuthCallback';
 import { useEffect } from 'react'
 import storeProfile from './context/storeProfile'
 import storeAuth from './context/storeAuth'
+import Carrito from './pages/Carrito'
 
 function App() {
   const { profile } = storeProfile()
@@ -52,6 +53,7 @@ function App() {
                   <Route path='listarProd' element={<Productos />} />
                   <Route path="/productos/categoria/:id" element={<CategoriaProductos />} />
                   <Route path="/productos/buscar" element={<ProductoBuscado />} />
+                  <Route path='estudiante/carrito' element={<Carrito />} />
                   {/* Aquí puedes agregar más rutas dentro del Dashboard 
                   <Route path='listar' element={<List />} />
                   <Route path='visualizar/:id' element={<Details />} />
@@ -61,6 +63,7 @@ function App() {
                   */}
                 </Route>  
                 <Route path='perfil' element={<Perfil />} />
+
               </Routes>
             </ProtectedRoute>
           } />
