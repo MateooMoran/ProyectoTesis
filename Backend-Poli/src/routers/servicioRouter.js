@@ -62,9 +62,8 @@ router.get('/auth/usuario', (req, res) => {
 
 router.get('/auth/logout', (req, res) => {
   req.logout(() => {
-    res.redirect(${process.env.FRONTEND_URL});
+    res.redirect(`${process.env.FRONTEND_URL}`);
   });
 });
-
 
 export default router;
