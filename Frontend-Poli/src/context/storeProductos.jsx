@@ -19,19 +19,17 @@ const storeProductos = create((set) => ({
     try {
       let url;
       let config = token ? { config: { headers: { Authorization: `Bearer ${token}` } } } : {};
+      
       if (!token) {
-        // Endpoint público (debe implementarse en el backend)
+        // Endpoint público (si existe, ajustar según backend)
         url = `${import.meta.env.VITE_BACKEND_URL}/productos`;
         console.log('Intentando endpoint público:', url);
-      } else if (user?.rol === 'estudiante') {
+      } else if (user?.rol === 'estudiante' || user?.rol === 'admin') {
         url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/productos`;
         console.log('Usando endpoint estudiante:', url);
       } else if (user?.rol === 'vendedor') {
         url = `${import.meta.env.VITE_BACKEND_URL}/vendedor/visualizar/producto`;
         console.log('Usando endpoint vendedor:', url);
-      } else if (user?.rol === 'admin') {
-        url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/productos`; // Fallback
-        console.log('Usando endpoint admin (fallback):', url);
       } else {
         throw new Error('Rol no permitido para ver productos.');
       }
@@ -51,21 +49,23 @@ const storeProductos = create((set) => ({
     const { token, user } = storeAuth.getState();
     console.log('fetchCategorias: token=', token, 'user.rol=', user?.rol);
 
-    if (!token) {
-      set({ error: 'No estás autenticado para ver categorías.', loadingCategorias: false });
-      return;
-    }
-
     set({ loadingCategorias: true, error: null });
+
     try {
       let url;
-      const config = { config: { headers: { Authorization: `Bearer ${token}` } } };
-      if (user?.rol === 'estudiante') {
+      const config = token ? { config: { headers: { Authorization: `Bearer ${token}` } } } : {};
+
+      if (!token) {
+        set({ error: 'No estás autenticado para ver categorías.', loadingCategorias: false });
+        return;
+      }
+
+      if (user?.rol === 'estudiante' || user?.rol === 'admin') {
         url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/categoria`;
+        console.log('Usando endpoint estudiante/categoria:', url);
       } else if (user?.rol === 'vendedor') {
         url = `${import.meta.env.VITE_BACKEND_URL}/vendedor/visualizar/categoria`;
-      } else if (user?.rol === 'admin') {
-        url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/categoria`; // Fallback
+        console.log('Usando endpoint vendedor/categoria:', url);
       } else {
         throw new Error('Rol no permitido para ver categorías.');
       }
@@ -80,9 +80,9 @@ const storeProductos = create((set) => ({
     }
   },
 
-  getProductosPorCategoria: (categoriaNombre) => {
+  getProductosPorCategoria: (categoriaId) => {
     return storeProductos.getState().productos.filter(
-      (producto) => producto.categoria?.nombreCategoria?.toLowerCase() === categoriaNombre.toLowerCase()
+      (producto) => producto.categoria?._id === categoriaId
     );
   },
 }));
