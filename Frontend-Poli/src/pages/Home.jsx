@@ -29,10 +29,8 @@ export const Home = () => {
   useEffect(() => {
     console.log('Home: Iniciando fetchProductos y fetchCategorias');
     fetchProductos();
-    if (token) {
-      fetchCategorias();
-    }
-  }, [fetchProductos, fetchCategorias, token]);
+    fetchCategorias();
+  }, [fetchProductos, fetchCategorias]);
 
   // Logs para depuración
   useEffect(() => {
@@ -97,7 +95,7 @@ export const Home = () => {
             <div className="relative" ref={categoriesRef}>
               <button
                 className="text-blue-800 font-semibold hover:text-red-800 transition-colors"
-                onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+                onMouseEnter={() => setIsCategoriesOpen(!isCategoriesOpen)}
               >
                 Categorías
               </button>
@@ -209,14 +207,7 @@ export const Home = () => {
             <h3 className="text-3xl font-bold text-blue-800 text-center mb-6">Productos Destacados</h3>
             {loadingProductos && <p className="text-center text-gray-700">Cargando productos...</p>}
             {error && (
-              <p className="text-center text-red-700">
-                {error}{' '}
-                {error.includes('autenticado') && (
-                  <Link to="/login" className="underline hover:text-blue-800">
-                    Inicia sesión
-                  </Link>
-                )}
-              </p>
+              <p className="text-center text-red-700">{error}</p>
             )}
             {!loadingProductos && !error && productos.length === 0 && (
               <p className="text-center text-gray-700">No hay productos disponibles.</p>
@@ -270,14 +261,7 @@ export const Home = () => {
             <h3 className="text-3xl font-bold text-blue-800 text-center mb-6">Todos los Productos</h3>
             {loadingProductos && <p className="text-center text-gray-700">Cargando productos...</p>}
             {error && (
-              <p className="text-center text-red-700">
-                {error}{' '}
-                {error.includes('autenticado') && (
-                  <Link to="/login" className="underline hover:text-blue-800">
-                    Inicia sesión
-                  </Link>
-                )}
-              </p>
+              <p className="text-center text-red-700">{error}</p>
             )}
             {!loadingProductos && !error && productos.length === 0 && (
               <p className="text-center text-gray-700">No hay productos disponibles.</p>

@@ -18,11 +18,14 @@ const storeProductos = create((set) => ({
 
     try {
       let url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/productos`;
-      let config = token ? { config: { headers: { Authorization: `Bearer ${token}` } } } : {};
+      let config = {};
 
       if (token && user?.rol === 'vendedor') {
         url = `${import.meta.env.VITE_BACKEND_URL}/vendedor/visualizar/producto`;
+        config = { config: { headers: { Authorization: `Bearer ${token}` } } };
         console.log('Usando endpoint vendedor:', url);
+      } else {
+        console.log('Usando endpoint público:', url);
       }
 
       const response = await fetchDataBackend(url, { method: 'GET', ...config });
@@ -44,11 +47,14 @@ const storeProductos = create((set) => ({
 
     try {
       let url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/categoria`;
-      let config = token ? { config: { headers: { Authorization: `Bearer ${token}` } } } : {};
+      let config = {};
 
       if (token && user?.rol === 'vendedor') {
         url = `${import.meta.env.VITE_BACKEND_URL}/vendedor/visualizar/categoria`;
+        config = { config: { headers: { Authorization: `Bearer ${token}` } } };
         console.log('Usando endpoint vendedor/categoria:', url);
+      } else {
+        console.log('Usando endpoint público:', url);
       }
 
       const response = await fetchDataBackend(url, { method: 'GET', ...config });
