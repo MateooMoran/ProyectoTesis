@@ -194,7 +194,7 @@ export const Home = () => {
         <div className="container mx-auto px-4">
           {/* Hero Section */}
           <div className="text-center mb-10">
-            <h2 className="text-4xl font-extrabold text-blue-900 mb-4">
+            <h2 className="text-4xl font-extrabold text-blue-800 mb-4">
               Bienvenido a <span className="text-red-700">PoliVentas</span>
             </h2>
             <p className="text-lg text-gray-700 mb-6">
@@ -247,7 +247,7 @@ export const Home = () => {
                             <p className="text-sm text-gray-500 line-through">${(producto.precio * 1.2).toFixed(2)}</p>
                           )}
                         </div>
-                        <p className="text-sm text-gray-700 mt-1 line-clamp-2">{producto.descripcion}</p>
+                        <p className="text-xs text-gray-700 mt-1 line-clamp-2 mb-5">{producto.descripcion}</p>
                       </div>
                     </Link>
                   </SwiperSlide>
