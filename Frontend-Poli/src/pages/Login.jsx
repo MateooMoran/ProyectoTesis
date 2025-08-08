@@ -1,33 +1,31 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router-dom"; // Corregimos "react-router"
 import { useForm } from "react-hook-form";
 import useFetch from "../hooks/useFetch";
 import { ToastContainer } from 'react-toastify';
 import storeAuth from '../context/storeAuth';
 
 const Login = () => {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const { register, handleSubmit, formState: { errors } } = useForm();
     const { fetchDataBackend } = useFetch();
-    const { setToken, setRol } = storeAuth()
-
+    const { setToken, setRol } = storeAuth();
 
     const loginUser = async (data) => {
         const url = `${import.meta.env.VITE_BACKEND_URL}/login`;
-        const response = await fetchDataBackend(url, data, 'POST')
-        setToken(response.token)
-        setRol(response.rol)
-        if (response) {
+        const response = await fetchDataBackend(url, data, 'POST');
+        if (response && response.token) {
+            setToken(response.token);
+            setRol(response.rol);
             navigate('/dashboard');
         }
-    }
-
+    };
 
     return (
         <div className="flex flex-col sm:flex-row h-screen">
             {/* Imagen de fondo */}
-            <ToastContainer></ToastContainer>
+            <ToastContainer />
             <div className="w-full sm:w-1/2 h-1/3 sm:h-screen bg-[url('/src/assets/Sistemas.jpg')] 
             bg-no-repeat bg-cover bg-center sm:block hidden">
             </div>
@@ -42,10 +40,12 @@ const Login = () => {
                         {/* Correo electrónico */}
                         <div className="mb-3">
                             <label className="mb-2 block text-sm font-semibold text-blue-800">Correo electrónico</label>
-                            <input type="email" placeholder="Ingresa tu correo" className="block w-full rounded-md border border-gray-300 focus:border-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-700 py-1 px-2 text-gray-700"
-                                {...register('email', { required: "El correo es obligatoria" })}
+                            <input
+                                type="email"
+                                placeholder="Ingresa tu correo"
+                                className="block w-full rounded-md border border-gray-300 focus:border-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-700 py-1 px-2 text-gray-700"
+                                {...register('email', { required: "El correo es obligatorio" })}
                             />
-
                             {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
                         </div>
 
@@ -61,11 +61,9 @@ const Login = () => {
                                         required: "La contraseña es obligatoria",
                                     })}
                                 />
-                                {errors.password &&
-                                    <p className="text-red-500 text-xs">
-                                        {errors.password.message}
-                                    </p>
-                                }
+                                {errors.password && (
+                                    <p className="text-red-500 text-xs">{errors.password.message}</p>
+                                )}
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
@@ -93,7 +91,7 @@ const Login = () => {
                     {/* Separador con opción de "O" */}
                     <div className="mt-6 grid grid-cols-3 items-center text-gray-400">
                         <hr className="border-gray-400" />
-                        <p className="text-center text-sm">O </p>
+                        <p className="text-center text-sm">O</p>
                         <hr className="border-gray-400" />
                     </div>
 
@@ -108,7 +106,6 @@ const Login = () => {
                         <img className="w-5 mr-2" src="https://cdn-icons-png.flaticon.com/512/281/281764.png" alt="Google icon" />
                         Iniciar sesión con Google
                     </button>
-
 
                     {/* Olvidaste tu contraseña */}
                     <div className="mt-5 text-xs border-b-2 py-4">

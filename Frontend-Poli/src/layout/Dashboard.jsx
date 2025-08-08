@@ -1,4 +1,5 @@
 import { Outlet } from 'react-router-dom';
+import Productos from '../pages/Productos';
 import Sidebar from '../pages/Sidebar';
 const Dashboard = () => {
     return (
@@ -9,7 +10,7 @@ const Dashboard = () => {
             <div className='flex-1 flex flex-col justify-between h-screen bg-blue-50'>
                 {/* Content */}
                 <main className='overflow-y-scroll p-8'>
-                    <Outlet />
+                    < Productos/>
                 </main>
                 {/* Footer */}
                 <footer className="bg-blue-950 py-4">
