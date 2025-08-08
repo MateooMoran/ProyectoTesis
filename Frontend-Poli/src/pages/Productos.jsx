@@ -6,6 +6,7 @@ import storeAuth from '../context/storeAuth';
 import storeProductos from '../context/storeProductos';
 import { User, LogOut, ShoppingCart, Search } from 'lucide-react';
 
+
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -62,7 +63,7 @@ export const Productos = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar productos..."
-                className="w-full py-2 px-4 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-950"
+                className="w-full py-1 px-4 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 transition-colors"
               />
               <button type="submit" className="absolute right-2 top-1/2 transform -translate-y-1/2">
                 <Search className="w-5 h-5 text-gray-500" />
@@ -72,13 +73,6 @@ export const Productos = () => {
 
           {/* Botones */}
           <div className="flex items-center gap-4">
-            {/* Botón Categorías */}
-            <Link
-              to="/products"
-              className="text-blue-900 font-semibold hover:text-red-700"
-            >
-              Categorías
-            </Link>
 
             {/* Botón Carrito (solo para estudiantes autenticados) */}
             {token && user?.rol === 'estudiante' && (
