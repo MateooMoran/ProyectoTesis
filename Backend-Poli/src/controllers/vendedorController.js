@@ -220,6 +220,7 @@ const visualizarHistorialVentasVendedor = async (req, res) => {
 
 const verNotificaciones = async (req, res) => {
     const notificaciones = await Notificacion.find({ usuario: req.estudianteBDD._id })
+        .populate("usuario", "nombre apellido telefono rol")
         .sort({ createdAt: -1 });
 
     if (!notificaciones.length) {
