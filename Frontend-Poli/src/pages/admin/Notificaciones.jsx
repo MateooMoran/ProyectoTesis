@@ -29,14 +29,13 @@ export default function NotificacionesAdmin() {
     };
   }, [open]);
 
-  // Cargar notificaciones al abrir dropdown
   useEffect(() => {
     if (!open) return;
 
     const obtenerNotificaciones = async () => {
       setLoading(true);
       try {
-        const url = `${API_URL}/admin/notificaciones`;
+        const url = `${API_URL}/notificaciones`;
         const config = {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -65,7 +64,7 @@ export default function NotificacionesAdmin() {
   // Marcar notificación como leída
   const marcarLeida = async (id) => {
     try {
-      const url = `${API_URL}/admin/notificaciones/leida/${id}`;
+      const url = `${API_URL}/notificaciones/leida/${id}`;
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -84,7 +83,7 @@ export default function NotificacionesAdmin() {
   // Eliminar notificación
   const eliminarNotificacion = async (id) => {
     try {
-      const url = `${API_URL}/admin/notificaciones/${id}`;
+      const url = `${API_URL}/notificaciones/${id}`;
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
