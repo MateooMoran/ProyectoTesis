@@ -4,7 +4,6 @@ import Carrito from "../models/Carrito.js";
 import Orden from "../models/Orden.js";
 import Stripe from 'stripe'
 import QuejasSugerencias from "../models/QuejasSugerencias.js";
-import Notificacion from "../models/Notificacion.js";
 import mongoose from "mongoose";
 import Estudiante from "../models/Estudiante.js";
 
@@ -465,51 +464,7 @@ const eliminarQuejaSugerencia = async (req, res) => {
     res.status(200).json({ msg: "Queja/Sugerencia eliminada correctamente" });
 }
 
-// NOTIFICACIONES
 
-const listarNotificacionesEstudiante = async (req, res) => {
-    const notificaciones = await Notificacion.find({ usuario: req.estudianteBDD._id })
-        .populate("usuario", "nombre apellido telefono rol")
-        .sort({ createdAt: -1 });
-    if (!notificaciones.length) {
-        return res.status(404).json({ msg: "No tienes notificaciones" });
-    }
-    res.status(200).json(notificaciones);
-}
-
-const marcarNotificacionLeidaEstudiante = async (req, res) => {
-    const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({ msg: "ID de notificación inválido" });
-    }
-    const notificacion = await Notificacion.findById(id);
-    if (!notificacion) return res.status(404).json({ msg: "Notificación no encontrada" });
-
-    if (notificacion.usuario.toString() !== req.estudianteBDD._id.toString()) {
-        return res.status(403).json({ msg: "No autorizado" });
-    }
-
-    notificacion.leido = true;
-    await notificacion.save();
-
-    res.status(200).json({ msg: "Notificación marcada como leída" });
-}
-const eliminarNotificacionEstudiante = async (req, res) => {
-    const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({ msg: "ID de notificación inválido" });
-    }
-    const notificacion = await Notificacion.findById(id);
-    if (!notificacion) return res.status(404).json({ msg: "Notificación no encontrada" });
-
-    if (notificacion.usuario.toString() !== req.estudianteBDD._id.toString()) {
-        return res.status(403).json({ msg: "No autorizado" });
-    }
-
-    await notificacion.deleteOne();
-
-    res.status(200).json({ msg: "Notificación eliminada" });
-}
 
 export {
     verCategorias,
@@ -529,8 +484,5 @@ export {
     visualizarHistorialPagos,
     crearQuejasSugerencias,
     visualizarQuejasSugerencias,
-    eliminarQuejaSugerencia,
-    listarNotificacionesEstudiante,
-    marcarNotificacionLeidaEstudiante,
-    eliminarNotificacionEstudiante
+    eliminarQuejaSugerencia
 }

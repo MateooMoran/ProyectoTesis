@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { verifyTokenJWT } from "../middlewares/JWT.js";
 import { tieneRol } from "../middlewares/roles.js";
-import { buscarEstudiantePorNombre } from "../controllers/servicioController.js";
+import { buscarEstudiantePorNombre, eliminarNotificacion, listarNotificaciones, marcarNotificacionLeida } from "../controllers/servicioController.js";
 import { createTokenJWT } from "../middlewares/JWT.js"; 
 import passport from 'passport';
 
@@ -10,6 +10,9 @@ const router = Router();
 
 // Buscar estudiante
 router.get('/chat/buscar', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), buscarEstudiantePorNombre);
+router.get('/notificaciones', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), listarNotificaciones);
+router.put('/notificaciones/leida/:id', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), marcarNotificacionLeida);
+router.delete('/notificaciones/:id', verifyTokenJWT,tieneRol('estudiante', 'admin', 'vendedor'), eliminarNotificacion);
 
 // Login con Google
 router.get('/auth/google',
