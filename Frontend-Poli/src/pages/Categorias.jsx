@@ -36,7 +36,7 @@ const CategoriaProductos = () => {
       }
     };
     fetchProductosPorCategoria();
-  }, [id, fetchDataBackend]);
+  }, []);
 
   return (
     <div className="bg-blue-50 min-h-screen py-10">
