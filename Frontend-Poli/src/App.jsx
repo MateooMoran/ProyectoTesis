@@ -14,6 +14,7 @@ import Perfil from "./pages/Perfil";
 import ProductoBuscado from './pages/ProductoBuscado';
 import AuthCallback from './pages/AuthCallback';
 import CarritoVacio from './pages/CarritoVacio';
+import Pagos from './pages/Pagos';
 
 
 import { useEffect } from 'react'
@@ -48,7 +49,7 @@ function App() {
           <Route path="productos/categoria/:id" element={<CategoriaProductos />} />
           <Route path="carrito/vacio" element={<CarritoVacio />} />
           <Route path="productos/:id" element={<ProductoDetalle />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="auth/callback" element={<AuthCallback />} />
         </Route>
 
         {/* Rutas protegidas */}
@@ -64,9 +65,11 @@ function App() {
           <Route path="estudiante/carrito" element={<Carrito />} />
           <Route path="productos/:id" element={<ProductoDetalle />} />
           <Route path="perfil" element={<Perfil />} />
+          <Route path="pagos" element={<Pagos />} />
           {/* Otras rutas hijas */}
           {/* Ruta Admin */}
           <Route path='admin' element={<GestionarUsuario/>}></Route>
+
         </Route>
 
       </Routes>
