@@ -19,7 +19,7 @@ const verifyTokenJWT = async (req, res, next) => {
         req.estudianteBDD  = usuario;
         next();
     } catch (error) {
-        return res.status(401).json({ msg: "Toke no valido o expirado" })
+        return res.status(401).json({ msg: "Token no valido o expirado" })
     }
 }
 

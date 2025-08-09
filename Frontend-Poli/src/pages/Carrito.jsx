@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import storeCarrito from '../context/storeCarrito';
 import Header from '../layout/Header';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Carrito = () => {
     const navigate = useNavigate();
@@ -17,6 +19,7 @@ const Carrito = () => {
     return (
         <>
             <Header />
+            <ToastContainer />
             <div className="h-20 sm:h-7"></div>
             <main className="container mx-auto px-4 py-6">
                 {(!carrito || !carrito.productos?.length) ? (
@@ -71,9 +74,8 @@ const Carrito = () => {
                             Vaciar carrito
                         </button>
 
-                        {/* Botón Proceder al pago */}
                         <button
-                            onClick={() => navigate('/dashboard/pagos')}
+                            onClick={() => navigate('/dashboard/orden-pendiente')}
                             className="mt-4 w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-800 transition-transform transform hover:scale-102"
                         >
                             Proceder al pago
