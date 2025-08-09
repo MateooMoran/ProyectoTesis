@@ -61,7 +61,7 @@ const marcarNotificacionLeida = async (req, res) => {
 
         const notificacion = await Notificacion.findById(id);
         if (!notificacion) {
-            return res.status(404).json({ msg: 'Notificación no encontrada' });
+            return res.status(404).json({ msg: "Notificación no encontrada" });
         }
 
         if (notificacion.usuario.toString() !== req.estudianteBDD._id.toString()) {

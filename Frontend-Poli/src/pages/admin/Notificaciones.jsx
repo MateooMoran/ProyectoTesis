@@ -69,7 +69,6 @@ export default function NotificacionesAdmin() {
       const url = `${API_URL}/notificaciones/leida/${id}`;
       await fetchDataBackend(url, {
         method: "PUT",
-        form: null,
         config: {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -173,7 +172,7 @@ export default function NotificacionesAdmin() {
                 >
                   <Trash2 size={18} />
                 </button>
-                <p className="whitespace-normal">{n.mensaje}</p>
+                <p className="whitespace-normal text-sm">{n.mensaje}</p>
                 <div className="mt-2 flex justify-between items-center text-xs text-gray-600">
                   <span
                     className={`px-2 py-0.5 rounded-full ${

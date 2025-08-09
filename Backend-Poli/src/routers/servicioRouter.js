@@ -14,6 +14,7 @@ router.get('/notificaciones', verifyTokenJWT, tieneRol('estudiante', 'admin', 'v
 router.put('/notificaciones/leida/:id', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), marcarNotificacionLeida);
 router.delete('/notificaciones/:id', verifyTokenJWT,tieneRol('estudiante', 'admin', 'vendedor'), eliminarNotificacion);
 
+
 // Login con Google
 router.get('/auth/google',
   passport.authenticate('google', { scope: ['profile', 'email'], session: false })
