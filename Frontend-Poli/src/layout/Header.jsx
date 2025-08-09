@@ -3,49 +3,21 @@ import { Link, useNavigate } from 'react-router-dom';
 import { User, LogOut, ShoppingCart, Search, Star } from 'lucide-react';
 import logo from '../assets/logo.png';
 import storeAuth from '../context/storeAuth';
-import storeProfile from '../context/storeProfile';
-import useFetch from '../hooks/useFetch';
+import storeProductos from '../context/storeProductos';
 
 const Header = () => {
     const navigate = useNavigate();
-
-    const [searchQuery, setSearchQuery] = useState('');
+    const { token, user, rol, clearToken } = storeAuth();
+    const { categorias, loadingCategorias, error, fetchCategorias } = storeProductos();
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [categorias, setCategorias] = useState([]);
-    const [loadingCategorias, setLoadingCategorias] = useState(false);
-    const [errorCategorias, setErrorCategorias] = useState(null);
-
+    const [searchQuery, setSearchQuery] = useState('');
     const categoriesRef = useRef(null);
     const userDropdownRef = useRef(null);
 
-    const { token, clearToken } = storeAuth();
-    const { user } = storeProfile();
-    const { fetchDataBackend } = useFetch();
-
-    // Fetch categorías desde backend al montar el componente
     useEffect(() => {
-        const fetchCategorias = async () => {
-            setLoadingCategorias(true);
-            setErrorCategorias(null);
-            try {
-                const url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/categoria`;
-                const response = await fetchDataBackend(url, { method: 'GET' });
-                if (!response || response.length === 0) {
-                    setErrorCategorias('No se encontraron categorías');
-                    setCategorias([]);
-                } else {
-                    setCategorias(response);
-                }
-            } catch (err) {
-                setErrorCategorias(err.message || 'Error al cargar las categorías');
-                setCategorias([]);
-            } finally {
-                setLoadingCategorias(false);
-            }
-        };
         fetchCategorias();
-    }, []);
+    }, [ fetchCategorias ]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -68,14 +40,13 @@ const Header = () => {
     const handleSearch = (e) => {
         e.preventDefault();
         if (searchQuery.trim()) {
-            navigate(`/dashboard/productos/buscar?query=${encodeURIComponent(searchQuery.trim())}`);
+            navigate(`/productos/buscar?query=${encodeURIComponent(searchQuery.trim())}`);
             setSearchQuery('');
         }
     };
 
     const scrollToCarousel = () => {
-        const el = document.getElementById('carouselDestacado');
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
+        navigate('/');
     };
 
     return (
@@ -83,7 +54,7 @@ const Header = () => {
             <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50">
                 <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
                     {/* Logo */}
-                    <Link to={token ? '/dashboard' : '/'}>
+                    <Link to={token ? '/' : '/'}>
                         <img src={logo} alt="PoliVentas" className="w-36 h-12 object-cover" />
                     </Link>
 
@@ -106,7 +77,7 @@ const Header = () => {
                     {/* Botones */}
                     <div className="flex items-center gap-4">
                         <button
-                            onClick={() => navigate("/")}
+                            onClick={scrollToCarousel}
                             className="flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"
                         >
                             <Star className="w-5 h-5" />
@@ -117,37 +88,43 @@ const Header = () => {
                         <div className="relative" ref={categoriesRef}>
                             <button
                                 className="text-blue-800 font-semibold hover:text-red-800 transition-colors"
-                                onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+                                onMouseEnter={() => setIsCategoriesOpen(true)}
                             >
                                 Categorías
                             </button>
                             {isCategoriesOpen && (
-                                <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200 max-h-60 overflow-auto">
+                                <div
+                                    className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200 max-h-60 overflow-auto"
+                                    onMouseEnter={() => setIsCategoriesOpen(true)}
+                                    onMouseLeave={() => setIsCategoriesOpen(false)}
+                                >
                                     {loadingCategorias && (
                                         <p className="px-4 py-2 text-gray-500 text-sm">Cargando categorías...</p>
                                     )}
-                                    {errorCategorias && (
-                                        <p className="px-4 py-2 text-red-600 text-sm">{errorCategorias}</p>
+                                    {error && (
+                                        <p className="px-4 py-2 text-red-700 text-sm">{error}</p>
                                     )}
-                                    {!loadingCategorias && !errorCategorias && categorias.length === 0 && (
+                                    {!loadingCategorias && !error && categorias.length === 0 && (
                                         <p className="px-4 py-2 text-gray-500 text-sm">No hay categorías disponibles.</p>
                                     )}
-                                    {!loadingCategorias && categorias.map((cat) => (
-                                        <Link
-                                            key={cat._id}
-                                            to={`/productos/categoria/${cat._id}`}
-                                            className="block px-4 py-2 text-blue-800 hover:bg-red-100 hover:text-red-700 text-sm"
-                                            onClick={() => setIsCategoriesOpen(false)}
-                                        >
-                                            {cat.nombreCategoria}
-                                        </Link>
-                                    ))}
+                                    {!loadingCategorias && !error && categorias.length > 0 && (
+                                        categorias.map((cat) => (
+                                            <Link
+                                                key={cat._id}
+                                                to={`/dashboard/productos/categoria/${cat._id}`}
+                                                className="block px-4 py-2 text-blue-800 hover:bg-red-100 hover:text-red-700 text-sm"
+                                                onClick={() => setIsCategoriesOpen(false)}
+                                            >
+                                                {cat.nombreCategoria}
+                                            </Link>
+                                        ))
+                                    )}
                                 </div>
                             )}
                         </div>
 
                         {/* Carrito */}
-                        {token && user?.rol === 'estudiante' && (
+                        {token && rol === 'estudiante' && (
                             <Link to="/dashboard/estudiante/carrito" className="relative">
                                 <ShoppingCart className="w-6 h-6 text-blue-800 hover:text-red-800 transition-colors" />
                             </Link>
@@ -167,7 +144,7 @@ const Header = () => {
                                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200">
                                         <div className="px-4 py-2 text-sm text-blue-800 border-b">
                                             <p><strong>Nombre:</strong> {user?.nombre || 'Usuario'}</p>
-                                            <p><strong>Rol:</strong> {user?.rol ? user.rol.toUpperCase() : 'N/A'}</p>
+                                            <p><strong>Rol:</strong> {rol ? rol.toUpperCase() : 'N/A'}</p>
                                         </div>
                                         <Link
                                             to="/dashboard/perfil"
