@@ -36,23 +36,26 @@ export default function NotificacionesAdmin() {
       setLoading(true);
       try {
         const url = `${API_URL}/notificaciones`;
-        const config = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+        const data = await fetchDataBackend(url, {
+          method: "GET",
+          config: {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
           },
-        };
-        const data = await fetchDataBackend(url, { method: "GET", config });
+        });
+
         if (Array.isArray(data)) {
           setNotificaciones(data);
         } else if (data && Array.isArray(data.notificaciones)) {
-          // si la respuesta está dentro de data.notificaciones
           setNotificaciones(data.notificaciones);
         } else {
           setNotificaciones([]);
         }
       } catch (error) {
         console.error("Error al cargar notificaciones:", error);
+        setNotificaciones([]);
       } finally {
         setLoading(false);
       }
@@ -61,17 +64,19 @@ export default function NotificacionesAdmin() {
     obtenerNotificaciones();
   }, [open]);
 
-  // Marcar notificación como leída
   const marcarLeida = async (id) => {
     try {
       const url = `${API_URL}/notificaciones/leida/${id}`;
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+      await fetchDataBackend(url, {
+        method: "PUT",
+        form: null,
+        config: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         },
-      };
-      await fetchDataBackend(url, null,{ method: "PUT", config });
+      });
       setNotificaciones((prev) =>
         prev.map((n) => (n._id === id || n.id === id ? { ...n, leido: true } : n))
       );
@@ -84,13 +89,15 @@ export default function NotificacionesAdmin() {
   const eliminarNotificacion = async (id) => {
     try {
       const url = `${API_URL}/notificaciones/${id}`;
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+      await fetchDataBackend(url, {
+        method: "DELETE",
+        config: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         },
-      };
-      await fetchDataBackend(url, { method: "DELETE", config });
+      });
       setNotificaciones((prev) => prev.filter((n) => n._id !== id && n.id !== id));
     } catch (error) {
       console.error("Error al eliminar notificación:", error);
@@ -106,7 +113,7 @@ export default function NotificacionesAdmin() {
     >
       <button
         onClick={() => setOpen(!open)}
-        className="relative p-3 rounded-full bg-white shadow hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+        className="relative p-3 rounded-full bg-white shadow hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
         aria-haspopup="true"
         aria-expanded={open}
         aria-label="Mostrar notificaciones"
@@ -144,7 +151,7 @@ export default function NotificacionesAdmin() {
                   ${
                     n.leido
                       ? "bg-white text-gray-800"
-                      : "bg-blue-100 text-blue-900 font-semibold"
+                      : "bg-gray-200/50 text-blue-900 font-semibold"
                   }`}
                 style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
               >
