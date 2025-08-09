@@ -137,7 +137,7 @@ const Productos = () => {
                     categorias.map((cat) => (
                       <Link
                         key={cat._id}
-                        to={`/productos/categoria/${cat._id}`}
+                        to={`/dashboard/productos/categoria/${cat._id}`}
                         className="block px-4 py-2 text-blue-800 hover:bg-red-100 hover:text-red-700 text-sm"
                         onClick={() => setIsCategoriesOpen(false)}
                       >
@@ -303,7 +303,7 @@ const Productos = () => {
                   {categorias.map((categoria) => (
                     <Link
                       key={categoria._id}
-                      to={`/productos/categoria/${categoria._id}`}
+                      to={`/dashboard/productos/categoria/${categoria._id}`}
                       className="relative block bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden"
                     >
                       <img
