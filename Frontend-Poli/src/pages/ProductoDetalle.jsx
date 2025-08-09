@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import storeCarrito from '../context/storeCarrito';
 import storeProductos from '../context/storeProductos';
 import logo from '../assets/logo.png';
@@ -7,11 +7,24 @@ import storeProfile from '../context/storeProfile';
 import storeAuth from '../context/storeAuth';
 import { User, LogOut, ShoppingCart } from 'lucide-react';
 
+
 const ProductoDetalle = () => {
   const { id } = useParams();
   const [producto, setProducto] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  const handleAgregarAlCarrito = () => {
+    agregarAlCarrito(producto);
+  
+    if (!token) {
+      navigate(`/login?redirect=/productos/${producto._id}`);
+    } else {
+      navigate('/dashboard/estudiante/carrito');
+    }
+  };
+  
 
   const { agregarAlCarrito } = storeCarrito();
   const { productos, loadingProductos, error: errorProductos } = storeProductos();
@@ -52,7 +65,7 @@ const ProductoDetalle = () => {
       {/* Header */}
       <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50">
         <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <Link to="/dashboard">
+          <Link to="/">
             <img src={logo} alt="PoliVentas" className="w-36 h-12 object-cover" />
           </Link>
           {token && user?.rol === 'estudiante' && (
@@ -103,7 +116,7 @@ const ProductoDetalle = () => {
       </header>
 
       {/* Espacio para header fijo */}
-      <div className="h-20 sm:h-0"></div>
+      <div className="h-20 sm:h-7"></div>
 
       {/* Detalle del producto */}
       <div className="max-w-7xl mx-auto px-4 py-8 mt-20 sm:mt-24">
@@ -125,11 +138,12 @@ const ProductoDetalle = () => {
             <p className="text-gray-600 text-base leading-relaxed">{producto.descripcion}</p>
             <div className="flex items-center gap-4">
               <button
-                onClick={() => agregarAlCarrito(producto)}
+                onClick={() => navigate('/carrito/vacio')}
                 className="bg-red-800 text-white py-3 px-8 rounded-full font-semibold text-lg hover:bg-orange-600 transition-transform transform hover:scale-105"
               >
                 Agregar al carrito
               </button>
+
               <button className="border border-gray-300 text-gray-700 py-3 px-6 rounded-full font-semibold text-lg hover:bg-gray-100 transition">
                 Comprar ahora
               </button>
@@ -155,7 +169,7 @@ const ProductoDetalle = () => {
         {!loadingProductos && !errorProductos && productos.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {productos
-              .filter(p => p._id !== id) 
+              .filter(p => p._id !== id)
               .map((prod) => (
                 <Link to={`/productos/${prod._id}`} key={prod._id} className="block">
                   <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 p-4">

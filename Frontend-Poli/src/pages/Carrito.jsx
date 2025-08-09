@@ -188,7 +188,7 @@ const Carrito = () => {
                 </div>
             </header>
 
-            <div className="h-20 sm:h-0"></div>
+            <div className="h-20 sm:h-7"></div>
 
             {/* Contenido carrito */}
             <main className="container mx-auto px-4 py-6">
