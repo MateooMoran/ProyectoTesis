@@ -441,7 +441,9 @@ const crearQuejasSugerencias = async (req, res) => {
 
 
 const visualizarQuejasSugerencias = async (req, res) => {
-    const datos = await QuejasSugerencias.find({ usuario: req.estudianteBDD._id });
+    const datos = await QuejasSugerencias.find({ usuario: req.estudianteBDD._id })
+        .populate("usuario", "nombre apellido telefono rol")
+
     if (!datos.length) return res.status(404).json({ msg: "No se encontraron registros" });
     res.status(200).json(datos);
 };
@@ -467,6 +469,7 @@ const eliminarQuejaSugerencia = async (req, res) => {
 
 const listarNotificacionesEstudiante = async (req, res) => {
     const notificaciones = await Notificacion.find({ usuario: req.estudianteBDD._id })
+        .populate("usuario", "nombre apellido telefono rol")
         .sort({ createdAt: -1 });
     if (!notificaciones.length) {
         return res.status(404).json({ msg: "No tienes notificaciones" });

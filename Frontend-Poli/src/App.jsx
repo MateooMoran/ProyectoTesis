@@ -21,6 +21,7 @@ import storeProfile from './context/storeProfile'
 import storeAuth from './context/storeAuth'
 import Carrito from './pages/Carrito'
 import ProductoDetalle from './pages/ProductoDetalle';
+import GestionarUsuario from './pages/admin/GestionarUsuario'
 
 function App() {
   const { profile } = storeProfile()
@@ -64,6 +65,8 @@ function App() {
           <Route path="productos/:id" element={<ProductoDetalle />} />
           <Route path="perfil" element={<Perfil />} />
           {/* Otras rutas hijas */}
+          {/* Ruta Admin */}
+          <Route path='admin' element={<GestionarUsuario/>}></Route>
         </Route>
 
       </Routes>

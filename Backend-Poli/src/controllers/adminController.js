@@ -98,6 +98,7 @@ const responderQuejaSugerencia = async (req, res) => {
 const listarNotificacionesAdmin = async (req, res) => {
     const adminId = req.estudianteBDD._id;
     const notificaciones = await Notificacion.find({ usuario: adminId })
+        .populate("usuario", "nombre apellido telefono rol")
         .sort({ createdAt: -1 });
 
     res.status(200).json(notificaciones);
