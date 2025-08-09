@@ -11,13 +11,23 @@ function useFetch() {
       const config = options.config || {};
 
       let respuesta;
-      if (method === 'POST') {
-        respuesta = await axios.post(url, form, config);
-      } else if (method === 'GET') {
-        respuesta = await axios.get(url, config);
-      } else {
-        throw new Error(`Método ${method} no soportado`);
+      switch (method.toUpperCase()) {
+        case 'POST':
+          respuesta = await axios.post(url, form, config);
+          break;
+        case 'GET':
+          respuesta = await axios.get(url, config);
+          break;
+        case 'PUT':
+          respuesta = await axios.put(url, form, config);
+          break;
+        case 'DELETE':
+          respuesta = await axios.delete(url, config);
+          break;
+        default:
+          throw new Error(`Método ${method} no soportado`);
       }
+      
       if (respuesta?.data?.msg) toast.success(respuesta.data.msg);
       return respuesta?.data;
     } catch (error) {
