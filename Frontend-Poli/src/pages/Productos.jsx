@@ -210,7 +210,7 @@ const Productos = () => {
       </header>
 
       {/* Espacio para el header fijo */}
-      <div className="h-20 sm:h-0"></div>
+      <div className="h-20 sm:h-7"></div>
 
       {/* Main Section */}
       <main className="bg-blue-50 py-10">

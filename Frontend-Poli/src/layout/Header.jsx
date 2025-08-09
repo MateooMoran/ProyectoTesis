@@ -4,32 +4,49 @@ import { User, LogOut, ShoppingCart, Search, Star } from 'lucide-react';
 import logo from '../assets/logo.png';
 import storeAuth from '../context/storeAuth';
 import storeProfile from '../context/storeProfile';
+import useFetch from '../hooks/useFetch';
 
 const Header = () => {
     const navigate = useNavigate();
 
-    // Estados para búsqueda, dropdown categorías y dropdown usuario
     const [searchQuery, setSearchQuery] = useState('');
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [categorias, setCategorias] = useState([]);
+    const [loadingCategorias, setLoadingCategorias] = useState(false);
+    const [errorCategorias, setErrorCategorias] = useState(null);
 
-    // Refs para cerrar dropdowns al hacer clic fuera
     const categoriesRef = useRef(null);
     const userDropdownRef = useRef(null);
 
-    // Contextos
     const { token, clearToken } = storeAuth();
     const { user } = storeProfile();
+    const { fetchDataBackend } = useFetch();
 
-    // Simula categorías, o pásalas como prop o contexto
-    // Aquí debes usar tus datos reales o fetch context
-    const categorias = [
-        { _id: '1', nombreCategoria: 'Electrónica' },
-        { _id: '2', nombreCategoria: 'Ropa' },
-        { _id: '3', nombreCategoria: 'Libros' },
-    ];
+    // Fetch categorías desde backend al montar el componente
+    useEffect(() => {
+        const fetchCategorias = async () => {
+            setLoadingCategorias(true);
+            setErrorCategorias(null);
+            try {
+                const url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/categoria`;
+                const response = await fetchDataBackend(url, { method: 'GET' });
+                if (!response || response.length === 0) {
+                    setErrorCategorias('No se encontraron categorías');
+                    setCategorias([]);
+                } else {
+                    setCategorias(response);
+                }
+            } catch (err) {
+                setErrorCategorias(err.message || 'Error al cargar las categorías');
+                setCategorias([]);
+            } finally {
+                setLoadingCategorias(false);
+            }
+        };
+        fetchCategorias();
+    }, []);
 
-    // Cerrar dropdowns si clic afuera
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (categoriesRef.current && !categoriesRef.current.contains(event.target)) {
@@ -89,7 +106,7 @@ const Header = () => {
                     {/* Botones */}
                     <div className="flex items-center gap-4">
                         <button
-                            onClick={scrollToCarousel}
+                            onClick={() => navigate("/")}
                             className="flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"
                         >
                             <Star className="w-5 h-5" />
@@ -105,21 +122,26 @@ const Header = () => {
                                 Categorías
                             </button>
                             {isCategoriesOpen && (
-                                <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200">
-                                    {categorias.length === 0 ? (
-                                        <p className="px-4 py-2 text-gray-500 text-sm">No hay categorías disponibles.</p>
-                                    ) : (
-                                        categorias.map((cat) => (
-                                            <Link
-                                                key={cat._id}
-                                                to={`/dashboard/productos/categoria/${cat._id}`}
-                                                className="block px-4 py-2 text-blue-800 hover:bg-red-100 hover:text-red-700 text-sm"
-                                                onClick={() => setIsCategoriesOpen(false)}
-                                            >
-                                                {cat.nombreCategoria}
-                                            </Link>
-                                        ))
+                                <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200 max-h-60 overflow-auto">
+                                    {loadingCategorias && (
+                                        <p className="px-4 py-2 text-gray-500 text-sm">Cargando categorías...</p>
                                     )}
+                                    {errorCategorias && (
+                                        <p className="px-4 py-2 text-red-600 text-sm">{errorCategorias}</p>
+                                    )}
+                                    {!loadingCategorias && !errorCategorias && categorias.length === 0 && (
+                                        <p className="px-4 py-2 text-gray-500 text-sm">No hay categorías disponibles.</p>
+                                    )}
+                                    {!loadingCategorias && categorias.map((cat) => (
+                                        <Link
+                                            key={cat._id}
+                                            to={`/productos/categoria/${cat._id}`}
+                                            className="block px-4 py-2 text-blue-800 hover:bg-red-100 hover:text-red-700 text-sm"
+                                            onClick={() => setIsCategoriesOpen(false)}
+                                        >
+                                            {cat.nombreCategoria}
+                                        </Link>
+                                    ))}
                                 </div>
                             )}
                         </div>
@@ -185,7 +207,7 @@ const Header = () => {
             </header>
 
             {/* Espacio para compensar header fijo */}
-            <div className="h-20 sm:h-24" />
+            <div className="h-20 sm:h-7" />
         </>
     );
 };

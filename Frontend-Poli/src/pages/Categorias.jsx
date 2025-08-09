@@ -42,13 +42,13 @@ const CategoriaProductos = () => {
       }
     };
     fetchProductosPorCategoria();
-  }, []); 
+  }, [id]); 
 
   return (
     <>
       <Header />
       {/* Espacio para compensar header fijo */}
-      <div className="h-20 sm:h-0" />
+      <div className="h-20 sm:h-7" />
       
       <div className="bg-blue-50 min-h-screen py-10">
         <div className="container mx-auto px-4">
@@ -64,7 +64,7 @@ const CategoriaProductos = () => {
           {!loading && !error && productos.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {productos.map((producto) => (
-                <Link to={`/producto/${producto._id}`} className="block" key={producto._id}>
+                <Link to={`/productos/${producto._id}`} className="block" key={producto._id}>
                   <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 p-4">
                     <div className="relative">
                       <img

@@ -13,6 +13,7 @@ import CategoriaProductos from './pages/Categorias';
 import Perfil from "./pages/Perfil";
 import ProductoBuscado from './pages/ProductoBuscado';
 import AuthCallback from './pages/AuthCallback';
+import CarritoVacio from './pages/CarritoVacio';
 
 
 import { useEffect } from 'react'
@@ -43,8 +44,10 @@ function App() {
             <Route path='forgot/:id' element={<Forgot />} />
             <Route path='confirm/:token' element={<Confirm />} />
             <Route path='reset/:token' element={<Reset />} />
-            <Route path="productos/:id" element={<ProductoDetalle />} />
             <Route path="productos/categoria/:id" element={<CategoriaProductos />} />
+            <Route path="carrito/vacio" element={<CarritoVacio />} />
+            <Route path="productos/:id" element={<ProductoDetalle />} />
+
 
           </Route>
 
@@ -58,6 +61,7 @@ function App() {
                   <Route path="productos/categoria/:id" element={<CategoriaProductos />} />
                   <Route path="/productos/buscar" element={<ProductoBuscado />} />
                   <Route path='estudiante/carrito' element={<Carrito />} />
+                  <Route path="productos/:id" element={<ProductoDetalle />} />
                   {/* Aquí puedes agregar más rutas dentro del Dashboard 
                   <Route path='listar' element={<List />} />
                   <Route path='visualizar/:id' element={<Details />} />
