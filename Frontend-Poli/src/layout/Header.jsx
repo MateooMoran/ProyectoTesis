@@ -6,6 +6,7 @@ import storeAuth from '../context/storeAuth';
 import storeProfile from '../context/storeProfile'; // para obtener el perfil completo (rol real)
 import storeProductos from '../context/storeProductos';
 import NotificacionesAdmin from '../pages/admin/Notificaciones';
+import {ToastContainer} from 'react-toastify'
 
 const Header = () => {
     const navigate = useNavigate();
@@ -65,6 +66,7 @@ const Header = () => {
     return (
         <>
             <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50">
+                <ToastContainer></ToastContainer>
                 <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
                     {/* Logo */}
                     <Link to={token ? '/' : '/'}>
@@ -89,7 +91,7 @@ const Header = () => {
 
                     {/* Botones */}
                     <div className="flex items-center gap-4">
-                        {(rol === 'admin' || rol === 'estudiante') && <NotificacionesAdmin />}
+                        {(rol === 'estudiante' || rol === 'admin' ||  rol === 'vendedor') && <NotificacionesAdmin />}
 
                         <button
                             onClick={scrollToCarousel}
