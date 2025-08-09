@@ -3,12 +3,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { User, LogOut, ShoppingCart, Search, Star } from 'lucide-react';
 import logo from '../assets/logo.png';
 import storeAuth from '../context/storeAuth';
+import storeProfile from '../context/storeProfile'; // para obtener el perfil completo (rol real)
 import storeProductos from '../context/storeProductos';
+import NotificacionesAdmin from '../pages/admin/Notificaciones';
 
 const Header = () => {
     const navigate = useNavigate();
-    const { token, user, rol, clearToken } = storeAuth();
+    const { token, clearToken } = storeAuth();
+    const { user, profile } = storeProfile(); // obtener perfil para rol confiable
     const { categorias, loadingCategorias, error, fetchCategorias } = storeProductos();
+
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -17,7 +21,14 @@ const Header = () => {
 
     useEffect(() => {
         fetchCategorias();
-    }, [ fetchCategorias ]);
+    }, [fetchCategorias]);
+
+    useEffect(() => {
+        // Cargar perfil si no está cargado pero hay token
+        if (token && !user) {
+            profile();
+        }
+    }, [token, user, profile]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -49,6 +60,8 @@ const Header = () => {
         navigate('/');
     };
 
+    const rol = user?.rol || 'estudiante'; // rol confiable del perfil
+
     return (
         <>
             <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50">
@@ -76,6 +89,8 @@ const Header = () => {
 
                     {/* Botones */}
                     <div className="flex items-center gap-4">
+                        {(rol === 'admin' || rol === 'estudiante') && <NotificacionesAdmin />}
+
                         <button
                             onClick={scrollToCarousel}
                             className="flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"
@@ -96,7 +111,6 @@ const Header = () => {
                                 <div
                                     className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200 max-h-60 overflow-auto"
                                     onMouseEnter={() => setIsCategoriesOpen(true)}
-                                    onMouseLeave={() => setIsCategoriesOpen(false)}
                                 >
                                     {loadingCategorias && (
                                         <p className="px-4 py-2 text-gray-500 text-sm">Cargando categorías...</p>
@@ -111,7 +125,7 @@ const Header = () => {
                                         categorias.map((cat) => (
                                             <Link
                                                 key={cat._id}
-                                                to={`/dashboard/productos/categoria/${cat._id}`}
+                                                to={token ? `/dashboard/productos/categoria/${cat._id}` : `/productos/categoria/${cat._id}`}
                                                 className="block px-4 py-2 text-blue-800 hover:bg-red-100 hover:text-red-700 text-sm"
                                                 onClick={() => setIsCategoriesOpen(false)}
                                             >
@@ -141,7 +155,7 @@ const Header = () => {
                                     <span>{user?.nombre ? `Hola, ${user.nombre}` : 'Usuario'}</span>
                                 </button>
                                 {isDropdownOpen && (
-                                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200">
+                                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200">
                                         <div className="px-4 py-2 text-sm text-blue-800 border-b">
                                             <p><strong>Nombre:</strong> {user?.nombre || 'Usuario'}</p>
                                             <p><strong>Rol:</strong> {rol ? rol.toUpperCase() : 'N/A'}</p>
@@ -153,6 +167,64 @@ const Header = () => {
                                         >
                                             Mi Perfil
                                         </Link>
+
+                                        {/* Opciones extras según rol */}
+                                        {rol === 'admin' && (
+                                            <>
+                                                <Link
+                                                    to="/dashboard/admin"
+                                                    className="block px-4 py-2 text-blue-800 hover:bg-blue-50"
+                                                    onClick={() => setIsDropdownOpen(false)}
+                                                >
+                                                    Gestión Usuarios/Quejas
+                                                </Link>
+
+                                            </>
+                                        )}
+                                        {rol === 'vendedor' && (
+                                            <>
+                                                <Link
+                                                    to="/dashboard/vendedor/categorias"
+                                                    className="block px-4 py-2 text-blue-800 hover:bg-blue-50"
+                                                    onClick={() => setIsDropdownOpen(false)}
+                                                >
+                                                    Categorías
+                                                </Link>
+                                                <Link
+                                                    to="/dashboard/vendedor/productos"
+                                                    className="block px-4 py-2 text-blue-800 hover:bg-blue-50"
+                                                    onClick={() => setIsDropdownOpen(false)}
+                                                >
+                                                    Mis Productos
+                                                </Link>
+                                                <Link
+                                                    to="/dashboard/vendedor/historial-ventas"
+                                                    className="block px-4 py-2 text-blue-800 hover:bg-blue-50"
+                                                    onClick={() => setIsDropdownOpen(false)}
+                                                >
+                                                    Historial Ventas
+                                                </Link>
+                                            </>
+                                        )}
+                                        {rol === 'estudiante' && (
+                                            <>
+                                                <Link
+                                                    to="/dashboard/estudiante/quejas-sugerencias"
+                                                    className="block px-4 py-2 text-blue-800 hover:bg-blue-50"
+                                                    onClick={() => setIsDropdownOpen(false)}
+                                                >
+                                                    Mis Quejas y Sugerencias
+                                                </Link>
+                                                <Link
+                                                    to="/dashboard/estudiante/carrito"
+                                                    className="block px-4 py-2 text-blue-800 hover:bg-blue-50"
+                                                    onClick={() => setIsDropdownOpen(false)}
+                                                >
+                                                    Carrito
+                                                </Link>
+                                            </>
+                                        )}
+
                                         <button
                                             className="block w-full text-left px-4 py-2 text-blue-800 hover:bg-blue-50"
                                             onClick={handleLogout}
@@ -184,7 +256,7 @@ const Header = () => {
             </header>
 
             {/* Espacio para compensar header fijo */}
-            <div className="h-20 sm:h-7" />
+            <div className="h-20 sm:h20" />
         </>
     );
 };
