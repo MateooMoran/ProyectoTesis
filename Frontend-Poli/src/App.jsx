@@ -58,7 +58,6 @@ function App() {
                   <Route path="productos/categoria/:id" element={<CategoriaProductos />} />
                   <Route path="/productos/buscar" element={<ProductoBuscado />} />
                   <Route path='estudiante/carrito' element={<Carrito />} />
-                  <Route path="estudiante/productos/:id" element={<ProductoDetalle />} />
                   {/* Aquí puedes agregar más rutas dentro del Dashboard 
                   <Route path='listar' element={<List />} />
                   <Route path='visualizar/:id' element={<Details />} />
@@ -68,6 +67,7 @@ function App() {
                   */}
                 </Route>  
                 <Route path='perfil' element={<Perfil />} />
+                <Route path="productos/:id" element={<ProductoDetalle />} />
               </Routes>
             </ProtectedRoute>
           } />
