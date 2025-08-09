@@ -6,11 +6,13 @@ import storeAuth from '../context/storeAuth';
 import storeProductos from '../context/storeProductos';
 import { User, LogOut, ShoppingCart, Search } from 'lucide-react';
 
+
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { Autoplay, Navigation, Pagination } from 'swiper/modules';
+import { ToastContainer } from 'react-toastify';
 
 const placeholderImage = 'https://via.placeholder.com/150?text=Sin+Imagen';
 
@@ -66,6 +68,7 @@ export const Home = () => {
 
   return (
     <>
+    <ToastContainer />
       {/* Header */}
       <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50">
         <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -96,7 +99,7 @@ export const Home = () => {
             <div className="relative" ref={categoriesRef}>
               <button
                 className="text-blue-800 font-semibold hover:text-red-800 transition-colors"
-                onMouseEnter={() => setIsCategoriesOpen(!isCategoriesOpen)}
+                onMouseEnter={() => setIsCategoriesOpen(true)}
               >
                 Categorías
               </button>
