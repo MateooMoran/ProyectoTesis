@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import useFetch from "../../hooks/useFetch";
 import GestionarQuejasSugerencias from "./GestionQuejasSugerencias";
 import { ToastContainer } from 'react-toastify'
+import Notificaciones from "./Notificaciones";
 function GestionarUsuario() {
     const { fetchDataBackend } = useFetch();
     const [usuarios, setUsuarios] = useState([]);
@@ -46,6 +47,7 @@ function GestionarUsuario() {
     return (
         <>
             <ToastContainer></ToastContainer>
+            <Notificaciones></Notificaciones>
             <GestionarQuejasSugerencias></GestionarQuejasSugerencias>
             <div className="p-6 max-w-6xl mx-auto">
                 <h2 className="text-2xl font-semibold mb-6  text-gray-500">Gestión de Usuarios</h2>
