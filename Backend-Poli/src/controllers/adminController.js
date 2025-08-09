@@ -7,7 +7,7 @@ import mongoose from "mongoose";
 
 // CAMBIO ROL 
 const obtenerUsuarios = async (req, res) => {
-    const estudianteBDD = await Estudiante.find({ rol: { $in: ['estudiante', 'vendedor'] } }).select('_id nombre apellido telefono direccion rol');
+    const estudianteBDD = await Estudiante.find({ rol: { $in: ['estudiante', 'vendedor'] } }).select('_id nombre apellido telefono direccion rol estado');
     if (!estudianteBDD || estudianteBDD.length === 0) {
         return res.status(404).json({ msg: "No hay estudiantes registrados" })
     }
