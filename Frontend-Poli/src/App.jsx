@@ -34,51 +34,40 @@ function App() {
   return (
     <>
       <BrowserRouter>
-        <Routes>
+      <Routes>
 
-          <Route element={<PublicRoute />}>
-            <Route index element={<Home />} />
-            <Route path='login' element={<Login />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
-            <Route path='register' element={<Register />} />
-            <Route path='forgot/:id' element={<Forgot />} />
-            <Route path='confirm/:token' element={<Confirm />} />
-            <Route path='reset/:token' element={<Reset />} />
-            <Route path="productos/categoria/:id" element={<CategoriaProductos />} />
-            <Route path="carrito/vacio" element={<CarritoVacio />} />
-            <Route path="productos/:id" element={<ProductoDetalle />} />
+        {/* Rutas públicas */}
+        <Route element={<PublicRoute />}>
+          <Route index element={<Home />} />
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+          <Route path="forgot/:id" element={<Forgot />} />
+          <Route path="confirm/:token" element={<Confirm />} />
+          <Route path="reset/:token" element={<Reset />} />
+          <Route path="productos/categoria/:id" element={<CategoriaProductos />} />
+          <Route path="carrito/vacio" element={<CarritoVacio />} />
+          <Route path="productos/:id" element={<ProductoDetalle />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+        </Route>
 
+        {/* Rutas protegidas */}
+        <Route path="dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }>
+          <Route index element={<Productos />} />
+          <Route path="listarProd" element={<Productos />} />
+          <Route path="productos/categoria/:id" element={<CategoriaProductos />} />
+          <Route path="productos/buscar" element={<ProductoBuscado />} />
+          <Route path="estudiante/carrito" element={<Carrito />} />
+          <Route path="productos/:id" element={<ProductoDetalle />} />
+          <Route path="perfil" element={<Perfil />} />
+          {/* Otras rutas hijas */}
+        </Route>
 
-          </Route>
-
-
-          <Route path='dashboard/*' element={
-            <ProtectedRoute>
-              <Routes>
-                <Route element={<Dashboard />}>
-                  <Route index element={<Productos />} />
-                  <Route path='listarProd' element={<Productos />} />
-                  <Route path="productos/categoria/:id" element={<CategoriaProductos />} />
-                  <Route path="/productos/buscar" element={<ProductoBuscado />} />
-                  <Route path='estudiante/carrito' element={<Carrito />} />
-                  <Route path="productos/:id" element={<ProductoDetalle />} />
-                  {/* Aquí puedes agregar más rutas dentro del Dashboard 
-                  <Route path='listar' element={<List />} />
-                  <Route path='visualizar/:id' element={<Details />} />
-                  <Route path='crear' element={<Create />} />
-                  <Route path='actualizar/:id' element={<Update />} />
-                  <Route path='chat' element={<Chat />} />
-                  */}
-                </Route>  
-                <Route path='perfil' element={<Perfil />} />
-                <Route path="productos/:id" element={<ProductoDetalle />} />
-              </Routes>
-            </ProtectedRoute>
-          } />
-
-
-        </Routes>
-      </BrowserRouter>
+      </Routes>
+    </BrowserRouter>
     </>
   )
 }
