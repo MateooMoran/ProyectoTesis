@@ -2,11 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import storeCarrito from '../context/storeCarrito';
 import storeProductos from '../context/storeProductos';
-import logo from '../assets/logo.png';
 import storeProfile from '../context/storeProfile';
 import storeAuth from '../context/storeAuth';
-import { User, LogOut, ShoppingCart } from 'lucide-react';
-
+import CarritoVacio from '../pages/CarritoVacio'
+import Header from '../layout/Header'; 
 
 const ProductoDetalle = () => {
   const { id } = useParams();
@@ -15,23 +14,20 @@ const ProductoDetalle = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const handleAgregarAlCarrito = () => {
-    agregarAlCarrito(producto);
-  
-    if (!token) {
-      navigate(`/login?redirect=/productos/${producto._id}`);
-    } else {
-      navigate('/dashboard/estudiante/carrito');
-    }
-  };
-  
-
-  const { agregarAlCarrito } = storeCarrito();
+  const { agregarProducto } = storeCarrito();
   const { productos, loadingProductos, error: errorProductos } = storeProductos();
 
-  // Usuario y token
-  const { user } = storeProfile();
-  const { token, clearToken } = storeAuth();
+  const { token } = storeAuth();
+  const { profile: user } = storeProfile();
+
+  const handleAgregarAlCarrito = () => {
+    agregarProducto(producto._id, 1);
+    if (!token) {
+      navigate(`/carrito/vacio`); // Redirigir a carrito vacío si no hay token
+    } else {
+      navigate(`/dashboard/estudiante/carrito`); // Redirigir al carrito si hay token
+    }
+  };
 
   useEffect(() => {
     const fetchProducto = async () => {
@@ -52,71 +48,13 @@ const ProductoDetalle = () => {
     fetchProducto();
   }, [id]);
 
-  const handleLogout = () => {
-    clearToken();
-  };
-
   if (loading) return <p className="text-center text-gray-500 text-lg mt-10">Cargando producto...</p>;
   if (error) return <p className="text-center text-red-600 text-lg mt-10">Error: {error}</p>;
   if (!producto) return <p className="text-center text-gray-500 text-lg mt-10">Producto no encontrado.</p>;
 
   return (
     <>
-      {/* Header */}
-      <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50">
-        <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <Link to="/">
-            <img src={logo} alt="PoliVentas" className="w-36 h-12 object-cover" />
-          </Link>
-          {token && user?.rol === 'estudiante' && (
-            <Link to="/dashboard/estudiante/carrito" className="relative">
-              <ShoppingCart className="w-6 h-6 text-blue-800 hover:text-red-800 transition-colors" />
-            </Link>
-          )}
-          {token ? (
-            <div className="relative">
-              <button className="flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors">
-                <User className="w-5 h-5" />
-                <span>{user?.nombre ? `Hola, ${user.nombre}` : 'Usuario'}</span>
-              </button>
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200">
-                <div className="px-4 py-2 text-sm text-blue-800 border-b">
-                  <p><strong>Nombre:</strong> {user?.nombre || 'Usuario'}</p>
-                  <p><strong>Rol:</strong> {user?.rol ? user.rol.toUpperCase() : 'N/A'}</p>
-                </div>
-                <Link to="/dashboard/perfil" className="block px-4 py-2 text-blue-800 hover:bg-blue-50">
-                  Mi Perfil
-                </Link>
-                <button
-                  className="block w-full text-left px-4 py-2 text-blue-800 hover:bg-blue-50"
-                  onClick={handleLogout}
-                >
-                  <LogOut className="w-4 h-4 inline mr-2" />
-                  Salir
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex gap-4">
-              <Link
-                to="/login"
-                className="bg-blue-800 text-white py-2 px-6 rounded-xl font-semibold border hover:bg-red-800 transition-colors hover:scale-105 duration-300"
-              >
-                Iniciar Sesión
-              </Link>
-              <Link
-                to="/register"
-                className="bg-blue-800 text-white py-2 px-6 rounded-xl font-semibold border hover:bg-red-800 transition-colors hover:scale-105 duration-300"
-              >
-                Registrarse
-              </Link>
-            </div>
-          )}
-        </div>
-      </header>
-
-      {/* Espacio para header fijo */}
-      <div className="h-20 sm:h-7"></div>
+      <Header /> 
 
       {/* Detalle del producto */}
       <div className="max-w-7xl mx-auto px-4 py-8 mt-20 sm:mt-24">
@@ -138,20 +76,21 @@ const ProductoDetalle = () => {
             <p className="text-gray-600 text-base leading-relaxed">{producto.descripcion}</p>
             <div className="flex items-center gap-4">
               <button
-                onClick={() => navigate('/carrito/vacio')}
-                className="bg-red-800 text-white py-3 px-8 rounded-full font-semibold text-lg hover:bg-orange-600 transition-transform transform hover:scale-105"
+                onClick={handleAgregarAlCarrito}
+                className="bg-red-800 text-white py-3 px-8 rounded-lg font-semibold text-lg hover:bg-orange-600 transition-transform transform hover:scale-105"
               >
                 Agregar al carrito
               </button>
-
-              <button className="border border-gray-300 text-gray-700 py-3 px-6 rounded-full font-semibold text-lg hover:bg-gray-100 transition">
+              <button 
+              onClick={handleAgregarAlCarrito}
+              className="border border-gray-300 text-gray-700 py-3 px-6 rounded-lg font-semibold text-lg hover:bg-gray-300  transition-transform transform hover:scale-105">
                 Comprar ahora
               </button>
             </div>
             <div className="text-sm text-gray-500">
               <p><span className="font-semibold">Envío:</span> Gratis en pedidos superiores a $50</p>
               <p><span className="font-semibold">Disponibilidad:</span> En stock</p>
-              <p><span className="font-semibold">Vendedor:</span> PoliVentas Oficial</p>
+              <p><span className="font-semibold">Vendedor:</span> PoliVentas</p>
             </div>
           </div>
         </div>
@@ -160,7 +99,6 @@ const ProductoDetalle = () => {
       {/* Productos que te pueden interesar */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-6 text-left">Productos que te pueden interesar</h2>
-
         {loadingProductos && <p className="text-center text-gray-700">Cargando productos...</p>}
         {errorProductos && <p className="text-center text-red-700">{errorProductos}</p>}
         {!loadingProductos && !errorProductos && productos.length === 0 && (
@@ -171,7 +109,7 @@ const ProductoDetalle = () => {
             {productos
               .filter(p => p._id !== id)
               .map((prod) => (
-                <Link to={`/productos/${prod._id}`} key={prod._id} className="block">
+                <Link to={`/dashboard/productos/${prod._id}`} key={prod._id} className="block">
                   <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 p-4">
                     <div className="relative">
                       <img

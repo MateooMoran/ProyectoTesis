@@ -70,7 +70,7 @@ const Productos = () => {
               >
                 {productos.map((producto) => (
                   <SwiperSlide key={producto._id}>
-                    <Link to={`/productos/${producto._id}`} className="block">
+                    <Link to={`/dashboard/productos/${producto._id}`} className="block">
                       <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 p-4">
                         <img
                           src={producto.imagen || placeholderImage}
@@ -95,46 +95,6 @@ const Productos = () => {
                   </SwiperSlide>
                 ))}
               </Swiper>
-            )}
-          </section>
-
-          {/* Categorías */}
-          <section className="bg-blue-100 py-12">
-            <h3 className="text-3xl font-bold text-blue-800 text-center mb-6">Explora por Categorías</h3>
-            {loadingCategorias && <p className="text-center text-gray-700">Cargando categorías...</p>}
-            {error && (
-              <p className="text-center text-red-700">
-                {error}{' '}
-                {error.includes('autenticado') && (
-                  <Link to="/login" className="underline hover:text-blue-800">Inicia sesión</Link>
-                )}
-              </p>
-            )}
-            {!loadingCategorias && !error && categorias.length === 0 && (
-              <p className="text-center text-gray-700">No hay categorías disponibles.</p>
-            )}
-            {!loadingCategorias && !error && categorias.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {categorias.map((categoria) => (
-                  <Link
-                    key={categoria._id}
-                    to={`/dashboard/productos/categoria/${categoria._id}`}
-                    className="relative block bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden"
-                  >
-                    <img
-                      src={categoryImages[categoria.nombreCategoria] || placeholderImage}
-                      alt={categoria.nombreCategoria}
-                      className="w-full h-40 object-cover"
-                    />
-                    <div className="p-4">
-                      <h3 className="text-lg font-semibold text-blue-800 text-center">{categoria.nombreCategoria}</h3>
-                      <button className="mt-2 w-full bg-blue-800 text-white py-2 rounded-lg hover:bg-red-800 transition-colors">
-                        Explorar
-                      </button>
-                    </div>
-                  </Link>
-                ))}
-              </div>
             )}
           </section>
 
