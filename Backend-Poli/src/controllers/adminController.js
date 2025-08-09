@@ -2,7 +2,6 @@ import { sendMailToAssignSeller } from "../config/nodemailer.js";
 import Estudiante from "../models/Estudiante.js";
 import Producto from "../models/Producto.js";
 import QuejasSugerencias from "../models/QuejasSugerencias.js";
-import Notificacion from "../models/Notificacion.js";
 import mongoose from "mongoose";
 
 // CAMBIO ROL 
@@ -93,38 +92,11 @@ const responderQuejaSugerencia = async (req, res) => {
 
 }
 
-// NOTIFICACIONES 
-
-const listarNotificacionesAdmin = async (req, res) => {
-    const adminId = req.estudianteBDD._id;
-    const notificaciones = await Notificacion.find({ usuario: adminId })
-        .populate("usuario", "nombre apellido telefono rol")
-        .sort({ createdAt: -1 });
-
-    res.status(200).json(notificaciones);
-}
-
-const marcarNotificacionLeida = async (req, res) => {
-    const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({ msg: 'ID de notifacion invalida' });
-    }
-
-    const notificacion = await Notificacion.findById(id);
-    if (!notificacion) return res.status(404).json({ msg: "Notificación no encontrada" });
-
-    notificacion.leido = true;
-    await notificacion.save();
-
-    res.status(200).json({ msg: "Notificación marcada como leída" });
-};
 
 export {
     obtenerUsuarios,
     cambioRol,
     listarTodasLasQuejasSugerencias,
     responderQuejaSugerencia,
-    listarNotificacionesAdmin,
-    marcarNotificacionLeida
 }
 

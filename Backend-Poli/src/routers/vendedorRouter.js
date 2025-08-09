@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { verifyTokenJWT } from "../middlewares/JWT.js";
 import { esVendedor } from "../middlewares/roles.js";
-import { actualizarProducto, crearCategoria, crearProducto, eliminarCategoria, eliminarNotificacion, eliminarProducto, listarCategorias, listarProducto, marcarComoLeida, verNotificaciones, visualizarHistorialVentasVendedor, visualizarProductoCategoria } from "../controllers/vendedorController.js";
+import { actualizarProducto, crearCategoria, crearProducto, eliminarCategoria, eliminarProducto, listarCategorias, listarProducto, visualizarHistorialVentasVendedor, visualizarProductoCategoria } from "../controllers/vendedorController.js";
 
 const router = Router()
 
@@ -19,10 +19,5 @@ router.get('/vendedor/categoria/:id/productos', verifyTokenJWT, esVendedor, visu
 
 // HISTORIAL DE VENTAS
 router.get('/vendedor/historial-ventas', verifyTokenJWT, esVendedor, visualizarHistorialVentasVendedor)
-
-// NOTIFICACIONES
-router.get('/vendedor/notificaciones', verifyTokenJWT, esVendedor, verNotificaciones);
-router.put('/vendedor/notificaciones/:id', verifyTokenJWT, esVendedor, marcarComoLeida);
-router.delete('/vendedor/notificaciones/:id', verifyTokenJWT, esVendedor, eliminarNotificacion);
 
 export default router

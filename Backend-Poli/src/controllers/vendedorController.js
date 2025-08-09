@@ -1,7 +1,6 @@
 import Categoria from "../models/Categoria.js";
 import Producto from "../models/Producto.js";
 import { v2 as cloudinary } from 'cloudinary'
-import Notificacion from "../models/Notificacion.js";
 import Orden from "../models/Orden.js";
 import mongoose from 'mongoose';
 
@@ -216,42 +215,6 @@ const visualizarHistorialVentasVendedor = async (req, res) => {
     res.status(200).json(historial);
 };
 
-// Notificaciones
-
-const verNotificaciones = async (req, res) => {
-    const notificaciones = await Notificacion.find({ usuario: req.estudianteBDD._id })
-        .populate("usuario", "nombre apellido telefono rol")
-        .sort({ createdAt: -1 });
-
-    if (!notificaciones.length) {
-        return res.status(404).json({ msg: "No tienes notificaciones" });
-    }
-    res.status(200).json(notificaciones);
-};
-
-const marcarComoLeida = async (req, res) => {
-    const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({ msg: 'ID de notificación no válido' });
-    }
-    const noti = await Notificacion.findOne({ _id: id, usuario: req.estudianteBDD._id });
-    if (!noti) return res.status(404).json({ msg: "Notificación no encontrada" });
-
-    noti.leido = true;
-    await noti.save();
-    res.status(200).json({ msg: "Notificación marcada como leída" });
-};
-
-const eliminarNotificacion = async (req, res) => {
-    const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({ msg: 'ID de notificación no válido' });
-    }
-    const eliminar = await Notificacion.findOneAndDelete({ _id: id, usuario: req.estudianteBDD._id });
-    if (!eliminar) return res.status(404).json({ msg: "No se encontró la notificación" });
-
-    res.status(200).json({ msg: "Notificación eliminada" });
-};
 export {
 
     crearCategoria,
@@ -262,8 +225,5 @@ export {
     eliminarProducto,
     listarProducto,
     visualizarProductoCategoria,
-    visualizarHistorialVentasVendedor,
-    verNotificaciones,
-    marcarComoLeida,
-    eliminarNotificacion
+    visualizarHistorialVentasVendedor
 }
