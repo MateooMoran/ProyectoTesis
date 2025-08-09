@@ -159,7 +159,7 @@ const Perfil = () => {
                     categorias.map((cat) => (
                       <Link
                         key={cat._id}
-                        to={`/productos/categoria/${cat._id}`}
+                        to={`ia//dashboard/productos/categor${cat._id}`}
                         className="block px-4 py-2 text-blue-800 hover:bg-red-100 hover:text-red-700 text-sm"
                         onClick={() => setIsCategoriesOpen(false)}
                       >
