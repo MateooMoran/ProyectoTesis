@@ -70,7 +70,7 @@ const Perfil = () => {
       await updateProfile(data, user._id);
       resetProfile(data);
     } catch (err) {
-      // Error ya manejado en storeProfile
+      toast.error('Error al actualizar el perfil');
     }
   };
 
@@ -84,7 +84,8 @@ const Perfil = () => {
       resetPassword();
       setShowPasswordFields(false);
     } catch (err) {
-      // Error ya manejado en storeProfile
+      toast.error('Error al actualizar la contraseña');
+  
     }
   };
 
@@ -99,10 +100,6 @@ const Perfil = () => {
     if (searchQuery.trim()) {
       navigate(`/productos/buscar?query=${encodeURIComponent(searchQuery)}`);
     }
-  };
-
-  const scrollToCarousel = () => {
-    navigate('/productos');
   };
 
   return (
@@ -159,7 +156,7 @@ const Perfil = () => {
                     categorias.map((cat) => (
                       <Link
                         key={cat._id}
-                        to={`ia//dashboard/productos/categor${cat._id}`}
+                        to={`/dashboard/productos/categoria/${cat._id}`}
                         className="block px-4 py-2 text-blue-800 hover:bg-red-100 hover:text-red-700 text-sm"
                         onClick={() => setIsCategoriesOpen(false)}
                       >

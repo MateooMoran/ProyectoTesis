@@ -103,7 +103,7 @@ const ProductoDetalle = () => {
       </header>
 
       {/* Espacio para header fijo */}
-      <div className="h-20 sm:h-24"></div>
+      <div className="h-20 sm:h-0"></div>
 
       {/* Detalle del producto */}
       <div className="max-w-7xl mx-auto px-4 py-8 mt-20 sm:mt-24">
