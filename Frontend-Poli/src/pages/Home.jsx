@@ -151,7 +151,7 @@ export const Home = () => {
                       <p><strong>Rol:</strong> {user?.rol ? user.rol.toUpperCase() : "N/A"}</p>
                     </div>
                     <Link
-                      to="/perfil"
+                      to="perfil"
                       className="block px-4 py-2 text-blue-800 hover:bg-blue-50"
                       onClick={() => setIsDropdownOpen(false)}
                     >

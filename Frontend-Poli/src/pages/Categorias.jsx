@@ -64,7 +64,7 @@ const CategoriaProductos = () => {
           {!loading && !error && productos.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {productos.map((producto) => (
-                <Link to={`/productos/${producto._id}`} className="block" key={producto._id}>
+                <Link to={`/dashboard/productos/${producto._id}`} className="block" key={producto._id}>
                   <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 p-4">
                     <div className="relative">
                       <img
