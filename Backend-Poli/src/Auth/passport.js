@@ -27,12 +27,12 @@ passport.use(new GoogleStrategy({
         rol: "estudiante",
         direccion: "",
         telefono: "",
+        password: "",
         emailConfirmado: true,
         estado: true
       });
-
-      const randomPass = profile.id + Date.now();
-      nuevoEstudiante.password = await nuevoEstudiante.encrypPassword(randomPass);
+      // Encriptar la contraseña aunque no se use, para mantener consistencia
+      nuevoEstudiante.password = await nuevoEstudiante.encrypPassword(password);
 
       await nuevoEstudiante.save();
 
