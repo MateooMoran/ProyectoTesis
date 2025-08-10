@@ -50,7 +50,6 @@ function GestionarQuejasSugerencias() {
         body: body,
         config: { headers },
       });
-      toast.success("Respuesta guardada correctamente");
     } catch (error) {
       console.error("Error al responder la queja/sugerencia", error);
     }

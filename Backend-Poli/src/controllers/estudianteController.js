@@ -6,6 +6,7 @@ import Stripe from 'stripe'
 import QuejasSugerencias from "../models/QuejasSugerencias.js";
 import mongoose from "mongoose";
 import Estudiante from "../models/Estudiante.js";
+import Notificacion from "../models/Notificacion.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
