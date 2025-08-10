@@ -21,6 +21,7 @@ const storeProfile = create(
               Authorization: `Bearer ${token}`,
             },
           });
+          storeAuth.getState().setRol(respuesta.data.rol);
           set({ user: respuesta.data });
           return respuesta.data;
         } catch (error) {
