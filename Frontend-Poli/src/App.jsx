@@ -21,6 +21,7 @@ import Carrito from './pages/Carrito';
 import ProductoDetalle from './pages/ProductoDetalle';
 import GestionarUsuario from './pages/admin/GestionarUsuario';
 import QuejasSugerencias from "./pages/QuejasSugerencias";
+import GestionQuejasSugerencias from './pages/admin/GestionQuejasSugerencias';
 
 import Categorias from './pages/vendedor/Categorias';
 import ProductosVendedor from './pages/vendedor/ProductosVendedor';
@@ -81,7 +82,8 @@ function App() {
             <Route path="estudiante/carrito" element={<Carrito />} />
             <Route path="productos/:id" element={<ProductoDetalle />} />
             <Route path="perfil" element={<Perfil />} />
-            <Route path='admin' element={<GestionarUsuario />} />
+            <Route path='admin/gestionusuarios' element={<GestionarUsuario />} />
+            <Route path='admin/gestionquejas' element={<GestionQuejasSugerencias />} />
             <Route path='estudiante/quejas-sugerencias' element={<QuejasSugerencias />} />
 
             {/* Rutas para vendedor */}
