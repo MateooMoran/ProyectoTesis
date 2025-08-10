@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Trash2, PlusCircle, Pencil } from "lucide-react";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import useFetch from '../../hooks/useFetch';
 import Header from '../../layout/Header';
 import { generateAvatar, convertBlobToBase64 } from "../../helpers/ConsultarAI";
+
 
 export default function ProductosVendedor() {
     const { fetchDataBackend } = useFetch();
@@ -47,7 +48,7 @@ export default function ProductosVendedor() {
                 });
                 setProductos(prodData);
             } catch (error) {
-                toast.error("Error al cargar productos");
+                console.log(error);
             } finally {
                 setLoadingProductos(false);
             }
@@ -228,7 +229,6 @@ export default function ProductosVendedor() {
                 method: "DELETE",
                 config: { headers },
             });
-            toast.success("Producto eliminado");
             setProductos(productos.filter((p) => p._id !== id));
         } catch {
             // Error manejado en fetchDataBackend
@@ -238,6 +238,7 @@ export default function ProductosVendedor() {
     return (
         <>
             <Header />
+            <ToastContainer></ToastContainer>
             <div className="max-w-5xl mx-auto p-6 lg:p-8">
                 <h2 className="text-3xl font-bold text-gray-800 mb-6">Gestionar Productos</h2>
 

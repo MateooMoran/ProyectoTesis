@@ -55,7 +55,6 @@ app.get('/',(req,res)=>{
     res.send("Server on")
 })
 
-
 // Rutas 
 app.use('/api',routerUsuarios)
 app.use('/api',routerVendedor)

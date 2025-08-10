@@ -3,6 +3,7 @@ import Producto from "../models/Producto.js";
 import { v2 as cloudinary } from 'cloudinary'
 import Orden from "../models/Orden.js";
 import mongoose from 'mongoose';
+import fs from 'fs-extra'
 
 // CATEGORIAS
 
@@ -57,7 +58,6 @@ const crearProducto = async (req, res) => {
             const { secure_url, public_id } = await cloudinary.uploader.upload(req.files.imagen.tempFilePath, { folder: 'ImagenesProductos' })
             nuevoProducto.imagen = secure_url
             nuevoProducto.imagenID = public_id
-            const fs = require('fs-extra');
 
             await fs.unlink(req.files.imagen.tempFilePath)
         }
@@ -83,9 +83,12 @@ const crearProducto = async (req, res) => {
         await nuevoProducto.save()
         res.status(200).json({ msg: "Producto creado correctamente" })
     } catch (error) {
-        res.status(500).json({ msg: 'Error interno del servidor' });
+            console.error("Error crearProducto:", error);
+            res.status(500).json({ msg: 'Error interno del servidor', error: error.message });
+        }
+        
     }
-}
+
 
 const actualizarProducto = async (req, res) => {
     const { id } = req.params;
