@@ -166,13 +166,15 @@ export default function ProductosVendedor() {
                     stock: Number(form.stock),
                     descripcion: form.descripcion.trim(),
                     categoria: form.categoria,
+                    imagen: form.imagen
                 });
                 config.headers["Content-Type"] = "application/json";
             }
 
             await fetchDataBackend(url, {
+
                 method: "POST",
-                body,
+                body: body,
                 config,
             });
 
