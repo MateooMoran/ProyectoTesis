@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { verifyTokenJWT } from "../middlewares/JWT.js";
 import { tieneRol } from "../middlewares/roles.js";
-import { buscarEstudiantePorNombre, eliminarNotificacion, listarNotificaciones, marcarNotificacionLeida, obtenerConversacionesRecientes } from "../controllers/servicioController.js";
+import { buscarEstudiantePorNombre, conversacionLectura, eliminarNotificacion, listarNotificaciones, marcarNotificacionLeida, obtenerConversacionesRecientes } from "../controllers/servicioController.js";
 import { createTokenJWT } from "../middlewares/JWT.js";
 import passport from '../../src/Auth/passport.js';
 
@@ -9,6 +9,8 @@ const router = Router();
 
 router.get('/chat/buscar', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), buscarEstudiantePorNombre);
 router.get('/chat/conversaciones', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'),obtenerConversacionesRecientes);
+router.post("/conversacion/:id/leer", verifyTokenJWT,tieneRol('estudiante', 'admin', 'vendedor'), conversacionLectura);
+
 
 router.get('/notificaciones', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), listarNotificaciones);
 router.put('/notificaciones/leida/:id', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), marcarNotificacionLeida);
