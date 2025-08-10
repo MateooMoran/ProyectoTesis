@@ -23,7 +23,10 @@ const Header = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const categoriesRef = useRef(null);
     const userDropdownRef = useRef(null);
-    
+
+    const { clear, clearUser } = storeProfile()
+
+
 
     useEffect(() => {
         fetchCategorias();
@@ -51,6 +54,7 @@ const Header = () => {
 
     const handleLogout = () => {
         clearToken();
+        clearUser()
         navigate('/login');
     };
 
@@ -171,7 +175,7 @@ const Header = () => {
                                 {isDropdownOpen && (
                                     <div className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-lg py-3 z-50   ">
                                         <div className="px-5 py-3 text-sm text-blue-700">
-                                        <p><strong>Nombre:</strong> {user?.nombre || 'Usuario'}</p>
+                                            <p><strong>Nombre:</strong> {user?.nombre || 'Usuario'}</p>
                                             <p><strong>Rol:</strong> {rol ? rol.toUpperCase() : 'N/A'}</p>
                                         </div>
                                         <Link
@@ -218,7 +222,7 @@ const Header = () => {
                                                 >
                                                     Gestionar Productos
                                                 </Link>
-                                                
+
 
                                                 <Link
                                                     to="/dashboard/vendedor/historial-ventas"
