@@ -28,9 +28,8 @@ const Login = () => {
         toast.error(response?.msg || "Error al iniciar sesión");
       }
     } catch (error) {
-      toast.error(
-        error?.response?.data?.msg || "Error del servidor, intenta de nuevo"
-      );
+      console.log(error);
+      
     } finally {
       setLoading(false);
     }
