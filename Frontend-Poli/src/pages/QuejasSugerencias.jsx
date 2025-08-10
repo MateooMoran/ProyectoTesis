@@ -1,58 +1,57 @@
-
 import React, { useEffect, useState } from "react";
 import { Trash2, Send } from "lucide-react";
 import { toast } from "react-toastify";
-import storeAuth from "../context/storeAuth";
+import useFetch from "../hooks/useFetch";
 import { useNavigate } from "react-router-dom";
 import Header from "../layout/Header";
 
-export default function QuejasSugerencias() {
-    const { token, rol } = storeAuth();
+export default function QuejasSugerenciasEstudiante() {
+    const { fetchDataBackend } = useFetch();
     const navigate = useNavigate();
 
     const [lista, setLista] = useState([]);
     const [tipo, setTipo] = useState("queja");
     const [mensaje, setMensaje] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [enviando, setEnviando] = useState(false);
 
-    const API_URL = import.meta.env.VITE_BACKEND_URL;
-
     useEffect(() => {
+        const storedUser = JSON.parse(localStorage.getItem("auth-token"));
+        const token = storedUser?.state?.token || null;
+        const rol = storedUser?.state?.rol || null;
+
         if (!token) {
             toast.error("Debes iniciar sesión");
             navigate("/login");
+            return;
         }
         if (rol !== "estudiante") {
-            navigate("/dashboard");
+            navigate("/dashboard"); // Redirige a dashboard u otra ruta si no es estudiante
+            return;
         }
-    }, [token, rol]);
 
-    const cargarDatos = async () => {
-        try {
-            setLoading(true);
-            const res = await fetch(`${API_URL}/estudiante/quejas-sugerencias`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
+        const cargarDatos = async () => {
+            try {
+                const url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/quejas-sugerencias`;
+                const headers = {
                     "Content-Type": "application/json",
-                },
-            });
-            const data = await res.json();
-            if (res.ok) {
+                    Authorization: `Bearer ${token}`,
+                };
+                const data = await fetchDataBackend(url, {
+                    method: "GET",
+                    config: { headers },
+                });
                 setLista(data);
-            } else {
-                toast.error(data.msg || "Error al obtener datos");
+            } catch (error) {
+                console.error("Error al obtener quejas/sugerencias", error);
+                toast.error("Error al cargar datos");
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            toast.error("Error de conexión");
-        } finally {
-            setLoading(false);
-        }
-    };
+        };
 
-    useEffect(() => {
         cargarDatos();
-    }, []);
+    }, [fetchDataBackend, navigate]);
 
     const validarFormulario = () => {
         if (!tipo || (tipo !== "queja" && tipo !== "sugerencia")) {
@@ -78,27 +77,39 @@ export default function QuejasSugerencias() {
         e.preventDefault();
         if (!validarFormulario()) return;
 
+        const storedUser = JSON.parse(localStorage.getItem("auth-token"));
+        const token = storedUser?.state?.token || null;
+        if (!token) {
+            toast.error("Token no disponible, inicia sesión de nuevo");
+            navigate("/login");
+            return;
+        }
+
         setEnviando(true);
         try {
-            const res = await fetch(`${API_URL}/estudiante/quejas-sugerencias`, {
+            const url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/quejas-sugerencias`;
+            const headers = {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            };
+            const body = { tipo, mensaje: mensaje.trim() };
+            await fetchDataBackend(url, {
                 method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ tipo, mensaje: mensaje.trim() }),
+                body,
+                config: { headers },
             });
-            const data = await res.json();
-            if (res.ok) {
-                toast.success(data.msg || "Enviado correctamente");
-                setMensaje("");
-                setTipo("queja");
-                cargarDatos();
-            } else {
-                toast.error(data.msg || "Error al enviar");
-            }
-        } catch {
-            toast.error("Error de conexión");
+            toast.success("Enviado correctamente");
+            setMensaje("");
+            setTipo("queja");
+            // Recargar lista
+            const data = await fetchDataBackend(url, {
+                method: "GET",
+                config: { headers },
+            });
+            setLista(data);
+        } catch (error) {
+            console.error(error);
+            toast.error("Error al enviar queja/sugerencia");
         } finally {
             setEnviando(false);
         }
@@ -106,22 +117,29 @@ export default function QuejasSugerencias() {
 
     const eliminar = async (id) => {
         if (!confirm("¿Seguro que deseas eliminar este registro?")) return;
+
+        const storedUser = JSON.parse(localStorage.getItem("auth-token"));
+        const token = storedUser?.state?.token || null;
+        if (!token) {
+            toast.error("Token no disponible, inicia sesión de nuevo");
+            navigate("/login");
+            return;
+        }
+
         try {
-            const res = await fetch(`${API_URL}/estudiante/quejas-sugerencias/${id}`, {
+            const url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/quejas-sugerencias/${id}`;
+            const headers = {
+                Authorization: `Bearer ${token}`,
+            };
+            await fetchDataBackend(url, {
                 method: "DELETE",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                config: { headers },
             });
-            const data = await res.json();
-            if (res.ok) {
-                toast.success(data.msg || "Eliminado correctamente");
-                setLista(lista.filter((item) => item._id !== id));
-            } else {
-                toast.error(data.msg || "Error al eliminar");
-            }
-        } catch {
-            toast.error("Error de conexión");
+            toast.success("Eliminado correctamente");
+            setLista((prev) => prev.filter((item) => item._id !== id));
+        } catch (error) {
+            console.error(error);
+            toast.error("Error al eliminar");
         }
     };
 
@@ -155,9 +173,7 @@ export default function QuejasSugerencias() {
                             className="w-full border rounded p-2"
                             placeholder="Escribe tu mensaje..."
                         />
-                        <p className="text-sm text-gray-500">
-                            {mensaje.length}/500 caracteres
-                        </p>
+                        <p className="text-sm text-gray-500">{mensaje.length}/500 caracteres</p>
                     </div>
                     <button
                         type="submit"
