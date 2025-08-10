@@ -1,194 +1,216 @@
-import React, { useState, useEffect, useRef } from "react";
-import { io } from "socket.io-client";
-import useFetch from "../../hooks/useFetch";
+import React, { useState, useRef, useEffect } from "react";
 import { Search, Send, X } from "lucide-react";
+import useChat from "../../hooks/useChat";
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000/api";
-const SOCKET_URL =
-    import.meta.env.VITE_BACKEND_URL?.replace("/api", "") || "http://localhost:3000";
 
 export default function ChatWindow({ onClose }) {
-    const { fetchDataBackend } = useFetch();
-    const storedUser = JSON.parse(localStorage.getItem("auth-token"));
-    const token = storedUser?.state?.token || "";
+  const storedToken = JSON.parse(localStorage.getItem("auth-token"));
+  const profile = JSON.parse(localStorage.getItem("profile-storage"));
 
-    const [search, setSearch] = useState("");
-    const [resultados, setResultados] = useState([]);
-    const [mensajes, setMensajes] = useState([]);
-    const [texto, setTexto] = useState("");
-    const [roomId, setRoomId] = useState(null);
-    const [conversandoCon, setConversandoCon] = useState(null);
+  const token = storedToken?.state?.token || "";
+  const usuarioActual = profile?.state?.user || null;
 
-    const socketRef = useRef(null);
-    const mensajesRef = useRef(null);
+  console.log("Token:", token);
+  console.log("Usuario actual:", usuarioActual);
 
-    // Inicializar socket solo una vez
-    useEffect(() => {
-        socketRef.current = io(SOCKET_URL, {
-            transports: ["websocket"],
-        });
+  const [nombreBuscar, setNombreBuscar] = useState("");
+  const [apellidoBuscar, setApellidoBuscar] = useState("");
+  const [resultados, setResultados] = useState([]);
+  const [texto, setTexto] = useState("");
+  const [conversandoCon, setConversandoCon] = useState(null);
 
-        // Listeners
-        const handleChatJoined = ({ roomId, mensajes }) => {
-            setRoomId(roomId);
-            setMensajes(mensajes);
-        };
+  const { roomId, mensajes, error, joinChat, sendMessage } = useChat(token, usuarioActual?._id);
 
-        const handleNuevoMensaje = (mensajesActualizados) => {
-            setMensajes(mensajesActualizados);
-        };
+  const mensajesRef = useRef(null);
 
-        const handleErrorMensaje = (msg) => {
-            alert(msg); // Puedes reemplazar con toast
-        };
+  useEffect(() => {
+    if (mensajesRef.current) {
+      mensajesRef.current.scrollTop = mensajesRef.current.scrollHeight;
+    }
+  }, [mensajes]);
 
-        socketRef.current.on("chat-joined", handleChatJoined);
-        socketRef.current.on("nuevo-mensaje", handleNuevoMensaje);
-        socketRef.current.on("error-mensaje", handleErrorMensaje);
+  const buscarUsuarios = async () => {
+    if (!nombreBuscar.trim() && !apellidoBuscar.trim()) {
+      alert("Debes ingresar al menos nombre o apellido para buscar");
+      return;
+    }
+    try {
+      const params = new URLSearchParams();
+      if (nombreBuscar.trim()) params.append("nombre", nombreBuscar.trim());
+      if (apellidoBuscar.trim()) params.append("apellido", apellidoBuscar.trim());
 
-        return () => {
-            socketRef.current.off("chat-joined", handleChatJoined);
-            socketRef.current.off("nuevo-mensaje", handleNuevoMensaje);
-            socketRef.current.off("error-mensaje", handleErrorMensaje);
-            socketRef.current.disconnect();
-        };
-    }, []);
+      const url = `${API_URL}/chat/buscar?${params.toString()}`;
 
-    // Auto-scroll cuando cambian mensajes
-    useEffect(() => {
-        if (mensajesRef.current) {
-            mensajesRef.current.scrollTop = mensajesRef.current.scrollHeight;
-        }
-    }, [mensajes]);
+      console.log("Buscando usuarios en:", url);
 
-    const buscarUsuarios = async () => {
-        if (!search.trim()) return;
-        const data = await fetchDataBackend(
-            `${API_URL}/chat/buscar?nombre=${search}`,
-            {
-                method: "GET",
-                config: { headers: { Authorization: `Bearer ${token}` } },
-            }
-        );
-        setResultados(data || []);
-    };
+      const res = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-    const iniciarChat = (usuario) => {
-        setConversandoCon(usuario);
-        setRoomId(null);
-        setMensajes([]);
+      if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
 
-        if (socketRef.current && socketRef.current.connected) {
-            socketRef.current.emit("join-chat", {
-                userId: storedUser.state.usuario._id,
-                otherUserId: usuario._id,
-            });
-        } else {
-            alert("Conexión de socket no disponible");
-        }
-    };
+      const data = await res.json();
 
-    const enviarMensaje = () => {
-        if (!texto.trim() || !roomId) return;
-        if (!socketRef.current || !socketRef.current.connected) {
-            alert("Socket desconectado, no se puede enviar el mensaje.");
-            return;
-        }
-        socketRef.current.emit("enviar-mensaje", {
-            roomId,
-            texto,
-            emisor: storedUser.state.usuario._id,
-        });
-        setTexto("");
-    };
+      console.log("Usuarios encontrados:", data);
 
-    return (
-        <div className="fixed bottom-5 right-5 w-96 bg-white border rounded-lg shadow-lg flex flex-col">
-            <div className="flex justify-between items-center p-3 border-b">
-                <h2 className="font-bold text-blue-600">Chat</h2>
-                <button onClick={onClose}>
-                    <X className="text-gray-600 hover:text-red-600" />
-                </button>
-            </div>
+      const userId = usuarioActual?._id || null;
+      const filtered = userId ? data.filter(u => u._id !== userId) : data;
 
-            {!conversandoCon ? (
-                <>
-                    <div className="flex p-3">
-                        <input
-                            type="text"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Buscar usuario..."
-                            className="flex-1 border p-2 rounded-l-lg"
-                        />
-                        <button
-                            onClick={buscarUsuarios}
-                            className="bg-blue-600 text-white px-3 rounded-r-lg"
-                        >
-                            <Search size={18} />
-                        </button>
-                    </div>
-                    <div className="flex-1 overflow-y-auto">
-                        {resultados.map((user) => (
-                            <div
-                                key={user._id}
-                                onClick={() => iniciarChat(user)}
-                                className="p-3 hover:bg-gray-100 cursor-pointer border-b"
-                            >
-                                {user.nombre} {user.apellido} -{" "}
-                                <span className="text-sm text-gray-500">{user.rol}</span>
-                            </div>
-                        ))}
-                    </div>
-                </>
+      setResultados(filtered);
+    } catch (error) {
+      console.error("Error buscando usuarios:", error);
+      alert("Error buscando usuarios: " + (error.message || error));
+    }
+  };
+
+  const iniciarChat = (usuario) => {
+    console.log("Iniciando chat con:", usuario);
+    setConversandoCon(usuario);
+    joinChat(usuario._id);
+  };
+
+  const enviarMensaje = () => {
+    console.log("Intentando enviar mensaje:", texto);
+    sendMessage(roomId, texto, usuarioActual._id);
+    setTexto("");
+  };
+
+  return (
+    <div className="fixed bottom-5 right-5 w-96 bg-white border rounded-lg shadow-lg flex flex-col">
+      <div className="flex justify-between items-center p-3 border-b">
+        <h2 className="font-bold text-blue-600">Chat</h2>
+        <button onClick={onClose} aria-label="Cerrar chat">
+          <X className="text-gray-600 hover:text-red-600" />
+        </button>
+      </div>
+
+      {error && (
+        <div className="bg-red-100 text-red-700 p-2 text-center">{error}</div>
+      )}
+
+      {!conversandoCon ? (
+        <>
+          <div className="flex p-3 gap-2">
+            <input
+              type="text"
+              placeholder="Nombre"
+              value={nombreBuscar}
+              onChange={(e) => setNombreBuscar(e.target.value)}
+              className="flex-1 border p-2 rounded"
+              onKeyDown={(e) => e.key === "Enter" && buscarUsuarios()}
+            />
+            <input
+              type="text"
+              placeholder="Apellido"
+              value={apellidoBuscar}
+              onChange={(e) => setApellidoBuscar(e.target.value)}
+              className="flex-1 border p-2 rounded"
+              onKeyDown={(e) => e.key === "Enter" && buscarUsuarios()}
+            />
+            <button
+              onClick={buscarUsuarios}
+              className="bg-blue-600 text-white px-3 rounded"
+              aria-label="Buscar usuarios"
+            >
+              <Search size={18} />
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto max-h-72">
+            {resultados.length === 0 ? (
+              <p className="p-3 text-gray-500">No hay usuarios encontrados</p>
             ) : (
-                <>
-                    <div className="flex items-center gap-2 p-3 border-b bg-gray-50">
-                        <button onClick={() => setConversandoCon(null)} className="text-blue-500">
-                            &larr;
-                        </button>
-                        <span className="font-semibold">
-                            {conversandoCon.nombre} {conversandoCon.apellido}
-                        </span>
-                    </div>
-                    <div ref={mensajesRef} className="flex-1 overflow-y-auto p-3">
-                        {mensajes.map((m, i) => (
-                            <div
-                                key={i}
-                                className={`mb-2 flex ${m.emisor._id === storedUser.state.usuario._id ? "justify-end" : "justify-start"
-                                    }`}
-                            >
-                                <div
-                                    className={`p-2 rounded-lg ${m.emisor._id === storedUser.state.usuario._id
-                                            ? "bg-blue-500 text-white"
-                                            : "bg-gray-200"
-                                        }`}
-                                >
-                                    <p className="text-sm">{m.texto}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="flex p-3 border-t">
-                        <input
-                            type="text"
-                            value={texto}
-                            onChange={(e) => setTexto(e.target.value)}
-                            placeholder="Escribir mensaje..."
-                            className="flex-1 border p-2 rounded-l-lg"
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") enviarMensaje();
-                            }}
-                        />
-                        <button
-                            onClick={enviarMensaje}
-                            className="bg-blue-600 text-white px-4 rounded-r-lg"
-                        >
-                            <Send size={18} />
-                        </button>
-                    </div>
-                </>
+              resultados.map((user) => (
+                <div
+                  key={user._id}
+                  onClick={() => iniciarChat(user)}
+                  className="p-3 hover:bg-gray-100 cursor-pointer border-b"
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") iniciarChat(user);
+                  }}
+                >
+                  {user.nombre} {user.apellido} -{" "}
+                  <span className="text-sm text-gray-500">{user.rol}</span>
+                </div>
+              ))
             )}
-        </div>
-    );
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="flex items-center gap-2 p-3 border-b bg-gray-50">
+            <button
+              onClick={() => setConversandoCon(null)}
+              className="text-blue-500 font-bold"
+              aria-label="Volver a búsqueda"
+            >
+              &larr;
+            </button>
+            <span className="font-semibold">
+              {conversandoCon.nombre} {conversandoCon.apellido}
+            </span>
+          </div>
+
+          <div
+            ref={mensajesRef}
+            className="flex-1 overflow-y-auto p-3 max-h-72"
+            style={{ minHeight: "200px" }}
+          >
+            {mensajes.length === 0 && (
+              <p className="text-gray-500">No hay mensajes aún</p>
+            )}
+            {mensajes.map((m, i) => (
+              <div
+                key={i}
+                className={`mb-2 flex ${
+                  m.emisor._id === usuarioActual._id
+                    ? "justify-end"
+                    : "justify-start"
+                }`}
+              >
+                <div
+                  className={`p-2 rounded-lg ${
+                    m.emisor._id === usuarioActual._id
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200"
+                  }`}
+                  style={{ maxWidth: "70%" }}
+                >
+                  <p className="text-sm break-words">{m.texto}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex p-3 border-t">
+            <input
+              type="text"
+              value={texto}
+              onChange={(e) => setTexto(e.target.value)}
+              placeholder="Escribir mensaje..."
+              className="flex-1 border p-2 rounded-l-lg"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") enviarMensaje();
+              }}
+              autoFocus
+            />
+            <button
+              onClick={enviarMensaje}
+              className="bg-blue-600 text-white px-4 rounded-r-lg"
+              aria-label="Enviar mensaje"
+            >
+              <Send size={18} />
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
 }
