@@ -2,65 +2,60 @@ import { Router } from "express";
 import { verifyTokenJWT } from "../middlewares/JWT.js";
 import { tieneRol } from "../middlewares/roles.js";
 import { buscarEstudiantePorNombre, eliminarNotificacion, listarNotificaciones, marcarNotificacionLeida } from "../controllers/servicioController.js";
-import { createTokenJWT } from "../middlewares/JWT.js"; 
-import passport from 'passport';
-
+import { createTokenJWT } from "../middlewares/JWT.js";
+import passport from '../../src/Auth/passport.js';
 
 const router = Router();
 
-// Buscar estudiante
 router.get('/chat/buscar', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), buscarEstudiantePorNombre);
 router.get('/notificaciones', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), listarNotificaciones);
 router.put('/notificaciones/leida/:id', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), marcarNotificacionLeida);
-router.delete('/notificaciones/:id', verifyTokenJWT,tieneRol('estudiante', 'admin', 'vendedor'), eliminarNotificacion);
+router.delete('/notificaciones/:id', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), eliminarNotificacion);
 
-
-// Login con Google
 router.get('/auth/google',
   passport.authenticate('google', { scope: ['profile', 'email'], session: false })
 );
 
 router.get('/auth/google/callback',
-  passport.authenticate('google', {
-    failureRedirect: 'http://localhost:5173/login',
-    session: false
-  }),
+  passport.authenticate('google', { failureRedirect: `${process.env.URL_FRONTEND}/login`, session: false }),
   async (req, res) => {
     try {
       const estudianteBDD = req.user;
 
       if (!estudianteBDD.emailConfirmado) {
-        return res.status(403).json({ msg: "Debes confirmar tu cuenta antes de iniciar sesión." });
+        return res.redirect(`${process.env.URL_FRONTEND}/login?error=email_no_confirmado`);
       }
-
+      console.log("Usuario Google:", estudianteBDD);
       const token = createTokenJWT(estudianteBDD._id, estudianteBDD.rol);
+      console.log("Token JWT:", token);
       if (!token) {
-        return res.status(401).json({ msg: "No se pudo crear el token" });
+        return res.redirect(`${process.env.URL_FRONTEND}/login?error=token_error`);
       }
 
-      const frontendUrl = `${process.env.URL_FRONTEND}/dashboard?token=${encodeURIComponent(token)}&rol=${encodeURIComponent(estudianteBDD.rol)}&nombre=${encodeURIComponent(estudianteBDD.nombre)}&apellido=${encodeURIComponent(estudianteBDD.apellido)}&direccion=${encodeURIComponent(estudianteBDD.direccion || '')}&telefono=${encodeURIComponent(estudianteBDD.telefono || '')}&_id=${encodeURIComponent(estudianteBDD._id)}`;
-
-      res.redirect(frontendUrl);
-
+      res.redirect(`${process.env.URL_FRONTEND}/auth/callback?token=${encodeURIComponent(token)}&rol=${encodeURIComponent(estudianteBDD.rol)}`);
     } catch (error) {
       console.error("Error en login Google:", error);
-      res.status(500).json({ msg: "Error en el servidor" });
+      res.redirect(`${process.env.URL_FRONTEND}/login?error=server_error`);
     }
   }
 );
 
-router.get('/auth/usuario', (req, res) => {
-  if (req.isAuthenticated()) {
-    res.json(req.user);
-  } else {
-    res.status(401).json({ msg: 'No autenticado' });
-  }
-});
-
-router.get('/auth/logout', (req, res) => {
-  req.logout(() => {
-    res.redirect(`${process.env.FRONTEND_URL}`);
+router.get('/auth/usuario', verifyTokenJWT, (req, res) => {
+  res.json({
+    _id: req.usuario._id,
+    nombre: req.usuario.nombre,
+    apellido: req.usuario.apellido,
+    email: req.usuario.email,
+    rol: req.usuario.rol,
+    direccion: req.usuario.direccion,
+    telefono: req.usuario.telefono,
   });
 });
 
-export default router;
+// Logout (solo redirigir, porque JWT no mantiene sesión en backend)
+router.get('/auth/logout', (req, res) => {
+  // El frontend debe borrar el token para "cerrar sesión"
+  res.redirect(`${process.env.URL_FRONTEND}/login`);
+});
+
+export default router;
