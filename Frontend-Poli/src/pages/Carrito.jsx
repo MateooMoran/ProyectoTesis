@@ -40,7 +40,7 @@ const Carrito = () => {
                                         <p className="font-semibold">{item.producto.nombreProducto}</p>
                                         <p className="text-gray-600">Cantidad: {item.cantidad}</p>
                                         <p className="text-sm text-gray-500">
-                                            Precio: ${item.precioUnitario} | Subtotal: ${item.subtotal}
+                                            Precio Unitario: ${item.precioUnitario} | Subtotal: ${item.subtotal}
                                         </p>
                                     </div>
                                 </div>
@@ -53,7 +53,10 @@ const Carrito = () => {
                                         -
                                     </button>
                                     <button
-                                        onClick={() => eliminarProducto(item._id)}
+                                        onClick={async () => {
+                                            await eliminarProducto(item._id);
+                                            fetchCarrito();  // refrescar carrito después de eliminar
+                                        }}
                                         className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
                                     >
                                         Eliminar
@@ -64,7 +67,7 @@ const Carrito = () => {
 
                         <div className="flex justify-between mt-4 font-bold">
                             <span>Total:</span>
-                            <span>${carrito.total}</span>
+                            <span>${carrito.total.toFixed(2)}</span>
                         </div>
 
                         <button
