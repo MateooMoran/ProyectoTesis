@@ -47,7 +47,6 @@ const Perfil = () => {
     try {
       await updateProfile(data, user._id);
       resetProfile(data);
-      toast.success('Perfil actualizado correctamente');
     } catch (err) {
       toast.error('Error al actualizar el perfil');
     }
@@ -62,7 +61,6 @@ const Perfil = () => {
       await updatePasswordProfile({ passwordactual: data.currentPassword, passwordnuevo: data.newPassword }, user._id);
       resetPassword();
       setShowPasswordFields(false);
-      toast.success('Contraseña actualizada correctamente');
     } catch (err) {
       toast.error('Error al actualizar la contraseña');
     }
