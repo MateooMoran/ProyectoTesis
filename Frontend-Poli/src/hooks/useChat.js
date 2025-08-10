@@ -27,9 +27,10 @@ export default function useChat(token, usuarioId) {
       setMensajes(mensajes || []);
     };
 
-    const handleNuevoMensaje = (mensajesActualizados) => {
-      console.log("Socket nuevo-mensaje:", mensajesActualizados);
-      setMensajes(mensajesActualizados);
+    // Aquí cambia: agregamos el mensaje nuevo al array anterior
+    const handleNuevoMensaje = (mensajeNuevo) => {
+      console.log("Socket nuevo-mensaje:", mensajeNuevo);
+      setMensajes((prevMensajes) => [...prevMensajes, mensajeNuevo]);
     };
 
     const handleErrorMensaje = (msg) => {

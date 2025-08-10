@@ -11,16 +11,14 @@ export default function ChatWindow({ onClose }) {
   const token = storedToken?.state?.token || "";
   const usuarioActual = profile?.state?.user || null;
 
-  console.log("Token:", token);
-  console.log("Usuario actual:", usuarioActual);
-
   const [nombreBuscar, setNombreBuscar] = useState("");
   const [apellidoBuscar, setApellidoBuscar] = useState("");
   const [resultados, setResultados] = useState([]);
   const [texto, setTexto] = useState("");
   const [conversandoCon, setConversandoCon] = useState(null);
 
-  const { roomId, mensajes, error, joinChat, sendMessage } = useChat(token, usuarioActual?._id);
+  const { roomId, mensajes, error, joinChat, sendMessage, miembros } = useChat(token, usuarioActual?._id);
+  // Nota: Asumo que useChat devuelve también "miembros" del chat para mostrar cantidad.
 
   const mensajesRef = useRef(null);
 
@@ -42,8 +40,6 @@ export default function ChatWindow({ onClose }) {
 
       const url = `${API_URL}/chat/buscar?${params.toString()}`;
 
-      console.log("Buscando usuarios en:", url);
-
       const res = await fetch(url, {
         method: "GET",
         headers: {
@@ -56,88 +52,104 @@ export default function ChatWindow({ onClose }) {
 
       const data = await res.json();
 
-      console.log("Usuarios encontrados:", data);
-
       const userId = usuarioActual?._id || null;
       const filtered = userId ? data.filter(u => u._id !== userId) : data;
 
       setResultados(filtered);
     } catch (error) {
-      console.error("Error buscando usuarios:", error);
       alert("Error buscando usuarios: " + (error.message || error));
     }
   };
 
   const iniciarChat = (usuario) => {
-    console.log("Iniciando chat con:", usuario);
     setConversandoCon(usuario);
     joinChat(usuario._id);
   };
 
   const enviarMensaje = () => {
-    console.log("Intentando enviar mensaje:", texto);
-    sendMessage(roomId, texto, usuarioActual._id);
+    if (!texto.trim()) return; // evitar enviar mensajes vacíos
+    sendMessage(roomId, texto.trim(), usuarioActual._id);
     setTexto("");
+  };
+
+  // Formatear fecha legible para mensajes
+  const formatearFecha = (fechaISO) => {
+    const fecha = new Date(fechaISO);
+    return fecha.toLocaleString(undefined, {
+      day: "2-digit",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   return (
     <div className="fixed bottom-5 right-5 w-96 bg-white border rounded-lg shadow-lg flex flex-col">
-      <div className="flex justify-between items-center p-3 border-b">
-        <h2 className="font-bold text-blue-600">Chat</h2>
-        <button onClick={onClose} aria-label="Cerrar chat">
-          <X className="text-gray-600 hover:text-red-600" />
+      {/* Header */}
+      <div className="flex justify-between items-center p-3 border-b bg-blue-50">
+        <h2 className="font-bold text-blue-700 text-lg">Chat</h2>
+        <button onClick={onClose} aria-label="Cerrar chat" className="hover:text-red-600">
+          <X size={24} />
         </button>
       </div>
 
       {error && (
-        <div className="bg-red-100 text-red-700 p-2 text-center">{error}</div>
+        <div className="bg-red-100 text-red-700 p-2 text-center text-sm">{error}</div>
       )}
 
       {!conversandoCon ? (
         <>
-          <div className="flex p-3 gap-2">
+          {/* Buscador usuarios */}
+          <div className="flex p-3 gap-2 border-b bg-gray-50">
             <input
               type="text"
               placeholder="Nombre"
               value={nombreBuscar}
               onChange={(e) => setNombreBuscar(e.target.value)}
-              className="flex-1 border p-2 rounded"
+              className="flex-1 border border-gray-300 p-2 rounded focus:outline-blue-500"
               onKeyDown={(e) => e.key === "Enter" && buscarUsuarios()}
+              aria-label="Buscar por nombre"
             />
             <input
               type="text"
               placeholder="Apellido"
               value={apellidoBuscar}
               onChange={(e) => setApellidoBuscar(e.target.value)}
-              className="flex-1 border p-2 rounded"
+              className="flex-1 border border-gray-300 p-2 rounded focus:outline-blue-500"
               onKeyDown={(e) => e.key === "Enter" && buscarUsuarios()}
+              aria-label="Buscar por apellido"
             />
             <button
               onClick={buscarUsuarios}
-              className="bg-blue-600 text-white px-3 rounded"
+              className="bg-blue-600 text-white px-3 rounded hover:bg-blue-700"
               aria-label="Buscar usuarios"
             >
-              <Search size={18} />
+              <Search size={20} />
             </button>
           </div>
 
+          {/* Resultados */}
           <div className="flex-1 overflow-y-auto max-h-72">
             {resultados.length === 0 ? (
-              <p className="p-3 text-gray-500">No hay usuarios encontrados</p>
+              <p className="p-3 text-gray-500 italic">No hay usuarios encontrados</p>
             ) : (
               resultados.map((user) => (
                 <div
                   key={user._id}
                   onClick={() => iniciarChat(user)}
-                  className="p-3 hover:bg-gray-100 cursor-pointer border-b"
+                  className="p-3 hover:bg-gray-100 cursor-pointer border-b flex flex-col"
                   role="button"
                   tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") iniciarChat(user);
-                  }}
+                  onKeyDown={(e) => e.key === "Enter" && iniciarChat(user)}
                 >
-                  {user.nombre} {user.apellido} -{" "}
-                  <span className="text-sm text-gray-500">{user.rol}</span>
+                  <div className="font-semibold text-gray-800">
+                    {user.nombre} {user.apellido}
+                  </div>
+                  {/* Campos importantes agregados: email, rol, estado */}
+                  <div className="text-sm text-gray-600 flex justify-between mt-1">
+                    <span>{user.email || "Sin email"}</span>
+                    <span className="italic">{user.rol || "Rol desconocido"}</span>
+                  </div>
                 </div>
               ))
             )}
@@ -145,68 +157,80 @@ export default function ChatWindow({ onClose }) {
         </>
       ) : (
         <>
+          {/* Info chat activo */}
           <div className="flex items-center gap-2 p-3 border-b bg-gray-50">
             <button
               onClick={() => setConversandoCon(null)}
-              className="text-blue-500 font-bold"
+              className="text-blue-600 font-bold text-xl"
               aria-label="Volver a búsqueda"
             >
               &larr;
             </button>
-            <span className="font-semibold">
-              {conversandoCon.nombre} {conversandoCon.apellido}
-            </span>
+            <div className="flex flex-col">
+              <span className="font-semibold text-gray-800">
+                {conversandoCon.nombre} {conversandoCon.apellido}
+              </span>
+              {/* Mostrar ID del chat y cantidad miembros si disponible */}
+              <small className="text-xs text-gray-500">
+                Chat ID: {roomId || "N/A"} | Miembros: {miembros?.length || "?"}
+              </small>
+            </div>
           </div>
 
+          {/* Mensajes */}
           <div
             ref={mensajesRef}
-            className="flex-1 overflow-y-auto p-3 max-h-72"
+            className="flex-1 overflow-y-auto p-3 max-h-72 space-y-2"
             style={{ minHeight: "200px" }}
+            aria-live="polite"
           >
-            {mensajes.length === 0 && (
-              <p className="text-gray-500">No hay mensajes aún</p>
-            )}
-            {mensajes.map((m, i) => (
-              <div
-                key={i}
-                className={`mb-2 flex ${
-                  m.emisor._id === usuarioActual._id
-                    ? "justify-end"
-                    : "justify-start"
-                }`}
-              >
+            {mensajes.length === 0 ? (
+              <p className="text-gray-500 italic">No hay mensajes aún</p>
+            ) : (
+              mensajes.map((m, i) => (
                 <div
-                  className={`p-2 rounded-lg ${
+                  key={m._id || i}
+                  className={`flex flex-col max-w-[70%] ${
                     m.emisor._id === usuarioActual._id
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200"
+                      ? "ml-auto items-end"
+                      : "mr-auto items-start"
                   }`}
-                  style={{ maxWidth: "70%" }}
                 >
-                  <p className="text-sm break-words">{m.texto}</p>
+                  <div
+                    className={`p-2 rounded-lg ${
+                      m.emisor._id === usuarioActual._id
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-200 text-gray-800"
+                    } break-words`}
+                  >
+                    {m.texto}
+                  </div>
+                  <span className="text-xs text-gray-400 mt-0.5 select-none">
+                    {formatearFecha(m.fecha || m.createdAt)}
+                  </span>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
-          <div className="flex p-3 border-t">
+          {/* Input para enviar mensaje */}
+          <div className="flex p-3 border-t bg-gray-50">
             <input
               type="text"
               value={texto}
               onChange={(e) => setTexto(e.target.value)}
               placeholder="Escribir mensaje..."
-              className="flex-1 border p-2 rounded-l-lg"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") enviarMensaje();
-              }}
+              className="flex-1 border border-gray-300 p-2 rounded-l-lg focus:outline-blue-500"
+              onKeyDown={(e) => e.key === "Enter" && enviarMensaje()}
               autoFocus
+              aria-label="Escribir mensaje"
             />
             <button
               onClick={enviarMensaje}
-              className="bg-blue-600 text-white px-4 rounded-r-lg"
+              className="bg-blue-600 text-white px-4 rounded-r-lg hover:bg-blue-700"
               aria-label="Enviar mensaje"
             >
-              <Send size={18} />
+              <Send size={20} />
             </button>
           </div>
         </>
