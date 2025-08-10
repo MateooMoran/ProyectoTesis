@@ -98,7 +98,7 @@ const Login = () => {
                     required: "La contraseña es obligatoria",
                     minLength: {
                       value: 3,
-                      message: "La contraseña debe tener mínimo 6 caracteres",
+                      message: "La contraseña debe tener mínimo 3 caracteres",
                     },
                   })}
                   autoComplete="current-password"
