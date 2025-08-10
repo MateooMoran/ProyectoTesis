@@ -1,12 +1,13 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import Estudiante from "../models/Estudiante.js";
+import { sendMailWelcomeWithPassword } from "../config/nodemailer.js";
 
 passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.GOOGLE_CALLBACK_URL
-  },
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: process.env.GOOGLE_CALLBACK_URL
+},
   async (accessToken, refreshToken, profile, done) => {
     try {
       let existingUser = await Estudiante.findOne({ email: profile.emails[0].value });
@@ -19,6 +20,10 @@ passport.use(new GoogleStrategy({
         return done(null, existingUser);
       }
 
+      const nombreBase = (profile.name?.givenName || 'Usuario').replace(/\s+/g, '');
+      const randomPart = Math.floor(1000 + Math.random() * 9000); 
+      const plainPassword = `POLI${nombreBase}${randomPart}`;
+
       const nuevoEstudiante = new Estudiante({
         googleId: profile.id,
         nombre: profile.name?.givenName || 'Usuario',
@@ -27,14 +32,18 @@ passport.use(new GoogleStrategy({
         rol: "estudiante",
         direccion: "",
         telefono: "",
-        password: "",
+        password: await Estudiante.prototype.encrypPassword(plainPassword),
         emailConfirmado: true,
         estado: true
       });
-      // Encriptar la contraseña aunque no se use, para mantener consistencia
-      nuevoEstudiante.password = await nuevoEstudiante.encrypPassword(password);
 
       await nuevoEstudiante.save();
+
+      await sendMailWelcomeWithPassword(
+        nuevoEstudiante.email,
+        nuevoEstudiante.nombre,
+        plainPassword
+      );
 
       return done(null, nuevoEstudiante);
     } catch (error) {
