@@ -20,6 +20,8 @@ import CarritoVacio from './pages/CarritoVacio';
 import Carrito from './pages/Carrito';
 import ProductoDetalle from './pages/ProductoDetalle';
 import GestionarUsuario from './pages/admin/GestionarUsuario';
+import QuejasSugerencias from "./pages/QuejasSugerencias";
+
 
 // Componentes de pago que creamos
 import OrdenPendiente from './pages/OrdenPendiente';
@@ -76,6 +78,8 @@ function App() {
             <Route path="productos/:id" element={<ProductoDetalle />} />
             <Route path="perfil" element={<Perfil />} />
             <Route path='admin' element={<GestionarUsuario />} />
+            <Route path='estudiante/quejas-sugerencias' element={<QuejasSugerencias />} />
+            
 
             {/* Nueva ruta para crear orden pendiente */}
             <Route path="orden-pendiente" element={<OrdenPendiente />} />
