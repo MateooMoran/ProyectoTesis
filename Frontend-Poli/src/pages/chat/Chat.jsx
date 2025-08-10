@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Search, Send, X } from "lucide-react";
 import useChat from "../../hooks/useChat";
-
+import { ToastContainer } from 'react-toastify'
 const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000/api";
 
 export default function ChatWindow({ onClose }) {
@@ -22,6 +22,9 @@ export default function ChatWindow({ onClose }) {
   // Conversaciones recientes
   const [conversaciones, setConversaciones] = useState([]);
 
+  // Extra: Para controlar qué conversación tiene mensaje nuevo sin leer y hacer background azul
+  const [mensajesNuevos, setMensajesNuevos] = useState(new Set());
+
   const { roomId, mensajes, error, joinChat, sendMessage } = useChat(token, usuarioActual?._id);
 
   const mensajesRef = useRef(null);
@@ -33,25 +36,107 @@ export default function ChatWindow({ onClose }) {
     }
   }, [mensajes]);
 
-  // Cargar conversaciones recientes cuando se monta el componente o token cambia
-  useEffect(() => {
+  // Cargar conversaciones recientes (incluye ultimaLectura)
+  const fetchConversaciones = async () => {
     if (!token) return;
 
-    const fetchConversaciones = async () => {
+    try {
+      const res = await fetch(`${API_URL}/chat/conversaciones`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Error cargando conversaciones");
+      const data = await res.json();
+      setConversaciones(data);
+
+      // Actualizar set de mensajes nuevos (no leídos)
+      const nuevosNoLeidos = new Set();
+      data.forEach(conv => {
+        if (tieneMensajesNoLeidos(conv)) {
+          nuevosNoLeidos.add(conv.conversacionId);
+        }
+      });
+      setMensajesNuevos(nuevosNoLeidos);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchConversaciones();
+  }, [token]);
+
+  // Marcar conversación como leída cuando se abre (roomId cambia)
+  useEffect(() => {
+    if (!roomId || !token) return;
+
+    const marcarComoLeida = async () => {
       try {
-        const res = await fetch(`${API_URL}/chat/conversaciones`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const res = await fetch(`${API_URL}/chat/conversacion/${roomId}/leer`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
-        if (!res.ok) throw new Error("Error cargando conversaciones");
-        const data = await res.json();
-        setConversaciones(data);
-      } catch (err) {
-        console.error(err);
+        if (!res.ok) {
+          console.warn("No se pudo marcar la conversación como leída");
+        } else {
+          // Recargar conversaciones para actualizar estado de lectura
+          fetchConversaciones();
+
+          // Quitar esa conversación de mensajes nuevos
+          setMensajesNuevos(prev => {
+            const copia = new Set(prev);
+            copia.delete(roomId);
+            return copia;
+          });
+        }
+      } catch (error) {
+        console.error("Error marcando conversación como leída:", error);
       }
     };
 
+    marcarComoLeida();
+  }, [roomId, token]);
+
+  // Detectar mensaje nuevo entrante y actualizar lista de conversaciones para mostrar nuevo estado
+  useEffect(() => {
+    if (!mensajes.length) return;
+
+    const ultimoMensaje = mensajes[mensajes.length - 1];
+
+    if (ultimoMensaje.emisor._id !== usuarioActual._id) {
+      // Si la conversación del mensaje nuevo NO es la conversación abierta, marcarla como no leída
+      const idConversacionMensaje = ultimoMensaje.conversacionId || ultimoMensaje.roomId || null;
+
+      if (!roomId || roomId !== idConversacionMensaje) {
+        setMensajesNuevos(prev => {
+          const copia = new Set(prev);
+          if (idConversacionMensaje) {
+            copia.add(idConversacionMensaje);
+          }
+          return copia;
+        });
+      } else {
+        // Si es la conversación abierta, ya se marca como leída con el otro useEffect
+        // Aquí puedes asegurarte de quitarla del set mensajesNuevos
+        setMensajesNuevos(prev => {
+          const copia = new Set(prev);
+          copia.delete(roomId);
+          return copia;
+        });
+      }
+    }
+
+    // Actualizar lista de conversaciones para refrescar último mensaje y estados
     fetchConversaciones();
-  }, [token]);
+  }, [mensajes]);
+
+
+  // Función para saber si la conversación tiene mensajes no leídos para el usuario actual
+  const tieneMensajesNoLeidos = (conv) => {
+    if (!conv.ultimoMensaje?.fecha || !conv.ultimaLectura) return false;
+    return new Date(conv.ultimoMensaje.fecha) > new Date(conv.ultimaLectura);
+  };
 
   // Buscar usuarios nuevo chat
   const buscarUsuarios = async () => {
@@ -125,6 +210,7 @@ export default function ChatWindow({ onClose }) {
 
   return (
     <div
+
       className="
       fixed bottom-5 right-5
       w-[65vw] max-w-md sm:max-w-md md:w-[42vh] md:max-w-lg lg:max-w-md xl:max-w-md
@@ -134,6 +220,7 @@ export default function ChatWindow({ onClose }) {
       z-50
     "
     >
+      <ToastContainer></ToastContainer>
       {/* Header */}
       <div className="flex justify-between items-center p-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md">
         <h2 className="font-semibold text-xl tracking-wide select-none">Chat</h2>
@@ -184,8 +271,6 @@ export default function ChatWindow({ onClose }) {
             </button>
           </div>
 
-
-
           {/* Lista de conversaciones recientes */}
           {conversaciones.length > 0 && (
             <div
@@ -196,15 +281,25 @@ export default function ChatWindow({ onClose }) {
               }}
             >
               {conversaciones.map((conv) => {
-                const emisorId = conv.ultimoMensaje?.emisor;
+                const emisorId = conv.ultimoMensaje?.emisor?._id
+                  ? conv.ultimoMensaje.emisor._id.toString()
+                  : conv.ultimoMensaje?.emisor?.toString() || "";
+
                 const esMensajePropio = emisorId === usuarioActual._id;
+
                 const nombreEmisor = esMensajePropio ? "Yo" : conv.otroMiembro?.nombre || "Desconocido";
+
+                // Marca si hay mensajes no leídos por la función o por mensajesNuevos
+                const noLeido = tieneMensajesNoLeidos(conv) || mensajesNuevos.has(conv.conversacionId);
 
                 return (
                   <div
                     key={conv.conversacionId}
                     onClick={() => iniciarChatConConversacion(conv)}
-                    className="p-4 hover:bg-blue-50 cursor-pointer border-b border-gray-100 flex flex-col rounded-lg transition duration-150 focus:bg-blue-100 focus:outline-none"
+                    className={`p-4 cursor-pointer border-b border-gray-100 flex flex-col rounded-lg transition duration-150 focus:outline-none
+        hover:bg-blue-50
+        ${noLeido ? "bg-blue-100 font-semibold" : ""}
+      `}
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => e.key === "Enter" && iniciarChatConConversacion(conv)}
@@ -224,8 +319,6 @@ export default function ChatWindow({ onClose }) {
                   </div>
                 );
               })}
-
-
             </div>
           )}
 

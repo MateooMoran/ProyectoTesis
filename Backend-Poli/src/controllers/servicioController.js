@@ -3,6 +3,7 @@ import Conversacion from '../models/Conversacion.js';
 import Estudiante from "../models/Estudiante.js";
 import Notificacion from "../models/Notificacion.js";
 
+// BUSCAR USUARIOS
 const buscarEstudiantePorNombre = async (req, res) => {
     try {
         const { nombre, apellido } = req.query;
@@ -35,7 +36,7 @@ const buscarEstudiantePorNombre = async (req, res) => {
     }
 };
 
-
+// NOTIFICACIONES
 const listarNotificaciones = async (req, res) => {
     try {
         const usuarioId = req.estudianteBDD._id;
@@ -91,7 +92,6 @@ const eliminarNotificacion = async (req, res) => {
             return res.status(404).json({ msg: 'Notificación no encontrada' });
         }
 
-        // Verificar que la notificación pertenezca al usuario actual
         if (notificacion.usuario.toString() !== req.estudianteBDD._id.toString()) {
             return res.status(403).json({ msg: 'No autorizado' });
         }
@@ -105,45 +105,80 @@ const eliminarNotificacion = async (req, res) => {
     }
 };
 
+// CONVERSACION
 const obtenerConversacionesRecientes = async (req, res) => {
-    const userId = req.estudianteBDD._id;
+  const userId = req.estudianteBDD._id;
 
-    try {
-        const conversaciones = await Conversacion.find({ miembros: userId })
-            .populate('miembros', 'nombre apellido rol') 
-            .lean();
+  try {
+    const conversaciones = await Conversacion.find({ miembros: userId })
+      .populate('miembros', 'nombre apellido rol')
+      .lean();
 
-        const conversacionesFormateadas = conversaciones.map(conv => {
-            const mensajesOrdenados = conv.mensajes.sort(
-                (a, b) => new Date(b.fecha || b.createdAt) - new Date(a.fecha || a.createdAt)
-            );
+    const conversacionesFormateadas = conversaciones.map(conv => {
+      const mensajesOrdenados = conv.mensajes.sort(
+        (a, b) => new Date(b.fecha || b.createdAt) - new Date(a.fecha || a.createdAt)
+      );
+      const ultimoMensaje = mensajesOrdenados[0] || null;
 
-            const ultimoMensaje = mensajesOrdenados[0] || null;
+      const otroMiembro = conv.miembros.find(m => m._id.toString() !== userId.toString());
 
-            // Filtrar el usuario actual para obtener el otro
-            const otroMiembro = conv.miembros.find(m => m._id.toString() !== userId.toString());
+      // Buscar la lectura para el usuario actual
+      const lectura = conv.lecturas.find(l => l.usuario.toString() === userId.toString());
+      const ultimaLectura = lectura ? lectura.ultimaLectura : null;
 
-            return {
-                conversacionId: conv._id,
-                otroMiembro,         // objeto completo con nombre, apellido, avatar...
-                ultimoMensaje,
-            };
-        });
+      return {
+        conversacionId: conv._id,
+        otroMiembro,
+        ultimoMensaje,
+        ultimaLectura, 
+      };
+    });
 
-        conversacionesFormateadas.sort((a, b) => {
-            const fechaA = new Date(a.ultimoMensaje?.fecha || a.ultimoMensaje?.createdAt || 0);
-            const fechaB = new Date(b.ultimoMensaje?.fecha || b.ultimoMensaje?.createdAt || 0);
-            return fechaB - fechaA;
-        });
+    conversacionesFormateadas.sort((a, b) => {
+      const fechaA = new Date(a.ultimoMensaje?.fecha || a.ultimoMensaje?.createdAt || 0);
+      const fechaB = new Date(b.ultimoMensaje?.fecha || b.ultimoMensaje?.createdAt || 0);
+      return fechaB - fechaA;
+    });
 
-        res.json(conversacionesFormateadas);
-    } catch (error) {
-        console.error('Error al obtener conversaciones recientes:', error);
-        res.status(500).json({ error: 'Error interno' });
-    }
+    res.json(conversacionesFormateadas);
+  } catch (error) {
+    console.error('Error al obtener conversaciones recientes:', error);
+    res.status(500).json({ error: 'Error interno' });
+  }
 };
 
 
+
+const conversacionLectura = async (req, res) => {
+    const usuarioId = req.estudianteBDD._id;
+    const conversacionId = req.params.id;
+
+    try {
+        const conversacion = await Conversacion.findById(conversacionId);
+        if (!conversacion) {
+            return res.status(404).json({ message: "Conversación no encontrada" });
+        }
+
+        const ahora = new Date();
+
+        const lecturaIndex = conversacion.lecturas.findIndex(
+            (l) => l.usuario.toString() === usuarioId.toString()
+        );
+
+        if (lecturaIndex >= 0) {
+            conversacion.lecturas[lecturaIndex].ultimaLectura = ahora;
+        } else {
+            conversacion.lecturas.push({ usuario: usuarioId, ultimaLectura: ahora });
+        }
+
+        await conversacion.save();
+
+        return res.json({ message: "Lectura actualizada correctamente" });
+    } catch (error) {
+        console.error("Error actualizando lectura:", error);
+        return res.status(500).json({ message: "Error interno del servidor" });
+    }
+};
 
 
 export {
@@ -151,6 +186,7 @@ export {
     listarNotificaciones,
     marcarNotificacionLeida,
     eliminarNotificacion,
-    obtenerConversacionesRecientes
+    obtenerConversacionesRecientes,
+    conversacionLectura
 
 }
