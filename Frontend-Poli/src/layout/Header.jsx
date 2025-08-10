@@ -214,15 +214,9 @@ const Header = () => {
                                                     className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
                                                     onClick={() => setIsDropdownOpen(false)}
                                                 >
-                                                    Crear Producto
+                                                    Gestionar Productos
                                                 </Link>
-                                                <Link
-                                                    to="/dashboard/vendedor/productos#titulo-productos-registrados"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-                                                    Mis Productos
-                                                </Link>
+                                                
 
                                                 <Link
                                                     to="/dashboard/vendedor/historial-ventas"

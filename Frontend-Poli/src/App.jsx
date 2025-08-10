@@ -26,6 +26,7 @@ import GestionQuejasSugerencias from './pages/admin/GestionQuejasSugerencias';
 import Categorias from './pages/vendedor/Categorias';
 import ProductosVendedor from './pages/vendedor/ProductosVendedor';
 import Historial from './pages/vendedor/Historial';
+import EditarProductos from './pages/vendedor/EditarProductos';
 
 
 // Componentes de pago que creamos
@@ -89,6 +90,7 @@ function App() {
             {/* Rutas para vendedor */}
             <Route path="vendedor/categorias" element={<Categorias />} />
             <Route path="vendedor/productos" element={<ProductosVendedor />} />
+            <Route path="vendedor/visualizar/producto" element={<EditarProductos />} />
             <Route path="vendedor/historial-ventas" element={<Historial />} />
 
 
