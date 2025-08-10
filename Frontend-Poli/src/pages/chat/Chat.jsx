@@ -147,7 +147,6 @@ export default function ChatWindow({ onClose }) {
                   </div>
                   {/* Campos importantes agregados: email, rol, estado */}
                   <div className="text-sm text-gray-600 flex justify-between mt-1">
-                    <span>{user.email || "Sin email"}</span>
                     <span className="italic">{user.rol || "Rol desconocido"}</span>
                   </div>
                 </div>
