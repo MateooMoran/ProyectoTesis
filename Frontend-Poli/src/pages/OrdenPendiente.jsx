@@ -21,10 +21,8 @@ const OrdenPendiente = () => {
             toast.success(data.msg);
             setLoading(false);
             if (metodoPago === 'tarjeta') {
-                // Ir al componente de pago con Stripe
                 navigate('/dashboard/pagos');
             } else {
-                // Para efectivo o transferencia podrías redirigir a historial u otra confirmación
                 navigate('/dashboard/historial-pagos');
             }
         } catch (error) {
