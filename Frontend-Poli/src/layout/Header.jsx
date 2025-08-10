@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { User, LogOut, ShoppingCart, Search, Star } from 'lucide-react';
 import logo from '../assets/logo.png';
 import storeAuth from '../context/storeAuth';
-import storeProfile from '../context/storeProfile'; 
+import storeProfile from '../context/storeProfile';
 import storeProductos from '../context/storeProductos';
 import NotificacionesAdmin from '../pages/admin/Notificaciones';
 import { MessageCircle } from "lucide-react";
@@ -138,7 +138,7 @@ const Header = () => {
                                             <Link
                                                 key={cat._id}
                                                 to={token ? `/dashboard/productos/categoria/${cat._id}` : `/productos/categoria/${cat._id}`}
-                                                className="block px-4 py-2 text-blue-800 hover:bg-red-100 hover:text-red-700 text-sm"
+                                                className="block px-4 py-2 text-gray-800 hover:bg-red-100 hover:text-red-700 text-sm"
                                                 onClick={() => setIsCategoriesOpen(false)}
                                             >
                                                 {cat.nombreCategoria}
@@ -174,7 +174,7 @@ const Header = () => {
                                         </div>
                                         <Link
                                             to="/dashboard/perfil"
-                                            className="block px-4 py-2 text-blue-800 hover:bg-blue-50"
+                                            className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
                                             onClick={() => setIsDropdownOpen(false)}
                                         >
                                             Mi Perfil
@@ -185,14 +185,14 @@ const Header = () => {
                                             <>
                                                 <Link
                                                     to="/dashboard/admin/gestionusuarios"
-                                                    className="block px-4 py-2 text-blue-800 hover:bg-blue-50"
+                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
                                                     onClick={() => setIsDropdownOpen(false)}
                                                 >
                                                     Gestión Usuarios
                                                 </Link>
                                                 <Link
                                                     to="/dashboard/admin/gestionquejas"
-                                                    className="block px-4 py-2 text-blue-800 hover:bg-blue-50"
+                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
                                                     onClick={() => setIsDropdownOpen(false)}
                                                 >
                                                     Gestión Quejas y Sugerencias
@@ -204,21 +204,29 @@ const Header = () => {
                                             <>
                                                 <Link
                                                     to="/dashboard/vendedor/categorias"
-                                                    className="block px-4 py-2 text-blue-800 hover:bg-blue-50"
+                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
                                                     onClick={() => setIsDropdownOpen(false)}
                                                 >
                                                     Categorías
                                                 </Link>
                                                 <Link
                                                     to="/dashboard/vendedor/productos"
-                                                    className="block px-4 py-2 text-blue-800 hover:bg-blue-50"
+                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
+                                                    onClick={() => setIsDropdownOpen(false)}
+                                                >
+                                                    Crear Producto
+                                                </Link>
+                                                <Link
+                                                    to="/dashboard/vendedor/productos#titulo-productos-registrados"
+                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
                                                     onClick={() => setIsDropdownOpen(false)}
                                                 >
                                                     Mis Productos
                                                 </Link>
+
                                                 <Link
                                                     to="/dashboard/vendedor/historial-ventas"
-                                                    className="block px-4 py-2 text-blue-800 hover:bg-blue-50"
+                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
                                                     onClick={() => setIsDropdownOpen(false)}
                                                 >
                                                     Historial Ventas
@@ -229,14 +237,14 @@ const Header = () => {
                                             <>
                                                 <Link
                                                     to="/dashboard/estudiante/quejas-sugerencias"
-                                                    className="block px-4 py-2 text-blue-800 hover:bg-blue-50"
+                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
                                                     onClick={() => setIsDropdownOpen(false)}
                                                 >
                                                     Mis Quejas y Sugerencias
                                                 </Link>
                                                 <Link
                                                     to="/dashboard/estudiante/carrito"
-                                                    className="block px-4 py-2 text-blue-800 hover:bg-blue-50"
+                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
                                                     onClick={() => setIsDropdownOpen(false)}
                                                 >
                                                     Carrito
@@ -245,10 +253,10 @@ const Header = () => {
                                         )}
 
                                         <button
-                                            className="block w-full text-left px-4 py-2 text-blue-800 hover:bg-blue-50"
+                                            className="block w-full text-left px-4 py-2 hover:bg-blue-50 text-red-500"
                                             onClick={handleLogout}
                                         >
-                                            <LogOut className="w-4 h-4 inline mr-2" />
+                                            <LogOut className="w-4 h-4 inline mr-2 text-red-500" />
                                             Salir
                                         </button>
                                     </div>

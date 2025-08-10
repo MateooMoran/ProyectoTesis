@@ -4,7 +4,6 @@ import { toast, ToastContainer } from "react-toastify";
 import useFetch from '../../hooks/useFetch';
 import Header from '../../layout/Header';
 
-
 export default function Categorias() {
     const { fetchDataBackend } = useFetch();
     const [categorias, setCategorias] = useState([]);
@@ -28,7 +27,7 @@ export default function Categorias() {
                 config: { headers },
             });
             setCategorias(data);
-        } catch (error) {
+        } catch {
             toast.error("Error al cargar categorías");
         } finally {
             setLoading(false);
@@ -55,7 +54,7 @@ export default function Categorias() {
             });
             setNombreCategoria("");
             cargarCategorias();
-        } catch (error) {
+        } catch {
             // Error manejado en fetchDataBackend
         } finally {
             setGuardando(false);
@@ -71,61 +70,62 @@ export default function Categorias() {
                 config: { headers },
             });
             setCategorias(categorias.filter((c) => c._id !== id));
-        } catch (error) {
+            toast.success("Categoría eliminada");
+        } catch {
             // Error manejado en fetchDataBackend
         }
     };
 
     return (
         <>
-        <ToastContainer />
-        <Header/>
-        <div className="max-w-3xl mx-auto p-4">
-            <h2 className="text-2xl font-bold mb-4">Categorías</h2>
+            <ToastContainer position="top-right" autoClose={3000} />
+            <Header />
+            <div className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-lg mt-8">
+                <h2 className="text-3xl font-extrabold mb-6 text-gray-700  pb-2">Categorías</h2>
 
-            <form onSubmit={crearCategoria} className="mb-6 flex gap-2">
-                <input
-                    type="text"
-                    value={nombreCategoria}
-                    onChange={(e) => setNombreCategoria(e.target.value)}
-                    placeholder="Nueva categoría"
-                    className="flex-grow border rounded p-2"
-                    disabled={guardando}
-                />
-                <button
-                    type="submit"
-                    disabled={guardando}
-                    className="bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-1 transition-transform transform hover:scale-105 "
-                >
-                    <PlusCircle size={20} /> Crear
-                </button>
-            </form>
+                <form onSubmit={crearCategoria} className="mb-8 flex flex-col sm:flex-row gap-4">
+                    <input
+                        type="text"
+                        value={nombreCategoria}
+                        onChange={(e) => setNombreCategoria(e.target.value)}
+                        placeholder="Nueva categoría"
+                        className="flex-grow border border-gray-300 rounded-md p-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                        disabled={guardando}
+                    />
+                    <button
+                        type="submit"
+                        disabled={guardando}
+                        className={`bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-3 rounded-md flex items-center justify-center gap-2 transition-transform transform hover:scale-105 disabled:cursor-not-allowed`}
+                    >
+                        <PlusCircle size={22} />
+                        Crear
+                    </button>
+                </form>
 
-            {loading ? (
-                <p>Cargando categorías...</p>
-            ) : categorias.length === 0 ? (
-                <p>No hay categorías registradas.</p>
-            ) : (
-                <ul className="space-y-2">
-                    {categorias.map(({ _id, nombreCategoria }) => (
-                        <li
-                            key={_id}
-                            className="flex justify-between items-center bg-gray-100 p-3 rounded"
-                        >
-                            <span>{nombreCategoria}</span>
-                            <button
-                                onClick={() => eliminarCategoria(_id)}
-                                className="text-red-600 hover:text-red-800"
-                                title="Eliminar categoría"
+                {loading ? (
+                    <p className="text-center text-gray-500">Cargando categorías...</p>
+                ) : categorias.length === 0 ? (
+                    <p className="text-center text-gray-500">No hay categorías registradas.</p>
+                ) : (
+                    <ul className="space-y-3">
+                        {categorias.map(({ _id, nombreCategoria }) => (
+                            <li
+                                key={_id}
+                                className="flex justify-between items-center bg-gray-50 hover:bg-gray-100 transition rounded-md shadow-sm p-4"
                             >
-                                <Trash2 size={18} />
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </div>
+                                <span className="text-gray-800 font-medium">{nombreCategoria}</span>
+                                <button
+                                    onClick={() => eliminarCategoria(_id)}
+                                    className="text-red-600 hover:text-red-800 transition"
+                                    title="Eliminar categoría"
+                                >
+                                    <Trash2 size={20} />
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
         </>
     );
 }
-

@@ -75,41 +75,41 @@ const Perfil = () => {
   };
 
   return (
-    <div className="bg-blue-50 min-h-screen">
+    <div className=" min-h-screen">
       <ToastContainer />
       <Header />
-      <main className="bg-blue-50 py-10">
+      <main className=" py-10">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-blue-800 text-center mb-8">Mi Perfil</h2>
+          <h2 className="text-3xl font-bold text-gray-500 text-center mb-8">Mi Perfil</h2>
           {isLoading ? (
             <p className="text-center text-gray-700">Cargando perfil...</p>
           ) : user ? (
-            <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
+            <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-2xl p-6">
               <div className="mb-8">
                 <h3 className="text-xl font-semibold text-blue-800 mb-4">Información Personal</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-gray-600">Nombre</p>
+                    <p className="text-sm text-gray-800 font-bold">Nombre</p>
                     <p className="text-gray-800">{user.nombre}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Apellido</p>
+                    <p className="text-sm text-gray-800 font-bold">Apellido</p>
                     <p className="text-gray-800">{user.apellido}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Correo Electrónico</p>
+                    <p className="text-sm text-gray-800 font-bold">Correo Electrónico</p>
                     <p className="text-gray-800">{user.email}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Rol</p>
+                    <p className="text-sm text-gray-800 font-bold">Rol</p>
                     <p className="text-gray-800">{rol ? rol.toUpperCase() : 'N/A'}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Dirección</p>
+                    <p className="text-sm text-gray-800 font-bold">Dirección</p>
                     <p className="text-gray-800">{user.direccion || 'No especificada'}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Teléfono</p>
+                    <p className="text-sm text-gray-800 font-bold">Teléfono</p>
                     <p className="text-gray-800">{user.telefono || 'No especificado'}</p>
                   </div>
                 </div>
@@ -120,7 +120,7 @@ const Perfil = () => {
                 <form onSubmit={handleSubmitProfile(handleUpdateProfile)}>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-blue-800 mb-2">Nombre</label>
+                      <label className="text-sm text-gray-800 font-bold">Nombre</label>
                       <input
                         type="text"
                         defaultValue={user.nombre}
@@ -132,7 +132,7 @@ const Perfil = () => {
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-blue-800 mb-2">Apellido</label>
+                      <label className="text-sm text-gray-800 font-bold">Apellido</label>
                       <input
                         type="text"
                         defaultValue={user.apellido}
@@ -144,7 +144,7 @@ const Perfil = () => {
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-blue-800 mb-2">Dirección</label>
+                      <label className="text-sm text-gray-800 font-bold">Dirección</label>
                       <input
                         type="text"
                         defaultValue={user.direccion}
@@ -153,7 +153,7 @@ const Perfil = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-blue-800 mb-2">Teléfono</label>
+                      <label className="text-sm text-gray-800 font-bold">Teléfono</label>
                       <input
                         type="text"
                         defaultValue={user.telefono}
@@ -184,7 +184,7 @@ const Perfil = () => {
                   <form onSubmit={handleSubmitPassword(handleUpdatePassword)}>
                     <div className="grid grid-cols-1 gap-4">
                       <div>
-                        <label className="block text-sm font-semibold text-blue-800 mb-2">Contraseña Actual</label>
+                        <label className="text-sm text-gray-800 font-bold">Contraseña Actual</label>
                         <input
                           type="password"
                           className="w-full py-2 px-4 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-800 text-gray-700"
@@ -195,7 +195,7 @@ const Perfil = () => {
                         )}
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-blue-800 mb-2">Nueva Contraseña</label>
+                        <label className="text-sm text-gray-800 font-bold">Nueva Contraseña</label>
                         <input
                           type="password"
                           className="w-full py-2 px-4 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-800 text-gray-700"
@@ -209,7 +209,7 @@ const Perfil = () => {
                         )}
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-blue-800 mb-2">Confirmar Nueva Contraseña</label>
+                        <label className="text-sm text-gray-800 font-bold">Confirmar Nueva Contraseña</label>
                         <input
                           type="password"
                           className="w-full py-2 px-4 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-800 text-gray-700"
