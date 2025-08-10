@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Trash2, PlusCircle } from "lucide-react";
 import { toast } from "react-toastify";
 import useFetch from '../../hooks/useFetch';
@@ -6,6 +7,7 @@ import Header from '../../layout/Header';
 import { generateAvatar, convertBlobToBase64 } from "../../helpers/ConsultarAI";
 
 export default function ProductosVendedor() {
+    const location = useLocation();
     const { fetchDataBackend } = useFetch();
     const [productos, setProductos] = useState([]);
     const [categorias, setCategorias] = useState([]);
@@ -27,6 +29,15 @@ export default function ProductosVendedor() {
     const headers = {
         Authorization: `Bearer ${token}`,
     };
+
+    useEffect(() => {
+        if (location.hash) {
+            const element = document.querySelector(location.hash);
+            if (element) {
+                element.scrollIntoView({ behavior: "smooth" });
+            }
+        }
+    }, [location]);
 
     const cargarProductosYCategorias = async () => {
         try {
@@ -300,7 +311,7 @@ export default function ProductosVendedor() {
                                 type="button"
                                 onClick={generarImagenIA}
                                 disabled={guardando || generandoIA || !promptIA.trim()}
-                                className={`px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2 transition-transform hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed`}
+                                className={`px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2 transition-transform hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed`}
                             >
                                 {generandoIA ? "Generando..." : "Generar Imagen"}
                             </button>
