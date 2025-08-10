@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { Trash2, PlusCircle } from "lucide-react";
+import { Trash2, PlusCircle, Pencil } from "lucide-react";
 import { toast } from "react-toastify";
 import useFetch from '../../hooks/useFetch';
 import Header from '../../layout/Header';
 import { generateAvatar, convertBlobToBase64 } from "../../helpers/ConsultarAI";
 
 export default function ProductosVendedor() {
-    const location = useLocation();
     const { fetchDataBackend } = useFetch();
     const [productos, setProductos] = useState([]);
     const [categorias, setCategorias] = useState([]);
@@ -24,20 +22,14 @@ export default function ProductosVendedor() {
     const [imagenIA, setImagenIA] = useState("");
     const [promptIA, setPromptIA] = useState("");
     const [generandoIA, setGenerandoIA] = useState(false);
+    const [editingId, setEditingId] = useState(null);
+    const [currentImage, setCurrentImage] = useState("");
+    const [previewUrl, setPreviewUrl] = useState("");
 
     const token = JSON.parse(localStorage.getItem("auth-token"))?.state?.token;
     const headers = {
         Authorization: `Bearer ${token}`,
     };
-
-    useEffect(() => {
-        if (location.hash) {
-            const element = document.querySelector(location.hash);
-            if (element) {
-                element.scrollIntoView({ behavior: "smooth" });
-            }
-        }
-    }, [location]);
 
     const cargarProductosYCategorias = async () => {
         try {
@@ -67,7 +59,9 @@ export default function ProductosVendedor() {
 
     const manejarArchivo = (e) => {
         if (e.target.files.length > 0) {
-            setImagenArchivo(e.target.files[0]);
+            const file = e.target.files[0];
+            setImagenArchivo(file);
+            setPreviewUrl(URL.createObjectURL(file));
             setImagenIA("");
         }
     };
@@ -79,6 +73,7 @@ export default function ProductosVendedor() {
         }
         setGenerandoIA(true);
         setImagenArchivo(null);
+        setPreviewUrl("");
         try {
             const blob = await generateAvatar(promptIA);
             const base64 = await convertBlobToBase64(blob);
@@ -92,7 +87,7 @@ export default function ProductosVendedor() {
         }
     };
 
-    const crearProducto = async (e) => {
+    const submitProducto = async (e) => {
         e.preventDefault();
         if (
             !form.nombreProducto.trim() ||
@@ -111,7 +106,18 @@ export default function ProductosVendedor() {
 
         setGuardando(true);
         try {
-            const url = `${import.meta.env.VITE_BACKEND_URL}/vendedor/crear/producto`;
+            const isUpdate = !!editingId;
+            const url = `${import.meta.env.VITE_BACKEND_URL}/vendedor/${isUpdate ? 'actualizar' : 'crear'}/producto${isUpdate ? `/${editingId}` : ''}`;
+            const method = isUpdate ? "PUT" : "POST";
+
+            const bodyData = {
+                nombreProducto: form.nombreProducto.trim(),
+                precio: Number(form.precio),
+                stock: Number(form.stock),
+                descripcion: form.descripcion.trim(),
+                categoria: form.categoria,
+            };
+
             let body;
             let config = {
                 headers: {
@@ -121,55 +127,66 @@ export default function ProductosVendedor() {
 
             if (imagenArchivo) {
                 body = new FormData();
-                body.append("nombreProducto", form.nombreProducto.trim());
-                body.append("precio", Number(form.precio));
-                body.append("stock", Number(form.stock));
-                body.append("descripcion", form.descripcion.trim());
-                body.append("categoria", form.categoria);
+                Object.entries(bodyData).forEach(([key, value]) => body.append(key, value));
                 body.append("imagen", imagenArchivo);
-            } else if (imagenIA) {
-                body = JSON.stringify({
-                    nombreProducto: form.nombreProducto.trim(),
-                    precio: Number(form.precio),
-                    stock: Number(form.stock),
-                    descripcion: form.descripcion.trim(),
-                    categoria: form.categoria,
-                    imagen: imagenIA,
-                });
-                config.headers["Content-Type"] = "application/json";
             } else {
-                body = JSON.stringify({
-                    nombreProducto: form.nombreProducto.trim(),
-                    precio: Number(form.precio),
-                    stock: Number(form.stock),
-                    descripcion: form.descripcion.trim(),
-                    categoria: form.categoria,
-                });
+                if (imagenIA) {
+                    bodyData.imagenIA = imagenIA;
+                }
+                body = JSON.stringify(bodyData);
                 config.headers["Content-Type"] = "application/json";
             }
 
             await fetchDataBackend(url, {
-                method: "POST",
-                body: body,
+                method,
+                body,
                 config,
             });
 
-            setForm({
-                nombreProducto: "",
-                precio: "",
-                stock: "",
-                descripcion: "",
-                categoria: "",
-            });
-            setImagenArchivo(null);
-            setImagenIA("");
-            setPromptIA("");
+            resetForm();
             cargarProductosYCategorias();
         } catch {
             // Error manejado en fetchDataBackend
         } finally {
             setGuardando(false);
         }
+    };
+
+    const resetForm = () => {
+        setForm({
+            nombreProducto: "",
+            precio: "",
+            stock: "",
+            descripcion: "",
+            categoria: "",
+        });
+        setImagenArchivo(null);
+        setImagenIA("");
+        setPromptIA("");
+        setPreviewUrl("");
+        setCurrentImage("");
+        setEditingId(null);
+    };
+
+    const editarProducto = (p) => {
+        setForm({
+            nombreProducto: p.nombreProducto,
+            precio: p.precio,
+            stock: p.stock,
+            descripcion: p.descripcion,
+            categoria: p.categoria?._id || "",
+        });
+        setEditingId(p._id);
+        setImagenArchivo(null);
+        setImagenIA("");
+        setPromptIA("");
+        setPreviewUrl("");
+        setCurrentImage(p.imagenIA || p.imagen || "");
+        // Scroll smoothly to the top of the page
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+        });
     };
 
     const eliminarProducto = async (id) => {
@@ -191,13 +208,16 @@ export default function ProductosVendedor() {
         <>
             <Header />
             <div className="max-w-5xl mx-auto p-6 lg:p-8">
-                <h2 className="text-3xl font-bold text-gray-800 mb-6">Crear Productos</h2>
+                <h2 className="text-3xl font-bold text-gray-800 mb-6">Gestionar Productos</h2>
 
                 {/* Formulario */}
                 <form
-                    onSubmit={crearProducto}
+                    onSubmit={submitProducto}
                     className="bg-white p-6 rounded-lg shadow-lg mb-8 space-y-5"
                 >
+                    <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                        {editingId ? "Editar Producto" : "Crear Nuevo Producto"}
+                    </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -318,27 +338,38 @@ export default function ProductosVendedor() {
                         </div>
                     </div>
 
-                    {/* Preview imagen IA */}
-                    {imagenIA && (
+                    {/* Preview imagen */}
+                    {(imagenIA || previewUrl || (editingId && currentImage)) && (
                         <div className="mt-4">
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Vista Previa
+                                Vista Previa / Imagen Actual
                             </label>
                             <img
-                                src={imagenIA}
-                                alt="Imagen generada IA"
+                                src={imagenIA || previewUrl || currentImage}
+                                alt="Imagen del producto"
                                 className="max-w-xs rounded-lg shadow-md border border-gray-200"
                             />
                         </div>
                     )}
 
-                    <button
-                        type="submit"
-                        disabled={guardando || generandoIA}
-                        className={`w-full md:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg flex items-center justify-center gap-2 transition-transform hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                        <PlusCircle size={20} /> Crear Producto
-                    </button>
+                    <div className="flex gap-4">
+                        <button
+                            type="submit"
+                            disabled={guardando || generandoIA}
+                            className={`w-full md:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg flex items-center justify-center gap-2 transition-transform hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed`}
+                        >
+                            <PlusCircle size={20} /> {editingId ? "Actualizar Producto" : "Crear Producto"}
+                        </button>
+                        {editingId && (
+                            <button
+                                type="button"
+                                onClick={resetForm}
+                                className="w-full md:w-auto px-6 py-3 bg-gray-300 text-gray-800 rounded-lg flex items-center justify-center gap-2 transition-transform hover:bg-gray-400"
+                            >
+                                Cancelar
+                            </button>
+                        )}
+                    </div>
                 </form>
 
                 {/* Lista de productos */}
@@ -360,6 +391,13 @@ export default function ProductosVendedor() {
                                 key={p._id}
                                 className="bg-white p-5 rounded-lg shadow-md hover:shadow-lg transition-shadow"
                             >
+                                { (p.imagenIA || p.imagen) && (
+                                    <img
+                                        src={p.imagenIA || p.imagen}
+                                        alt={p.nombreProducto}
+                                        className="w-full h-48 object-cover rounded-md mb-4"
+                                    />
+                                )}
                                 <div className="flex justify-between items-start">
                                     <div>
                                         <h3 className="text-lg font-semibold text-gray-800">
@@ -371,13 +409,22 @@ export default function ProductosVendedor() {
                                             Categoría: {p.categoria?.nombreCategoria || "N/A"}
                                         </p>
                                     </div>
-                                    <button
-                                        onClick={() => eliminarProducto(p._id)}
-                                        className="text-red-500 hover:text-red-700 transition"
-                                        title="Eliminar producto"
-                                    >
-                                        <Trash2 size={20} />
-                                    </button>
+                                    <div className="flex flex-col gap-2">
+                                        <button
+                                            onClick={() => eliminarProducto(p._id)}
+                                            className="text-red-500 hover:text-red-700 transition"
+                                            title="Eliminar producto"
+                                        >
+                                            <Trash2 size={20} />
+                                        </button>
+                                        <button
+                                            onClick={() => editarProducto(p)}
+                                            className="text-blue-500 hover:text-blue-700 transition"
+                                            title="Actualizar producto"
+                                        >
+                                            <Pencil size={20} />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         ))}
