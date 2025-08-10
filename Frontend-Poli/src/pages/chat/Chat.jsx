@@ -18,7 +18,6 @@ export default function ChatWindow({ onClose }) {
   const [conversandoCon, setConversandoCon] = useState(null);
 
   const { roomId, mensajes, error, joinChat, sendMessage, miembros } = useChat(token, usuarioActual?._id);
-  // Nota: Asumo que useChat devuelve también "miembros" del chat para mostrar cantidad.
 
   const mensajesRef = useRef(null);
 
@@ -67,12 +66,11 @@ export default function ChatWindow({ onClose }) {
   };
 
   const enviarMensaje = () => {
-    if (!texto.trim()) return; // evitar enviar mensajes vacíos
+    if (!texto.trim()) return;
     sendMessage(roomId, texto.trim(), usuarioActual._id);
     setTexto("");
   };
 
-  // Formatear fecha legible para mensajes
   const formatearFecha = (fechaISO) => {
     const fecha = new Date(fechaISO);
     return fecha.toLocaleString(undefined, {
@@ -145,7 +143,6 @@ export default function ChatWindow({ onClose }) {
                   <div className="font-semibold text-gray-800">
                     {user.nombre} {user.apellido}
                   </div>
-                  {/* Campos importantes agregados: email, rol, estado */}
                   <div className="text-sm text-gray-600 flex justify-between mt-1">
                     <span className="italic">{user.rol || "Rol desconocido"}</span>
                   </div>
@@ -170,7 +167,7 @@ export default function ChatWindow({ onClose }) {
                 {conversandoCon.nombre} {conversandoCon.apellido}
               </span>
               <small className="text-xs text-gray-500">
-              rol: {conversandoCon.rol || "desconocido"} 
+                rol: {conversandoCon.rol || "desconocido"}
               </small>
             </div>
           </div>
@@ -185,29 +182,31 @@ export default function ChatWindow({ onClose }) {
             {mensajes.length === 0 ? (
               <p className="text-gray-500 italic">No hay mensajes aún</p>
             ) : (
-              mensajes.map((m, i) => (
-                <div
-                  key={m._id || i}
-                  className={`flex flex-col max-w-[70%] ${
-                    m.emisor._id === usuarioActual._id
-                      ? "ml-auto items-end"
-                      : "mr-auto items-start"
-                  }`}
-                >
+              mensajes
+                .filter(m => m.emisor && m.emisor._id) // evitar mensajes inválidos
+                .map((m, i) => (
                   <div
-                    className={`p-2 rounded-lg ${
+                    key={m._id || i}
+                    className={`flex flex-col max-w-[70%] ${
                       m.emisor._id === usuarioActual._id
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-200 text-gray-800"
-                    } break-words`}
+                        ? "ml-auto items-end"
+                        : "mr-auto items-start"
+                    }`}
                   >
-                    {m.texto}
+                    <div
+                      className={`p-2 rounded-lg ${
+                        m.emisor._id === usuarioActual._id
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-200 text-gray-800"
+                      } break-words`}
+                    >
+                      {m.texto}
+                    </div>
+                    <span className="text-xs text-gray-400 mt-0.5 select-none">
+                      {formatearFecha(m.fecha || m.createdAt)}
+                    </span>
                   </div>
-                  <span className="text-xs text-gray-400 mt-0.5 select-none">
-                    {formatearFecha(m.fecha || m.createdAt)}
-                  </span>
-                </div>
-              ))
+                ))
             )}
           </div>
 
