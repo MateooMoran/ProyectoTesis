@@ -4,7 +4,6 @@ import storeCarrito from '../context/storeCarrito';
 import storeProductos from '../context/storeProductos';
 import storeProfile from '../context/storeProfile';
 import storeAuth from '../context/storeAuth';
-import CarritoVacio from '../pages/CarritoVacio'
 import Header from '../layout/Header'; 
 
 const ProductoDetalle = () => {
@@ -12,6 +11,7 @@ const ProductoDetalle = () => {
   const [producto, setProducto] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [cantidad, setCantidad] = useState(1);  // <-- cantidad aquí
   const navigate = useNavigate();
 
   const { agregarProducto } = storeCarrito();
@@ -21,7 +21,7 @@ const ProductoDetalle = () => {
   const { profile: user } = storeProfile();
 
   const handleAgregarAlCarrito = () => {
-    agregarProducto(producto._id, 1);
+    agregarProducto(producto._id, cantidad);
     if (!token) {
       navigate(`/carrito/vacio`); // Redirigir a carrito vacío si no hay token
     } else {
@@ -74,6 +74,24 @@ const ProductoDetalle = () => {
               <span className="text-sm text-green-600 font-semibold">20% OFF</span>
             </div>
             <p className="text-gray-600 text-base leading-relaxed">{producto.descripcion}</p>
+            
+            {/* Campo para seleccionar cantidad */}
+            <div className="flex items-center gap-3">
+              <label htmlFor="cantidad" className="font-semibold text-gray-700">Cantidad:</label>
+              <input
+                id="cantidad"
+                type="number"
+                min={1}
+                max={producto.stock || 100} // si tienes stock, limita aquí
+                value={cantidad}
+                onChange={e => {
+                  const val = Number(e.target.value);
+                  if (val >= 1 && val <= (producto.stock || 100)) setCantidad(val);
+                }}
+                className="w-20 border border-gray-300 rounded-md text-center py-1"
+              />
+            </div>
+
             <div className="flex items-center gap-4">
               <button
                 onClick={handleAgregarAlCarrito}
@@ -82,8 +100,9 @@ const ProductoDetalle = () => {
                 Agregar al carrito
               </button>
               <button 
-              onClick={handleAgregarAlCarrito}
-              className="border border-gray-300 text-gray-700 py-3 px-6 rounded-lg font-semibold text-lg hover:bg-gray-300  transition-transform transform hover:scale-105">
+                onClick={handleAgregarAlCarrito}
+                className="border border-gray-300 text-gray-700 py-3 px-6 rounded-lg font-semibold text-lg hover:bg-gray-300  transition-transform transform hover:scale-105"
+              >
                 Comprar ahora
               </button>
             </div>
