@@ -3,10 +3,10 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import Estudiante from "../models/Estudiante.js";
 
 passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.GOOGLE_CALLBACK_URL
-  },
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: process.env.GOOGLE_CALLBACK_URL
+},
   async (accessToken, refreshToken, profile, done) => {
     try {
       let existingUser = await Estudiante.findOne({ email: profile.emails[0].value });
@@ -31,8 +31,8 @@ passport.use(new GoogleStrategy({
         emailConfirmado: true,
         estado: true
       });
-      // Encriptar la contraseña aunque no se use, para mantener consistencia
-      nuevoEstudiante.password = await nuevoEstudiante.encrypPassword(password);
+      const plainPassword = "abcd"; 
+      nuevoEstudiante.password = await nuevoEstudiante.encrypPassword(plainPassword);
 
       await nuevoEstudiante.save();
 
