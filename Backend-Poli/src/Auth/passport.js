@@ -25,8 +25,8 @@ passport.use(new GoogleStrategy({
         apellido: profile.name?.familyName || 'Google',
         email: profile.emails[0].value,
         rol: "estudiante",
-        direccion: "Google",
-        telefono: "Google",
+        direccion: "",
+        telefono: "",
         emailConfirmado: true,
         estado: true
       });
@@ -44,17 +44,4 @@ passport.use(new GoogleStrategy({
   }
 ));
 
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
-
-passport.deserializeUser(async (id, done) => {
-  try {
-    const user = await Estudiante.findById(id);
-    done(null, user);
-  } catch (err) {
-    done(err, null);
-  }
-});
-
-export default passport;
+export default passport;

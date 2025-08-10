@@ -1,27 +1,30 @@
-import { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import storeAuth from '../context/storeAuth';
 
-const AuthCallback = () => {
+export default function AuthCallback() {
   const navigate = useNavigate();
   const location = useLocation();
   const { setToken, setRol } = storeAuth();
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const token = params.get('token');
-    const rol = params.get('rol');
+    const token = params.get("token");
+    const rol = params.get("rol");
 
-    if (token && rol) {
+    if (token) {
       setToken(token);
-      setRol(rol);
-      navigate('/dashboard');
+      if (rol) setRol(rol);
+
+      navigate('/dashboard', { replace: true });
     } else {
-      navigate('/login');
+      navigate('/login', { replace: true });
     }
-  }, [navigate, setToken, setRol, location.search]);
+  }, [location.search, navigate, setToken, setRol]);
 
-  return <div className="text-center text-gray-700">Procesando autenticación...</div>;
-};
-
-export default AuthCallback;
+  return (
+    <div className="flex justify-center items-center h-screen text-blue-700 font-semibold">
+      Cargando autenticación...
+    </div>
+  );
+}
