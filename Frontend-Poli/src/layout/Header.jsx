@@ -6,7 +6,10 @@ import storeAuth from '../context/storeAuth';
 import storeProfile from '../context/storeProfile'; // para obtener el perfil completo (rol real)
 import storeProductos from '../context/storeProductos';
 import NotificacionesAdmin from '../pages/admin/Notificaciones';
-import {ToastContainer} from 'react-toastify'
+import { ToastContainer } from 'react-toastify'
+import { MessageCircle } from "lucide-react";
+import Chat from '../pages/chat/Chat'
+
 
 const Header = () => {
     const navigate = useNavigate();
@@ -16,6 +19,7 @@ const Header = () => {
 
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [open, setOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const categoriesRef = useRef(null);
     const userDropdownRef = useRef(null);
@@ -91,7 +95,7 @@ const Header = () => {
 
                     {/* Botones */}
                     <div className="flex items-center gap-4">
-                        {(rol === 'estudiante' || rol === 'admin' ||  rol === 'vendedor') && <NotificacionesAdmin />}
+                        {(rol === 'estudiante' || rol === 'admin' || rol === 'vendedor') && <NotificacionesAdmin />}
 
                         <button
                             onClick={scrollToCarousel}
@@ -100,6 +104,14 @@ const Header = () => {
                             <Star className="w-5 h-5" />
                             Destacado
                         </button>
+
+                        <button
+                            onClick={() => setOpen(!open)}
+                            className="fixed bottom-5 right-5 p-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700"
+                        >
+                            <MessageCircle size={24} />
+                        </button>
+                        {open && <Chat onClose={() => setOpen(false)} />}
 
                         {/* Categorías Dropdown */}
                         <div className="relative" ref={categoriesRef}>
