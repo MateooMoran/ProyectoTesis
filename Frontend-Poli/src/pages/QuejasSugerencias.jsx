@@ -98,7 +98,7 @@ export default function QuejasSugerenciasEstudiante() {
                 body,
                 config: { headers },
             });
-            await new Promise((r) => setTimeout(r, 500)); // 500ms de espera
+            await new Promise((r) => setTimeout(r, 500)); 
             setMensaje("");
             setTipo("queja");
             // Recargar lista
