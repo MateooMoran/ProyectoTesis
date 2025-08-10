@@ -170,9 +170,8 @@ export default function ChatWindow({ onClose }) {
               <span className="font-semibold text-gray-800">
                 {conversandoCon.nombre} {conversandoCon.apellido}
               </span>
-              {/* Mostrar ID del chat y cantidad miembros si disponible */}
               <small className="text-xs text-gray-500">
-                Chat ID: {roomId || "N/A"} | Miembros: {miembros?.length || "?"}
+              rol: {conversandoCon.rol || "desconocido"} 
               </small>
             </div>
           </div>
