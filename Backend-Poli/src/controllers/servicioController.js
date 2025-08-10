@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import Conversacion from '../models/Conversacion.js';
 import Estudiante from "../models/Estudiante.js";
 import Notificacion from "../models/Notificacion.js";
 
@@ -104,6 +105,44 @@ const eliminarNotificacion = async (req, res) => {
     }
 };
 
+const obtenerConversacionesRecientes = async (req, res) => {
+    const userId = req.estudianteBDD._id;
+
+    try {
+        const conversaciones = await Conversacion.find({ miembros: userId })
+            .populate('miembros', 'nombre apellido rol') 
+            .lean();
+
+        const conversacionesFormateadas = conversaciones.map(conv => {
+            const mensajesOrdenados = conv.mensajes.sort(
+                (a, b) => new Date(b.fecha || b.createdAt) - new Date(a.fecha || a.createdAt)
+            );
+
+            const ultimoMensaje = mensajesOrdenados[0] || null;
+
+            // Filtrar el usuario actual para obtener el otro
+            const otroMiembro = conv.miembros.find(m => m._id.toString() !== userId.toString());
+
+            return {
+                conversacionId: conv._id,
+                otroMiembro,         // objeto completo con nombre, apellido, avatar...
+                ultimoMensaje,
+            };
+        });
+
+        conversacionesFormateadas.sort((a, b) => {
+            const fechaA = new Date(a.ultimoMensaje?.fecha || a.ultimoMensaje?.createdAt || 0);
+            const fechaB = new Date(b.ultimoMensaje?.fecha || b.ultimoMensaje?.createdAt || 0);
+            return fechaB - fechaA;
+        });
+
+        res.json(conversacionesFormateadas);
+    } catch (error) {
+        console.error('Error al obtener conversaciones recientes:', error);
+        res.status(500).json({ error: 'Error interno' });
+    }
+};
+
 
 
 
@@ -112,5 +151,6 @@ export {
     listarNotificaciones,
     marcarNotificacionLeida,
     eliminarNotificacion,
+    obtenerConversacionesRecientes
 
 }
