@@ -7,9 +7,13 @@ import { generateAvatar, convertBlobToBase64 } from "../../helpers/ConsultarAI";
 
 export default function ProductosVendedor() {
     const { fetchDataBackend } = useFetch();
+
     const [productos, setProductos] = useState([]);
     const [categorias, setCategorias] = useState([]);
-    const [loading, setLoading] = useState(true);
+
+    const [loadingProductos, setLoadingProductos] = useState(true);
+    const [loadingCategorias, setLoadingCategorias] = useState(true);
+
     const [guardando, setGuardando] = useState(false);
     const [form, setForm] = useState({
         nombreProducto: "",
@@ -31,27 +35,45 @@ export default function ProductosVendedor() {
         Authorization: `Bearer ${token}`,
     };
 
-    const cargarProductosYCategorias = async () => {
-        try {
-            setLoading(true);
-            const urlProd = `${import.meta.env.VITE_BACKEND_URL}/vendedor/visualizar/producto`;
-            const urlCat = `${import.meta.env.VITE_BACKEND_URL}/vendedor/visualizar/categoria`;
-            const [prodData, catData] = await Promise.all([
-                fetchDataBackend(urlProd, { method: "GET", config: { headers } }),
-                fetchDataBackend(urlCat, { method: "GET", config: { headers } }),
-            ]);
-            setProductos(prodData);
-            setCategorias(catData);
-        } catch {
-            toast.error("Error al cargar datos");
-        } finally {
-            setLoading(false);
-        }
-    };
-
+    // Cargar productos
     useEffect(() => {
-        cargarProductosYCategorias();
-    }, []);
+        const cargarProductos = async () => {
+            try {
+                setLoadingProductos(true);
+                const urlProd = `${import.meta.env.VITE_BACKEND_URL}/vendedor/visualizar/producto`;
+                const prodData = await fetchDataBackend(urlProd, {
+                    method: "GET",
+                    config: { headers },
+                });
+                setProductos(prodData);
+            } catch (error) {
+                toast.error("Error al cargar productos");
+            } finally {
+                setLoadingProductos(false);
+            }
+        };
+        cargarProductos();
+    }, []); // Solo al montar
+
+    // Cargar categorías
+    useEffect(() => {
+        const cargarCategorias = async () => {
+            try {
+                setLoadingCategorias(true);
+                const urlCat = `${import.meta.env.VITE_BACKEND_URL}/vendedor/visualizar/categoria`;
+                const catData = await fetchDataBackend(urlCat, {
+                    method: "GET",
+                    config: { headers },
+                });
+                setCategorias(catData);
+            } catch (error) {
+                toast.error("Error al cargar categorías");
+            } finally {
+                setLoadingCategorias(false);
+            }
+        };
+        cargarCategorias();
+    }, []); // Solo al montar
 
     const manejarCambio = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -87,8 +109,25 @@ export default function ProductosVendedor() {
         }
     };
 
+    const resetForm = () => {
+        setForm({
+            nombreProducto: "",
+            precio: "",
+            stock: "",
+            descripcion: "",
+            categoria: "",
+        });
+        setImagenArchivo(null);
+        setImagenIA("");
+        setPromptIA("");
+        setPreviewUrl("");
+        setCurrentImage("");
+        setEditingId(null);
+    };
+
     const submitProducto = async (e) => {
         e.preventDefault();
+
         if (
             !form.nombreProducto.trim() ||
             !form.precio ||
@@ -144,28 +183,20 @@ export default function ProductosVendedor() {
             });
 
             resetForm();
-            cargarProductosYCategorias();
+
+            // Recarga solo productos después de crear/actualizar
+            const urlProd = `${import.meta.env.VITE_BACKEND_URL}/vendedor/visualizar/producto`;
+            const prodData = await fetchDataBackend(urlProd, {
+                method: "GET",
+                config: { headers },
+            });
+            setProductos(prodData);
+
         } catch {
             // Error manejado en fetchDataBackend
         } finally {
             setGuardando(false);
         }
-    };
-
-    const resetForm = () => {
-        setForm({
-            nombreProducto: "",
-            precio: "",
-            stock: "",
-            descripcion: "",
-            categoria: "",
-        });
-        setImagenArchivo(null);
-        setImagenIA("");
-        setPromptIA("");
-        setPreviewUrl("");
-        setCurrentImage("");
-        setEditingId(null);
     };
 
     const editarProducto = (p) => {
@@ -182,7 +213,7 @@ export default function ProductosVendedor() {
         setPromptIA("");
         setPreviewUrl("");
         setCurrentImage(p.imagenIA || p.imagen || "");
-        // Scroll smoothly to the top of the page
+        // Scroll suave al inicio del formulario
         window.scrollTo({
             top: 0,
             behavior: 'smooth',
@@ -210,7 +241,6 @@ export default function ProductosVendedor() {
             <div className="max-w-5xl mx-auto p-6 lg:p-8">
                 <h2 className="text-3xl font-bold text-gray-800 mb-6">Gestionar Productos</h2>
 
-                {/* Formulario */}
                 <form
                     onSubmit={submitProducto}
                     className="bg-white p-6 rounded-lg shadow-lg mb-8 space-y-5"
@@ -218,6 +248,7 @@ export default function ProductosVendedor() {
                     <h3 className="text-xl font-semibold text-gray-800 mb-4">
                         {editingId ? "Editar Producto" : "Crear Nuevo Producto"}
                     </h3>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -272,7 +303,7 @@ export default function ProductosVendedor() {
                                 value={form.categoria}
                                 onChange={manejarCambio}
                                 className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                                disabled={guardando || generandoIA}
+                                disabled={guardando || generandoIA || loadingCategorias}
                             >
                                 <option value="">Selecciona una categoría</option>
                                 {categorias.map((cat) => (
@@ -299,7 +330,6 @@ export default function ProductosVendedor() {
                         />
                     </div>
 
-                    {/* Subir imagen tradicional */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Subir Imagen
@@ -313,7 +343,6 @@ export default function ProductosVendedor() {
                         />
                     </div>
 
-                    {/* Generar imagen IA */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Generar Imagen con IA
@@ -338,7 +367,6 @@ export default function ProductosVendedor() {
                         </div>
                     </div>
 
-                    {/* Preview imagen */}
                     {(imagenIA || previewUrl || (editingId && currentImage)) && (
                         <div className="mt-4">
                             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -372,7 +400,6 @@ export default function ProductosVendedor() {
                     </div>
                 </form>
 
-                {/* Lista de productos */}
                 <h2
                     id="titulo-productos-registrados"
                     className="text-2xl font-bold text-gray-800 mb-6"
@@ -380,8 +407,8 @@ export default function ProductosVendedor() {
                     Productos Registrados
                 </h2>
 
-                {loading ? (
-                    <div className="text-center text-gray-600">Cargando productos...</div>
+                {(loadingProductos || loadingCategorias) ? (
+                    <div className="text-center text-gray-600">Cargando datos...</div>
                 ) : productos.length === 0 ? (
                     <div className="text-center text-gray-600">No hay productos registrados.</div>
                 ) : (
@@ -391,7 +418,7 @@ export default function ProductosVendedor() {
                                 key={p._id}
                                 className="bg-white p-5 rounded-lg shadow-md hover:shadow-lg transition-shadow"
                             >
-                                { (p.imagenIA || p.imagen) && (
+                                {(p.imagenIA || p.imagen) && (
                                     <img
                                         src={p.imagenIA || p.imagen}
                                         alt={p.nombreProducto}
