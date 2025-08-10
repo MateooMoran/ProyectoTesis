@@ -22,6 +22,10 @@ import ProductoDetalle from './pages/ProductoDetalle';
 import GestionarUsuario from './pages/admin/GestionarUsuario';
 import QuejasSugerencias from "./pages/QuejasSugerencias";
 
+import Categorias from './pages/vendedor/Categorias';
+import ProductosVendedor from './pages/vendedor/ProductosVendedor';
+import Historial from './pages/vendedor/Historial';
+
 
 // Componentes de pago que creamos
 import OrdenPendiente from './pages/OrdenPendiente';
@@ -79,7 +83,12 @@ function App() {
             <Route path="perfil" element={<Perfil />} />
             <Route path='admin' element={<GestionarUsuario />} />
             <Route path='estudiante/quejas-sugerencias' element={<QuejasSugerencias />} />
-            
+
+            {/* Rutas para vendedor */}
+            <Route path="vendedor/categorias" element={<Categorias />} />
+            <Route path="vendedor/productos" element={<ProductosVendedor />} />
+            <Route path="vendedor/historial-ventas" element={<Historial />} />
+
 
             {/* Nueva ruta para crear orden pendiente */}
             <Route path="orden-pendiente" element={<OrdenPendiente />} />
