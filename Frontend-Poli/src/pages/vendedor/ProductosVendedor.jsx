@@ -44,6 +44,7 @@ export default function ProductosVendedor() {
             ]);
             setProductos(prodData);
             setCategorias(catData);
+            
         } catch {
             toast.error("Error al cargar datos");
         } finally {
@@ -88,6 +89,8 @@ export default function ProductosVendedor() {
 
     const crearProducto = async (e) => {
         e.preventDefault();
+        console.log('/////////////////',form.categoria);
+        
         if (
             !form.nombreProducto.trim() ||
             !form.precio ||
@@ -123,6 +126,7 @@ export default function ProductosVendedor() {
                 body.append("stock", Number(form.stock));
                 body.append("descripcion", form.descripcion.trim());
                 body.append("categoria", form.categoria);
+                console.log("//////////////////////////////////Categorias:", form.categorias);
                 body.append("imagen", imagenArchivo);
             } else if (imagenIA) {
                 // JSON con base64
@@ -132,7 +136,7 @@ export default function ProductosVendedor() {
                     stock: Number(form.stock),
                     descripcion: form.descripcion.trim(),
                     categoria: form.categoria,
-                    imagenIA: imagenIA,
+                    imagen: imagenIA,
                 });
                 config.headers["Content-Type"] = "application/json";
             } else {
@@ -231,6 +235,7 @@ export default function ProductosVendedor() {
                         className="w-full border rounded p-2"
                         disabled={guardando || generandoIA}
                     />
+
                     <select
                         name="categoria"
                         value={form.categoria}
@@ -243,7 +248,9 @@ export default function ProductosVendedor() {
                             <option key={cat._id} value={cat._id}>
                                 {cat.nombreCategoria}
                             </option>
+                            
                         ))}
+                        
                     </select>
 
                     {/* Subir imagen tradicional */}

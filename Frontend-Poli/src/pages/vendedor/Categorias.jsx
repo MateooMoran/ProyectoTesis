@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Trash2, PlusCircle } from "lucide-react";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import useFetch from '../../hooks/useFetch';
 import Header from '../../layout/Header';
 
@@ -78,6 +78,7 @@ export default function Categorias() {
 
     return (
         <>
+        <ToastContainer />
         <Header/>
         <div className="max-w-3xl mx-auto p-4">
             <h2 className="text-2xl font-bold mb-4">Categorías</h2>
@@ -94,7 +95,7 @@ export default function Categorias() {
                 <button
                     type="submit"
                     disabled={guardando}
-                    className="bg-green-600 text-white px-4 py-2 rounded flex items-center gap-1"
+                    className="bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-1 transition-transform transform hover:scale-105 "
                 >
                     <PlusCircle size={20} /> Crear
                 </button>
