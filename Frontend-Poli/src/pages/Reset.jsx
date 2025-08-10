@@ -39,7 +39,7 @@ const Reset = () => {
 
         try {
             const url = `${import.meta.env.VITE_BACKEND_URL}/nuevopassword/${token}`;
-            await fetchDataBackend(url, data, 'POST');
+            await fetchDataBackend(url, { method: 'POST', body: data });
 
             // Redirigir al login después de 3 segundos
             setTimeout(() => {
@@ -55,7 +55,7 @@ const Reset = () => {
         const verifyToken = async () => {
             try {
                 const url = `${import.meta.env.VITE_BACKEND_URL}/recuperarpassword/${token}`;
-                await fetchDataBackend(url, null, 'GET');
+                await fetchDataBackend(url, { method: 'GET' });
                 setTokenValid(true);
             } catch (error) {
                 console.log(error);
