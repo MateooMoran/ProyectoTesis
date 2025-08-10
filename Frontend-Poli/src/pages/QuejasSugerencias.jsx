@@ -43,15 +43,15 @@ export default function QuejasSugerenciasEstudiante() {
                 });
                 setLista(data);
             } catch (error) {
-                console.error("Error al obtener quejas/sugerencias", error);
-                toast.error("Error al cargar datos");
+                console.log(error);
+                toast.error(error);
             } finally {
                 setLoading(false);
             }
         };
 
         cargarDatos();
-    }, [fetchDataBackend, navigate]);
+    }, []);
 
     const validarFormulario = () => {
         if (!tipo || (tipo !== "queja" && tipo !== "sugerencia")) {
@@ -98,7 +98,6 @@ export default function QuejasSugerenciasEstudiante() {
                 body,
                 config: { headers },
             });
-            toast.success("Enviado correctamente");
             setMensaje("");
             setTipo("queja");
             // Recargar lista
@@ -116,7 +115,7 @@ export default function QuejasSugerenciasEstudiante() {
     };
 
     const eliminar = async (id) => {
-        if (!confirm("¿Seguro que deseas eliminar este registro?")) return;
+        if (!window.confirm("¿Seguro que deseas eliminar este registro?")) return;
 
         const storedUser = JSON.parse(localStorage.getItem("auth-token"));
         const token = storedUser?.state?.token || null;
@@ -135,7 +134,6 @@ export default function QuejasSugerenciasEstudiante() {
                 method: "DELETE",
                 config: { headers },
             });
-            toast.success("Eliminado correctamente");
             setLista((prev) => prev.filter((item) => item._id !== id));
         } catch (error) {
             console.error(error);
@@ -146,39 +144,45 @@ export default function QuejasSugerenciasEstudiante() {
     return (
         <div>
             <Header />
-            <div className="max-w-3xl mx-auto p-4">
-                <h1 className="text-2xl font-bold mb-4 text-blue-700">
+            <div className="p-6 max-w-6xl mx-auto">
+                <h2 className="text-2xl font-bold mb-4  text-gray-500">
                     Mis Quejas y Sugerencias
-                </h1>
+                </h2>
 
-                <form onSubmit={enviar} className="bg-white p-4 rounded shadow mb-6 space-y-3">
+                <form onSubmit={enviar} className=" rounded mb-10  ">
                     <div>
-                        <label className="block mb-1 font-semibold text-blue-700">Tipo</label>
+                        <label className="block font-semibold text-blue-800 text-[.98em] mb-2">
+                            Tipo
+                        </label>
                         <select
                             value={tipo}
                             onChange={(e) => setTipo(e.target.value)}
-                            className="w-full border rounded p-2"
+                            className="mt-1 w-full border border-gray-300 rounded p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                         >
                             <option value="queja">Queja</option>
                             <option value="sugerencia">Sugerencia</option>
                         </select>
                     </div>
                     <div>
-                        <label className="block mb-1 font-semibold text-blue-700">Mensaje</label>
+                        <label className="block mt-4 font-semibold text-[.98em] text-blue-800">
+                            Mensaje
+                        </label>
                         <textarea
                             value={mensaje}
                             onChange={(e) => setMensaje(e.target.value)}
-                            rows="4"
+                            rows={4}
                             maxLength={500}
-                            className="w-full border rounded p-2"
+                            className="mt-2 w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[56px] max-h-[120px] resize-none"
                             placeholder="Escribe tu mensaje..."
                         />
-                        <p className="text-sm text-gray-500">{mensaje.length}/500 caracteres</p>
+                        <p className="text-sm text-gray-500 mt-3">
+                            {mensaje.length}/500 caracteres
+                        </p>
                     </div>
                     <button
                         type="submit"
                         disabled={enviando}
-                        className={`bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center gap-2 transition-transform hover:scale-105 ${enviando ? "opacity-50 cursor-not-allowed" : ""
+                        className={`bg-blue-800 hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center gap-2 transition-transform hover:scale-105 ${enviando ? "opacity-50 cursor-not-allowed" : ""
                             }`}
                     >
                         <Send size={18} /> {enviando ? "Enviando..." : "Enviar"}
@@ -188,21 +192,60 @@ export default function QuejasSugerenciasEstudiante() {
                 {loading ? (
                     <p>Cargando...</p>
                 ) : lista.length === 0 ? (
-                    <p className="text-gray-500">No tienes quejas o sugerencias enviadas.</p>
+                    <p className="text-gray-500">
+                        No tienes quejas o sugerencias enviadas.
+                    </p>
                 ) : (
                     <ul className="space-y-3">
+                        <h2 className="text-2xl font-bold mb-4 text-gray-500">
+                            Visualizar mis Quejas o Sugerencias
+                        </h2>
+
                         {lista.map((item) => (
                             <li
                                 key={item._id}
                                 className="bg-white p-4 rounded shadow flex justify-between items-start"
                             >
-                                <div>
-                                    <p className="text-sm text-gray-600">
-                                        {new Date(item.createdAt).toLocaleString()} -{" "}
-                                        <span className="font-bold capitalize">{item.tipo}</span>
-                                    </p>
-                                    <p>{item.mensaje}</p>
+                                <div className="flex items-start gap-3 overflow-hidden w-full">
+                                    <div className="w-full">
+                                        {/* Tipo arriba */}
+                                        <span
+                                            className={`inline-block mb-2 px-3 py-1 rounded-full text-xs font-semibold uppercase
+              ${item.tipo === "queja"
+                                                    ? "bg-orange-100 text-orange-800"
+                                                    : "bg-blue-100 text-blue-800"
+                                                }`}
+                                        >
+                                            {item.tipo === "queja" ? "Queja" : "Sugerencia"}
+                                        </span>
+
+                                        {/* Mensaje y estado en línea */}
+                                        <div className="flex items-center justify-between">
+                                            <p className="font-medium text-gray-800 truncate max-w-[calc(100%-80px)]">
+                                                {item.mensaje}
+                                            </p>
+
+                                            <span
+                                                className={`inline-block px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap
+                ${item.estado === "resuelto"
+                                                        ? "bg-green-100 text-green-800"
+                                                        : "bg-red-100 text-red-800"
+                                                    }`}
+                                            >
+                                                {item.estado}
+                                            </span>
+                                        </div>
+
+                                        {/* Respuesta debajo */}
+                                        {item.respuesta && (
+                                            <p className="mt-2 text-sm text-green-700 bg-green-50 p-2 rounded">
+                                                <span className="font-semibold">Respuesta:</span> {item.respuesta}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
+
+                                {/* Botón eliminar */}
                                 <button
                                     onClick={() => eliminar(item._id)}
                                     className="text-red-600 hover:text-red-800"
@@ -212,6 +255,8 @@ export default function QuejasSugerenciasEstudiante() {
                             </li>
                         ))}
                     </ul>
+
+
                 )}
             </div>
         </div>
