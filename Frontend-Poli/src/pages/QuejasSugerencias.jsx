@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Trash2, Send } from "lucide-react";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import useFetch from "../hooks/useFetch";
 import { useNavigate } from "react-router-dom";
 import Header from "../layout/Header";
@@ -98,6 +98,7 @@ export default function QuejasSugerenciasEstudiante() {
                 body,
                 config: { headers },
             });
+            await new Promise((r) => setTimeout(r, 500)); // 500ms de espera
             setMensaje("");
             setTipo("queja");
             // Recargar lista
@@ -144,6 +145,7 @@ export default function QuejasSugerenciasEstudiante() {
     return (
         <div>
             <Header />
+            <ToastContainer />
             <div className="p-6 max-w-6xl mx-auto">
                 <h2 className="text-2xl font-bold mb-4  text-gray-500">
                     Mis Quejas y Sugerencias

@@ -183,7 +183,7 @@ export default function ChatWindow({ onClose }) {
                 {`${conversandoCon.nombre} ${conversandoCon.apellido}`}
               </label>
               <small className="text-xs text-gray-500">
-                rol: {conversandoCon.rol || "desconocido"}
+                Rol: {conversandoCon.rol || "desconocido"}
               </small>
             </div>
           </div>
