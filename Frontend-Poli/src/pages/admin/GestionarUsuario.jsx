@@ -35,7 +35,7 @@ function GestionarUsuario() {
         const body = { rol: nuevoRol };
         await fetchDataBackend(url, {
             method: "PUT",
-            form: body,
+            body,
             config: { headers },
         });
         setUsuarios((prev) =>
