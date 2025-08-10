@@ -8,6 +8,7 @@ import storeProductos from '../context/storeProductos';
 import NotificacionesAdmin from '../pages/admin/Notificaciones';
 import { MessageCircle } from "lucide-react";
 import Chat from '../pages/chat/Chat'
+import useChat from '../hooks/useChat';
 
 
 const Header = () => {
@@ -22,6 +23,7 @@ const Header = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const categoriesRef = useRef(null);
     const userDropdownRef = useRef(null);
+    
 
     useEffect(() => {
         fetchCategorias();
@@ -167,9 +169,9 @@ const Header = () => {
                                     <span>{user?.nombre ? `Hola, ${user.nombre}` : 'Usuario'}</span>
                                 </button>
                                 {isDropdownOpen && (
-                                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200">
-                                        <div className="px-4 py-2 text-sm text-blue-800 border-b">
-                                            <p><strong>Nombre:</strong> {user?.nombre || 'Usuario'}</p>
+                                    <div className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-lg py-3 z-50   ">
+                                        <div className="px-5 py-3 text-sm text-blue-700">
+                                        <p><strong>Nombre:</strong> {user?.nombre || 'Usuario'}</p>
                                             <p><strong>Rol:</strong> {rol ? rol.toUpperCase() : 'N/A'}</p>
                                         </div>
                                         <Link

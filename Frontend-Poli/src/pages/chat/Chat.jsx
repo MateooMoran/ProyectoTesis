@@ -82,68 +82,83 @@ export default function ChatWindow({ onClose }) {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 w-96 bg-white border rounded-lg shadow-lg flex flex-col">
+    <div className="
+      fixed bottom-5 right-5
+      w-[95vw] max-w-md sm:max-w-lg md:max-w-xl lg:max-w-md xl:max-w-lg
+      h-[80vh] sm:h-[70vh] md:h-[75vh]
+      bg-white border border-gray-200 rounded-xl shadow-xl
+      flex flex-col overflow-hidden font-sans text-gray-800
+      z-50
+      "
+    >
       {/* Header */}
-      <div className="flex justify-between items-center p-3 border-b bg-blue-50">
-        <h2 className="font-bold text-blue-700 text-lg">Chat</h2>
-        <button onClick={onClose} aria-label="Cerrar chat" className="hover:text-red-600">
+      <div className="flex justify-between items-center p-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md">
+        <h2 className="font-semibold text-xl tracking-wide select-none">Chat</h2>
+        <button
+          onClick={onClose}
+          aria-label="Cerrar chat"
+          className="hover:text-red-400 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-red-400 rounded"
+        >
           <X size={24} />
         </button>
       </div>
 
       {error && (
-        <div className="bg-red-100 text-red-700 p-2 text-center text-sm">{error}</div>
+        <div className="bg-red-100 text-red-700 p-3 text-center text-sm font-medium select-none">
+          {error}
+        </div>
       )}
 
       {!conversandoCon ? (
         <>
           {/* Buscador usuarios */}
-          <div className="flex p-3 gap-2 border-b bg-gray-50">
+          <div className="flex flex-col sm:flex-row p-4 gap-3 border-b border-gray-200 bg-gray-50">
             <input
               type="text"
               placeholder="Nombre"
               value={nombreBuscar}
               onChange={(e) => setNombreBuscar(e.target.value)}
-              className="flex-1 border border-gray-300 p-2 rounded focus:outline-blue-500"
+              className="flex-1 border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               onKeyDown={(e) => e.key === "Enter" && buscarUsuarios()}
               aria-label="Buscar por nombre"
             />
             <input
-              type="text"
-              placeholder="Apellido"
-              value={apellidoBuscar}
-              onChange={(e) => setApellidoBuscar(e.target.value)}
-              className="flex-1 border border-gray-300 p-2 rounded focus:outline-blue-500"
-              onKeyDown={(e) => e.key === "Enter" && buscarUsuarios()}
-              aria-label="Buscar por apellido"
+          
             />
             <button
               onClick={buscarUsuarios}
-              className="bg-blue-600 text-white px-3 rounded hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 transition-colors text-white px-4 rounded-lg flex items-center justify-center shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2 sm:mt-0"
               aria-label="Buscar usuarios"
+              title="Buscar usuarios"
             >
               <Search size={20} />
             </button>
           </div>
 
           {/* Resultados */}
-          <div className="flex-1 overflow-y-auto max-h-72">
+          <div
+            className="flex-1 overflow-y-auto max-h-[calc(80vh-144px)] sm:max-h-[calc(70vh-144px)] md:max-h-[calc(75vh-144px)]"
+            style={{
+              scrollbarWidth: "thin",
+              scrollbarColor: "#3b82f6 #e5e7eb",
+            }}
+          >
             {resultados.length === 0 ? (
-              <p className="p-3 text-gray-500 italic">No hay usuarios encontrados</p>
+              <p className="p-4 text-gray-500 italic select-none">No hay usuarios encontrados</p>
             ) : (
               resultados.map((user) => (
                 <div
                   key={user._id}
                   onClick={() => iniciarChat(user)}
-                  className="p-3 hover:bg-gray-100 cursor-pointer border-b flex flex-col"
+                  className="p-4 hover:bg-blue-50 cursor-pointer border-b border-gray-100 flex flex-col rounded-lg transition duration-150 focus:bg-blue-100 focus:outline-none"
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => e.key === "Enter" && iniciarChat(user)}
                 >
-                  <div className="font-semibold text-gray-800">
-                    {user.nombre} {user.apellido}
-                  </div>
-                  <div className="text-sm text-gray-600 flex justify-between mt-1">
+                  <label className="font-semibold text-gray-900 text-lg select-none">
+                    {`${user.nombre} ${user.apellido}`}
+                  </label>
+                  <div className="text-sm text-blue-600 flex justify-between mt-1 font-medium">
                     <span className="italic">{user.rol || "Rol desconocido"}</span>
                   </div>
                 </div>
@@ -154,18 +169,19 @@ export default function ChatWindow({ onClose }) {
       ) : (
         <>
           {/* Info chat activo */}
-          <div className="flex items-center gap-2 p-3 border-b bg-gray-50">
+          <div className="flex items-center gap-3 p-4 border-b border-gray-200 bg-gray-50 select-none">
             <button
               onClick={() => setConversandoCon(null)}
-              className="text-blue-600 font-bold text-xl"
+              className="text-blue-600 font-bold text-2xl hover:text-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 rounded"
               aria-label="Volver a búsqueda"
+              title="Volver a búsqueda"
             >
               &larr;
             </button>
             <div className="flex flex-col">
-              <span className="font-semibold text-gray-800">
-                {conversandoCon.nombre} {conversandoCon.apellido}
-              </span>
+              <label className="font-semibold text-gray-900 text-lg select-none">
+                {`${conversandoCon.nombre} ${conversandoCon.apellido}`}
+              </label>
               <small className="text-xs text-gray-500">
                 rol: {conversandoCon.rol || "desconocido"}
               </small>
@@ -175,34 +191,38 @@ export default function ChatWindow({ onClose }) {
           {/* Mensajes */}
           <div
             ref={mensajesRef}
-            className="flex-1 overflow-y-auto p-3 max-h-72 space-y-2"
-            style={{ minHeight: "200px" }}
+            className="flex-1 overflow-y-auto p-4 max-h-[calc(80vh-144px)] sm:max-h-[calc(70vh-144px)] md:max-h-[calc(75vh-144px)] space-y-3"
+            style={{
+              minHeight: "220px",
+              scrollbarWidth: "thin",
+              scrollbarColor: "#3b82f6 #e5e7eb",
+            }}
             aria-live="polite"
           >
             {mensajes.length === 0 ? (
-              <p className="text-gray-500 italic">No hay mensajes aún</p>
+              <p className="text-gray-500 italic select-none">No hay mensajes aún</p>
             ) : (
               mensajes
-                .filter(m => m.emisor && m.emisor._id) // evitar mensajes inválidos
+                .filter(m => m.emisor && m.emisor._id)
                 .map((m, i) => (
                   <div
                     key={m._id || i}
-                    className={`flex flex-col max-w-[70%] ${
+                    className={`flex flex-col max-w-[75%] ${
                       m.emisor._id === usuarioActual._id
                         ? "ml-auto items-end"
                         : "mr-auto items-start"
                     }`}
                   >
                     <div
-                      className={`p-2 rounded-lg ${
+                      className={`p-3 rounded-2xl shadow-md break-words select-text transition-colors duration-300 ${
                         m.emisor._id === usuarioActual._id
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-200 text-gray-800"
-                      } break-words`}
+                          ? "bg-blue-600 text-white hover:bg-blue-700"
+                          : "bg-gray-100 text-gray-900 hover:bg-gray-200"
+                      }`}
                     >
                       {m.texto}
                     </div>
-                    <span className="text-xs text-gray-400 mt-0.5 select-none">
+                    <span className="text-xs text-gray-400 mt-1 select-none tracking-wide">
                       {formatearFecha(m.fecha || m.createdAt)}
                     </span>
                   </div>
@@ -211,23 +231,25 @@ export default function ChatWindow({ onClose }) {
           </div>
 
           {/* Input para enviar mensaje */}
-          <div className="flex p-3 border-t bg-gray-50">
+          <div className="flex flex-col sm:flex-row p-4 border-t border-gray-200 bg-gray-50 gap-2">
             <input
               type="text"
               value={texto}
               onChange={(e) => setTexto(e.target.value)}
               placeholder="Escribir mensaje..."
-              className="flex-1 border border-gray-300 p-2 rounded-l-lg focus:outline-blue-500"
+              className="flex-1 border border-gray-300 p-3 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               onKeyDown={(e) => e.key === "Enter" && enviarMensaje()}
               autoFocus
               aria-label="Escribir mensaje"
+              spellCheck={false}
             />
             <button
               onClick={enviarMensaje}
-              className="bg-blue-600 text-white px-4 rounded-r-lg hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 transition-colors text-white px-5 rounded-2xl shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center"
               aria-label="Enviar mensaje"
+              title="Enviar mensaje"
             >
-              <Send size={20} />
+              <Send size={22} />
             </button>
           </div>
         </>
