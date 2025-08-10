@@ -27,10 +27,14 @@ export default function useChat(token, usuarioId) {
       setMensajes(mensajes || []);
     };
 
-    // Aquí cambia: agregamos el mensaje nuevo al array anterior
-    const handleNuevoMensaje = (mensajeNuevo) => {
-      console.log("Socket nuevo-mensaje:", mensajeNuevo);
-      setMensajes((prevMensajes) => [...prevMensajes, mensajeNuevo]);
+    const handleNuevoMensaje = (mensajesActualizados) => {
+      console.log("Socket nuevo-mensaje recibido:", mensajesActualizados);
+      // mensajesActualizados es un arreglo completo
+      if (Array.isArray(mensajesActualizados)) {
+        setMensajes(mensajesActualizados);
+      } else {
+        console.warn("Se esperaba un arreglo de mensajes pero no llegó así:", mensajesActualizados);
+      }
     };
 
     const handleErrorMensaje = (msg) => {
