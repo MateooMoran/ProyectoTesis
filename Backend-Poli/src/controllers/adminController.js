@@ -1,5 +1,6 @@
 import { sendMailToAssignSeller } from "../config/nodemailer.js";
 import Estudiante from "../models/Estudiante.js";
+import Notificacion from "../models/Notificacion.js";
 import Producto from "../models/Producto.js";
 import QuejasSugerencias from "../models/QuejasSugerencias.js";
 import mongoose from "mongoose";
