@@ -1,44 +1,40 @@
-import axios from "axios";
-import { toast } from "react-toastify";
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 function useFetch() {
-  const fetchDataBackend = async (
-    url,
-    data = null,
-    method = "GET",
-    headers = {}
-  ) => {
-    const loadingToast = toast.loading("Procesando solicitud...");
+  const fetchDataBackend = async (url, options = {}) => {
     try {
-      // Construimos la configuración base para axios
-      const options = {
-        method: method.toUpperCase(),
-        url,
-        headers: {
-          "Content-Type": "application/json",
-          ...headers,
-        },
-      };
+      const isPlainPost = !options.method && !options.config;
+      const method = isPlainPost ? 'POST' : options.method || 'POST';
+      const body = isPlainPost ? options : options.body || null;
+      const config = options.config || {};
 
-      // Para métodos que envían body (POST, PUT, PATCH, DELETE a veces)
-      // incluimos data solo si no es GET o HEAD
-      if (!["GET", "HEAD"].includes(options.method) && data) {
-        options.data = data;
+      let respuesta;
+
+      switch (method.toUpperCase()) {
+        case 'POST':
+          respuesta = await axios.post(url, body, config);
+          break;
+        case 'GET':
+          respuesta = await axios.get(url, config);
+          break;
+        case 'PUT':
+          respuesta = await axios.put(url, body || {}, config);
+          break;
+        case 'DELETE':
+          respuesta = await axios.delete(url, config);
+          break;
+        default:
+          throw new Error(`Método ${method} no soportado`);
       }
 
-      // Ejecutamos la llamada con axios
-      const response = await axios(options);
+      if (respuesta?.data?.msg) toast.success(respuesta.data.msg);
+      return respuesta?.data;
 
-      // Mostramos mensaje si viene en respuesta
-      if (response?.data?.msg) toast.success(response.data.msg);
-
-      return response.data;
     } catch (error) {
-      console.error(error);
-      toast.error(error.response?.data?.msg || "Error desconocido");
-      throw error; // para que el componente que llama pueda capturar el error también
-    } finally {
-      toast.dismiss(loadingToast);
+      const errorMsg = error.response?.data?.msg || 'Error desconocido';
+      toast.error(errorMsg);
+      throw new Error(errorMsg);
     }
   };
 

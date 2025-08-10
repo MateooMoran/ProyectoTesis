@@ -53,7 +53,6 @@ export default function Categorias() {
                 body: { nombreCategoria: nombreCategoria.trim() },
                 config: { headers },
             });
-            toast.success("Categoría creada");
             setNombreCategoria("");
             cargarCategorias();
         } catch (error) {
@@ -71,7 +70,6 @@ export default function Categorias() {
                 method: "DELETE",
                 config: { headers },
             });
-            toast.success("Categoría eliminada");
             setCategorias(categorias.filter((c) => c._id !== id));
         } catch (error) {
             // Error manejado en fetchDataBackend

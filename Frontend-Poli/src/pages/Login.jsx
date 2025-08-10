@@ -68,14 +68,10 @@ const Login = () => {
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="********************"
+                  placeholder="Ingresa tu contraseña"
                   className="block w-full rounded-md border border-gray-300 focus:border-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-700 py-1 px-1.5 text-gray-700 pr-10"
                   {...register('password', {
                     required: "La contraseña es obligatoria",
-                    minLength: {
-                      value: 6,
-                      message: "La contraseña debe tener mínimo 6 caracteres",
-                    },
                   })}
                 />
                 {errors.password &&
@@ -161,4 +157,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Login;
