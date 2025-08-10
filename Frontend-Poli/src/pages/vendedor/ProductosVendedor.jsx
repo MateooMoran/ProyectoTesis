@@ -4,6 +4,9 @@ import { toast } from "react-toastify";
 import useFetch from '../../hooks/useFetch';
 import Header from '../../layout/Header';
 
+// Importa tus helpers IA
+import { generateAvatar, convertBlobToBase64 } from "../../helpers/ConsultarAI";
+
 export default function ProductosVendedor() {
     const { fetchDataBackend } = useFetch();
 
@@ -12,7 +15,6 @@ export default function ProductosVendedor() {
     const [loading, setLoading] = useState(true);
     const [guardando, setGuardando] = useState(false);
 
-    // Form producto
     const [form, setForm] = useState({
         nombreProducto: "",
         precio: "",
@@ -21,16 +23,9 @@ export default function ProductosVendedor() {
         categoria: "",
     });
 
-    // Imagen tradicional (archivo)
     const [imagenArchivo, setImagenArchivo] = useState(null);
-
-    // Imagen IA (base64)
     const [imagenIA, setImagenIA] = useState("");
-
-    // Prompt para generar imagen IA
     const [promptIA, setPromptIA] = useState("");
-
-    // Estado de generación IA
     const [generandoIA, setGenerandoIA] = useState(false);
 
     const token = JSON.parse(localStorage.getItem("auth-token"))?.state?.token;
@@ -38,7 +33,6 @@ export default function ProductosVendedor() {
         Authorization: `Bearer ${token}`,
     };
 
-    // Cargar productos y categorias
     const cargarProductosYCategorias = async () => {
         try {
             setLoading(true);
@@ -50,7 +44,7 @@ export default function ProductosVendedor() {
             ]);
             setProductos(prodData);
             setCategorias(catData);
-        } catch (error) {
+        } catch {
             toast.error("Error al cargar datos");
         } finally {
             setLoading(false);
@@ -68,7 +62,7 @@ export default function ProductosVendedor() {
     const manejarArchivo = (e) => {
         if (e.target.files.length > 0) {
             setImagenArchivo(e.target.files[0]);
-            setImagenIA(""); // Limpiar imagen IA si suben archivo tradicional
+            setImagenIA(""); // Limpia imagen IA si suben archivo tradicional
         }
     };
 
@@ -78,26 +72,10 @@ export default function ProductosVendedor() {
             return;
         }
         setGenerandoIA(true);
-        setImagenArchivo(null); // Limpiar archivo si generan IA
+        setImagenArchivo(null); // Limpia archivo si generan IA
         try {
-            const response = await fetch("https://api-inference.huggingface.co/models/tu-modelo-ia", {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${import.meta.env.VITE_HUGGINGFACE_API_TOKEN}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ inputs: promptIA }),
-            });
-
-            if (!response.ok) throw new Error("Error generando imagen IA");
-
-            const blob = await response.blob();
-            const base64 = await new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
-                reader.readAsDataURL(blob);
-            });
-
+            const blob = await generateAvatar(promptIA);
+            const base64 = await convertBlobToBase64(blob);
             setImagenIA(base64);
             toast.success("Imagen IA generada");
         } catch (error) {
@@ -146,7 +124,6 @@ export default function ProductosVendedor() {
                 body.append("descripcion", form.descripcion.trim());
                 body.append("categoria", form.categoria);
                 body.append("imagen", imagenArchivo);
-                // No establecer Content-Type, axios lo asigna
             } else if (imagenIA) {
                 // JSON con base64
                 body = JSON.stringify({
@@ -172,13 +149,11 @@ export default function ProductosVendedor() {
             }
 
             await fetchDataBackend(url, {
-
                 method: "POST",
                 body: body,
                 config,
             });
 
-            toast.success("Producto creado");
             setForm({
                 nombreProducto: "",
                 precio: "",
