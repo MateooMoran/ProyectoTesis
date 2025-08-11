@@ -20,21 +20,30 @@ const PagosForm = () => {
         e.preventDefault();
         setLoading(true);
         setError(null);
+
+        const storedData = JSON.parse(localStorage.getItem('auth-token'));
+        const token = storedData?.state?.token;
+
+        if (!token) {
+            setError("No se encontró el token. Inicia sesión nuevamente.");
+            toast.error("Debes iniciar sesión antes de pagar");
+            setLoading(false);
+            return;
+        }
+
         try {
             const { error, paymentMethod } = await stripe.createPaymentMethod({
                 type: 'card',
                 card: elements.getElement(CardElement),
             });
-            if (error) {
-                setError(error.message);
-                throw error;
-            }
+            if (error) throw error;
 
             const { data } = await axios.post(
                 `${import.meta.env.VITE_BACKEND_URL}/estudiante/pago`,
                 { paymentMethodId: paymentMethod.id, metodoPago: 'tarjeta' },
-                { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+                { headers: { Authorization: `Bearer ${token}` } },
             );
+
             toast.success(data.msg, { autoClose: 3000 });
             setTimeout(() => navigate('/dashboard/pagos/exito'), 1000);
         } catch (error) {
@@ -44,6 +53,8 @@ const PagosForm = () => {
             setLoading(false);
         }
     };
+
+
 
     return (
         <>
