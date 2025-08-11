@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, UserPlus, LogIn } from 'lucide-react';
-import Header from '../layout/Header';
+import Header from '../../layout/Header';
 
 const CarritoVacio = () => {
   return (

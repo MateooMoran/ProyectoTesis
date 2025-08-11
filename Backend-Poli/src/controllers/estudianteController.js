@@ -8,7 +8,7 @@ import mongoose from "mongoose";
 import Estudiante from "../models/Estudiante.js";
 import Notificacion from "../models/Notificacion.js";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
 // CATEGORIAS Y PRODCUTOS
 
@@ -210,10 +210,10 @@ const vaciarCarrito = async (req, res) => {
 
 
 // PAGOS
-const cearOrdenPendiente = async (req, res) => {
-    const { metodoPago = "tarjeta" } = req.body;
+const crearOrdenPendiente = async (req, res) => {
+    const { metodoPago } = req.body;
     if (!["efectivo", "transferencia"].includes(metodoPago)) {
-        return res.status(400).json({ msg: "Método de pago inválido" });
+        return res.status(400).json({ msg: "Método de pago inválido para orden pendiente" });
     }
     const carrito = await Carrito.findOne({ comprador: req.estudianteBDD._id });
     if (!carrito || carrito.productos.length === 0) {
@@ -250,6 +250,9 @@ const cearOrdenPendiente = async (req, res) => {
 
 const procesarPago = async (req, res) => {
     const { paymentMethodId, metodoPago = "tarjeta" } = req.body;
+    if (metodoPago !== "tarjeta") {
+        return res.status(400).json({ msg: "Este endpoint es solo para pagos con tarjeta" });
+    }
 
     const carrito = await Carrito.findOne({ comprador: req.estudianteBDD._id });
     if (!carrito || carrito.productos.length === 0) {

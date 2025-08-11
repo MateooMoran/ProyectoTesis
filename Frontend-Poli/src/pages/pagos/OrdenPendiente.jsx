@@ -1,33 +1,35 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Header from '../layout/Header';
+import Header from '../../layout/Header';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import pagos from './Pagos'
 
 const OrdenPendiente = () => {
     const [metodoPago, setMetodoPago] = useState('efectivo');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const crearOrdenPendiente = async () => {
+    const handleSubmit = async () => {
         setLoading(true);
         try {
-            const { data } = await axios.post(
-                `${import.meta.env.VITE_BACKEND_URL}/estudiante/orden`,
-                { metodoPago },
-                { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-            );
-            toast.success(data.msg);
-            setLoading(false);
             if (metodoPago === 'tarjeta') {
-                navigate('/dashboard/pagos');
+                // No crear orden pendiente, redirigir directamente a pagos
+                navigate('/dashboard/Pagos');
             } else {
+                const { data } = await axios.post(
+                    `${import.meta.env.VITE_BACKEND_URL}/estudiante/orden`,
+                    { metodoPago },
+                    { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+                );
+                toast.success(data.msg);
                 navigate('/dashboard/historial-pagos');
             }
         } catch (error) {
+            toast.error(error.response?.data?.msg || 'Error procesando');
+        } finally {
             setLoading(false);
-            toast.error(error.response?.data?.msg || 'Error creando orden');
         }
     };
 
@@ -47,13 +49,12 @@ const OrdenPendiente = () => {
                     <option value="transferencia">Transferencia</option>
                     <option value="tarjeta">Tarjeta (Stripe)</option>
                 </select>
-
                 <button
                     disabled={loading}
-                    onClick={crearOrdenPendiente}
+                    onClick={handleSubmit}
                     className="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-800 transition"
                 >
-                    {loading ? 'Procesando...' : 'Crear Orden'}
+                    {loading ? 'Procesando...' : 'Continuar'}
                 </button>
             </main>
         </>

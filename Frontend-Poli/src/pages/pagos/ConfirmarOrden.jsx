@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import storeAuth from '../context/storeAuth';
-import Header from '../layout/Header';
+import storeAuth from '../../context/storeAuth';
+import Header from '../../layout/Header';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import useFetch from '../hooks/useFetch';
+import useFetch from '../../hooks/useFetch';
 
 const ConfirmarOrden = () => {
   const navigate = useNavigate();

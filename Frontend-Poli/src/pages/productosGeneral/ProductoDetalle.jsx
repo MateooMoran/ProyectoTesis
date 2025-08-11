@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import storeCarrito from '../context/storeCarrito';
-import storeProductos from '../context/storeProductos';
-import storeProfile from '../context/storeProfile';
-import storeAuth from '../context/storeAuth';
-import Header from '../layout/Header'; 
+import storeCarrito from '../../context/storeCarrito';
+import storeProductos from '../../context/storeProductos';
+import storeProfile from '../../context/storeProfile';
+import storeAuth from '../../context/storeAuth';
+import Header from '../../layout/Header'; 
 
 const ProductoDetalle = () => {
   const { id } = useParams();

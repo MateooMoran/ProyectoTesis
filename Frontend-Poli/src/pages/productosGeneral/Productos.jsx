@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Header from '../layout/Header';
-import storeProfile from '../context/storeProfile';
-import storeAuth from '../context/storeAuth';
-import storeProductos from '../context/storeProductos';
+import Header from '../../layout/Header';
+import storeProfile from '../../context/storeProfile';
+import storeAuth from '../../context/storeAuth';
+import storeProductos from '../../context/storeProductos';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
