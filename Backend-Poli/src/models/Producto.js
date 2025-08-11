@@ -43,7 +43,7 @@ const productoSchema = new Schema(
     },
     vendedor: {
       type: Schema.Types.ObjectId,
-      ref: "estudiante",
+      ref: "Estudiantes",
       required: true,
     },
     estado: {

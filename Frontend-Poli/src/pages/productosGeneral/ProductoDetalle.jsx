@@ -4,7 +4,7 @@ import storeCarrito from '../../context/storeCarrito';
 import storeProductos from '../../context/storeProductos';
 import storeProfile from '../../context/storeProfile';
 import storeAuth from '../../context/storeAuth';
-import Header from '../../layout/Header'; 
+import Header from '../../layout/Header';
 
 const ProductoDetalle = () => {
   const { id } = useParams();
@@ -38,6 +38,7 @@ const ProductoDetalle = () => {
         const response = await fetch(url);
         if (!response.ok) throw new Error('No se pudo cargar el producto');
         const data = await response.json();
+        console.log(data)
         setProducto(data);
       } catch (err) {
         setError(err.message);
@@ -54,7 +55,7 @@ const ProductoDetalle = () => {
 
   return (
     <>
-      <Header /> 
+      <Header />
 
       {/* Detalle del producto */}
       <div className="max-w-7xl mx-auto px-4 py-8 mt-20 sm:mt-24">
@@ -74,7 +75,7 @@ const ProductoDetalle = () => {
               <span className="text-sm text-green-600 font-semibold">20% OFF</span>
             </div>
             <p className="text-gray-600 text-base leading-relaxed">{producto.descripcion}</p>
-            
+
             {/* Campo para seleccionar cantidad */}
             <div className="flex items-center gap-3">
               <label htmlFor="cantidad" className="font-semibold text-gray-700">Cantidad:</label>
@@ -99,7 +100,7 @@ const ProductoDetalle = () => {
               >
                 Agregar al carrito
               </button>
-              <button 
+              <button
                 onClick={handleAgregarAlCarrito}
                 className="border border-gray-300 text-gray-700 py-3 px-6 rounded-lg font-semibold text-lg hover:bg-gray-300  transition-transform transform hover:scale-105"
               >
@@ -108,8 +109,18 @@ const ProductoDetalle = () => {
             </div>
             <div className="text-sm text-gray-500">
               <p><span className="font-semibold">Envío:</span> Gratis en pedidos superiores a $50</p>
-              <p><span className="font-semibold">Disponibilidad:</span> En stock</p>
-              <p><span className="font-semibold">Vendedor:</span> PoliVentas</p>
+              <p>
+                <span className="font-semibold">Disponibilidad:</span>{" "}
+                {producto.stock > 0 ? "En stock" : "Agotado"}
+              </p>
+              <p>
+                <span className="font-semibold">Vendedor:</span>{" "}
+                {producto.vendedor ? `${producto.vendedor.nombre} ${producto.vendedor.apellido}` : "Desconocido"}
+              </p>
+              <p>
+                <span className="font-semibold">Vendidos:</span>{" "}
+                {producto.vendidos > 0 ? producto.vendidos : "Aún no se ha vendido"}
+              </p>
             </div>
           </div>
         </div>

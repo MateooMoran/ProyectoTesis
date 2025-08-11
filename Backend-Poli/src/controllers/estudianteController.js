@@ -30,6 +30,10 @@ const verProductoPorId = async (req, res) => {
     }
     const producto = await Producto.findById(id)
         .populate('categoria', 'nombreCategoria _id')
+        .populate({
+            path: "vendedor",
+            select: "nombre apellido"
+        })
         .select("-createdAt -updatedAt -__v")
     if (!producto) {
         return res.status(404).json({ msg: "Producto no encontrado" });
