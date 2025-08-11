@@ -1,9 +1,8 @@
 import { Router } from "express";
 import { verifyTokenJWT } from "../middlewares/JWT.js";
 import { esEstudiante } from "../middlewares/roles.js";
-import { crearCarrito,eliminarQuejaSugerencia, cearOrdenPendiente,crearQuejasSugerencias, disminuirCantidadProducto, eliminarProductoCarrito, procesarPago, vaciarCarrito, verCategorias, verProductos, visualizarCarrito, visualizarHistorialPagos, visualizarQuejasSugerencias, cancelarOrden, cancelarOrdenesVencidas, verProductoPorId, buscarProductos, verProductosPorCategoria } from "../controllers/estudianteController.js";
+import { crearCarrito,eliminarQuejaSugerencia, crearOrdenPendiente,crearQuejasSugerencias, disminuirCantidadProducto, eliminarProductoCarrito, procesarPago, vaciarCarrito, verCategorias, verProductos, visualizarCarrito, visualizarHistorialPagos, visualizarQuejasSugerencias, cancelarOrden, cancelarOrdenesVencidas, verProductoPorId, buscarProductos, verProductosPorCategoria } from "../controllers/estudianteController.js";
 const router = Router()
-
 // PRODUCTOS
 router.get('/estudiante/productos/buscar',buscarProductos)
 // BUSCAR PRODUCTOS POR CATEGORÍA 
@@ -23,7 +22,7 @@ router.put('/estudiante/carrito/disminuir/:id', verifyTokenJWT, esEstudiante, di
 router.delete('/estudiante/carrito', verifyTokenJWT, esEstudiante, vaciarCarrito);
 
 // PAGO
-router.post('/estudiante/orden', verifyTokenJWT, esEstudiante, cearOrdenPendiente );
+router.post('/estudiante/orden', verifyTokenJWT, esEstudiante, crearOrdenPendiente );
 router.post('/estudiante/pago', verifyTokenJWT, esEstudiante, procesarPago);
 router.put('/estudiante/orden/cancelar/:id', verifyTokenJWT, esEstudiante, cancelarOrden);
 router.post('/estudiante/orden/cancelar-vencidas', verifyTokenJWT, esEstudiante, cancelarOrdenesVencidas);

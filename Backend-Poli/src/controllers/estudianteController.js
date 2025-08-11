@@ -481,7 +481,7 @@ export {
     disminuirCantidadProducto,
     eliminarProductoCarrito,
     vaciarCarrito,
-    cearOrdenPendiente,
+    crearOrdenPendiente,
     procesarPago,
     cancelarOrden,
     cancelarOrdenesVencidas,
