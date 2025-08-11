@@ -11,14 +11,14 @@ import Reset from './pages/Reset';
 import Dashboard from './layout/Dashboard';
 import PublicRoute from './routes/PublicRoute';
 import ProtectedRoute from './routes/ProtectedRoute';
-import Productos from './pages/Productos';
-import CategoriaProductos from './pages/Categorias';
+import Productos from './pages/productosGeneral/Productos';
+import CategoriaProductos from './pages/productosGeneral/Categorias';
 import Perfil from "./pages/Perfil";
-import ProductoBuscado from './pages/ProductoBuscado';
+import ProductoBuscado from './pages/productosGeneral/ProductoBuscado';
 import AuthCallback from './pages/AuthCallback';
-import CarritoVacio from './pages/CarritoVacio';
-import Carrito from './pages/Carrito';
-import ProductoDetalle from './pages/ProductoDetalle';
+import CarritoVacio from './pages/productosGeneral/CarritoVacio';
+import Carrito from './pages/pagos/Carrito';
+import ProductoDetalle from './pages/productosGeneral/ProductoDetalle';
 import GestionarUsuario from './pages/admin/GestionarUsuario';
 import QuejasSugerencias from "./pages/QuejasSugerencias";
 import GestionQuejasSugerencias from './pages/admin/GestionQuejasSugerencias';
@@ -30,10 +30,10 @@ import EditarProductos from './pages/vendedor/EditarProductos';
 
 
 // Componentes de pago que creamos
-import OrdenPendiente from './pages/OrdenPendiente';
-import Pagos from './pages/Pagos';
-import ConfirmarOrden from './pages/ConfirmarOrden';
-import Exito from './pages/Exito';
+import OrdenPendiente from './pages/pagos/OrdenPendiente';
+import Pagos from './pages/pagos/Pagos';
+import ConfirmarOrden from './pages/pagos/ConfirmarOrden';
+import Exito from './pages/pagos/Exito';
 
 import { useEffect } from 'react';
 import storeProfile from './context/storeProfile';

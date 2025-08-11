@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import storeCarrito from '../context/storeCarrito';
-import Header from '../layout/Header';
+import storeCarrito from '../../context/storeCarrito';
+import Header from '../../layout/Header';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
