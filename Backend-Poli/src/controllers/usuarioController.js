@@ -2,39 +2,86 @@ import mongoose from "mongoose";
 import { sendMailToRecoveryPassword, sendMailToRegister } from "../config/nodemailer.js";
 import { createTokenJWT } from "../middlewares/JWT.js";
 import Estudiante from "../models/Estudiante.js";
+import { check, validationResult } from 'express-validator';
+
+const registroValidations = [
+  check('nombre')
+    .notEmpty().withMessage('El nombre es obligatorio')
+    .isLength({ min: 2, max: 10 }).withMessage('El nombre debe tener entre 2 y 10 caracteres')
+    .matches(/^[A-Za-zÀ-ÿ]+$/).withMessage('El nombre solo debe contener letras, sin números ni símbolos')
+    .custom(value => {
+      if (/(.)\1{3,}/.test(value.toLowerCase())) {
+        throw new Error('El nombre no puede contener letras repetidas muchas veces consecutivas');
+      }
+      return true;
+    }),
+
+  check('apellido')
+    .notEmpty().withMessage('El apellido es obligatorio')
+    .isLength({ min: 2, max: 10 }).withMessage('El apellido debe tener entre 2 y 10 caracteres')
+    .matches(/^[A-Za-zÀ-ÿ]+$/).withMessage('El apellido solo debe contener letras, sin números ni símbolos')
+    .custom(value => {
+      if (/(.)\1{3,}/.test(value.toLowerCase())) {
+        throw new Error('El apellido no puede contener letras repetidas muchas veces consecutivas');
+      }
+      return true;
+    }),
+
+  check('telefono')
+    .notEmpty().withMessage('El teléfono es obligatorio')
+    .matches(/^0\d{9}$/).withMessage('El teléfono debe tener 10 números y comenzar con 0'),
+
+  check('direccion')
+    .notEmpty().withMessage('La dirección es obligatoria'),
+
+  check('email')
+    .notEmpty().withMessage('El email es obligatorio')
+    .isEmail().withMessage('El email debe ser válido'),
+
+  check('password')
+    .notEmpty().withMessage('La contraseña es obligatoria')
+    .isLength({ min: 4 }).withMessage('La contraseña debe tener al menos 4 caracteres')
+];
+
 
 const registro = async (req, res) => {
-
-  // Obtener los datos
-  const { nombre, email, password } = req.body
-
-  //Verifica que no exista campo vacios
-  if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Lo sentimos debes llenar todo los campos" })
-
-  //Verifica si existe algun correo en el base de datos
-  const verificarEmailBDD = await Estudiante.findOne({ email })
-  if (verificarEmailBDD) return res.status(400).json({ msg: "Lo sentimos, el correo ya se encuentra registrado" });
-
-  // Validar la contraseña
-  if (password.length < 4) {
-    return res.status(400).json({ msg: "La contraseña debe tener al menos 4 caracteres" });
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      errores: errors.array().map(({ msg }) => ({ msg }))
+    });
   }
-  //Encriptar la contraseña
-  const nuevoEstudiante = new Estudiante({
-    ...req.body,
-    rol: "estudiante"
-  })
-  nuevoEstudiante.password = await nuevoEstudiante.encrypPassword(password)
+  const { nombre, email, password } = req.body;
 
-  //Crer un token
-  const token = nuevoEstudiante.createToken()
+  try {
+    // Verifica si existe algún correo en la base de datos
+    const verificarEmailBDD = await Estudiante.findOne({ email });
+    if (verificarEmailBDD) {
+      return res.status(400).json({ msg: "Lo sentimos, el correo ya se encuentra registrado" });
+    }
 
-  //Enviar correo y guardar estudiante nuevo
-  sendMailToRegister(nombre, email, token);
-  await nuevoEstudiante.save()
-  res.status(200).json({ msg: "Registro exitoso, revisa tu correo para confirmar tu cuenta" })
+    // Crear el nuevo estudiante con rol "estudiante"
+    const nuevoEstudiante = new Estudiante({
+      ...req.body,
+      rol: "estudiante"
+    });
 
-}
+    // Encriptar la contraseña
+    nuevoEstudiante.password = await nuevoEstudiante.encrypPassword(password);
+
+    // Crear token
+    const token = nuevoEstudiante.createToken();
+
+    // Enviar correo y guardar estudiante nuevo
+    sendMailToRegister(nombre, email, token);
+    await nuevoEstudiante.save();
+
+    res.status(200).json({ msg: "Registro exitoso, revisa tu correo para confirmar tu cuenta" });
+  } catch (error) {
+    console.error('Error en registro:', error);
+    res.status(500).json({ msg: "Error interno del servidor" });
+  }
+};
 
 const confirmarMail = async (req, res) => {
   // Obtener el token
@@ -190,6 +237,7 @@ const actualizarContraseña = async (req, res) => {
 
 
 export {
+  registroValidations,
   registro,
   confirmarMail,
   recuperarPassword,

@@ -14,7 +14,13 @@ const Register = () => {
             const respuesta = await axios.post(url, data);
             toast.success(respuesta.data.msg);
         } catch (error) {
-            toast.error(error.response?.data?.msg || 'Error en el registro');
+            if (error.response?.data?.errores && Array.isArray(error.response.data.errores)) {
+                error.response.data.errores.forEach(({ msg }) => {
+                    toast.error(msg);
+                });
+            } else {
+                toast.error(error.response?.data?.msg || 'Error en el registro');
+            }
         }
     }
 
