@@ -69,8 +69,7 @@ const Header = () => {
         navigate('/');
     };
 
-    const rol = user?.rol || 'estudiante'; // rol confiable del perfil
-
+    const rol = user?.rol || 'estudiante'; 
     return (
         <>
             <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50">

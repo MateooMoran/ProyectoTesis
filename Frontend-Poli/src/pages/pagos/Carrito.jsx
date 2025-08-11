@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import storeCarrito from '../../context/storeCarrito';
 import Header from '../../layout/Header';
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Carrito = () => {
@@ -19,7 +18,6 @@ const Carrito = () => {
     return (
         <>
             <Header />
-            <ToastContainer />
             <div className="h-20 sm:h-7"></div>
             <main className="container mx-auto px-4 py-6">
                 {(!carrito || !carrito.productos?.length) ? (
