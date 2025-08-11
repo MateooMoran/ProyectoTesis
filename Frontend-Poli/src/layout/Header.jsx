@@ -8,7 +8,6 @@ import storeProductos from '../context/storeProductos';
 import NotificacionesAdmin from '../pages/admin/Notificaciones';
 import { MessageCircle } from "lucide-react";
 import Chat from '../pages/chat/Chat'
-import useChat from '../hooks/useChat';
 
 
 const Header = () => {
@@ -100,7 +99,6 @@ const Header = () => {
                     {/* Botones */}
                     <div className="flex items-center gap-4">
                         {(rol === 'estudiante' || rol === 'admin' || rol === 'vendedor') && <NotificacionesAdmin />}
-
                         <button
                             onClick={scrollToCarousel}
                             className="flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"
