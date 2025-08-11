@@ -8,6 +8,7 @@ import storeProductos from '../context/storeProductos';
 import NotificacionesAdmin from '../pages/admin/Notificaciones';
 import { MessageCircle } from "lucide-react";
 import Chat from '../pages/chat/Chat'
+import storeCarrito from '../context/storeCarrito';
 
 
 const Header = () => {
@@ -22,10 +23,12 @@ const Header = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const categoriesRef = useRef(null);
     const userDropdownRef = useRef(null);
+    const { carrito } = storeCarrito();
 
     const { clear, clearUser } = storeProfile()
 
 
+    const totalCantidad = carrito?.productos?.reduce((acc, item) => acc + item.cantidad, 0) || 0;
 
     useEffect(() => {
         fetchCategorias();
@@ -69,7 +72,7 @@ const Header = () => {
         navigate('/');
     };
 
-    const rol = user?.rol || 'estudiante'; 
+    const rol = user?.rol || 'estudiante';
     return (
         <>
             <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50">
@@ -156,6 +159,14 @@ const Header = () => {
                         {token && rol === 'estudiante' && (
                             <Link to="/dashboard/estudiante/carrito" className="relative">
                                 <ShoppingCart className="w-6 h-6 text-blue-800 hover:text-red-800 transition-colors" />
+
+                                {totalCantidad > 0 && (
+                                    <span
+                                        className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow"
+                                    >
+                                        {totalCantidad}
+                                    </span>
+                                )}
                             </Link>
                         )}
 
