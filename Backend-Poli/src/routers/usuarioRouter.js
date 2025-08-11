@@ -1,4 +1,4 @@
-import { actualizarContraseña, actualizarPerfil, comprobarTokenPassword, confirmarMail, crearNuevoPassword, login, perfil, recuperarPassword, registro } from "../controllers/usuarioController.js";
+import { actualizarContraseña, actualizarPerfil, comprobarTokenPassword, confirmarMail, crearNuevoPassword, login, perfil, recuperarPassword, registro, registroValidations } from "../controllers/usuarioController.js";
 import { verifyTokenJWT } from "../middlewares/JWT.js";
 import { tieneRol } from "../middlewares/roles.js";
 import { Router } from "express";
@@ -8,7 +8,7 @@ const router = Router()
 
 
 //REGISTRO
-router.post('/registro',registro,)
+router.post('/registro',registroValidations, registro,)
 router.get('/confirmar/:token',confirmarMail)
 
 //LOGIN
