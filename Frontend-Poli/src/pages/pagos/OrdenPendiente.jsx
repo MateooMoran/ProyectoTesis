@@ -4,7 +4,6 @@ import axios from 'axios';
 import Header from '../../layout/Header';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import pagos from './Pagos'
 
 const OrdenPendiente = () => {
     const [metodoPago, setMetodoPago] = useState('efectivo');
@@ -13,6 +12,9 @@ const OrdenPendiente = () => {
 
     const handleSubmit = async () => {
         setLoading(true);
+
+        const storedData = JSON.parse(localStorage.getItem('auth-token'));
+        const token = storedData?.state?.token;
         try {
             if (metodoPago === 'tarjeta') {
                 // No crear orden pendiente, redirigir directamente a pagos
@@ -21,7 +23,7 @@ const OrdenPendiente = () => {
                 const { data } = await axios.post(
                     `${import.meta.env.VITE_BACKEND_URL}/estudiante/orden`,
                     { metodoPago },
-                    { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+                    { headers: { Authorization: `Bearer ${token}` } },
                 );
                 toast.success(data.msg);
                 navigate('/dashboard/historial-pagos');
