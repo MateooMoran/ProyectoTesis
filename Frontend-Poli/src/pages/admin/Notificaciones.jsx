@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { MessageCircle, X, CheckCircle, Trash2 } from "lucide-react";
+import { X, CheckCircle, Trash2, Bell } from "lucide-react";
 import useFetch from "../../hooks/useFetch";
 
 export default function NotificacionesAdmin() {
@@ -13,6 +13,33 @@ export default function NotificacionesAdmin() {
   const storedUser = JSON.parse(localStorage.getItem("auth-token"));
   const token = storedUser?.state?.token || "";
   const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000/api";
+
+  // Función para cargar notificaciones
+  const obtenerNotificaciones = async () => {
+    try {
+      const url = `${API_URL}/notificaciones`;
+      const data = await fetchDataBackend(url, {
+        method: "GET",
+        config: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      });
+
+      if (Array.isArray(data)) {
+        setNotificaciones(data);
+      } else if (data && Array.isArray(data.notificaciones)) {
+        setNotificaciones(data.notificaciones);
+      } else {
+        setNotificaciones([]);
+      }
+    } catch (error) {
+      console.error("Error al cargar notificaciones:", error);
+      setNotificaciones([]);
+    }
+  };
 
   // Cerrar dropdown si clic fuera
   useEffect(() => {
@@ -29,39 +56,17 @@ export default function NotificacionesAdmin() {
     };
   }, [open]);
 
+  // Cargar una vez al montar para mostrar numerito
   useEffect(() => {
-    if (!open) return;
-
-    const obtenerNotificaciones = async () => {
-      setLoading(true);
-      try {
-        const url = `${API_URL}/notificaciones`;
-        const data = await fetchDataBackend(url, {
-          method: "GET",
-          config: {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          },
-        });
-
-        if (Array.isArray(data)) {
-          setNotificaciones(data);
-        } else if (data && Array.isArray(data.notificaciones)) {
-          setNotificaciones(data.notificaciones);
-        } else {
-          setNotificaciones([]);
-        }
-      } catch (error) {
-        console.error("Error al cargar notificaciones:", error);
-        setNotificaciones([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     obtenerNotificaciones();
+  }, []);
+
+  // Recargar cuando se abre el dropdown
+  useEffect(() => {
+    if (open) {
+      setLoading(true);
+      obtenerNotificaciones().finally(() => setLoading(false));
+    }
   }, [open]);
 
   const marcarLeida = async (id) => {
@@ -84,7 +89,6 @@ export default function NotificacionesAdmin() {
     }
   };
 
-  // Eliminar notificación
   const eliminarNotificacion = async (id) => {
     try {
       const url = `${API_URL}/notificaciones/${id}`;
@@ -117,7 +121,7 @@ export default function NotificacionesAdmin() {
         aria-expanded={open}
         aria-label="Mostrar notificaciones"
       >
-        <MessageCircle className="w-7 h-7 text-blue-600" />
+        <Bell className="w-7 h-7 text-blue-600" />
         {noLeidasCount > 0 && (
           <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
             {noLeidasCount}
