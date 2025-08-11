@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import useFetch from '../../hooks/useFetch';
-import { ToastContainer } from 'react-toastify'; 
 import Header from '../../layout/Header';
 
 const placeholderImage = 'https://via.placeholder.com/150?text=Sin+Imagen';
@@ -94,7 +93,6 @@ const CategoriaProductos = () => {
         </div>
       </div>
 
-      <ToastContainer />
     </>
   );
 };
