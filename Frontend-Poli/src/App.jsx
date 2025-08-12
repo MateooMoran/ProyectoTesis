@@ -22,6 +22,7 @@ import ProductoDetalle from './pages/productosGeneral/ProductoDetalle';
 import GestionarUsuario from './pages/admin/GestionarUsuario';
 import QuejasSugerencias from "./pages/QuejasSugerencias";
 import GestionQuejasSugerencias from './pages/admin/GestionQuejasSugerencias';
+import BuscarPriv from './pages/productosGeneral/BuscarPriv';
 
 import Categorias from './pages/vendedor/Categorias';
 import ProductosVendedor from './pages/vendedor/ProductosVendedor';
@@ -69,6 +70,7 @@ function App() {
             <Route path="carrito/vacio" element={<CarritoVacio />} />
             <Route path="productos/:id" element={<ProductoDetalle />} />
             <Route path="auth/callback" element={<AuthCallback />} />
+            <Route path="productos/buscar" element={<ProductoBuscado />} />
           </Route>
 
           {/* Rutas protegidas */}
@@ -80,7 +82,6 @@ function App() {
             <Route index element={<Productos />} />
             <Route path="listarProd" element={<Productos />} />
             <Route path="/dashboard/productos/categoria/:id" element={<CategoriaProductos />} />
-            <Route path="productos/buscar" element={<ProductoBuscado />} />
             <Route path="estudiante/carrito" element={<Carrito />} />
             <Route path="productos/:id" element={<ProductoDetalle />} />
             <Route path="perfil" element={<Perfil />} />
@@ -88,6 +89,7 @@ function App() {
             <Route path='admin/gestionquejas' element={<GestionQuejasSugerencias />} />
             <Route path='estudiante/quejas-sugerencias' element={<QuejasSugerencias />} />
             <Route path="estudiante/historial-pagos" element={<HistorialPagos />} />
+            <Route path="/dashboard/productos/buscar" element={<BuscarPriv />} />
 
             {/* Rutas para vendedor */}
             <Route path="vendedor/categorias" element={<Categorias />} />
