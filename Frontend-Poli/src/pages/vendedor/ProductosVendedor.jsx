@@ -238,6 +238,8 @@ export default function ProductosVendedor() {
     return (
         <>
             <Header />
+            {/* Espacio para compensar header fijo */}
+            <div className="h-15 sm:h-7 mb-6" />
             <ToastContainer></ToastContainer>
             <div className="max-w-5xl mx-auto p-6 lg:p-8">
                 <h2 className="text-3xl font-bold text-gray-800 mb-6">Gestionar Productos</h2>
@@ -459,6 +461,25 @@ export default function ProductosVendedor() {
                     </div>
                 )}
             </div>
+            {/* Footer */}
+            <footer className="bg-blue-950 py-4 mt-20">
+                <div className="text-center">
+                    <p className="text-white underline mb-2">
+                        © 2025 PoliVentas - Todos los derechos reservados.
+                    </p>
+                    <div className="flex justify-center gap-6">
+                        <a href=" #" className="text-white hover:text-red-400 transition-colors">
+                            Facebook
+                        </a>
+                        <a href="#" className="text-white hover:text-red-400 transition-colors">
+                            Instagram
+                        </a>
+                        <a href="#" className="text-white hover:text-red-400 transition-colors">
+                            Twitter
+                        </a>
+                    </div>
+                </div>
+            </footer>
         </>
     );
 }

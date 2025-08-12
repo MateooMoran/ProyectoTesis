@@ -80,6 +80,8 @@ export default function Categorias() {
         <>
             <ToastContainer position="top-right" autoClose={3000} />
             <Header />
+            {/* Espacio para compensar header fijo */}
+            <div className="h-15 sm:h-7 mb-6" />
             <div className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-lg mt-8">
                 <h2 className="text-3xl font-extrabold mb-6 text-gray-700  pb-2">Categorías</h2>
 
@@ -126,6 +128,25 @@ export default function Categorias() {
                     </ul>
                 )}
             </div>
+            {/* Footer */}
+            <footer className="bg-blue-950 py-4 mt-20">
+                <div className="text-center">
+                    <p className="text-white underline mb-2">
+                        © 2025 PoliVentas - Todos los derechos reservados.
+                    </p>
+                    <div className="flex justify-center gap-6">
+                        <a href="#" className="text-white hover:text-red-400 transition-colors">
+                            Facebook
+                        </a>
+                        <a href="#" className="text-white hover:text-red-400 transition-colors">
+                            Instagram
+                        </a>
+                        <a href="#" className="text-white hover:text-red-400 transition-colors">
+                            Twitter
+                        </a>
+                    </div>
+                </div>
+            </footer>
         </>
     );
 }

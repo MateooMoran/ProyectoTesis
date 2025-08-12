@@ -26,7 +26,7 @@ export default function QuejasSugerenciasEstudiante() {
             return;
         }
         if (rol !== "estudiante") {
-            navigate("/dashboard"); // Redirige a dashboard u otra ruta si no es estudiante
+            navigate("/dashboard");
             return;
         }
 
@@ -98,10 +98,9 @@ export default function QuejasSugerenciasEstudiante() {
                 body,
                 config: { headers },
             });
-            await new Promise((r) => setTimeout(r, 500)); 
+            await new Promise((r) => setTimeout(r, 500));
             setMensaje("");
             setTipo("queja");
-            // Recargar lista
             const data = await fetchDataBackend(url, {
                 method: "GET",
                 config: { headers },
@@ -128,9 +127,7 @@ export default function QuejasSugerenciasEstudiante() {
 
         try {
             const url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/quejas-sugerencias/${id}`;
-            const headers = {
-                Authorization: `Bearer ${token}`,
-            };
+            const headers = { Authorization: `Bearer ${token}` };
             await fetchDataBackend(url, {
                 method: "DELETE",
                 config: { headers },
@@ -143,15 +140,18 @@ export default function QuejasSugerenciasEstudiante() {
     };
 
     return (
-        <div>
+        <div className="flex flex-col min-h-screen">
             <Header />
-            <ToastContainer />
-            <div className="p-6 max-w-6xl mx-auto">
-                <h2 className="text-2xl font-bold mb-4  text-gray-500">
+            {/* Espacio para compensar header fijo */}
+            <div className="h-20 sm:h-7" />
+
+            <main className="flex-1 p-6 max-w-6xl mx-auto w-full">
+                <ToastContainer />
+                <h2 className="text-2xl font-bold mb-4 text-gray-500 mt-4">
                     Mis Quejas y Sugerencias
                 </h2>
 
-                <form onSubmit={enviar} className=" rounded mb-10  ">
+                <form onSubmit={enviar} className="mb-10">
                     <div>
                         <label className="block font-semibold text-blue-800 text-[.98em] mb-2">
                             Tipo
@@ -202,7 +202,6 @@ export default function QuejasSugerenciasEstudiante() {
                         <h2 className="text-2xl font-bold mb-4 text-gray-500">
                             Visualizar mis Quejas o Sugerencias
                         </h2>
-
                         {lista.map((item) => (
                             <li
                                 key={item._id}
@@ -210,26 +209,20 @@ export default function QuejasSugerenciasEstudiante() {
                             >
                                 <div className="flex items-start gap-3 overflow-hidden w-full">
                                     <div className="w-full">
-                                        {/* Tipo arriba */}
                                         <span
-                                            className={`inline-block mb-2 px-3 py-1 rounded-full text-xs font-semibold uppercase
-              ${item.tipo === "queja"
+                                            className={`inline-block mb-2 px-3 py-1 rounded-full text-xs font-semibold uppercase ${item.tipo === "queja"
                                                     ? "bg-orange-100 text-orange-800"
                                                     : "bg-blue-100 text-blue-800"
                                                 }`}
                                         >
                                             {item.tipo === "queja" ? "Queja" : "Sugerencia"}
                                         </span>
-
-                                        {/* Mensaje y estado en línea */}
                                         <div className="flex items-center justify-between">
                                             <p className="font-medium text-gray-800 truncate max-w-[calc(100%-80px)]">
                                                 {item.mensaje}
                                             </p>
-
                                             <span
-                                                className={`inline-block px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap
-                ${item.estado === "resuelto"
+                                                className={`inline-block px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${item.estado === "resuelto"
                                                         ? "bg-green-100 text-green-800"
                                                         : "bg-red-100 text-red-800"
                                                     }`}
@@ -237,17 +230,14 @@ export default function QuejasSugerenciasEstudiante() {
                                                 {item.estado}
                                             </span>
                                         </div>
-
-                                        {/* Respuesta debajo */}
                                         {item.respuesta && (
                                             <p className="mt-2 text-sm text-green-700 bg-green-50 p-2 rounded">
-                                                <span className="font-semibold">Respuesta:</span> {item.respuesta}
+                                                <span className="font-semibold">Respuesta:</span>{" "}
+                                                {item.respuesta}
                                             </p>
                                         )}
                                     </div>
                                 </div>
-
-                                {/* Botón eliminar */}
                                 <button
                                     onClick={() => eliminar(item._id)}
                                     className="text-red-600 hover:text-red-800"
@@ -257,10 +247,27 @@ export default function QuejasSugerenciasEstudiante() {
                             </li>
                         ))}
                     </ul>
-
-
                 )}
-            </div>
+            </main>
+
+            <footer className="bg-blue-950 py-4 mt-auto">
+                <div className="text-center">
+                    <p className="text-white underline mb-2">
+                        © 2025 PoliVentas - Todos los derechos reservados.
+                    </p>
+                    <div className="flex justify-center gap-6">
+                        <a href="#" className="text-white hover:text-red-400 transition-colors">
+                            Facebook
+                        </a>
+                        <a href="#" className="text-white hover:text-red-400 transition-colors">
+                            Instagram
+                        </a>
+                        <a href="#" className="text-white hover:text-red-400 transition-colors">
+                            Twitter
+                        </a>
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 }

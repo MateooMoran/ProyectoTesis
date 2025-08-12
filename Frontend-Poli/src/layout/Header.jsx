@@ -76,7 +76,7 @@ const Header = () => {
     const rol = user?.rol || 'estudiante';
     return (
         <>
-            <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50">
+            <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50 ">
                 <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
                     {/* Logo */}
                     <Link to={token ? '/' : '/'}>
@@ -100,7 +100,7 @@ const Header = () => {
                     </form>
 
                     {/* Botones */}
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 flex-col sm:flex-row w-full sm:w-auto">
                         {(rol === 'estudiante' || rol === 'admin' || rol === 'vendedor') && <NotificacionesAdmin />}
                         <button
                             onClick={scrollToCarousel}
@@ -299,7 +299,7 @@ const Header = () => {
             </header>
 
             {/* Espacio para compensar header fijo */}
-            <div className="h-20 sm:h-7" />
+            <div className="h-40 sm:h-7" />
         </>
     );
 };

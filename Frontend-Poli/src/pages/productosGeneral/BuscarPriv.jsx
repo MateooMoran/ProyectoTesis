@@ -37,6 +37,8 @@ const BuscarPriv = () => {
     return (
         <>
             <Header />
+            {/* Espacio para compensar header fijo */}
+            <div className="h-10 sm:h-7" />
             <div className="bg-blue-50 min-h-screen py-10">
                 <div className="container mx-auto px-4">
                     <h2 className="text-3xl font-bold text-blue-800 text-center mb-6 mt-7">
@@ -81,6 +83,25 @@ const BuscarPriv = () => {
                     )}
                 </div>
             </div>
+            {/* Footer */}
+            <footer className="bg-blue-950 py-4 mt-20">
+                <div className="text-center">
+                    <p className="text-white underline mb-2">
+                        © 2025 PoliVentas - Todos los derechos reservados.
+                    </p>
+                    <div className="flex justify-center gap-6">
+                        <a href="#" className="text-white hover:text-red-400 transition-colors">
+                            Facebook
+                        </a>
+                        <a href="#" className="text-white hover:text-red-400 transition-colors">
+                            Instagram
+                        </a>
+                        <a href="#" className="text-white hover:text-red-400 transition-colors">
+                            Twitter
+                        </a>
+                    </div>
+                </div>
+            </footer>
         </>
     );
 };

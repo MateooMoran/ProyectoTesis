@@ -76,9 +76,12 @@ const Perfil = () => {
     <div className=" min-h-screen">
       <ToastContainer />
       <Header />
+          {/* Espacio para compensar header fijo */}
+          <div className="h-10 sm:h-5" />
+
       <main className=" py-10">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-gray-500 text-center mb-8">Mi Perfil</h2>
+          <h2 className="text-3xl font-bold text-gray-500 text-center mb-8 mt-7">Mi Perfil</h2>
           {isLoading ? (
             <p className="text-center text-gray-700">Cargando perfil...</p>
           ) : user ? (

@@ -13,7 +13,7 @@ const ProductoDetalle = () => {
   const [producto, setProducto] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [cantidad, setCantidad] = useState(1);  // <-- cantidad aquí
+  const [cantidad, setCantidad] = useState(1);  
   const navigate = useNavigate();
 
   const { agregarProducto } = storeCarrito();
@@ -59,6 +59,8 @@ const ProductoDetalle = () => {
   return (
     <>
       <Header />
+          {/* Espacio para compensar header fijo */}
+          <div className="h-10 sm:h-7 mb-6" />
       <ToastContainer />
       {/* Detalle del producto */}
       <div className="max-w-7xl mx-auto px-4 py-8 mt-20 sm:mt-24">
@@ -164,6 +166,34 @@ const ProductoDetalle = () => {
           </div>
         )}
       </div>
+      {/* Footer */}
+      <footer className="bg-blue-950 py-4">
+        <div className="text-center">
+          <p className="text-white underline mb-2">
+            © 2025 PoliVentas - Todos los derechos reservados.
+          </p>
+          <div className="flex justify-center gap-6">
+            <a
+              href="#"
+              className="text-white hover:text-red-400 transition-colors"
+            >
+              Facebook
+            </a>
+            <a
+              href="#"
+              className="text-white hover:text-red-400 transition-colors"
+            >
+              Instagram
+            </a>
+            <a
+              href="#"
+              className="text-white hover:text-red-400 transition-colors"
+            >
+              Twitter
+            </a>
+          </div>
+        </div>
+      </footer>
     </>
   );
 };
