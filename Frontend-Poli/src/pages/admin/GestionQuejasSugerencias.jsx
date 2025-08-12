@@ -67,7 +67,7 @@ function GestionarQuejasSugerencias() {
   return (
     <>
       <Header />
-      <div className="p-6 max-w-6xl mx-auto mt-25">
+      <div className="p-6 max-w-6xl mx-auto mt-26">
         <ToastContainer />
         <h2 className="text-2xl font-semibold mb-6 text-gray-500">
           Gestión de Quejas y Sugerencias
