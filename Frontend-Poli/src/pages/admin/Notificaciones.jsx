@@ -36,7 +36,7 @@ export default function NotificacionesAdmin() {
         setNotificaciones([]);
       }
     } catch (error) {
-      console.error("Error al cargar notificaciones:", error);
+      console.error("Error al cargar notificaciones:");
       setNotificaciones([]);
     }
   };
