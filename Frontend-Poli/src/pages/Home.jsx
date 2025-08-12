@@ -226,7 +226,7 @@ export const Home = () => {
                 autoplay={{ delay: 2000, disableOnInteraction: false }}
                 breakpoints={{
                   320: { slidesPerView: 1 },
-                  1024: { slidesPerView: 5 },
+                  1024: { slidesPerView: 4 },
                 }}
               >
                 {productos.map((producto) => (
