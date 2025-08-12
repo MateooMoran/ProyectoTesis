@@ -11,6 +11,7 @@ import Chat from '../pages/chat/Chat'
 import storeCarrito from '../context/storeCarrito';
 
 
+
 const Header = () => {
     const navigate = useNavigate();
     const { token, clearToken } = storeAuth();
@@ -57,13 +58,13 @@ const Header = () => {
     const handleLogout = () => {
         clearToken();
         clearUser()
-        navigate('/login');
+        navigate('/');
     };
 
     const handleSearch = (e) => {
         e.preventDefault();
         if (searchQuery.trim()) {
-            navigate(`/productos/buscar?query=${encodeURIComponent(searchQuery.trim())}`);
+            navigate(`/dashboard/productos/buscar?query=${encodeURIComponent(searchQuery.trim())}`);
             setSearchQuery('');
         }
     };
@@ -298,7 +299,7 @@ const Header = () => {
             </header>
 
             {/* Espacio para compensar header fijo */}
-            <div className="h-20 sm:h20" />
+            <div className="h-20 sm:h-7" />
         </>
     );
 };

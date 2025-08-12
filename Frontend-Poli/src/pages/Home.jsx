@@ -77,7 +77,7 @@ export const Home = () => {
             <img src={logo} alt="PoliVentas" className="w-36 h-12 object-cover" />
           </Link>
 
-          {/* Barra de Búsqueda */}
+         {/* Barra de Búsqueda */}
           <form onSubmit={handleSearch} className="flex-1 max-w-lg mx-4">
             <div className="relative">
               <input
@@ -208,7 +208,7 @@ export const Home = () => {
 
           {/* Productos Destacados (Carrusel) */}
           <section className="mb-12">
-            <h3 className="text-3xl font-bold text-blue-800 text-center mb-6">Productos Destacados</h3>
+            <h3 className="text-3xl font-bold text-blue-800 text-center mb-6">Nuevos Productos</h3>
             {loadingProductos && <p className="text-center text-gray-700">Cargando productos...</p>}
             {error && (
               <p className="text-center text-red-700">{error}</p>
@@ -222,11 +222,11 @@ export const Home = () => {
                 navigation
                 pagination={{ clickable: true }}
                 spaceBetween={20}
-                slidesPerView={2}
+                slidesPerView={4}
                 autoplay={{ delay: 2000, disableOnInteraction: false }}
                 breakpoints={{
-                  640: { slidesPerView: 3 },
-                  1024: { slidesPerView: 5 },
+                  640: { slidesPerView: 2 },
+                  1024: { slidesPerView: 3 },
                 }}
               >
                 {productos.map((producto) => (

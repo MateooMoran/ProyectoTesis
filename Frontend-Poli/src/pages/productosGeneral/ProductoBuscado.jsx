@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import useFetch from '../../hooks/useFetch';
+import Header from '../../layout/Header';
 
 const placeholderImage = 'https://via.placeholder.com/150?text=Sin+Imagen';
 
@@ -31,12 +32,14 @@ const ProductosBuscados = () => {
     if (query.trim()) {
       fetchProductosBuscados();
     }
-  }, [query, fetchDataBackend]);
+  }, [query]);
 
   return (
+    <>
+      <Header />
     <div className="bg-blue-50 min-h-screen py-10">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-blue-800 text-center mb-6">
+        <h2 className="text-3xl font-bold text-blue-800 text-center mb-6 mt-7">
           Resultados para "{query}"
         </h2>
         {loading && <p className="text-center text-gray-700">Cargando productos...</p>}
@@ -49,7 +52,7 @@ const ProductosBuscados = () => {
         {!loading && !error && productos.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {productos.map((producto) => (
-              <Link to={`/producto/${producto._id}`} className="block" key={producto._id}>
+              <Link to={`/productos/${producto._id}`} className="block" key={producto._id}>
                 <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 p-4">
                   <div className="relative">
                     <img
@@ -78,6 +81,7 @@ const ProductosBuscados = () => {
         )}
       </div>
     </div>
+    </>
   );
 };
 
