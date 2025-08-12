@@ -206,10 +206,9 @@ function GestionarQuejasSugerencias() {
                       disabled={!q.respuesta || q.respuesta.trim() === ""}
                       onClick={() => responderQueja(q._id, q.respuesta || "")}
                       className={`px-4 py-2 rounded-md text-sm font-semibold transition
-                        ${
-                          !q.respuesta || q.respuesta.trim() === ""
-                            ? "bg-gray-400/85 text-white cursor-not-allowed"
-                            : "bg-blue-800 hover:bg-blue-700 text-white"
+                        ${!q.respuesta || q.respuesta.trim() === ""
+                          ? "bg-gray-400/85 text-white cursor-not-allowed"
+                          : "bg-blue-800 hover:bg-blue-700 text-white"
                         }`}
                     >
                       Guardar
@@ -221,6 +220,25 @@ function GestionarQuejasSugerencias() {
           </>
         )}
       </div>
+      {/* Footer */}
+      <footer className="bg-blue-950 py-4 mt-20">
+        <div className="text-center">
+          <p className="text-white underline mb-2">
+            © 2025 PoliVentas - Todos los derechos reservados.
+          </p>
+          <div className="flex justify-center gap-6">
+            <a href="#" className="text-white hover:text-red-400 transition-colors">
+              Facebook
+            </a>
+            <a href="#" className="text-white hover:text-red-400 transition-colors">
+              Instagram
+            </a>
+            <a href="#" className="text-white hover:text-red-400 transition-colors">
+              Twitter
+            </a>
+          </div>
+        </div>
+      </footer>
     </>
   );
 }

@@ -177,6 +177,7 @@ const OrdenPendiente = () => {
     return (
         <Elements stripe={stripePromise}>
             <Header />
+            <div className="h-20 sm:h-7" />
             <ToastContainer />
             <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
@@ -185,7 +186,7 @@ const OrdenPendiente = () => {
                         value={metodoPago}
                         onChange={(e) => {
                             setMetodoPago(e.target.value);
-                            setShowPaymentForm(false); // Reset form visibility on method change
+                            setShowPaymentForm(false); 
                         }}
                         className="w-full p-3 border border-gray-300 rounded-md bg-gray-50 focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition mb-6"
                         aria-label="Método de pago"
@@ -231,8 +232,29 @@ const OrdenPendiente = () => {
                     {showPaymentForm && <PagosForm onSuccess={handlePaymentSuccess} />}
                 </div>
             </div>
+            {/* Footer */}
+            <footer className="bg-blue-950 py-4 mt-20">
+                <div className="text-center">
+                    <p className="text-white underline mb-2">
+                        © 2025 PoliVentas - Todos los derechos reservados.
+                    </p>
+                    <div className="flex justify-center gap-6">
+                        <a href="#" className="text-white hover:text-red-400 transition-colors">
+                            Facebook
+                        </a>
+                        <a href="#" className="text-white hover:text-red-400 transition-colors">
+                            Instagram
+                        </a>
+                        <a href="#" className="text-white hover:text-red-400 transition-colors">
+                            Twitter
+                        </a>
+                    </div>
+                </div>
+            </footer>
         </Elements>
+
     );
+
 };
 
 export default OrdenPendiente;

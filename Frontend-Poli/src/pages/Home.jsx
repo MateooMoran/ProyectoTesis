@@ -94,7 +94,7 @@ export const Home = () => {
           </form>
 
           {/* Botones */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 flex-col sm:flex-row w-full sm:w-auto text-center">
             {/* Botón Categorías con Dropdown */}
             <div className="relative" ref={categoriesRef}>
               <button
@@ -191,10 +191,10 @@ export const Home = () => {
       </header>
 
       {/* Espacio para el header fijo */}
-      <div className="h-20 sm:h-24"></div>
+      <div className="h-50 sm:h-24"></div>
 
       {/* Main Section */}
-      <main className="bg-blue-50 py-10">
+      <main className="bg-blue-50 py-10 ">
         <div className="container mx-auto px-4">
           {/* Hero Section */}
           <div className="text-center mb-10">
@@ -225,8 +225,8 @@ export const Home = () => {
                 slidesPerView={4}
                 autoplay={{ delay: 2000, disableOnInteraction: false }}
                 breakpoints={{
-                  640: { slidesPerView: 2 },
-                  1024: { slidesPerView: 3 },
+                  320: { slidesPerView: 1 },
+                  1024: { slidesPerView: 5 },
                 }}
               >
                 {productos.map((producto) => (

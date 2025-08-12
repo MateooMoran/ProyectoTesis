@@ -57,10 +57,12 @@ const HistorialPagos = () => {
     return (
         <>
             <Header />
+            {/* Espacio para compensar header fijo */}
+            <div className="h-10 sm:h-7 mb-6" />
             <ToastContainer />
             <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-4xl mx-auto">
-                    <h2 className="text-3xl font-bold text-blue-800 mb-8 text-center">Historial de Compras</h2>
+                    <h2 className="text-3xl font-bold text-gray-700 mb-8 text-center mt-7">Historial de Compras</h2>
 
                     {loading ? (
                         <div className="flex justify-center items-center">
@@ -123,26 +125,25 @@ const HistorialPagos = () => {
                                             {order.productos[0]?.producto?.nombreProducto || 'Producto sin nombre'}
                                         </h3>
                                         <p className="text-sm text-gray-600">
-                                            <span className="font-medium">ID Orden:</span> {order._id}
+                                            <span className="font-extrabold">ID Orden:</span> {order._id}
                                         </p>
                                         <p className="text-sm text-gray-600">
-                                            <span className="font-medium">Fecha:</span> {formatDate(order.createdAt)}
+                                            <span className="font-extrabold">Fecha:</span> {formatDate(order.createdAt)}
                                         </p>
                                         <p className="text-sm text-gray-600">
-                                            <span className="font-medium">Total:</span> ${order.total.toLocaleString('es-CO')}
+                                            <span className="font-extrabold">Total:</span> ${order.total.toLocaleString('es-CO')}
                                         </p>
                                         <p className="text-sm text-gray-600">
-                                            <span className="font-medium">Método de Pago:</span>{' '}
+                                            <span className="font-extrabold">Método de Pago:</span>{' '}
                                             {order.metodoPago.charAt(0).toUpperCase() + order.metodoPago.slice(1)}
                                         </p>
                                         <p
-                                            className={`text-sm font-medium ${
-                                                order.estado === 'pagado'
+                                            className={`text-sm font-extrabold ${order.estado === 'pagado'
                                                     ? 'text-green-600'
                                                     : order.estado === 'pendiente'
-                                                    ? 'text-yellow-600'
-                                                    : 'text-red-600'
-                                            }`}
+                                                        ? 'text-yellow-600'
+                                                        : 'text-red-600'
+                                                }`}
                                         >
                                             <span className="font-medium">Estado:</span>{' '}
                                             {order.estado.charAt(0).toUpperCase() + order.estado.slice(1)}

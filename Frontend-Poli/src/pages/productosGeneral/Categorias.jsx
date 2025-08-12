@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import useFetch from '../../hooks/useFetch';
 import Header from '../../layout/Header';
+import { toast } from 'react-toastify';
 
 const placeholderImage = 'https://via.placeholder.com/150?text=Sin+Imagen';
 
@@ -12,6 +13,7 @@ const CategoriaProductos = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [categoriaNombre, setCategoriaNombre] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProductosPorCategoria = async () => {
@@ -41,14 +43,29 @@ const CategoriaProductos = () => {
       }
     };
     fetchProductosPorCategoria();
-  }, [id]); 
+  }, [id]);
+
+  const handleClickProducto = (producto) => {
+    
+    const storedData = JSON.parse(localStorage.getItem('auth-token'));
+    const token = storedData?.state?.token;
+    console.log(token);
+    
+
+    if (token) {
+      navigate(`/dashboard/productos/${producto._id}`);
+      toast.success(`Producto ${producto.nombreProducto} seleccionado`);
+    } else {
+      navigate(`/productos/${producto._id}`);
+    }
+  };
 
   return (
     <>
       <Header />
       {/* Espacio para compensar header fijo */}
-      <div className="h-20 sm:h-7" />
-      
+      <div className="h-15 sm:h-7 mb-6" />
+
       <div className="bg-blue-50 min-h-screen py-10">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-blue-800 text-center mb-6">
@@ -63,7 +80,16 @@ const CategoriaProductos = () => {
           {!loading && !error && productos.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {productos.map((producto) => (
-                <Link to={`/dashboard/productos/${producto._id}`} className="block" key={producto._id}>
+                <div
+                  key={producto._id}
+                  onClick={() => handleClickProducto(producto)}
+                  className="block cursor-pointer"
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleClickProducto(producto);
+                  }}
+                >
                   <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 p-4">
                     <div className="relative">
                       <img
@@ -86,13 +112,31 @@ const CategoriaProductos = () => {
                     </div>
                     <p className="text-sm text-gray-700 mt-1 line-clamp-2">{producto.descripcion}</p>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           )}
         </div>
       </div>
-
+      {/* Footer */}
+      <footer className="bg-blue-950 py-4">
+        <div className="text-center">
+          <p className="text-white underline mb-2">
+            © 2025 PoliVentas - Todos los derechos reservados.
+          </p>
+          <div className="flex justify-center gap-6">
+            <a href="#" className="text-white hover:text-red-400 transition-colors">
+              Facebook
+            </a>
+            <a href="#" className="text-white hover:text-red-400 transition-colors">
+              Instagram
+            </a>
+            <a href="#" className="text-white hover:text-red-400 transition-colors">
+              Twitter
+            </a>
+          </div>
+        </div>
+      </footer>
     </>
   );
 };

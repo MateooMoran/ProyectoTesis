@@ -150,9 +150,11 @@ const Login = () => {
               Registrarse
             </Link>
           </div>
+          
         </div>
       </div>
     </div>
+    
   );
 };
 
