@@ -160,7 +160,7 @@ const OrdenPendiente = () => {
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
                 toast.success(data.msg);
-                navigate('/dashboard/historial-pagos');
+                navigate('/dashboard/estudiante/historial-pagos');
             }
         } catch (error) {
             toast.error(error.response?.data?.msg || 'Error procesando');
