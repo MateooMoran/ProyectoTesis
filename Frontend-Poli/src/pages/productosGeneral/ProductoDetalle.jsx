@@ -103,12 +103,6 @@ const ProductoDetalle = () => {
               >
                 Agregar al carrito
               </button>
-              <button
-                onClick={handleAgregarAlCarrito}
-                className="border border-gray-300 text-gray-700 py-3 px-6 rounded-lg font-semibold text-lg hover:bg-gray-300  transition-transform transform hover:scale-105"
-              >
-                Comprar ahora
-              </button>
             </div>
             <div className="text-sm text-gray-500">
               <p><span className="font-semibold">Envío:</span> Gratis en pedidos superiores a $50</p>
