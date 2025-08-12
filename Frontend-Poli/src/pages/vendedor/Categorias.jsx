@@ -70,7 +70,6 @@ export default function Categorias() {
                 config: { headers },
             });
             setCategorias(categorias.filter((c) => c._id !== id));
-            toast.success("Categoría eliminada");
         } catch {
             // Error manejado en fetchDataBackend
         }
