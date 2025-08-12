@@ -5,6 +5,8 @@ import storeProductos from '../../context/storeProductos';
 import storeProfile from '../../context/storeProfile';
 import storeAuth from '../../context/storeAuth';
 import Header from '../../layout/Header';
+import { ToastContainer } from 'react-toastify';
+
 
 const ProductoDetalle = () => {
   const { id } = useParams();
@@ -25,7 +27,8 @@ const ProductoDetalle = () => {
     if (!token) {
       navigate(`/carrito/vacio`); // Redirigir a carrito vacío si no hay token
     } else {
-      navigate(`/dashboard/estudiante/carrito`); // Redirigir al carrito si hay token
+      navigate(`/dashboard/productos/${producto._id}`); // Redirigir al carrito si hay token
+      toast.success(`Producto ${producto.nombreProducto} agregado al carrito`);
     }
   };
 
@@ -56,7 +59,7 @@ const ProductoDetalle = () => {
   return (
     <>
       <Header />
-
+      <ToastContainer />
       {/* Detalle del producto */}
       <div className="max-w-7xl mx-auto px-4 py-8 mt-20 sm:mt-24">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
