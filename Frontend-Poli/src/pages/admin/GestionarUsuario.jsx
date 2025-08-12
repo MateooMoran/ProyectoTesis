@@ -45,15 +45,10 @@ function GestionarUsuario() {
 
     return (
         <>
-<<<<<<< HEAD
-            <Header />
+
+        <Header />
             <ToastContainer />
-            <div className="p-6 mt-21 max-w-6xl mx-auto">
-=======
-        <Header/>
-        <ToastContainer />
             <div className="p-6 mt-26 max-w-6xl mx-auto">
->>>>>>> 03c685edaceecf212568313c8356f6a4bd71a8c2
                 <h2 className="text-2xl font-semibold mb-6  text-gray-500">Gestión de Usuarios</h2>
 
                 {usuarios.length === 0 ? (
