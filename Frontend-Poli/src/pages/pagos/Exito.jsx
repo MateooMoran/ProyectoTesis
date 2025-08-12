@@ -9,7 +9,7 @@ const Exito = () => (
     <h2 className="text-3xl font-bold mb-4 text-blue-700">Pago realizado con éxito!</h2>
     <p className="mb-6">Gracias por tu compra. Puedes ver tu historial de pedidos en tu perfil.</p>
     <Link to="/dashboard/estudiante/historial-pagos" className="text-blue-700 hover:underline">
-      Ver historial de pagos
+      Ver historial de compras
     </Link>
   </div>
   <Header />

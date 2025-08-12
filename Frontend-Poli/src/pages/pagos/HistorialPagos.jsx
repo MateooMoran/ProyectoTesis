@@ -60,7 +60,7 @@ const HistorialPagos = () => {
             <ToastContainer />
             <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-4xl mx-auto">
-                    <h2 className="text-3xl font-bold text-blue-800 mb-8 text-center">Historial de Pagos</h2>
+                    <h2 className="text-3xl font-bold text-blue-800 mb-8 text-center">Historial de Compras</h2>
 
                     {loading ? (
                         <div className="flex justify-center items-center">
