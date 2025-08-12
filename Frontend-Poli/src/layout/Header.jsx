@@ -251,6 +251,13 @@ const Header = () => {
                                                     Mis Quejas y Sugerencias
                                                 </Link>
                                                 <Link
+                                                    to="/dashboard/estudiante/historial-pagos"
+                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
+                                                    onClick={() => setIsDropdownOpen(false)}
+                                                >
+                                                    Mis Compras
+                                                </Link>
+                                                <Link
                                                     to="/dashboard/estudiante/carrito"
                                                     className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
                                                     onClick={() => setIsDropdownOpen(false)}
