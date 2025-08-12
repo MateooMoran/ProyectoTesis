@@ -20,6 +20,7 @@ export default function HistorialVentas() {
                     method: "GET",
                     config: { headers },
                 });
+                console.log("dsdsds", data)
                 setVentas(data);
             } catch {
                 toast.error("Error al cargar historial de ventas");
@@ -97,27 +98,27 @@ export default function HistorialVentas() {
 
                                 {/* Lista de productos */}
                                 <div className="space-y-4">
-                                    {venta.productos.map(
-                                        ({ producto, cantidad, precioUnitario, subtotal }) => (
-                                            <div
-                                                key={producto._id}
-                                                className="flex items-center gap-4 pb-3 last:border-none"
-                                            >
-                                                <img
-                                                    src={producto.imagen}
-                                                    alt={producto.nombreProducto}
-                                                    className="w-16 h-16 rounded-lg object-cover border"
-                                                />
-                                                <div className="flex-1">
-                                                    <p className="font-medium">{producto.nombreProducto}</p>
-                                                    <p className="text-sm text-gray-500">
-                                                        Cantidad: {cantidad} ${precioUnitario}
-                                                    </p>
-                                                </div>
-                                                <div className="text-right font-semibold">${subtotal}</div>
+                                    {venta.productos?.map(({ producto, cantidad, precioUnitario, subtotal }) => (
+                                        <div
+                                            key={producto?._id || Math.random()}
+                                            className="flex items-center gap-4 pb-3 last:border-none"
+                                        >
+                                            <img
+                                                src={producto?.imagen || "/placeholder.png"}
+                                                alt={producto?.nombreProducto || "Producto no disponible"}
+                                                className="w-16 h-16 rounded-lg object-cover border"
+                                            />
+                                            <div className="flex-1">
+                                                <p className="font-medium">
+                                                    {producto?.nombreProducto || "Producto eliminado"}
+                                                </p>
+                                                <p className="text-sm text-gray-500">
+                                                    Cantidad: {cantidad} ${precioUnitario}
+                                                </p>
                                             </div>
-                                        )
-                                    )}
+                                            <div className="text-right font-semibold">${subtotal}</div>
+                                        </div>
+                                    ))}
                                 </div>
 
                                 {/* Total y método de pago */}
