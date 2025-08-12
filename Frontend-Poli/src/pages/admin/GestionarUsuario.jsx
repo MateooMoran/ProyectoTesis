@@ -47,7 +47,7 @@ function GestionarUsuario() {
         <>
         <Header/>
         <ToastContainer />
-            <div className="p-6 mt-21 max-w-6xl mx-auto">
+            <div className="p-6 mt-25 max-w-6xl mx-auto">
                 <h2 className="text-2xl font-semibold mb-6  text-gray-500">Gestión de Usuarios</h2>
 
                 {usuarios.length === 0 ? (
