@@ -45,7 +45,6 @@ const listarNotificaciones = async (req, res) => {
             .sort({ createdAt: -1 });
 
         if (!notificaciones.length) {
-            return res.status(404).json({ msg: 'No tienes notificaciones' });
         }
         res.status(200).json(notificaciones);
     } catch (error) {

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import storeCarrito from '../../context/storeCarrito';
 import Header from '../../layout/Header';
 import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
+
 
 const Carrito = () => {
     const navigate = useNavigate();
@@ -18,6 +20,7 @@ const Carrito = () => {
     return (
         <>
             <Header />
+            <ToastContainer />
             <div className="h-20 sm:h-7"></div>
             <main className="container mx-auto px-4 py-6">
                 {(!carrito || !carrito.productos?.length) ? (
@@ -53,6 +56,7 @@ const Carrito = () => {
                                     <button
                                         onClick={async () => {
                                             await eliminarProducto(item._id);
+                                            toast.success('Producto eliminado del carrito');
                                             fetchCarrito();  // refrescar carrito después de eliminar
                                         }}
                                         className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
