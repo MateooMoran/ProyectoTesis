@@ -111,7 +111,7 @@ export default function HistorialVentas() {
                                                 <div className="flex-1">
                                                     <p className="font-medium">{producto.nombreProducto}</p>
                                                     <p className="text-sm text-gray-500">
-                                                        Cantidad: {cantidad} × ${precioUnitario}
+                                                        Cantidad: {cantidad} ${precioUnitario}
                                                     </p>
                                                 </div>
                                                 <div className="text-right font-semibold">${subtotal}</div>

@@ -1,6 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import Productos from '../pages/productosGeneral/Productos';
-import Sidebar from '../pages/Sidebar';
+
 const Dashboard = () => {
     return (
         <div className='md:flex md:min-h-screen bg-blue-50'>
