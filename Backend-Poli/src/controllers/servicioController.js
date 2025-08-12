@@ -49,7 +49,6 @@ const listarNotificaciones = async (req, res) => {
         res.status(200).json(notificaciones);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ msg: 'Error del servidor' });
     }
 };
 
