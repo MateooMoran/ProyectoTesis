@@ -42,9 +42,8 @@ export default function HistorialVentas() {
         prev.map((v) => (v._id === idVenta ? { ...v, estado: "pagado" } : v))
       );
 
-      toast.success("Venta marcada como pagada");
     } catch {
-      toast.error("No se pudo actualizar la venta");
+      console.log("No se pudo actualizar la venta");
     }
   };
 
