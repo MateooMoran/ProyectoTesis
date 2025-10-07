@@ -2,14 +2,34 @@ import nodemailer from "nodemailer"
 import dotenv from 'dotenv'
 dotenv.config()
 
+// Función de reintento con delay exponencial
+const retryWithExponentialBackoff = async (fn, retries = 3, baseDelay = 1000) => {
+    for (let i = 0; i < retries; i++) {
+        try {
+            return await fn();
+        } catch (error) {
+            if (i === retries - 1) throw error;
+            const delay = baseDelay * Math.pow(2, i);
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+    }
+};
 
 let transporter = nodemailer.createTransport({
-    service: 'gmail',
+    service: "gmail",
     host: process.env.HOST_MAILTRAP,
     port: process.env.PORT_MAILTRAP,
+    secure: false, 
     auth: {
         user: process.env.USER_MAILTRAP,
         pass: process.env.PASS_MAILTRAP,
+    },
+    connectionTimeout: 10000, 
+    greetingTimeout: 5000,   
+    socketTimeout: 10000,   
+    debug: true,             
+    tls: {
+        rejectUnauthorized: false
     }
 });
 
@@ -68,7 +88,56 @@ const sendMailToRegister = (nombre, userMail, token) => {
     })
 }
 
-const sendMailToRecoveryPassword = async (userMail, token) => {
+export const sendMailRecomendaciones = async (email, nombre, recomendaciones) => {
+    const mailOptions = {
+        from: '"PoliVentas 🦉" <no-reply@gmail.com>',
+        to: email,
+        subject: "🦉 PoliVentas - Productos Recomendados para ti",
+        html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 30px auto; padding: 20px; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: #fafafa;">
+            <h2 style="font-size: 24px; color: #2C3E50; margin-bottom: 20px; text-align: center;">
+                Hola ${nombre},<br>
+                ¡Tenemos algunas recomendaciones para ti! 🎯
+            </h2>
+
+            <div style="margin: 20px 0;">
+                ${recomendaciones.map((producto, index) => `
+                    <div style="border: 1px solid #eee; padding: 15px; margin-bottom: 15px; border-radius: 8px; background: white;">
+                        <h3 style="margin: 0 0 10px 0; color: #2C3E50;">${producto.nombreProducto}</h3>
+                        <p style="margin: 5px 0; color: #666;">${producto.descripcion}</p>
+                        <p style="margin: 5px 0; color: #2980b9; font-weight: bold;">Precio: $${producto.precio}</p>
+                    </div>
+                `).join('')}
+            </div>
+
+            <a href="${process.env.URL_FRONTEND}/productos" 
+               style="background-color: #0A2342; color: white; padding: 12px 25px; border-radius: 5px; text-decoration: none; display: inline-block; margin: 20px 0;">
+                Ver más productos
+            </a>
+
+            <p style="font-size: 14px; color: #666; margin-top: 20px; text-align: center;">
+                Estas recomendaciones están basadas en tus favoritos y compras anteriores.
+            </p>
+        </div>
+        `
+    };
+
+    return retryWithExponentialBackoff(async () => {
+        try {
+            await transporter.verify();
+            return await transporter.sendMail(mailOptions);
+        } catch (error) {
+            console.error('Error en el envío de correo:', {
+                error: error.message,
+                code: error.code,
+                command: error.command
+            });
+            throw error;
+        }
+    });
+};
+
+export const sendMailToChangePassword = async (userMail, nombre, token) => {
     try {
         const info = await transporter.sendMail({
             from: '"PoliVentas 🦉" <no-reply@gmail.com>',
