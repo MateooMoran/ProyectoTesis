@@ -2,7 +2,7 @@ import Producto from "../../models/Producto.js";
 import Estudiante from "../../models/Estudiante.js";
 import Orden from "../../models/Orden.js";
 import { similitudCoseno } from "../../utils/embeddings.js";
-import { sendMailRecomendaciones } from "../../config/nodemailer.js"; 
+import { sendMailRecomendaciones } from "../../config/nodemailer.js";
 
 // Obtener recomendaciones basadas en favoritos y compras
 export const obtenerRecomendaciones = async (req, res) => {
@@ -25,7 +25,7 @@ export const obtenerRecomendaciones = async (req, res) => {
             });
         });
 
-        // Usar embeddings de favoritos + compras
+        // Usar embeddings de favoritos + compras pasadas para el perfil del usuario
         const itemsParaEmbedding = [...favoritos, ...productosComprados];
         if (!itemsParaEmbedding.length) {
             return res.json({ msg: "Sin favoritos ni compras, sin recomendaciones", recomendaciones: [] });
@@ -36,8 +36,13 @@ export const obtenerRecomendaciones = async (req, res) => {
             itemsParaEmbedding.reduce((sum, item) => sum + (item.embedding[i] || 0), 0) / itemsParaEmbedding.length
         );
 
-        // Obtener productos candidatos (stock > 0 y activo)
-        const productos = await Producto.find({ stock: { $gt: 0 }, activo: true });
+        // Obtener productos candidatos (stock > 0, activo, y que no haya comprado)
+        const idsComprados = productosComprados.map(p => p._id.toString());
+        const productos = await Producto.find({
+            stock: { $gt: 0 },
+            activo: true,
+            _id: { $nin: idsComprados } 
+        });
 
         // Calcular similitud coseno
         const productosScored = productos.map(p => ({
@@ -45,14 +50,16 @@ export const obtenerRecomendaciones = async (req, res) => {
             score: similitudCoseno(embeddingUsuario, p.embedding)
         }));
 
+        // Ordenar por similitud descendente
         productosScored.sort((a, b) => b.score - a.score);
 
+        // Tomar el top 3
         const topRecomendaciones = productosScored.slice(0, 3).map(p => {
             const { createdAt, updatedAt, __v, embedding, ...resto } = p.producto._doc;
             return resto;
         });
 
-        // Enviar correo de forma asíncrona sin bloquear la respuesta
+        // Enviar correo de forma asíncrona (sin bloquear)
         sendMailRecomendaciones(estudiante.email, estudiante.nombre, topRecomendaciones)
             .catch(error => {
                 console.log("Error al enviar correo de recomendaciones (no bloqueante):", {
@@ -62,7 +69,6 @@ export const obtenerRecomendaciones = async (req, res) => {
                 });
             });
 
-        // Responder inmediatamente con las recomendaciones
         res.json({
             msg: "Recomendaciones obtenidas exitosamente",
             recomendaciones: topRecomendaciones,
