@@ -2,33 +2,16 @@ import nodemailer from "nodemailer"
 import dotenv from 'dotenv'
 dotenv.config()
 
-const retryWithExponentialBackoff = async (fn, retries = 3, baseDelay = 1000) => {
-    for (let i = 0; i < retries; i++) {
-        try {
-            return await fn();
-        } catch (error) {
-            if (i === retries - 1) throw error;
-            const delay = baseDelay * Math.pow(2, i);
-            await new Promise(resolve => setTimeout(resolve, delay));
-        }
-    }
-};
+
 
 let transporter = nodemailer.createTransport({
-    service: "gmail",
+    service: 'gmail',
     host: process.env.HOST_MAILTRAP,
     port: process.env.PORT_MAILTRAP,
-    secure: false, 
+
     auth: {
         user: process.env.USER_MAILTRAP,
         pass: process.env.PASS_MAILTRAP,
-    },
-    connectionTimeout: 10000, 
-    greetingTimeout: 5000,   
-    socketTimeout: 10000,   
-    debug: true,             
-    tls: {
-        rejectUnauthorized: false
     }
 });
 
@@ -268,64 +251,59 @@ const sendMailWelcomeWithPassword = async (userMail, nombre, plainPassword) => {
 };
 
 const sendMailRecomendaciones = async (email, nombre, productos) => {
-    const cardsHTML = productos.map(p => `
-        <div style="display: flex; background-color: #f8f9fa; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); overflow: hidden;">
-            <div style="flex: 1; max-width: 150px;">
-                <img src="${p.imagen}" alt="${p.nombreProducto}" style="width: 100%; height: 100%; object-fit: cover;">
+    try {
+        const cardsHTML = productos.map(p => `
+            <div style="display: flex; background-color: #f8f9fa; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); overflow: hidden;">
+                <div style="flex: 1; max-width: 150px;">
+                    <img src="${p.imagen}" alt="${p.nombreProducto}" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div style="flex: 2; padding: 15px;">
+                    <h3 style="margin: 0 0 10px; color: #0A2342;">${p.nombreProducto}</h3>
+                    <p style="margin: 0 0 10px; color: #555; font-size: 14px;">
+                        ${p.descripcion?.slice(0, 80)}${p.descripcion?.length > 80 ? '...' : ''}
+                    </p>
+                    <p style="margin: 0; color: #28a745; font-weight: bold; font-size: 16px;">$${p.precio.toFixed(2)}</p>
+                </div>
             </div>
-            <div style="flex: 2; padding: 15px;">
-                <h3 style="margin: 0 0 10px; color: #0A2342;">${p.nombreProducto}</h3>
-                <p style="margin: 0 0 10px; color: #555; font-size: 14px;">
-                    ${p.descripcion?.slice(0, 80)}${p.descripcion?.length > 80 ? '...' : ''}
-                </p>
-                <p style="margin: 0; color: #28a745; font-weight: bold; font-size: 16px;">$${p.precio.toFixed(2)}</p>
-            </div>
+        `).join("");
+
+        const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 30px auto; padding: 20px; border-radius: 10px; background: #ffffff; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            <h2 style="color: #0A2342; margin-bottom: 20px;">Hola ${nombre} 👋</h2>
+            <p style="color: #555; font-size: 16px; margin-bottom: 30px;">
+                Basado en tus favoritos y compras recientes, te recomendamos estos productos:
+            </p>
+
+            ${cardsHTML}
+
+            <a href="${process.env.URL_FRONTEND}" 
+                style="background-color: #0A2342; color: white; padding: 12px 25px; border-radius: 5px; text-decoration: none; display: inline-block; margin: 30px 0;">
+                Ver más productos
+            </a>
+
+            <p style="font-size: 14px; color: #777; margin-top: 30px;">
+                ¡Disfruta tus recomendaciones!<br>
+                © ${new Date().getFullYear()} PoliVentas - EPN
+            </p>
         </div>
-    `).join("");
+        `;
 
-    const html = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 30px auto; padding: 20px; border-radius: 10px; background: #ffffff; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-        <h2 style="color: #0A2342; margin-bottom: 20px;">Hola ${nombre} 👋</h2>
-        <p style="color: #555; font-size: 16px; margin-bottom: 30px;">
-            Basado en tus favoritos y compras recientes, te recomendamos estos productos:
-        </p>
+        const info = await transporter.sendMail({
+            from: '"🦉 PoliVentas" <no-reply@gmail.com>',
+            to: email,
+            subject: "🦉 Tus recomendaciones personalizadas en PoliVentas",
+            html
+        });
+        console.log("Correo enviado correctamente:", info.messageId);
+        return info;
 
-        ${cardsHTML}
-
-        <a href="${process.env.URL_FRONTEND}" 
-            style="background-color: #0A2342; color: white; padding: 12px 25px; border-radius: 5px; text-decoration: none; display: inline-block; margin: 30px 0;">
-            Ver más productos
-        </a>
-
-        <p style="font-size: 14px; color: #777; margin-top: 30px;">
-            ¡Disfruta tus recomendaciones!<br>
-            © ${new Date().getFullYear()} PoliVentas - EPN
-        </p>
-    </div>
-    `;
-
-    const mailOptions = {
-        from: '"🦉 PoliVentas" <no-reply@gmail.com>',
-        to: email,
-        subject: "🦉 Tus recomendaciones personalizadas en PoliVentas",
-        html
-    };
-
-    return retryWithExponentialBackoff(async () => {
-        try {
-            await transporter.verify();
-            const info = await transporter.sendMail(mailOptions);
-            console.log("Correo enviado correctamente:", info.messageId);
-            return info;
-        } catch (error) {
-            console.error('Error al enviar el correo:', {
-                message: error.message,
-                code: error.code,
-                command: error.command
-            });
-            throw error;
-        }
-    });
+    } catch (error) {
+        console.error("Error al enviar el correo de recomendaciones:", {
+            message: error.message,
+            code: error.code,
+            stack: error.stack
+        });
+    }
 };
 
 export {
