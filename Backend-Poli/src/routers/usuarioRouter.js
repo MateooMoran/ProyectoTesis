@@ -1,7 +1,11 @@
-import { actualizarContraseña, actualizarPerfil, comprobarTokenPassword, confirmarMail, crearNuevoPassword, login, perfil, recuperarPassword, registro, registroValidations } from "../controllers/usuarioController.js";
+
 import { verifyTokenJWT } from "../middlewares/JWT.js";
 import { tieneRol } from "../middlewares/roles.js";
 import { Router } from "express";
+import { registroValidations } from "../validations/validadorEstudiante.js";
+import { confirmarMail, login, registro } from "../controllers/usuarios/authController.js";
+import { comprobarTokenPassword, crearNuevoPassword, recuperarPassword } from "../controllers/usuarios/passwordController.js";
+import { actualizarContraseña, actualizarPerfil, perfil } from "../controllers/usuarios/perfilController.js";
 
 
 const router = Router()

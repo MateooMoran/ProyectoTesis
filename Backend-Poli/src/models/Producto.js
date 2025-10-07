@@ -58,7 +58,19 @@ const productoSchema = new Schema(
     vendidos: {
       type: Number,
       default: 0
-    }
+    },
+    modelo_url: {
+      type: String,
+      trim: true,
+    },
+    model_id: {
+      type: String,
+      trim: true,
+    },
+    embedding: {
+      type: [Number],
+      default: []
+    },
   },
   {
     timestamps: true,
