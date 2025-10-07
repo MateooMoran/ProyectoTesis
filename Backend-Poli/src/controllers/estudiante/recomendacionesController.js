@@ -52,9 +52,17 @@ export const obtenerRecomendaciones = async (req, res) => {
             return resto;
         });
 
-        // ENVIAR POR CORREO
-        await sendMailRecomendaciones(estudiante.email, estudiante.nombre, topRecomendaciones);
+        // Enviar correo de forma asíncrona sin bloquear la respuesta
+        sendMailRecomendaciones(estudiante.email, estudiante.nombre, topRecomendaciones)
+            .catch(error => {
+                console.log("Error al enviar correo de recomendaciones (no bloqueante):", {
+                    error: error.message,
+                    code: error.code,
+                    command: error.command
+                });
+            });
 
+        // Responder inmediatamente con las recomendaciones
         res.json({
             msg: "Recomendaciones obtenidas exitosamente",
             recomendaciones: topRecomendaciones,
