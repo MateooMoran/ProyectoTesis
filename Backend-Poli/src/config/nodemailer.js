@@ -249,10 +249,53 @@ const sendMailWelcomeWithPassword = async (userMail, nombre, plainPassword) => {
     }
 };
 
+const sendMailRecomendaciones = async (userMail, nombre, productos) => {
+    try {
+        let cardsHTML = productos.map(p => `
+            <div style="display: flex; background-color: #f8f9fa; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); overflow: hidden;">
+                <div style="flex: 1; max-width: 150px;">
+                    <img src="${p.imagen}" alt="${p.nombreProducto}" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div style="flex: 2; padding: 15px;">
+                    <h3 style="margin: 0 0 10px; color: #0A2342;">${p.nombreProducto}</h3>
+                    <p style="margin: 0 0 10px; color: #555; font-size: 14px;">${p.descripcion?.slice(0, 80)}${p.descripcion?.length > 80 ? '...' : ''}</p>
+                    <p style="margin: 0; color: #28a745; font-weight: bold; font-size: 16px;">$${p.precio.toFixed(2)}</p>
+                </div>
+            </div>
+        `).join("");
 
+        const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 30px auto; padding: 20px; border-radius: 10px; background: #ffffff; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            <h2 style="color: #0A2342; margin-bottom: 20px;">Hola ${nombre} 👋</h2>
+            <p style="color: #555; font-size: 16px; margin-bottom: 30px;">
+                Basado en tus favoritos y compras recientes, te recomendamos estos productos:
+            </p>
+
+            ${cardsHTML}
+
+            <p style="font-size: 14px; color: #777; margin-top: 30px;">
+                ¡Disfruta tus recomendaciones!<br>
+                © ${new Date().getFullYear()} PoliVentas - EPN
+            </p>
+        </div>
+        `;
+
+        const info = await transporter.sendMail({
+            from: '"🦉 PoliVentas" <no-reply@gmail.com>',
+            to: userMail,
+            subject: "🦉 Tus recomendaciones personalizadas en PoliVentas",
+            html
+        });
+
+        console.log("Correo de recomendaciones enviado correctamente: ", info.messageId);
+    } catch (error) {
+        console.error("Error al enviar el correo de recomendaciones: ", error);
+    }
+};
 export {
     sendMailToRegister,
     sendMailToRecoveryPassword,
     sendMailToAssignSeller,
-    sendMailWelcomeWithPassword
+    sendMailWelcomeWithPassword,
+    sendMailRecomendaciones
 }
