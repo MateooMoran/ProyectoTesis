@@ -2,7 +2,6 @@ import nodemailer from "nodemailer"
 import dotenv from 'dotenv'
 dotenv.config()
 
-// Función de reintento con delay exponencial
 const retryWithExponentialBackoff = async (fn, retries = 3, baseDelay = 1000) => {
     for (let i = 0; i < retries; i++) {
         try {
@@ -32,7 +31,6 @@ let transporter = nodemailer.createTransport({
         rejectUnauthorized: false
     }
 });
-
 
 const sendMailToRegister = (nombre, userMail, token) => {
 
@@ -88,56 +86,7 @@ const sendMailToRegister = (nombre, userMail, token) => {
     })
 }
 
-export const sendMailRecomendaciones = async (email, nombre, recomendaciones) => {
-    const mailOptions = {
-        from: '"PoliVentas 🦉" <no-reply@gmail.com>',
-        to: email,
-        subject: "🦉 PoliVentas - Productos Recomendados para ti",
-        html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 30px auto; padding: 20px; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: #fafafa;">
-            <h2 style="font-size: 24px; color: #2C3E50; margin-bottom: 20px; text-align: center;">
-                Hola ${nombre},<br>
-                ¡Tenemos algunas recomendaciones para ti! 🎯
-            </h2>
-
-            <div style="margin: 20px 0;">
-                ${recomendaciones.map((producto, index) => `
-                    <div style="border: 1px solid #eee; padding: 15px; margin-bottom: 15px; border-radius: 8px; background: white;">
-                        <h3 style="margin: 0 0 10px 0; color: #2C3E50;">${producto.nombreProducto}</h3>
-                        <p style="margin: 5px 0; color: #666;">${producto.descripcion}</p>
-                        <p style="margin: 5px 0; color: #2980b9; font-weight: bold;">Precio: $${producto.precio}</p>
-                    </div>
-                `).join('')}
-            </div>
-
-            <a href="${process.env.URL_FRONTEND}/productos" 
-               style="background-color: #0A2342; color: white; padding: 12px 25px; border-radius: 5px; text-decoration: none; display: inline-block; margin: 20px 0;">
-                Ver más productos
-            </a>
-
-            <p style="font-size: 14px; color: #666; margin-top: 20px; text-align: center;">
-                Estas recomendaciones están basadas en tus favoritos y compras anteriores.
-            </p>
-        </div>
-        `
-    };
-
-    return retryWithExponentialBackoff(async () => {
-        try {
-            await transporter.verify();
-            return await transporter.sendMail(mailOptions);
-        } catch (error) {
-            console.error('Error en el envío de correo:', {
-                error: error.message,
-                code: error.code,
-                command: error.command
-            });
-            throw error;
-        }
-    });
-};
-
-export const sendMailToChangePassword = async (userMail, nombre, token) => {
+const sendMailToRecoveryPassword = async (userMail, token) => {
     try {
         const info = await transporter.sendMail({
             from: '"PoliVentas 🦉" <no-reply@gmail.com>',
@@ -318,49 +267,67 @@ const sendMailWelcomeWithPassword = async (userMail, nombre, plainPassword) => {
     }
 };
 
-const sendMailRecomendaciones = async (userMail, nombre, productos) => {
-    try {
-        let cardsHTML = productos.map(p => `
-            <div style="display: flex; background-color: #f8f9fa; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); overflow: hidden;">
-                <div style="flex: 1; max-width: 150px;">
-                    <img src="${p.imagen}" alt="${p.nombreProducto}" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-                <div style="flex: 2; padding: 15px;">
-                    <h3 style="margin: 0 0 10px; color: #0A2342;">${p.nombreProducto}</h3>
-                    <p style="margin: 0 0 10px; color: #555; font-size: 14px;">${p.descripcion?.slice(0, 80)}${p.descripcion?.length > 80 ? '...' : ''}</p>
-                    <p style="margin: 0; color: #28a745; font-weight: bold; font-size: 16px;">$${p.precio.toFixed(2)}</p>
-                </div>
+export const sendMailRecomendaciones = async (email, nombre, productos) => {
+    const cardsHTML = productos.map(p => `
+        <div style="display: flex; background-color: #f8f9fa; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); overflow: hidden;">
+            <div style="flex: 1; max-width: 150px;">
+                <img src="${p.imagen}" alt="${p.nombreProducto}" style="width: 100%; height: 100%; object-fit: cover;">
             </div>
-        `).join("");
-
-        const html = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 30px auto; padding: 20px; border-radius: 10px; background: #ffffff; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-            <h2 style="color: #0A2342; margin-bottom: 20px;">Hola ${nombre} 👋</h2>
-            <p style="color: #555; font-size: 16px; margin-bottom: 30px;">
-                Basado en tus favoritos y compras recientes, te recomendamos estos productos:
-            </p>
-
-            ${cardsHTML}
-
-            <p style="font-size: 14px; color: #777; margin-top: 30px;">
-                ¡Disfruta tus recomendaciones!<br>
-                © ${new Date().getFullYear()} PoliVentas - EPN
-            </p>
+            <div style="flex: 2; padding: 15px;">
+                <h3 style="margin: 0 0 10px; color: #0A2342;">${p.nombreProducto}</h3>
+                <p style="margin: 0 0 10px; color: #555; font-size: 14px;">
+                    ${p.descripcion?.slice(0, 80)}${p.descripcion?.length > 80 ? '...' : ''}
+                </p>
+                <p style="margin: 0; color: #28a745; font-weight: bold; font-size: 16px;">$${p.precio.toFixed(2)}</p>
+            </div>
         </div>
-        `;
+    `).join("");
 
-        const info = await transporter.sendMail({
-            from: '"🦉 PoliVentas" <no-reply@gmail.com>',
-            to: userMail,
-            subject: "🦉 Tus recomendaciones personalizadas en PoliVentas",
-            html
-        });
+    const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 30px auto; padding: 20px; border-radius: 10px; background: #ffffff; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        <h2 style="color: #0A2342; margin-bottom: 20px;">Hola ${nombre} 👋</h2>
+        <p style="color: #555; font-size: 16px; margin-bottom: 30px;">
+            Basado en tus favoritos y compras recientes, te recomendamos estos productos:
+        </p>
 
-        console.log("Correo de recomendaciones enviado correctamente: ", info.messageId);
-    } catch (error) {
-        console.error("Error al enviar el correo de recomendaciones: ", error);
-    }
+        ${cardsHTML}
+
+        <a href="${process.env.URL_FRONTEND}" 
+            style="background-color: #0A2342; color: white; padding: 12px 25px; border-radius: 5px; text-decoration: none; display: inline-block; margin: 30px 0;">
+            Ver más productos
+        </a>
+
+        <p style="font-size: 14px; color: #777; margin-top: 30px;">
+            ¡Disfruta tus recomendaciones!<br>
+            © ${new Date().getFullYear()} PoliVentas - EPN
+        </p>
+    </div>
+    `;
+
+    const mailOptions = {
+        from: '"🦉 PoliVentas" <no-reply@gmail.com>',
+        to: email,
+        subject: "🦉 Tus recomendaciones personalizadas en PoliVentas",
+        html
+    };
+
+    return retryWithExponentialBackoff(async () => {
+        try {
+            await transporter.verify();
+            const info = await transporter.sendMail(mailOptions);
+            console.log("Correo enviado correctamente:", info.messageId);
+            return info;
+        } catch (error) {
+            console.error('Error al enviar el correo:', {
+                message: error.message,
+                code: error.code,
+                command: error.command
+            });
+            throw error;
+        }
+    });
 };
+
 export {
     sendMailToRegister,
     sendMailToRecoveryPassword,
