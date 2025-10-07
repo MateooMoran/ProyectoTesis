@@ -1,7 +1,13 @@
 import { Router } from "express";
 import { verifyTokenJWT } from "../middlewares/JWT.js";
 import { esEstudiante } from "../middlewares/roles.js";
-import { crearCarrito,eliminarQuejaSugerencia, crearOrdenPendiente,crearQuejasSugerencias, disminuirCantidadProducto, eliminarProductoCarrito, procesarPago, vaciarCarrito, verCategorias, verProductos, visualizarCarrito, visualizarHistorialPagos, visualizarQuejasSugerencias, cancelarOrden, cancelarOrdenesVencidas, verProductoPorId, buscarProductos, verProductosPorCategoria } from "../controllers/estudianteController.js";
+import { buscarProductos, verProductoPorId, verProductosPorCategoria,verCategorias,verProductos} from "../controllers/estudiante/categoriaProductoController.js";
+import { seleccionarFavorito } from "../controllers/estudiante/favoritosController.js";
+import { crearCarrito, disminuirCantidadProducto, eliminarProductoCarrito, vaciarCarrito, visualizarCarrito } from "../controllers/estudiante/carritoController.js";
+import { cancelarOrden, cancelarOrdenesVencidas, crearOrdenPendiente, procesarPago, visualizarHistorialPagos } from "../controllers/estudiante/ordenesController.js";
+import { crearQuejasSugerencias, eliminarQuejaSugerencia, visualizarQuejasSugerencias } from "../controllers/estudiante/quejasController.js";
+import { obtenerRecomendaciones } from "../controllers/estudiante/recomendacionesController.js";
+
 const router = Router()
 // PRODUCTOS
 router.get('/estudiante/productos/buscar',buscarProductos)
@@ -13,6 +19,11 @@ router.get('/estudiante/productos/:id',verProductoPorId)
 router.get('/estudiante/categoria',verCategorias)
 // VER PRODUCTOS
 router.get('/estudiante/productos',verProductos)
+// OBTENER RECOMENDACIONES
+router.get('/estudiante/recomendaciones', verifyTokenJWT, esEstudiante, obtenerRecomendaciones)
+// FAVORITOS
+router.patch("/estudiante/favorito/:id", verifyTokenJWT,esEstudiante,seleccionarFavorito);
+
 
 // CARRITO
 router.post('/estudiante/carrito', verifyTokenJWT, esEstudiante, crearCarrito);

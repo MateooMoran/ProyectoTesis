@@ -34,7 +34,6 @@ cloudinary.config({
 })
 
 // Configuración de fileUpload
-// Esto permite manejar archivos subidos en las rutas
 app.use(fileUpload({
     useTempFiles: true,
     tempFileDir: './uploads',

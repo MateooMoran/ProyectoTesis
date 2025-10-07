@@ -13,6 +13,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@gltf-transform/core": "^4.2.1",
+    "@gltf-transform/functions": "^4.2.1",
+    "axios": "^1.12.2",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.7.0",
     "cors": "^2.8.5",
@@ -24,9 +27,12 @@
     "fs-extra": "^11.3.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.1",
+    "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.3",
+    "openai": "^6.1.0",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
+    "sharp": "^0.34.4",
     "socket.io": "^4.8.1",
     "stripe": "^18.3.0"
   },

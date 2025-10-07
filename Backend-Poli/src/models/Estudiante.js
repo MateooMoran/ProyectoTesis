@@ -50,6 +50,11 @@ const estudianteSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    favoritos: [{ 
+      type: Schema.Types.ObjectId, 
+      ref: "Producto" 
+    }],
+
   },
   {
     timestamps: true,
