@@ -6,6 +6,7 @@ import {crearCategoria,listarCategorias,eliminarCategoria} from "../controllers/
 import {crearProducto,listarProducto,actualizarProducto,eliminarProducto,visualizarProductoCategoria, reactivarProducto, verProductosEliminados} from "../controllers/vendedor/productoController.js";
 import { generarModelo3DParaProducto } from "../controllers/vendedor/modelo3DController.js";
 import { visualizarHistorialVentasVendedor, actualizarEstadoVenta } from "../controllers/vendedor/ventasController.js";
+import { crearActualizarMetodoPago } from "../controllers/vendedor/metodoPagoController.js";
 
 const router = Router();
 
@@ -25,7 +26,7 @@ router.delete('/vendedor/eliminar/producto/:id', verifyTokenJWT, esVendedor, eli
 // OPCIONALES
 router.get('/vendedor/producto/eliminados', verifyTokenJWT, esVendedor, verProductosEliminados);
 router.patch('/vendedor/activar/producto/:id', verifyTokenJWT, esVendedor, reactivarProducto);
-
+router.post("/vendedor/metodo-pago",verifyTokenJWT, esVendedor, crearActualizarMetodoPago);
 
 // Generar modelo 3D
 router.post("/vendedor/generar/producto/:id", verifyTokenJWT, esVendedor, generarModelo3DParaProducto);
