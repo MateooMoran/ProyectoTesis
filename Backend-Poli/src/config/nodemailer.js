@@ -151,49 +151,177 @@ const sendMailWelcomeWithPassword = (userMail, nombre, plainPassword) => {
         .catch(err => console.error("Error al enviar correo de bienvenida:", err));
 };
 
-const sendMailRecomendaciones = (email, nombre, productos) => {
-    const cardsHTML = productos.map(p => `
-        <div style="display: flex; background-color: #f8f9fa; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); overflow: hidden;">
-            <div style="flex: 1; max-width: 150px;">
-                <img src="${p.imagen}" alt="${p.nombreProducto}" style="width: 100%; height: 100%; object-fit: cover;">
-            </div>
-            <div style="flex: 2; padding: 15px;">
-                <h3 style="margin: 0 0 10px; color: #0A2342;">${p.nombreProducto}</h3>
-                <p style="margin: 0 0 10px; color: #555; font-size: 14px;">
-                    ${p.descripcion?.slice(0, 80)}${p.descripcion?.length > 80 ? '...' : ''}
-                </p>
-                <p style="margin: 0; color: #28a745; font-weight: bold; font-size: 16px;">$${p.precio.toFixed(2)}</p>
-            </div>
-        </div>
+const sendMailRecomendaciones = async (email, nombre, productos) => {
+    if (!productos || productos.length === 0) {
+        console.log("⚠️ No hay productos para recomendar");
+        return;
+    }
+
+    try {
+        const cardsHTML = productos.map(p => `
+      <div style="display: flex; background-color: #f8f9fa; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); overflow: hidden;">
+          <div style="flex: 1; max-width: 150px;">
+              <img src="${p.imagen || `${process.env.URL_FRONTEND}/default.jpg`}" 
+                   alt="${p.nombreProducto}" 
+                   style="width: 100%; height: 100%; object-fit: cover;">
+          </div>
+          <div style="flex: 2; padding: 15px;">
+              <h3 style="margin: 0 0 10px; color: #0A2342;">${p.nombreProducto}</h3>
+              <p style="margin: 0 0 10px; color: #555; font-size: 14px;">
+                  ${p.descripcion ? (p.descripcion.length > 80 ? p.descripcion.substring(0, 80) + "..." : p.descripcion) : ""}
+              </p>
+              <p style="margin: 0; color: #28a745; font-weight: bold; font-size: 16px;">
+                  $${typeof p.precio === "number" ? p.precio.toFixed(2) : p.precio}
+              </p>
+          </div>
+      </div>
     `).join("");
 
-    const html = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 30px auto; padding: 20px; border-radius: 10px; background: #ffffff; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-        <h2 style="color: #0A2342; margin-bottom: 20px;">Hola ${nombre} 👋</h2>
-        <p style="color: #555; font-size: 16px; margin-bottom: 30px;">Basado en tus favoritos y compras recientes, te recomendamos estos productos:</p>
-        ${cardsHTML}
-        <a href="${process.env.URL_FRONTEND}" style="background-color: #0A2342; color: white; padding: 12px 25px; border-radius: 5px; text-decoration: none; display: inline-block; margin: 30px 0;">Ver más productos</a>
-        <p style="font-size: 14px; color: #777; margin-top: 30px;">¡Disfruta tus recomendaciones!<br>© ${new Date().getFullYear()} PoliVentas - EPN</p>
-    </div>
+        const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 30px auto; padding: 20px; border-radius: 10px; background: #ffffff; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+          <h2 style="color: #0A2342; margin-bottom: 20px;">¡Hola ${nombre}! 👋</h2>
+          <p style="color: #555; font-size: 16px; margin-bottom: 30px;">
+              Basado en tus compras y favoritos recientes, te recomendamos estos productos:
+          </p>
+
+          ${cardsHTML}
+
+          <a href="${process.env.URL_FRONTEND}" 
+             style="background-color: #0A2342; color: white; padding: 12px 25px; border-radius: 5px; text-decoration: none; display: inline-block; margin: 30px 0;">
+             Ver más productos
+          </a>
+
+          <p style="font-size: 13px; color: #777; margin-top: 30px;">
+              Estas recomendaciones se basan en tus intereses dentro de PoliVentas.<br>
+              © ${new Date().getFullYear()} PoliVentas - EPN
+          </p>
+      </div>
     `;
 
+        const msg = {
+            to: email,
+            from: `PoliVentas 🦉 <${process.env.FROM_EMAIL}>`,
+            subject: "🦉 Tus recomendaciones personalizadas en PoliVentas",
+            html
+        };
+
+        const info = await sgMail.send(msg);
+        console.log("✅ Correo de recomendaciones enviado:", info[0]?.statusCode);
+        return true;
+
+    } catch (error) {
+        console.error("❌ Error al enviar recomendaciones:", {
+            error: error.message,
+            code: error.code,
+            response: error.response?.body
+        });
+        return false;
+    }
+};
+
+const sendMailOrdenCompra = async (email, nombre, orden) => {
+  if (!orden || !orden.productos || orden.productos.length === 0) {
+    console.log("⚠️ No hay productos en la orden");
+    return;
+  }
+
+  try {
+    const totalNumber = Number(orden.total) || 0;
+
+    const productosHTML = orden.productos.map(item => `
+      <tr>
+        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+          <img src="${item.imagen || `${process.env.URL_FRONTEND}/default.jpg`}" 
+               alt="${item.nombreProducto}" 
+               style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px;">
+        </td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; color: #0A2342; font-weight: bold;">
+          ${item.nombreProducto}
+        </td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; color: #666; text-align: center;">
+          ${item.cantidad}
+        </td>
+        <td style="padding: 10px; border-bottom: 1px solid #eee; color: #28a745; text-align: right;">
+          $${typeof item.precioUnitario === "number" ? item.precioUnitario.toFixed(2) : Number(item.precioUnitario || 0).toFixed(2)}
+        </td>
+      </tr>
+    `).join("");
+
     const msg = {
-        to: email,
-        from: `PoliVentas 🦉 <${process.env.FROM_EMAIL}>`,
-        subject: "🦉 Tus recomendaciones personalizadas en PoliVentas",
-        html
+      to: email,
+      from: `PoliVentas 🦉 <${process.env.FROM_EMAIL}>`,
+      subject: "🦉 PoliVentas - Factura de tu Orden",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 650px; margin: 20px auto; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+          
+          <div style="background-color: #0A2342; color: #ffffff; padding: 20px; text-align: center;">
+            <h1 style="margin: 0;">PoliVentas 🦉</h1>
+            <p style="margin: 5px 0 0 0;">Factura de tu Orden</p>
+          </div>
+
+          <div style="padding: 20px;">
+            <h2 style="color: #0A2342;">¡Gracias por tu compra, ${nombre}! 🎉</h2>
+            <p style="color: #555; font-size: 14px;">Aquí tienes el detalle de tu compra:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+              <thead>
+                <tr style="background-color: #f8f9fa;">
+                  <th style="padding: 10px; text-align: left;">Imagen</th>
+                  <th style="padding: 10px; text-align: left;">Producto</th>
+                  <th style="padding: 10px; text-align: center;">Cantidad</th>
+                  <th style="padding: 10px; text-align: right;">Precio</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${productosHTML}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="3" style="padding: 10px; text-align: right; font-weight: bold; color: #0A2342;">Total:</td>
+                  <td style="padding: 10px; text-align: right; font-weight: bold; color: #28a745;">
+                    $${totalNumber.toFixed(2)}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+
+            <div style="margin-top: 20px; padding: 15px; background-color: #e8f5e9; border-radius: 8px; color: #2e7d32; font-weight: bold;">
+              Estado: ${orden.estado} <br>
+              Método de pago: ${orden.metodoPago}
+            </div>
+
+            <p style="margin-top: 20px; font-size: 13px; color: #777;">
+              Si tienes alguna pregunta sobre tu orden, no dudes en contactarnos. <br>
+              © ${new Date().getFullYear()} PoliVentas - EPN
+            </p>
+          </div>
+
+        </div>
+      `,
     };
 
-    sgMail
-        .send(msg)
-        .then(info => console.log("Correo de recomendaciones enviado:", info[0]?.statusCode))
-        .catch(err => console.error("Error al enviar correo de recomendaciones:", err));
+    const info = await sgMail.send(msg);
+    console.log("✅ Correo de factura enviado:", info[0]?.statusCode);
+    return true;
+
+  } catch (error) {
+    console.error("❌ Error al enviar correo de factura:", {
+      error: error.message,
+      code: error.code,
+      response: error.response?.body
+    });
+    return false;
+  }
 };
+
+
+
 
 export {
     sendMailToRegister,
     sendMailToRecoveryPassword,
     sendMailToAssignSeller,
     sendMailWelcomeWithPassword,
-    sendMailRecomendaciones
+    sendMailRecomendaciones,
+    sendMailOrdenCompra
 };
