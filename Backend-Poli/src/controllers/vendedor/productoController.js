@@ -46,8 +46,11 @@ export const crearProducto = async (req, res) => {
     }
 
     // Generar embedding para recomendaciones
-    nuevoProducto.embedding = await generarEmbedding(`${nuevoProducto.nombreProducto} ${nuevoProducto.descripcion}`);
-
+    try {
+      nuevoProducto.embedding = await generarEmbedding(`${nuevoProducto.nombreProducto} ${nuevoProducto.descripcion}`);
+    } catch (err) {
+      console.warn("No se pudo generar embedding:", err.message)
+    }
     await nuevoProducto.save()
     res.status(200).json({ msg: "Producto creado correctamente" })
   } catch (error) {
@@ -116,8 +119,11 @@ export const actualizarProducto = async (req, res) => {
     }
 
     // Actualizar embedding
-    producto.embedding = await generarEmbedding(`${producto.nombreProducto} ${producto.descripcion}`);
-
+    try {
+      producto.embedding = await generarEmbedding(`${producto.nombreProducto} ${producto.descripcion}`);
+    } catch (err) {
+      console.warn("No se pudo generar embedding:", err.message)
+    }
     await producto.save();
 
     res.status(200).json({ msg: "Producto actualizado correctamente" });

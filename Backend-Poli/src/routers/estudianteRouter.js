@@ -6,10 +6,11 @@ import { seleccionarFavorito } from "../controllers/estudiante/favoritosControll
 import { crearCarrito, disminuirCantidadProducto, eliminarProductoCarrito, vaciarCarrito, visualizarCarrito } from "../controllers/estudiante/carritoController.js";
 import { cancelarOrden, cancelarOrdenesVencidas, crearOrdenPendiente, procesarPago, visualizarHistorialPagos } from "../controllers/estudiante/ordenesController.js";
 import { crearQuejasSugerencias, eliminarQuejaSugerencia, visualizarQuejasSugerencias } from "../controllers/estudiante/quejasController.js";
-import { obtenerRecomendaciones } from "../controllers/estudiante/recomendacionesController.js";
 
 const router = Router()
 // PRODUCTOS
+
+// BUSCAR PRODUCTOS
 router.get('/estudiante/productos/buscar',buscarProductos)
 // BUSCAR PRODUCTOS POR CATEGORÍA 
 router.get('/estudiante/productos/categoria/:id',verProductosPorCategoria)
@@ -19,8 +20,6 @@ router.get('/estudiante/productos/:id',verProductoPorId)
 router.get('/estudiante/categoria',verCategorias)
 // VER PRODUCTOS
 router.get('/estudiante/productos',verProductos)
-// OBTENER RECOMENDACIONES
-router.get('/estudiante/recomendaciones', verifyTokenJWT, esEstudiante, obtenerRecomendaciones)
 // FAVORITOS
 router.patch("/estudiante/favorito/:id", verifyTokenJWT,esEstudiante,seleccionarFavorito);
 
