@@ -3,7 +3,7 @@ import { verifyTokenJWT } from "../middlewares/JWT.js";
 import { esVendedor } from "../middlewares/roles.js";
 
 import {crearCategoria,listarCategorias,eliminarCategoria} from "../controllers/vendedor/categoriaController.js";
-import {crearProducto,listarProducto,actualizarProducto,eliminarProducto,visualizarProductoCategoria} from "../controllers/vendedor/productoController.js";
+import {crearProducto,listarProducto,actualizarProducto,eliminarProducto,visualizarProductoCategoria, reactivarProducto, verProductosEliminados} from "../controllers/vendedor/productoController.js";
 import { generarModelo3DParaProducto } from "../controllers/vendedor/modelo3DController.js";
 import { visualizarHistorialVentasVendedor, actualizarEstadoVenta } from "../controllers/vendedor/ventasController.js";
 
@@ -17,9 +17,15 @@ router.delete('/vendedor/eliminar/categoria/:id', verifyTokenJWT, esVendedor, el
 //  PRODUCTOS 
 router.post('/vendedor/crear/producto', verifyTokenJWT, esVendedor, crearProducto);
 router.get('/vendedor/visualizar/producto', verifyTokenJWT, esVendedor, listarProducto);
+router.get('/vendedor/categoria/:id/productos', verifyTokenJWT, esVendedor, visualizarProductoCategoria);
+
 router.put('/vendedor/actualizar/producto/:id', verifyTokenJWT, esVendedor, actualizarProducto);
 router.delete('/vendedor/eliminar/producto/:id', verifyTokenJWT, esVendedor, eliminarProducto);
-router.get('/vendedor/categoria/:id/productos', verifyTokenJWT, esVendedor, visualizarProductoCategoria);
+
+// OPCIONALES
+router.get('/vendedor/producto/eliminados', verifyTokenJWT, esVendedor, verProductosEliminados);
+router.patch('/vendedor/activar/producto/:id', verifyTokenJWT, esVendedor, reactivarProducto);
+
 
 // Generar modelo 3D
 router.post("/vendedor/generar/producto/:id", verifyTokenJWT, esVendedor, generarModelo3DParaProducto);
