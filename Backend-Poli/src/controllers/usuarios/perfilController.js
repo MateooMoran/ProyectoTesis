@@ -48,3 +48,4 @@ export const actualizarContraseña = async (req, res) => {
     res.status(500).json({ msg: "Error actualizando contraseña", error: error.message });
   }
 };
+
