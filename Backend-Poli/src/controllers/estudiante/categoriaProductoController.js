@@ -16,9 +16,11 @@ export const verCategorias = async (req, res) => {
 // Ver todos los productos 
 export const verProductos = async (req, res) => {
   try {
-    const productos = await Producto.find({ disponible: true, stock: { $gt: 0 }, activo: true })
+    const productos = await Producto.find({ estado: "disponible", stock: { $gt: 0 }, activo: true })
       .select('nombreProducto precio imagen stock categoria estado descripcion')
-      .populate('categoria', 'nombreCategoria _id');
+      .populate('categoria', 'nombreCategoria _id')
+      .sort({ createdAt: -1 });
+
     res.status(200).json(productos);
   } catch (error) {
     console.error(error);
@@ -30,9 +32,10 @@ export const verProductos = async (req, res) => {
 export const verProductoPorId = async (req, res) => {
   try {
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ msg: "ID de producto inválido" });
+    if (!mongoose.Types.ObjectId.isValid(id))
+      return res.status(400).json({ msg: "ID de producto inválido" });
 
-    const producto = await Producto.findOne({ _id: id, stock: { $gt: 0 }, activo: true })
+    const producto = await Producto.findOne({ _id: id, estado: "disponible", stock: { $gt: 0 }, activo: true })
       .populate('categoria', 'nombreCategoria _id')
       .populate({ path: "vendedor", select: "nombre apellido" })
       .select("-createdAt -updatedAt -__v");
@@ -56,14 +59,13 @@ export const buscarProductos = async (req, res) => {
         { nombreProducto: new RegExp(query, 'i') },
         { descripcion: new RegExp(query, 'i') }
       ],
-      disponible: true,
+      estado: "disponible",
       stock: { $gt: 0 },
       activo: true
     })
       .select('nombreProducto precio imagen stock categoria estado descripcion')
       .populate('categoria', 'nombreCategoria _id');
 
-    if (!productos.length) return res.status(404).json({ msg: "No se encontraron productos" });
     res.status(200).json(productos);
   } catch (error) {
     console.error(error);
@@ -75,18 +77,19 @@ export const buscarProductos = async (req, res) => {
 export const verProductosPorCategoria = async (req, res) => {
   try {
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ msg: "ID de categoría inválido" });
+    if (!mongoose.Types.ObjectId.isValid(id))
+      return res.status(400).json({ msg: "ID de categoría inválido" });
 
-    const productos = await Producto.find({ 
-      categoria: id, 
-      disponible: true, 
+    const productos = await Producto.find({
+      categoria: id,
+      estado: "disponible",
       stock: { $gt: 0 },
-      activo: true 
+      activo: true
     })
       .select('nombreProducto precio imagen stock categoria estado descripcion')
-      .populate('categoria', 'nombreCategoria _id');
+      .populate('categoria', 'nombreCategoria _id')
+      .sort({ createdAt: -1 });
 
-    if (!productos.length) return res.status(404).json({ msg: "No se encontraron productos en esta categoría" });
     res.status(200).json(productos);
   } catch (error) {
     console.error(error);

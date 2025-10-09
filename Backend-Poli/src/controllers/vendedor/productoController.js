@@ -72,6 +72,7 @@ export const actualizarProducto = async (req, res) => {
     if (Object.values(req.body).includes("")) {
       return res.status(400).json({ msg: "Debe llenar todos los campos" });
     }
+
     if (!mongoose.Types.ObjectId.isValid(categoria)) {
       return res.status(400).json({ msg: 'ID de categoría no válido' });
     }
@@ -81,17 +82,26 @@ export const actualizarProducto = async (req, res) => {
     }
 
     const producto = await Producto.findOne({ _id: id, vendedor: req.estudianteBDD._id });
+    if (!producto) return res.status(403).json({ msg: "Producto no encontrado o sin permisos" });
 
-    if (!producto)
-      return res.status(403).json({ msg: "Producto no encontrado o sin permisos" });
-
+    // Actualización de campos
     producto.nombreProducto = nombreProducto ?? producto.nombreProducto;
     producto.precio = precio ?? producto.precio;
     producto.stock = stock ?? producto.stock;
     producto.descripcion = descripcion ?? producto.descripcion;
     producto.categoria = categoria ?? producto.categoria;
-    producto.estado = estado ?? producto.estado;
-    producto.activo = activo ?? producto.activo;
+
+    // Si el vendedor actualiza stock el producto se vuelve disponible
+    if (producto.stock > 0) {
+      producto.estado = "disponible";
+      producto.activo = true;
+    } else if (producto.stock <= 0) {
+      producto.estado = "no disponible";
+      producto.activo = false;
+    } else {
+      producto.estado = estado ?? producto.estado;
+      producto.activo = activo ?? producto.activo;
+    }
 
     // Imagen normal
     if (req.files?.imagen) {
@@ -122,11 +132,12 @@ export const actualizarProducto = async (req, res) => {
     try {
       producto.embedding = await generarEmbedding(`${producto.nombreProducto} ${producto.descripcion}`);
     } catch (err) {
-      console.warn("No se pudo generar embedding:", err.message)
+      console.warn("No se pudo generar embedding:", err.message);
     }
-    await producto.save();
 
+    await producto.save();
     res.status(200).json({ msg: "Producto actualizado correctamente" });
+
   } catch (error) {
     console.error("Error actualizarProducto:", error);
     res.status(500).json({ msg: "Error actualizando producto", error: error.message });
@@ -144,13 +155,41 @@ export const eliminarProducto = async (req, res) => {
     const producto = await Producto.findOne({ _id: id, vendedor: req.estudianteBDD._id });
     if (!producto) return res.status(404).json({ msg: "Producto no encontrado" });
 
-    await producto.deleteOne();
+    if (producto.eliminadoPorVendedor) {
+      return res.status(400).json({ msg: "El producto ya fue eliminado previamente" });
+    }
+
+    await producto.updateOne({
+      $set: { activo: false, eliminadoPorVendedor: true, estado: "no disponible" }
+    }); 
+    
     res.status(200).json({ msg: "Producto eliminado correctamente" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Error eliminando producto", error: error.message });
   }
 };
+
+
+// Activar productos eliminados
+export const reactivarProducto = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const producto = await Producto.findOne({ _id: id, vendedor: req.estudianteBDD._id });
+    if (!producto) return res.status(404).json({ msg: "Producto no encontrado" });
+    if (!producto.eliminadoPorVendedor) return res.status(400).json({ msg: "Producto ya está activo" });
+
+    await producto.updateOne({
+      $set: { activo: true, eliminadoPorVendedor: false, estado: "disponible" }
+    });
+
+    res.status(200).json({ msg: "Producto reactivado correctamente" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Error reactivando producto", error: error.message });
+  }
+};
+
 
 // Listar todos los productos del vendedor
 export const listarProducto = async (req, res) => {
@@ -177,5 +216,26 @@ export const visualizarProductoCategoria = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Error listando productos por categoría", error: error.message });
+  }
+};
+
+// Listar productos eliminados
+export const verProductosEliminados = async (req, res) => {
+  try {
+    const productos = await Producto.find({
+      vendedor: req.estudianteBDD._id,
+      eliminadoPorVendedor: true
+    })
+    .select("-__v -createdAt -updatedAt")
+    .populate("categoria", "nombreCategoria");
+
+    if (!productos.length) {
+      return res.status(404).json({ msg: "No hay productos eliminados" });
+    }
+
+    res.status(200).json(productos);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Error obteniendo productos eliminados", error: error.message });
   }
 };

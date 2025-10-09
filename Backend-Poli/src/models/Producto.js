@@ -55,6 +55,10 @@ const productoSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    eliminadoPorVendedor: {
+      type: Boolean,
+      default: false, 
+    },
     vendidos: {
       type: Number,
       default: 0

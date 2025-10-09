@@ -7,7 +7,7 @@ import { sendMailToAssignSeller } from "../../config/nodemailer.js";
 export const obtenerUsuarios = async (req, res) => {
   try {
     const estudianteBDD = await Estudiante.find({ rol: { $in: ['estudiante', 'vendedor'] } })
-      .select('_id nombre apellido telefono direccion rol estado').sort({createdAt:-1})
+      .select('_id nombre apellido telefono direccion rol estado').sort({ createdAt: -1 })
 
     if (!estudianteBDD || estudianteBDD.length === 0) {
       return res.status(404).json({ msg: "No hay estudiantes registrados" });
@@ -40,9 +40,15 @@ export const cambioRol = async (req, res) => {
 
     // Activar o desactivar productos según rol
     if (rol === 'vendedor') {
-      await Producto.updateMany({ vendedor: id, activo: false }, { $set: { activo: true } });
+      await Producto.updateMany(
+        { vendedor: id, activo: false, eliminadoPorVendedor: { $ne: true } },
+        { $set: { activo: true } }
+      );
     } else if (rol === 'estudiante') {
-      await Producto.updateMany({ vendedor: id, activo: true }, { $set: { activo: false } });
+      await Producto.updateMany(
+        { vendedor: id, activo: true },
+        { $set: { activo: false } }
+      );
     }
 
     sendMailToAssignSeller(usuario.email, usuario.nombre, usuario.rol);
