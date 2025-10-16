@@ -5,6 +5,7 @@ import storeProfile from '../context/storeProfile';
 import storeAuth from '../context/storeAuth';
 import storeProductos from '../context/storeProductos';
 import { User, LogOut, ShoppingCart, Search } from 'lucide-react';
+import Footer from '../layout/Footer';
 
 
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -13,6 +14,9 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { Autoplay, Navigation, Pagination } from 'swiper/modules';
 import { ToastContainer } from 'react-toastify';
+
+import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaFacebook, FaInstagram, FaTwitter } from 'react-icons/fa';
+
 
 const placeholderImage = 'https://via.placeholder.com/150?text=Sin+Imagen';
 
@@ -68,7 +72,7 @@ export const Home = () => {
 
   return (
     <>
-    <ToastContainer />
+      <ToastContainer />
       {/* Header */}
       <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50">
         <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -77,7 +81,7 @@ export const Home = () => {
             <img src={logo} alt="PoliVentas" className="w-36 h-12 object-cover" />
           </Link>
 
-         {/* Barra de Búsqueda */}
+          {/* Barra de Búsqueda */}
           <form onSubmit={handleSearch} className="flex-1 max-w-lg mx-4">
             <div className="relative">
               <input
@@ -206,9 +210,9 @@ export const Home = () => {
             </p>
           </div>
 
-          {/* Productos Destacados (Carrusel) */}
-          <section className="mb-12">
-            <h3 className="text-3xl font-bold text-blue-800 text-center mb-6">Nuevos Productos</h3>
+          {/* Productos Destacados */}
+          <section className="mb-5 mt-12">
+            <h3 className="text-3xl font-semibold text-blue-800 text-center mb-6">Productos Destacados</h3>
             {loadingProductos && <p className="text-center text-gray-700">Cargando productos...</p>}
             {error && (
               <p className="text-center text-red-700">{error}</p>
@@ -263,7 +267,7 @@ export const Home = () => {
 
           {/* Todos los Productos (Cuadrícula) */}
           <section>
-            <h3 className="text-3xl font-bold text-blue-800 text-center mb-6">Todos los Productos</h3>
+            <h3 className="text-3xl font-semibold text-blue-800 text-center mb-6">Todos los Productos</h3>
             {loadingProductos && <p className="text-center text-gray-700">Cargando productos...</p>}
             {error && (
               <p className="text-center text-red-700">{error}</p>
@@ -303,36 +307,118 @@ export const Home = () => {
             )}
           </section>
         </div>
-      </main>
 
-      {/* Footer */}
-      <footer className="bg-blue-950 py-4">
-        <div className="text-center">
-          <p className="text-white underline mb-2">
-            © 2025 PoliVentas - Todos los derechos reservados.
-          </p>
-          <div className="flex justify-center gap-6">
-            <a
-              href="#"
-              className="text-white hover:text-red-400 transition-colors"
+        {/* Lo nuevo */}
+        <section className="mb-5 mt-12">
+          <h3 className="text-3xl font-semibold text-blue-800 text-center mb-6">Descubre lo nuevo en PoliVentas</h3>
+          {loadingProductos && <p className="text-center text-gray-700">Cargando productos...</p>}
+          {error && (
+            <p className="text-center text-red-700">{error}</p>
+          )}
+          {!loadingProductos && !error && productos.length === 0 && (
+            <p className="text-center text-gray-700">No hay productos disponibles.</p>
+          )}
+          {!loadingProductos && !error && productos.length > 0 && (
+            <Swiper
+              modules={[Navigation, Pagination, Autoplay]}
+              navigation
+              pagination={{ clickable: true }}
+              spaceBetween={20}
+              slidesPerView={4}
+              autoplay={{ delay: 2000, disableOnInteraction: false }}
+              breakpoints={{
+                320: { slidesPerView: 1 },
+                1024: { slidesPerView: 4 },
+              }}
             >
-              Facebook
-            </a>
-            <a
-              href="#"
-              className="text-white hover:text-red-400 transition-colors"
+              {productos.map((producto) => (
+                <SwiperSlide key={producto._id}>
+                  <Link to={`/productos/${producto._id}`} className="block">
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 p-4">
+                      <div className="relative">
+                        <img
+                          src={producto.imagen || placeholderImage}
+                          alt={producto.nombreProducto}
+                          className="w-full h-48 object-contain rounded-md mb-3"
+                        />
+                        {producto.stock <= 5 && (
+                          <span className="absolute top-2 left-2 bg-red-800 text-white text-xs font-semibold px-2 py-1 rounded">
+                            ¡Solo {producto.stock} disponibles!
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="text-base font-semibold text-blue-800 line-clamp-2 h-12">{producto.nombreProducto}</h3>
+                      <div className="mt-2">
+                        <p className="text-lg font-bold text-red-700">${producto.precio.toFixed(2)}</p>
+                        {producto.descuento && (
+                          <p className="text-sm text-gray-500 line-through">${(producto.precio * 1.2).toFixed(2)}</p>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-700 mt-1 line-clamp-2 mb-5">{producto.descripcion}</p>
+                    </div>
+                  </Link>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          )}
+        </section>
+
+        {/* Descuentos */}
+        <section className="mb-3">
+          <h3 className="text-3xl font-semibold text-blue-800 text-center mb-6">Descuentos</h3>
+          {loadingProductos && <p className="text-center text-gray-700">Cargando productos...</p>}
+          {error && (
+            <p className="text-center text-red-700">{error}</p>
+          )}
+          {!loadingProductos && !error && productos.length === 0 && (
+            <p className="text-center text-gray-700">No hay productos disponibles.</p>
+          )}
+          {!loadingProductos && !error && productos.length > 0 && (
+            <Swiper
+              modules={[Navigation, Pagination, Autoplay]}
+              navigation
+              pagination={{ clickable: true}}
+              spaceBetween={20}
+              slidesPerView={4}
+              autoplay={{ delay: 2000, disableOnInteraction: false }}
+              breakpoints={{
+                320: { slidesPerView: 1 },
+                1024: { slidesPerView: 4 },
+              }}
             >
-              Instagram
-            </a>
-            <a
-              href="#"
-              className="text-white hover:text-red-400 transition-colors"
-            >
-              Twitter
-            </a>
-          </div>
-        </div>
-      </footer>
+              {productos.map((producto) => (
+                <SwiperSlide key={producto._id}>
+                  <Link to={`/productos/${producto._id}`} className="block">
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 p-4">
+                      <div className="relative">
+                        <img
+                          src={producto.imagen || placeholderImage}
+                          alt={producto.nombreProducto}
+                          className="w-full h-48 object-contain rounded-md mb-3"
+                        />
+                        {producto.stock <= 5 && (
+                          <span className="absolute top-2 left-2 bg-red-800 text-white text-xs font-semibold px-2 py-1 rounded">
+                            ¡Solo {producto.stock} disponibles!
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="text-base font-semibold text-blue-800 line-clamp-2 h-12">{producto.nombreProducto}</h3>
+                      <div className="mt-2">
+                        <p className="text-lg font-bold text-red-700">${producto.precio.toFixed(2)}</p>
+                        {producto.descuento && (
+                          <p className="text-sm text-gray-500 line-through">${(producto.precio * 1.2).toFixed(2)}</p>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-700 mt-1 line-clamp-2 mb-5">{producto.descripcion}</p>
+                    </div>
+                  </Link>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          )}
+        </section>
+      </main >
+      <Footer></Footer>
     </>
   );
 };

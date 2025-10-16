@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, UserPlus, LogIn } from 'lucide-react';
 import Header from '../../layout/Header';
+import Footer from '../../layout/Footer';
+
 
 const CarritoVacio = () => {
   return (
@@ -36,33 +38,7 @@ const CarritoVacio = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-blue-950 py-4 mt-auto">
-        <div className="text-center">
-          <p className="text-white underline mb-2">
-            © 2025 PoliVentas - Todos los derechos reservados.
-          </p>
-          <div className="flex justify-center gap-6">
-            <a
-              href="#"
-              className="text-white hover:text-red-400 transition-colors"
-            >
-              Facebook
-            </a>
-            <a
-              href="#"
-              className="text-white hover:text-red-400 transition-colors"
-            >
-              Instagram
-            </a>
-            <a
-              href="#"
-              className="text-white hover:text-red-400 transition-colors"
-            >
-              Twitter
-            </a>
-          </div>
-        </div>
-      </footer>
+      <Footer></Footer>
     </div>
   );
 };
