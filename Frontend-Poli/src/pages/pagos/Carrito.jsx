@@ -4,6 +4,8 @@ import storeCarrito from '../../context/storeCarrito';
 import Header from '../../layout/Header';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer, toast } from 'react-toastify';
+import Footer from '../../layout/Footer';
+
 
 const Carrito = () => {
     const navigate = useNavigate();
@@ -117,6 +119,8 @@ const Carrito = () => {
                     </div>
                 )}
             </main>
+            {/* Footer */}
+            <Footer></Footer>
         </>
     );
 };
