@@ -96,6 +96,7 @@ function App() {
             <Route path="vendedor/productos" element={<ProductosVendedor />} />
             <Route path="vendedor/visualizar/producto" element={<EditarProductos />} />
             <Route path="vendedor/historial-ventas" element={<Historial />} />
+            <Route path="vendedor/quejas-sugerencias" element={<QuejasSugerencias />} />
 
 
             {/* Nueva ruta para crear orden pendiente */}

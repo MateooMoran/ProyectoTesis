@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyTokenJWT } from "../middlewares/JWT.js";
-import { esEstudiante } from "../middlewares/roles.js";
+import { esEstudiante, esEstudianteOrVendedor } from "../middlewares/roles.js";
 import { buscarProductos, verProductoPorId, verProductosPorCategoria,verCategorias,verProductos} from "../controllers/estudiante/categoriaProductoController.js";
 import { seleccionarFavorito } from "../controllers/estudiante/favoritosController.js";
 import { crearCarrito, disminuirCantidadProducto, eliminarProductoCarrito, vaciarCarrito, visualizarCarrito } from "../controllers/estudiante/carritoController.js";
@@ -39,9 +39,9 @@ router.post('/estudiante/orden/cancelar-vencidas', verifyTokenJWT, esEstudiante,
 router.get('/estudiante/historial-pagos', verifyTokenJWT, esEstudiante, visualizarHistorialPagos);
 
 // QUEJAS - SUGERENCIAS
-router.post('/estudiante/quejas-sugerencias', verifyTokenJWT, esEstudiante, crearQuejasSugerencias)
-router.get('/estudiante/quejas-sugerencias', verifyTokenJWT, esEstudiante, visualizarQuejasSugerencias)
-router.delete('/estudiante/quejas-sugerencias/:id', verifyTokenJWT, esEstudiante, eliminarQuejaSugerencia);
+router.post('/estudiante/quejas-sugerencias', verifyTokenJWT,esEstudianteOrVendedor, crearQuejasSugerencias)
+router.get('/estudiante/quejas-sugerencias', verifyTokenJWT, esEstudianteOrVendedor, visualizarQuejasSugerencias)
+router.delete('/estudiante/quejas-sugerencias/:id', verifyTokenJWT, esEstudianteOrVendedor,eliminarQuejaSugerencia);
 
 export default router
 
