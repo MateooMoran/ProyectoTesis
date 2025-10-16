@@ -2,7 +2,7 @@ import { Router } from "express";
 import { verifyTokenJWT } from "../middlewares/JWT.js";
 import { esEstudiante, esEstudianteOrVendedor } from "../middlewares/roles.js";
 import { buscarProductos, verProductoPorId, verProductosPorCategoria,verCategorias,verProductos} from "../controllers/estudiante/categoriaProductoController.js";
-import { seleccionarFavorito } from "../controllers/estudiante/favoritosController.js";
+import { eliminarFavorito, seleccionarFavorito, verFavoritos } from "../controllers/estudiante/favoritosController.js";
 import { crearCarrito, disminuirCantidadProducto, eliminarProductoCarrito, vaciarCarrito, visualizarCarrito } from "../controllers/estudiante/carritoController.js";
 import { cancelarOrden, cancelarOrdenesVencidas, crearOrdenPendiente, procesarPago, visualizarHistorialPagos } from "../controllers/estudiante/ordenesController.js";
 import { crearQuejasSugerencias, eliminarQuejaSugerencia, visualizarQuejasSugerencias } from "../controllers/estudiante/quejasController.js";
@@ -22,6 +22,8 @@ router.get('/estudiante/categoria',verCategorias)
 router.get('/estudiante/productos',verProductos)
 // FAVORITOS
 router.patch("/estudiante/favorito/:id", verifyTokenJWT,esEstudiante,seleccionarFavorito);
+router.get("/estudiante/favoritos", verifyTokenJWT, esEstudiante, verFavoritos);
+router.delete("/estudiante/favorito/:id", verifyTokenJWT, esEstudiante, eliminarFavorito);
 
 
 // CARRITO
