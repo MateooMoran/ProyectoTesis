@@ -177,19 +177,20 @@ const Header = () => {
                                                 >
                                                     Gestión Quejas y Sugerencias
                                                 </Link>
-
-                                            </>
-                                        )}
-                                        {rol === 'vendedor' && (
-                                            <>
                                                 <Link
                                                     to="/dashboard/vendedor/categorias"
                                                     className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
                                                     onClick={() => setIsDropdownOpen(false)}
                                                 >
                                                     
-                                                    Categorías
+                                                    Creacion de Categorías
                                                 </Link>
+
+                                            </>
+                                        )}
+                                        {rol === 'vendedor' && (
+                                            <>
+                                                
                                                 <Link
                                                     to="/dashboard/vendedor/quejas-sugerencias"
                                                     className="block px-4 py-2 text-gray-800 hover:bg-blue-50"

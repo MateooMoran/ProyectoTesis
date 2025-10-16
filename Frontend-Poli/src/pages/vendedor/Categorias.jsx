@@ -3,6 +3,8 @@ import { Trash2, PlusCircle } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import useFetch from '../../hooks/useFetch';
 import Header from '../../layout/Header';
+import Footer from '../../layout/Footer';
+
 
 export default function Categorias() {
     const { fetchDataBackend } = useFetch();
@@ -129,22 +131,7 @@ export default function Categorias() {
             </div>
             {/* Footer */}
             <footer className="bg-blue-950 py-4 mt-20">
-                <div className="text-center">
-                    <p className="text-white underline mb-2">
-                        © 2025 PoliVentas - Todos los derechos reservados.
-                    </p>
-                    <div className="flex justify-center gap-6">
-                        <a href="#" className="text-white hover:text-red-400 transition-colors">
-                            Facebook
-                        </a>
-                        <a href="#" className="text-white hover:text-red-400 transition-colors">
-                            Instagram
-                        </a>
-                        <a href="#" className="text-white hover:text-red-400 transition-colors">
-                            Twitter
-                        </a>
-                    </div>
-                </div>
+            <Footer />
             </footer>
         </>
     );
