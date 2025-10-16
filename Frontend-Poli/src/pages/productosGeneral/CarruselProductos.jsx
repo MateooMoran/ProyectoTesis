@@ -68,7 +68,7 @@ const ProductCarousel = ({
                                 <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 p-4">
                                     {/* IMAGEN + STOCK ARRIBA DERECHA */}
                                     <div className="relative mb-3">
-                                        <Link to={`/productos/${producto._id}`} className="block">
+                                        <Link to={`/dashboard/productos/${producto._id}`} className="block">
                                             <img
                                                 src={producto.imagen}
                                                 alt={producto.nombreProducto}
@@ -86,7 +86,7 @@ const ProductCarousel = ({
 
                                     {/* Nombre (link) */}
                                     <Link
-                                        to={`/productos/${producto._id}`}
+                                        to={`/dashboard/productos/${producto._id}`}
                                         className="block mb-3 hover:text-blue-600 transition-colors"
                                     >
                                         <h3 className="text-base font-light text-gray-900 line-clamp-1 text-center">

@@ -99,7 +99,7 @@ const CategoriaProductos = () => {
       navigate(`/dashboard/productos/${producto._id}`);
       toast.success(`Producto ${producto.nombreProducto} seleccionado`);
     } else {
-      navigate(`/productos/${producto._id}`);
+      navigate(`/carrito/vacio`);
     }
   };
 
@@ -126,7 +126,7 @@ const CategoriaProductos = () => {
                     <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 p-4">
                       {/* IMAGEN + STOCK ARRIBA DERECHA */}
                       <div className="relative mb-3">
-                        <Link to={`/productos/${producto._id}`} className="block">
+                        <Link to={`/dashboard/productos/${producto._id}`} className="block">
                           <img
                             src={producto.imagen || placeholderImage}
                             alt={producto.nombreProducto}
@@ -144,7 +144,7 @@ const CategoriaProductos = () => {
 
                       {/* Nombre (link) */}
                       <Link
-                        to={`/productos/${producto._id}`}
+                        to={`/dashboard/productos/${producto._id}`}
                         className="block mb-3 hover:text-blue-600 transition-colors"
                       >
                         <h3 className="text-base font-light text-gray-900 line-clamp-1 text-center">
@@ -163,7 +163,7 @@ const CategoriaProductos = () => {
                       {/* BOTONES */}
                       <div className="flex gap-2 mb-3">
                         <Link
-                          to={`/productos/${producto._id}`}
+                          to={`/dashboard/productos/${producto._id}`}
                           className="flex-1 bg-blue-800 hover:bg-blue-900 text-white text-sm font-semibold py-2 px-3 rounded-md flex items-center justify-center gap-1 hover:scale-105 transition-all duration-300"
                           onClick={(e) => {
                             e.preventDefault();

@@ -17,7 +17,7 @@ const ProductoDetalle = () => {
   const [error, setError] = useState(null);
   const [cantidad, setCantidad] = useState(1);
   const [reseñas, setReseñas] = useState([]);
-  const [ver3D, setVer3D] = useState(false); // ✅ ESTADO 3D
+  const [ver3D, setVer3D] = useState(false); 
   const navigate = useNavigate();
 
   const { agregarProducto } = storeCarrito();

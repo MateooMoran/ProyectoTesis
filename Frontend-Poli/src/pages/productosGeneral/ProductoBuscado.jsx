@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link, Navigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import useFetch from '../../hooks/useFetch';
 import Header from '../../layout/Header';
@@ -88,6 +88,9 @@ const ProductosBuscados = () => {
     if (token) {
       toast.success(`Producto ${producto.nombreProducto} seleccionado`);
     }
+    else{
+      Navigate(`/carrito/vacio`);
+    }
   };
 
   return (
@@ -115,7 +118,7 @@ const ProductosBuscados = () => {
                     <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 p-4">
                       {/* IMAGEN + STOCK ARRIBA DERECHA */}
                       <div className="relative mb-3">
-                        <Link to={`/productos/${producto._id}`} className="block">
+                        <Link to={`/dashboard/productos/${producto._id}`} className="block">
                           <img
                             src={producto.imagen || placeholderImage}
                             alt={producto.nombreProducto}
@@ -133,7 +136,7 @@ const ProductosBuscados = () => {
 
                       {/* Nombre (link) */}
                       <Link
-                        to={`/productos/${producto._id}`}
+                        to={`/dashboard/productos/${producto._id}`}
                         className="block mb-3 hover:text-blue-600 transition-colors"
                         onClick={() => handleClickProducto(producto)}
                       >
@@ -153,7 +156,7 @@ const ProductosBuscados = () => {
                       {/* BOTONES */}
                       <div className="flex gap-2 mb-3">
                         <Link
-                          to={`/productos/${producto._id}`}
+                          to={`/carrito/vacio`}
                           className="flex-1 bg-blue-800 hover:bg-blue-900 text-white text-sm font-semibold py-2 px-3 rounded-md flex items-center justify-center gap-1 hover:scale-105 transition-all duration-300"
                           onClick={(e) => {
                             e.preventDefault();
