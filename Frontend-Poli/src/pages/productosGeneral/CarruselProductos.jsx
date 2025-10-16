@@ -11,7 +11,7 @@ const ProductCarousel = ({
     title = "Productos",
     slidesPerView = 5,
     showDots = false,
-    className = "my-1"
+    className = "my-12"
 }) => {
     // Configuración react-slick MEJORADA
     const settings = {
