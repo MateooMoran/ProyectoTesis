@@ -60,7 +60,13 @@ const Productos = () => {
         <div className="container mx-auto px-4">
           {/* Hero Section */}
 
-          {/* CARRUSEL DE BANNER */}
+          {/* CARRUSEL DE CATEGORÍAS */}
+          <CarruselCategorias
+            categorias={categorias}
+            productos={productos}
+            loadingCategorias={loadingCategorias}
+            errorCategorias={errorCategorias}
+          />
           {/* CARRUSEL 1: DESCUBRE LO NUEVO */}
           <CarruselProductos
             productos={productos}
@@ -81,13 +87,7 @@ const Productos = () => {
             onAddToCart={handleAgregarAlCarrito}
           />
 
-          {/* CARRUSEL DE CATEGORÍAS */}
-          <CarruselCategorias
-            categorias={categorias}
-            productos={productos}
-            loadingCategorias={loadingCategorias}
-            errorCategorias={errorCategorias}
-          />
+
         </div>
       </main>
 

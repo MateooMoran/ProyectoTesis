@@ -22,7 +22,7 @@ const Login = () => {
 
       if (response && response.token) {
         setToken(response.token);
-        setRol(response.rol);
+        setRol(response.rol );
         navigate("/dashboard");
       } else {
         toast.error(response?.msg || "Error al iniciar sesión");
@@ -45,7 +45,7 @@ const Login = () => {
 
       <div className="w-full sm:w-1/2 h-screen bg-white flex justify-center items-center">
         <div className="md:w-4/5 sm:w-full">
-          <h1 className="text-3xl font-semibold mb-2 text-center uppercase text-blue-800">
+          <h1 className="text-3xl font-semibold mb-2 text-center uppercase text-blue-900">
             Bienvenido(a) de nuevo
           </h1>
           <small className="text-gray-500 block my-4 text-sm">
@@ -55,7 +55,7 @@ const Login = () => {
           <form onSubmit={handleSubmit(loginUser)} noValidate>
             <div className="mb-3">
               <label className="mb-2 block text-sm font-semibold text-gray-700">Correo electrónico</label>
-              <input type="email" placeholder="Ingresa tu correo" className="block w-full rounded-md border border-gray-300 focus:border-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-700 py-1 px-2 text-gray-700"
+              <input type="email" placeholder="Ingresa tu correo" className="block w-full rounded-md border border-gray-300 focus:border-blue-800 focus:outline-none focus:ring-1 focus:ring-blue-700 py-1 px-2 text-gray-700"
                 {...register('email', { required: "El correo es obligatoria" })}
               />
 
@@ -68,7 +68,7 @@ const Login = () => {
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="Ingresa tu contraseña"
-                  className="block w-full rounded-md border border-gray-300 focus:border-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-700 py-1 px-1.5 text-gray-700 pr-10"
+                  className="block w-full rounded-md border border-gray-300 focus:border-blue-800 focus:outline-none focus:ring-1 focus:ring-blue-800 py-1 px-1.5 text-gray-700 pr-10"
                   {...register('password', {
                     required: "La contraseña es obligatoria",
                   })}
@@ -81,7 +81,7 @@ const Login = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute top-2 right-3 text-gray-500 hover:text-blue-700"
+                  className="absolute top-2 right-3 text-gray-500 hover:text-blue-900"
                 >
                   {showPassword ? (
                     <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -99,7 +99,7 @@ const Login = () => {
             <div className="my-4">
               <button
                 disabled={loading}
-                className="py-2 w-full block text-center bg-blue-800 text-white border rounded-xl hover:scale-105 duration-300 hover:bg-red-800 disabled:opacity-50"
+                className="py-2 w-full block text-center bg-blue-900 text-white border rounded-xl hover:scale-105 duration-300 hover:bg-red-800 disabled:opacity-50"
               >
                 {loading ? "Iniciando..." : "Iniciar sesión"}
               </button>

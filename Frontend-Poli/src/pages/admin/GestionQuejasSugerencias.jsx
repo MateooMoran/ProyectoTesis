@@ -1,15 +1,23 @@
 import { useEffect, useState } from "react";
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import 'react-tabs/style/react-tabs.css';
 import useFetch from "../../hooks/useFetch";
 import { ToastContainer, toast } from "react-toastify";
 import Header from "../../layout/Header";
+import Footer from "../../layout/Footer";
 
 function GestionarQuejasSugerencias() {
   const { fetchDataBackend } = useFetch();
   const [quejas, setQuejas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filtroTipo, setFiltroTipo] = useState('todos');
+  const [filtroEstado, setFiltroEstado] = useState('todos');
+  const [quejasPorPagina] = useState(8);
 
   useEffect(() => {
     const obtenerQuejas = async () => {
+      setLoading(true);
       try {
         const url = `${import.meta.env.VITE_BACKEND_URL}/admin/quejas-sugerencias`;
         const storedUser = JSON.parse(localStorage.getItem("auth-token"));
@@ -22,8 +30,10 @@ function GestionarQuejasSugerencias() {
           config: { headers },
         });
         setQuejas(response);
+        setCurrentPage(1);
       } catch (error) {
         console.error("Error al obtener quejas/sugerencias", error);
+        toast.error("Error al cargar quejas");
       } finally {
         setLoading(false);
       }
@@ -44,13 +54,12 @@ function GestionarQuejasSugerencias() {
         Authorization: `Bearer ${storedUser?.state?.token || ""}`,
       };
       const body = { respuesta };
-      console.log("Enviando PUT con body:", body);
-
       await fetchDataBackend(url, {
         method: "PUT",
-        body: body,
+        body,
         config: { headers },
       });
+      toast.success("¡Respuesta guardada correctamente!");
     } catch (error) {
       console.error("Error al responder la queja/sugerencia", error);
       toast.error("Error al guardar la respuesta");
@@ -63,181 +72,248 @@ function GestionarQuejasSugerencias() {
     );
   };
 
-  return (
-    <>
-      <Header />
-      <div className="p-6 max-w-6xl mx-auto mt-26">
-        <ToastContainer />
-        <h2 className="text-2xl font-semibold mb-6 text-gray-500">
-          Gestión de Quejas y Sugerencias
-        </h2>
+  // 🔥 FILTRO COMBINADO (TAB + FILTROS)
+  const getQuejasFiltradas = (tipoTab, estadoTab) => {
+    return quejas.filter(q => 
+      (tipoTab === 'todos' || q.tipo === tipoTab) &&
+      (estadoTab === 'todos' || q.estado === estadoTab) &&
+      (filtroTipo === 'todos' || q.tipo === filtroTipo) &&
+      (filtroEstado === 'todos' || q.estado === filtroEstado)
+    );
+  };
 
-        {loading ? (
-          <p className="text-center text-gray-500">
-            Cargando quejas y sugerencias...
-          </p>
-        ) : quejas.length === 0 ? (
-          <p className="text-center text-gray-500">
-            No hay quejas o sugerencias registradas.
-          </p>
-        ) : (
-          <>
-            {/* Header solo visible en md+ */}
-            <div className="hidden md:grid grid-cols-[1.8fr_1fr_3fr_3fr_1fr_1fr] gap-6 text-sm font-semibold text-blue-800 mb-4 px-4">
-              <div>Usuario</div>
-              <div>Tipo</div>
-              <div>Mensaje</div>
-              <div>Respuesta</div>
-              <div>Estado</div>
-              <div>Acción</div>
-            </div>
+  const totalQuejas = quejas.filter(q => q.tipo === 'queja').length;
+  const totalSugerencias = quejas.filter(q => q.tipo === 'sugerencia').length;
+  const totalPendientes = quejas.filter(q => q.estado === 'pendiente').length;
+  const totalResueltos = quejas.filter(q => q.estado === 'resuelto').length;
 
-            <div className="flex flex-col gap-6">
-              {quejas.map((q) => (
-                <div
-                  key={q._id}
-                  className="bg-white rounded-lg shadow-md p-4
-                    md:grid md:grid-cols-[1.8fr_1fr_3fr_3fr_1fr_1fr] md:gap-6 md:items-center"
-                >
-                  {/* Móvil: etiquetas + valor en bloque con texto pequeño */}
-                  <div className="block md:hidden mb-2 text-xs">
-                    <span className="font-semibold text-gray-600">Usuario: </span>
-                    <span>
-                      {q.usuario?.nombre} {q.usuario?.apellido}
+  const getQuejasActuales = (tipoTab, estadoTab) => {
+    const filtradas = getQuejasFiltradas(tipoTab, estadoTab);
+    const indexUltima = currentPage * quejasPorPagina;
+    const indexPrimera = indexUltima - quejasPorPagina;
+    return filtradas.slice(indexPrimera, indexUltima);
+  };
+
+  const getTotalPaginas = (tipoTab, estadoTab) => {
+    const filtradas = getQuejasFiltradas(tipoTab, estadoTab);
+    return Math.ceil(filtradas.length / quejasPorPagina);
+  };
+
+  const handlePageChange = (nuevaPagina, tipoTab, estadoTab) => {
+    if (nuevaPagina >= 1 && nuevaPagina <= getTotalPaginas(tipoTab, estadoTab)) {
+      setCurrentPage(nuevaPagina);
+    }
+  };
+
+  const renderQuejasTab = (tipoTab, estadoTab, titulo, icon) => {
+    const quejasActuales = getQuejasActuales(tipoTab, estadoTab);
+    const totalPaginas = getTotalPaginas(tipoTab, estadoTab);
+    const totalItems = getQuejasFiltradas(tipoTab, estadoTab).length;
+
+    return (
+      <TabPanel>
+        <div className="mt-8 mb-10 space-y-8">
+          {totalItems === 0 ? (
+            <p className="text-center text-gray-700 text-xl py-12">
+              No hay {titulo.toLowerCase()} registradas
+            </p>
+          ) : (
+            <>
+              {/* 🔥 FILTROS */}
+              <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 mb-10">
+                <div className="flex flex-col sm:flex-row gap-6 items-center justify-between">
+                  <div className="flex items-center gap-4 flex-wrap">
+                    <span className="text-lg font-semibold text-blue-800 flex items-center gap-2">
+                      {icon} Total: {totalItems} {titulo.toLowerCase()}
+                    </span>
+                    <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                      Página {currentPage} de {totalPaginas}
                     </span>
                   </div>
-                  <div className="block md:hidden mb-2 text-xs">
-                    <span className="font-semibold text-gray-600">Tipo: </span>
-                    <span>
-                      {q.tipo === "queja" ? (
-                        <span className="inline-block px-2 py-0.5 text-[11px] text-orange-800 bg-orange-100 rounded-full">
-                          Queja
-                        </span>
-                      ) : q.tipo === "sugerencia" ? (
-                        <span className="inline-block px-2 py-0.5 text-[11px] text-blue-600 bg-blue-200 rounded-full">
-                          Sugerencia
-                        </span>
-                      ) : (
-                        <span className="inline-block px-2 py-0.5 text-[11px] text-gray-800 bg-gray-100 rounded-full">
-                          {q.tipo}
-                        </span>
-                      )}
-                    </span>
-                  </div>
-                  <div className="block md:hidden mb-2 text-xs">
-                    <span className="font-semibold text-gray-600">Mensaje: </span>
-                    <span className="whitespace-pre-wrap">{q.mensaje}</span>
-                  </div>
 
-                  {/* Desktop - Usuario */}
-                  <div className="hidden md:block text-gray-800 font-medium text-sm whitespace-pre-wrap">
-                    {q.usuario?.nombre} {q.usuario?.apellido}
-                  </div>
-                  {/* Desktop - Tipo */}
-                  <div className="hidden md:block text-xs font-semibold text-start">
-                    {q.tipo === "queja" ? (
-                      <span className="inline-block px-3 py-1 text-orange-800 bg-orange-100 rounded-full">
-                        Queja
-                      </span>
-                    ) : q.tipo === "sugerencia" ? (
-                      <span className="inline-block px-3 py-1 text-blue-600 bg-blue-200 rounded-full">
-                        Sugerencia
-                      </span>
-                    ) : (
-                      <span className="inline-block px-3 py-1 text-gray-800 bg-gray-100 rounded-full">
-                        {q.tipo}
-                      </span>
-                    )}
-                  </div>
-                  {/* Desktop - Mensaje */}
-                  <div className="hidden md:block text-gray-600 text-sm whitespace-pre-wrap">
-                    {q.mensaje}
-                  </div>
-
-                  {/* Respuesta textarea */}
-                  <div className="flex flex-col">
-                    <label className="sr-only md:not-sr-only font-semibold mb-1">
-                      {/* Aquí podrías poner un label si quieres */}
-                    </label>
-                    <textarea
-                      value={q.respuesta || ""}
-                      onChange={(e) => handleRespuestaChange(q._id, e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[56px] max-h-[120px] resize-none
-                        md:px-3 md:py-2 md:text-sm
-                        px-2 py-1 text-xs
-                      "
-                      placeholder="Escribe una respuesta..."
-                      maxLength={250}
-                    />
-                    <div className="text-xs text-gray-500 text-right mt-1">
-                      {(q.respuesta?.length || 0)}/250 caracteres
-                    </div>
-                  </div>
-
-                  {/* Estado */}
-                  <div className="hidden md:flex text-xs font-semibold justify-center">
-                    {q.estado === "resuelto" ? (
-                      <span className="inline-block px-3 py-1 text-green-800 bg-green-100 rounded-full">
-                        Resuelto
-                      </span>
-                    ) : (
-                      <span className="inline-block px-3 py-1 text-red-800 bg-red-100 rounded-full">
-                        Pendiente
-                      </span>
-                    )}
-                  </div>
-                  <div className="block md:hidden mt-2 text-xs">
-                    <span className="font-semibold text-gray-600">Estado: </span>
-                    {q.estado === "resuelto" ? (
-                      <span className="inline-block px-3 py-1 text-green-800 bg-green-100 rounded-full">
-                        Resuelto
-                      </span>
-                    ) : (
-                      <span className="inline-block px-3 py-1 text-red-800 bg-red-100 rounded-full">
-                        Pendiente
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Botón Guardar */}
-                  <div className="mt-3 md:mt-0 flex justify-start md:justify-center">
-                    <button
-                      disabled={!q.respuesta || q.respuesta.trim() === ""}
-                      onClick={() => responderQueja(q._id, q.respuesta || "")}
-                      className={`px-4 py-2 rounded-md text-sm font-semibold transition
-                        ${!q.respuesta || q.respuesta.trim() === ""
-                          ? "bg-gray-400/85 text-white cursor-not-allowed"
-                          : "bg-blue-800 hover:bg-blue-700 text-white"
-                        }`}
+                  <div className="flex gap-4 flex-wrap">
+                    <select
+                      value={filtroTipo}
+                      onChange={(e) => {
+                        setFiltroTipo(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-semibold"
                     >
-                      Guardar
-                    </button>
+                      <option value="todos">Todos los tipos</option>
+                      <option value="queja">Quejas</option>
+                      <option value="sugerencia">Sugerencias</option>
+                    </select>
+                    <select
+                      value={filtroEstado}
+                      onChange={(e) => {
+                        setFiltroEstado(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-semibold"
+                    >
+                      <option value="todos">Todos los estados</option>
+                      <option value="pendiente">Pendientes</option>
+                      <option value="resuelto">Resueltos</option>
+                    </select>
                   </div>
                 </div>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
-      {/* Footer */}
-      <footer className="bg-blue-950 py-4 mt-20">
-        <div className="text-center">
-          <p className="text-white underline mb-2">
-            © 2025 PoliVentas - Todos los derechos reservados.
-          </p>
-          <div className="flex justify-center gap-6">
-            <a href="#" className="text-white hover:text-red-400 transition-colors">
-              Facebook
-            </a>
-            <a href="#" className="text-white hover:text-red-400 transition-colors">
-              Instagram
-            </a>
-            <a href="#" className="text-white hover:text-red-400 transition-colors">
-              Twitter
-            </a>
+              </div>
+
+              {/* 🔥 TABLA */}
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden mb-10">
+                <div className="hidden md:grid grid-cols-[1.8fr_1fr_3fr_3fr_1fr_1fr] bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 text-sm font-bold text-blue-800 border-b">
+                  <div>Usuario</div>
+                  <div>Tipo</div>
+                  <div>Mensaje</div>
+                  <div>Respuesta</div>
+                  <div>Estado</div>
+                  <div>Acción</div>
+                </div>
+
+                <div className="divide-y divide-gray-200">
+                  {quejasActuales.map((q) => (
+                    <div key={q._id} className="md:grid md:grid-cols-[1.8fr_1fr_3fr_3fr_1fr_1fr] gap-6 px-6 py-6 hover:bg-gray-50 transition-all duration-200">
+                      <div className="hidden md:block">{q.usuario?.nombre} {q.usuario?.apellido}</div>
+                      <div className="hidden md:block">
+                        {q.tipo === "queja" ? (
+                          <span className="px-3 py-1 text-orange-800 bg-orange-100 rounded-full text-xs">Queja</span>
+                        ) : (
+                          <span className="px-3 py-1 text-blue-600 bg-blue-200 rounded-full text-xs">Sugerencia</span>
+                        )}
+                      </div>
+                      <div className="hidden md:block text-gray-600 text-sm line-clamp-2">{q.mensaje}</div>
+
+                      <div className="flex flex-col">
+                        <textarea
+                          value={q.respuesta || ""}
+                          onChange={(e) => handleRespuestaChange(q._id, e.target.value)}
+                          className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[56px]"
+                          placeholder="Escribe una respuesta..."
+                          maxLength={250}
+                        />
+                        <div className="text-xs text-gray-500 text-right mt-1">{(q.respuesta?.length || 0)}/250</div>
+                      </div>
+
+                      <div className="hidden md:block">
+                        {q.estado === "resuelto" ? (
+                          <span className="px-3 py-1 text-green-800 bg-green-100 rounded-full text-xs">Resuelto</span>
+                        ) : (
+                          <span className="px-3 py-1 text-red-800 bg-red-100 rounded-full text-xs">Pendiente</span>
+                        )}
+                      </div>
+
+                      <div className="flex justify-center">
+                        <button
+                          disabled={!q.respuesta || q.respuesta.trim() === ""}
+                          onClick={() => responderQueja(q._id, q.respuesta || "")}
+                          className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                            !q.respuesta || q.respuesta.trim() === ""
+                              ? "bg-gray-400 text-white cursor-not-allowed"
+                              : "bg-gradient-to-r from-blue-900 to-blue-900 text-white hover:from-blue-800 hover:to-blue-900 transform hover:scale-105"
+                          }`}
+                        >
+                          💾 Guardar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 🔥 PAGINADOR */}
+              {totalPaginas > 1 && (
+                <div className="bg-white rounded-2xl shadow-md p-6 flex justify-center gap-3">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1, tipoTab, estadoTab)}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 bg-blue-800 text-white rounded-xl disabled:bg-gray-400"
+                  >
+                    ← Anterior
+                  </button>
+                  {[...Array(totalPaginas)].map((_, i) => (
+                    <button
+                      key={i + 1}
+                      onClick={() => handlePageChange(i + 1, tipoTab, estadoTab)}
+                      className={`px-3 py-2 rounded-xl ${
+                        currentPage === i + 1 ? 'bg-blue-800 text-white' : 'bg-gray-200 hover:bg-blue-100'
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1, tipoTab, estadoTab)}
+                    disabled={currentPage === totalPaginas}
+                    className="px-4 py-2 bg-blue-800 text-white rounded-xl disabled:bg-gray-400"
+                  >
+                    Siguiente →
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </TabPanel>
+    );
+  };
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <div className="h-10 sm:h-5 mb-6" />
+        <div className="min-h-screen bg-blue-50 flex items-center justify-center">
+          <p className="text-center text-gray-700 text-lg">Cargando quejas...</p>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <ToastContainer />
+      <Header />
+      <div className="h-10 sm:h-5 mb-6" />
+
+      <main className="py-10 bg-blue-50 min-h-screen">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-4xl font-bold text-gray-700 text-center mb-12">
+            📝 Gestión de Quejas y Sugerencias
+          </h2>
+
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 mb-10 p-6">
+            <Tabs>
+              <TabList className="flex border-b border-gray-200 mb-6">
+                <Tab className="flex-1 py-4 px-6 text-center font-semibold text-gray-600 cursor-pointer transition-all hover:text-blue-800 focus:outline-none">
+                  Todas ({quejas.length})
+                </Tab>
+                <Tab className="flex-1 py-4 px-6 text-center font-semibold text-gray-600 cursor-pointer transition-all hover:text-orange-600 focus:outline-none">
+                  Quejas ({totalQuejas})
+                </Tab>
+                <Tab className="flex-1 py-4 px-6 text-center font-semibold text-gray-600 cursor-pointer transition-all hover:text-blue-600 focus:outline-none">
+                  Sugerencias ({totalSugerencias})
+                </Tab>
+                <Tab className="flex-1 py-4 px-6 text-center font-semibold text-gray-600 cursor-pointer transition-all hover:text-red-600 focus:outline-none">
+                  Pendientes ({totalPendientes})
+                </Tab>
+                <Tab className="flex-1 py-4 px-6 text-center font-semibold text-gray-600 cursor-pointer transition-all hover:text-green-600 focus:outline-none">
+                  Resueltos ({totalResueltos})
+                </Tab>
+              </TabList>
+
+              {renderQuejasTab('todos', 'todos', 'Todas')}
+              {renderQuejasTab('queja', 'todos', 'Quejas')}
+              {renderQuejasTab('sugerencia', 'todos', 'Sugerencias')}
+              {renderQuejasTab('todos', 'pendiente', 'Pendientes')}
+              {renderQuejasTab('todos', 'resuelto', 'Resueltos')}
+            </Tabs>
           </div>
         </div>
-      </footer>
+      </main>
+
+      <Footer />
     </>
   );
 }

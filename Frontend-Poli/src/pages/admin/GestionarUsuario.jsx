@@ -1,139 +1,254 @@
 import { useEffect, useState } from "react";
 import useFetch from "../../hooks/useFetch";
-import { ToastContainer } from 'react-toastify'
+import { ToastContainer, toast } from 'react-toastify';
 import Header from "../../layout/Header";
+import Footer from "../../layout/Footer";
+
 function GestionarUsuario() {
     const { fetchDataBackend } = useFetch();
     const [usuarios, setUsuarios] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [filtroRol, setFiltroRol] = useState('todos');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [usuariosPorPagina] = useState(10);
 
     useEffect(() => {
         const obtenerUsuarios = async () => {
-            const url = `${import.meta.env.VITE_BACKEND_URL}/admin/usuario`;
-            const storedUser = JSON.parse(localStorage.getItem("auth-token"));
-            const headers = {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${storedUser?.state?.token || ''}`,
-            };
-            const response = await fetchDataBackend(url, {
-                method: "GET",
-                config: { headers },
-            });
-            setUsuarios(response);
+            setLoading(true);
+            try {
+                const url = `${import.meta.env.VITE_BACKEND_URL}/admin/usuario`;
+                const storedUser = JSON.parse(localStorage.getItem("auth-token"));
+                const headers = {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${storedUser?.state?.token || ''}`,
+                };
+                const response = await fetchDataBackend(url, {
+                    method: "GET",
+                    config: { headers },
+                });
+                setUsuarios(response);
+                setCurrentPage(1);
+            } catch (err) {
+                toast.error('Error al cargar usuarios');
+            } finally {
+                setLoading(false);
+            }
         };
         obtenerUsuarios();
     }, []);
 
     const cambiarRolUsuario = async (idUsuario, nuevoRol) => {
-        const url = `${import.meta.env.VITE_BACKEND_URL}/admin/rol/${idUsuario}`;
-        const storedUser = JSON.parse(localStorage.getItem("auth-token"));
-        const headers = {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${storedUser?.state?.token || ''}`,
-        };
-        const body = { rol: nuevoRol };
-        await fetchDataBackend(url, {
-            method: "PUT",
-            body,
-            config: { headers },
-        });
-        setUsuarios((prev) =>
-            prev.map((user) =>
-                user._id === idUsuario ? { ...user, rol: nuevoRol } : user
-            )
-        );
+        try {
+            const url = `${import.meta.env.VITE_BACKEND_URL}/admin/rol/${idUsuario}`;
+            const storedUser = JSON.parse(localStorage.getItem("auth-token"));
+            const headers = {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${storedUser?.state?.token || ''}`,
+            };
+            const body = { rol: nuevoRol };
+            await fetchDataBackend(url, {
+                method: "PUT",
+                body,
+                config: { headers },
+            });
+            setUsuarios((prev) =>
+                prev.map((user) =>
+                    user._id === idUsuario ? { ...user, rol: nuevoRol } : user
+                )
+            );
+        } catch (err) {
+            toast.error('Error al actualizar rol');
+        }
     };
+
+    // 🔥 FILTRO POR ROL
+    const usuariosFiltrados = usuarios.filter(user =>
+        filtroRol === 'todos' || user.rol === filtroRol
+    );
+
+    // 🔥 PAGINACIÓN
+    const indexUltimoUsuario = currentPage * usuariosPorPagina;
+    const indexPrimerUsuario = indexUltimoUsuario - usuariosPorPagina;
+    const usuariosActuales = usuariosFiltrados.slice(indexPrimerUsuario, indexUltimoUsuario);
+    const totalPaginas = Math.ceil(usuariosFiltrados.length / usuariosPorPagina);
+
+    const handlePageChange = (nuevaPagina) => {
+        if (nuevaPagina >= 1 && nuevaPagina <= totalPaginas) {
+            setCurrentPage(nuevaPagina);
+        }
+    };
+
+    if (loading) {
+        return (
+            <>
+                <Header />
+                <div className="h-10 sm:h-5 mb-6" />
+                <div className="min-h-screen bg-blue-50 flex items-center justify-center">
+                    <p className="text-center text-gray-700 text-lg">Cargando usuarios...</p>
+                </div>
+                <Footer />
+            </>
+        );
+    }
 
     return (
         <>
-
-        <Header />
             <ToastContainer />
-            <div className="p-6 mt-26 max-w-6xl mx-auto">
-                <h2 className="text-2xl font-semibold mb-6  text-gray-500">Gestión de Usuarios</h2>
+            <Header />
+            <div className="h-10 sm:h-5 mb-6" />
 
-                {usuarios.length === 0 ? (
-                    <p className="text-center text-gray-500">Cargando usuarios...</p>
-                ) : (
-                    <div className="flex flex-col gap-3">
-                        {/* Encabezado */}
-                        <div className="hidden sm:flex text-blue-800 text-sm font-semibold px-4">
-                            <div className="flex-1">Nombre</div>
-                            <div className="flex-1">Teléfono</div>
-                            <div className="flex-[0.7]">Rol</div>
-                            <div className="flex-[0.7]">Estado</div>
-                            <div className="flex-[0.9]">Cambiar Rol</div>
-                        </div>
+            <main className="py-10 bg-blue-50 min-h-screen">
+                <div className="max-w-7xl mx-auto px-4">
+                    {/* 🔥 TÍTULO GRADIENTE */}
+                    <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-700 to-gray-700 bg-clip-text text-transparent text-center mb-12">
+                        👥 Gestión de Usuarios
+                    </h2>
 
-                        {/* Lista de usuarios */}
-                        {usuarios.map((user) => (
-                            <div
-                                key={user._id}
-                                className="flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-0 bg-white shadow-sm rounded-lg px-4 py-3 hover:shadow-md transition-shadow"
-                            >
-                                {/* Nombre */}
-                                <div className="flex-1 flex items-center space-x-3 text-gray-800 font-medium text-sm">
-                                    <img
-                                        src="https://media-public.canva.com/rVvfU/MAFlPzrVvfU/1/tl.png"
-                                        alt={`${user.nombre} avatar`}
-                                        className="w-8 h-8 rounded-full"
-                                    />
-                                    <span>{user.nombre} {user.apellido}</span>
-                                </div>
-
-                                {/* Telefono */}
-                                <div className="flex-1 text-gray-600 text-sm">{user.telefono}</div>
-
-                                {/* Rol */}
-                                <div className="flex-[0.7] text-gray-700 capitalize text-sm">{user.rol}</div>
-
-                                {/* Estado */}
-                                <div className="flex-[0.7]">
-                                    {user.estado ? (
-                                        <span className="inline-block px-2 py-0.5 text-green-800 bg-green-100 rounded-full text-xs font-semibold">
-                                            Activo
+                    {usuarios.length === 0 ? (
+                        <p className="text-center text-gray-700 text-xl">No hay usuarios registrados</p>
+                    ) : (
+                        <>
+                            {/* 🔥 FILTRO + INFO */}
+                            <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-200">
+                                <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-lg font-semibold text-gray-700">
+                                            Total: {usuariosFiltrados.length} usuarios
                                         </span>
-                                    ) : (
-                                        <span className="inline-block px-2 py-0.5 text-red-800 bg-red-100 rounded-full text-xs font-semibold">
-                                            Inactivo
+                                        <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                                            Página {currentPage} de {totalPaginas}
                                         </span>
-                                    )}
-                                </div>
-
-                                {/* Seleccionamos el Rol */}
-                                <div className="flex-[0.9]">
+                                    </div>
                                     <select
-                                        value={user.rol}
-                                        onChange={(e) => cambiarRolUsuario(user._id, e.target.value)}
-                                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 cursor-pointer appearance-none"
+                                        value={filtroRol}
+                                        onChange={(e) => {
+                                            setFiltroRol(e.target.value);
+                                            setCurrentPage(1);
+                                        }}
+                                        className="px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-semibold"
                                     >
-                                        <option value="estudiante">Estudiante</option>
-                                        <option value="vendedor">Vendedor</option>
+                                        <option value="todos">Todos los roles</option>
+                                        <option value="estudiante">Estudiantes</option>
+                                        <option value="vendedor">Vendedores</option>
                                     </select>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-            {/* Footer */}
-            <footer className="bg-blue-950 py-4 mt-20">
-                <div className="text-center">
-                    <p className="text-white underline mb-2">
-                        © 2025 PoliVentas - Todos los derechos reservados.
-                    </p>
-                    <div className="flex justify-center gap-6">
-                        <a href="#" className="text-white hover:text-red-400 transition-colors">
-                            Facebook
-                        </a>
-                        <a href="#" className="text-white hover:text-red-400 transition-colors">
-                            Instagram
-                        </a>
-                        <a href="#" className="text-white hover:text-red-400 transition-colors">
-                            Twitter
-                        </a>
-                    </div>
+
+                            {/* 🔥 TABLA USUARIOS */}
+                            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+                                {/* HEADER TABLA */}
+                                <div className="hidden sm:grid grid-cols-[1.5fr_1fr_0.8fr_0.8fr_1fr] bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 text-sm font-bold text-blue-800 border-b">
+                                    <div>Usuario</div>
+                                    <div>Teléfono</div>
+                                    <div>Rol</div>
+                                    <div>Estado</div>
+                                    <div>Acciones</div>
+                                </div>
+
+                                {/* CARDS USUARIOS */}
+                                <div className="divide-y divide-gray-200">
+                                    {usuariosActuales.map((user) => (
+                                        <div
+                                            key={user._id}
+                                            className="sm:grid sm:grid-cols-[1.5fr_1fr_0.8fr_0.8fr_1fr] gap-4 px-6 py-4 hover:bg-gray-50 transition-colors"
+                                        >
+                                            {/* MOBILE CARD */}
+                                            <div className="sm:hidden bg-blue-50 rounded-xl p-4 mb-3">
+                                                <div className="flex items-center gap-3">
+                                                    <img
+                                                        src="https://media-public.canva.com/rVvfU/MAFlPzrVvfU/1/tl.png"
+                                                        alt={`${user.nombre} avatar`}
+                                                        className="w-10 h-10 rounded-full"
+                                                    />
+                                                    <div>
+                                                        <p className="font-bold text-gray-800">{user.nombre} {user.apellido}</p>
+                                                        <p className="text-sm text-gray-600">{user.telefono}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* DESKTOP */}
+                                            <div className="flex items-center gap-3">
+                                                <img
+                                                    src="https://media-public.canva.com/rVvfU/MAFlPzrVvfU/1/tl.png"
+                                                    alt={`${user.nombre} avatar`}
+                                                    className="w-8 h-8 rounded-full hidden sm:block"
+                                                />
+                                                <span className="font-medium text-gray-800 hidden sm:block">
+                                                    {user.nombre} {user.apellido}
+                                                </span>
+                                            </div>
+
+                                            <div className="text-gray-600 hidden sm:block">{user.telefono}</div>
+
+                                            <div className="capitalize text-gray-700 hidden sm:block">{user.rol}</div>
+
+                                            <div className="hidden sm:block">
+                                                {user.estado ? (
+                                                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
+                                                        Activo
+                                                    </span>
+                                                ) : (
+                                                    <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold">
+                                                        Inactivo
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            <div>
+                                                <select
+                                                    value={user.rol}
+                                                    onChange={(e) => cambiarRolUsuario(user._id, e.target.value)}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-semibold transition-all"
+                                                >
+                                                    <option value="estudiante">Estudiante</option>
+                                                    <option value="vendedor">Vendedor</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* 🔥 PAGINADOR ELEGANTE */}
+                            {totalPaginas > 1 && (
+                                <div className="bg-white rounded-2xl shadow-lg p-6 mt-6 border border-gray-200 flex flex-wrap items-center justify-center gap-2">
+                                    <button
+                                        onClick={() => handlePageChange(currentPage - 1)}
+                                        disabled={currentPage === 1}
+                                        className="px-4 py-2 bg-blue-800 text-white rounded-xl font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed hover:bg-blue-700 transition-all"
+                                    >
+                                        ← Anterior
+                                    </button>
+
+                                    {[...Array(totalPaginas)].map((_, i) => (
+                                        <button
+                                            key={i + 1}
+                                            onClick={() => handlePageChange(i + 1)}
+                                            className={`px-3 py-2 rounded-xl font-semibold transition-all ${currentPage === i + 1
+                                                    ? 'bg-blue-800 text-white'
+                                                    : 'bg-gray-200 text-gray-700 hover:bg-blue-100'
+                                                }`}
+                                        >
+                                            {i + 1}
+                                        </button>
+                                    ))}
+
+                                    <button
+                                        onClick={() => handlePageChange(currentPage + 1)}
+                                        disabled={currentPage === totalPaginas}
+                                        className="px-4 py-2 bg-blue-800 text-white rounded-xl font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed hover:bg-blue-800 transition-all"
+                                    >
+                                        Siguiente →
+                                    </button>
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
-            </footer>
+            </main>
+
+            <Footer />
         </>
     );
 }

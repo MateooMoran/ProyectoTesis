@@ -6,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import storeProfile from '../context/storeProfile';
 import storeAuth from '../context/storeAuth';
 import Header from '../layout/Header';
+import Footer from '../layout/Footer';
 
 const Perfil = () => {
   const navigate = useNavigate();
@@ -39,7 +40,6 @@ const Perfil = () => {
       }
     } catch (err) {
       setIsLoading(false);
-      toast.error('Error al cargar el perfil');
     }
   };
 
@@ -72,171 +72,207 @@ const Perfil = () => {
     navigate('/login');
   };
 
+  if (isLoading) {
+    return (
+      <>
+        <Header />
+        <div className="h-10 sm:h-5 mb-6" />
+        <div className="min-h-screen bg-blue-50 flex items-center justify-center">
+          <p className="text-center text-gray-700 text-lg">Cargando perfil...</p>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
   return (
-    <div className=" min-h-screen">
+    <>
       <ToastContainer />
       <Header />
-          {/* Espacio para compensar header fijo */}
-          <div className="h-10 sm:h-5" />
+      <div className="h-10 sm:h-5 mb-6" />
 
-      <main className=" py-10">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-gray-500 text-center mb-8 mt-7">Mi Perfil</h2>
-          {isLoading ? (
-            <p className="text-center text-gray-700">Cargando perfil...</p>
-          ) : user ? (
-            <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-2xl p-6">
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold text-blue-800 mb-4">Información Personal</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-800 font-bold">Nombre</p>
-                    <p className="text-gray-800">{user.nombre}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-800 font-bold">Apellido</p>
-                    <p className="text-gray-800">{user.apellido}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-800 font-bold">Correo Electrónico</p>
-                    <p className="text-gray-800">{user.email}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-800 font-bold">Rol</p>
-                    <p className="text-gray-800">{rol ? rol.toUpperCase() : 'N/A'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-800 font-bold">Dirección</p>
-                    <p className="text-gray-800">{user.direccion || 'No especificada'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-800 font-bold">Teléfono</p>
-                    <p className="text-gray-800">{user.telefono || 'No especificado'}</p>
+      <main className="py-10 bg-blue-50 min-h-screen">
+        <div className="max-w-7xl mx-auto px-4">
+
+          {/* TÍTULO */}
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-700 to-gray-700 bg-clip-text text-transparent text-center mb-12">
+            👤 Mi Perfil
+          </h2>
+
+          {user ? (
+            <div className="grid lg:grid-cols-2 gap-8">
+
+              {/* 🔥 COLUMNA IZQUIERDA: INFO + ACTUALIZAR */}
+              <div className="space-y-6">
+
+                {/* INFO PERSONAL */}
+                <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+                  <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                    Información Personal
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                    <div className="space-y-2">
+                      <p className="text-gray-600 font-semibold">Nombre</p>
+                      <p className="text-gray-900 font-bold">{user.nombre}</p>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-gray-600 font-semibold">Apellido</p>
+                      <p className="text-gray-900 font-bold">{user.apellido}</p>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-gray-600 font-semibold">Email</p>
+                      <p className="text-gray-900 font-bold">{user.email}</p>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-gray-600 font-semibold">Rol</p>
+                      <p className={`font-bold ${rol === 'admin' ? 'text-green-600' : 'text-blue-600'}`}>
+                        {rol ? rol.toUpperCase() : 'N/A'}
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-gray-600 font-semibold">Dirección</p>
+                      <p className="text-gray-900">{user.direccion || 'No especificada'}</p>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-gray-600 font-semibold">Teléfono</p>
+                      <p className="text-gray-900">{user.telefono || 'No especificado'}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold text-blue-800 mb-4">Actualizar Perfil</h3>
-                <form onSubmit={handleSubmitProfile(handleUpdateProfile)}>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm text-gray-800 font-bold">Nombre</label>
-                      <input
-                        type="text"
-                        defaultValue={user.nombre}
-                        className="w-full py-2 px-4 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-800 text-gray-700"
-                        {...registerProfile('nombre', { required: 'El nombre es obligatorio' })}
-                      />
-                      {profileErrors.nombre && (
-                        <p className="text-red-700 text-xs mt-1">{profileErrors.nombre.message}</p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="text-sm text-gray-800 font-bold">Apellido</label>
-                      <input
-                        type="text"
-                        defaultValue={user.apellido}
-                        className="w-full py-2 px-4 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-800 text-gray-700"
-                        {...registerProfile('apellido', { required: 'El apellido es obligatorio' })}
-                      />
-                      {profileErrors.apellido && (
-                        <p className="text-red-700 text-xs mt-1">{profileErrors.apellido.message}</p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="text-sm text-gray-800 font-bold">Dirección</label>
-                      <input
-                        type="text"
-                        defaultValue={user.direccion}
-                        className="w-full py-2 px-4 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-800 text-gray-700"
-                        {...registerProfile('direccion')}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm text-gray-800 font-bold">Teléfono</label>
-                      <input
-                        type="text"
-                        defaultValue={user.telefono}
-                        className="w-full py-2 px-4 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-800 text-gray-700"
-                        {...registerProfile('telefono')}
-                      />
-                    </div>
-                  </div>
-                  <button
-                    type="submit"
-                    className="mt-4 w-full bg-blue-800 text-white py-2 rounded-xl font-semibold hover:bg-red-800 transition-colors hover:scale-105 duration-300"
-                  >
-                    Guardar Cambios
-                  </button>
-                </form>
-              </div>
-
-              <div>
-                <h3 className="text-xl font-semibold text-blue-800 mb-4">
-                  <button
-                    onClick={() => setShowPasswordFields(!showPasswordFields)}
-                    className="flex items-center text-blue-800 hover:text-red-800"
-                  >
-                    {showPasswordFields ? 'Ocultar' : 'Cambiar Contraseña'}
-                  </button>
-                </h3>
-                {showPasswordFields && (
-                  <form onSubmit={handleSubmitPassword(handleUpdatePassword)}>
-                    <div className="grid grid-cols-1 gap-4">
+                {/* ACTUALIZAR PERFIL */}
+                <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+                  <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                    Actualizar Perfil
+                  </h3>
+                  <form onSubmit={handleSubmitProfile(handleUpdateProfile)} className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="text-sm text-gray-800 font-bold">Contraseña Actual</label>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Nombre</label>
                         <input
-                          type="password"
-                          className="w-full py-2 px-4 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-800 text-gray-700"
-                          {...registerPassword('currentPassword', { required: 'La contraseña actual es obligatoria' })}
+                          type="text"
+                          className="w-full py-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-700"
+                          {...registerProfile('nombre', { required: 'El nombre es obligatorio' })}
                         />
-                        {passwordErrors.currentPassword && (
-                          <p className="text-red-700 text-xs mt-1">{passwordErrors.currentPassword.message}</p>
-                        )}
+                        {profileErrors.nombre && <p className="text-red-600 text-xs mt-1">{profileErrors.nombre.message}</p>}
                       </div>
                       <div>
-                        <label className="text-sm text-gray-800 font-bold">Nueva Contraseña</label>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Apellido</label>
                         <input
-                          type="password"
-                          className="w-full py-2 px-4 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-800 text-gray-700"
-                          {...registerPassword('newPassword', {
-                            required: 'La nueva contraseña es obligatoria',
-                            minLength: { value: 4, message: 'La contraseña debe tener al menos 4 caracteres' },
-                          })}
+                          type="text"
+                          className="w-full py-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-700"
+                          {...registerProfile('apellido', { required: 'El apellido es obligatorio' })}
                         />
-                        {passwordErrors.newPassword && (
-                          <p className="text-red-700 text-xs mt-1">{passwordErrors.newPassword.message}</p>
-                        )}
+                        {profileErrors.apellido && <p className="text-red-600 text-xs mt-1">{profileErrors.apellido.message}</p>}
                       </div>
                       <div>
-                        <label className="text-sm text-gray-800 font-bold">Confirmar Nueva Contraseña</label>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Dirección</label>
                         <input
-                          type="password"
-                          className="w-full py-2 px-4 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-800 text-gray-700"
-                          {...registerPassword('confirmNewPassword', { required: 'Confirma la nueva contraseña' })}
+                          type="text"
+                          className="w-full py-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-700"
+                          {...registerProfile('direccion')}
                         />
-                        {passwordErrors.confirmNewPassword && (
-                          <p className="text-red-700 text-xs mt-1">{passwordErrors.confirmNewPassword.message}</p>
-                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Teléfono</label>
+                        <input
+                          type="text"
+                          className="w-full py-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-700"
+                          {...registerProfile('telefono')}
+                        />
                       </div>
                     </div>
                     <button
                       type="submit"
-                      className="mt-4 w-full bg-blue-800 text-white py-2 rounded-xl font-semibold hover:bg-red-800 transition-colors hover:scale-105 duration-300"
+                      className="w-full h-12 bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-xl font-bold text-lg flex items-center justify-center hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-300 shadow-lg"
+                    >
+                      Guardar Cambios
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+              {/* 🔥 COLUMNA DERECHA: CAMBIO CONTRASEÑA */}
+              <div className="space-y-6">
+                <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+                  <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                    {showPasswordFields ? 'Actualizar Contraseña' : 'Actualizar Contraseña'}
+                  </h3>
+
+                  {showPasswordFields ? (
+                    <form onSubmit={handleSubmitPassword(handleUpdatePassword)} className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Contraseña Actual</label>
+                        <input
+                          type="password"
+                          className="w-full py-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-700"
+                          {...registerPassword('currentPassword', { required: 'La contraseña actual es obligatoria' })}
+                        />
+                        {passwordErrors.currentPassword && <p className="text-red-600 text-xs mt-1">{passwordErrors.currentPassword.message}</p>}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Nueva Contraseña</label>
+                        <input
+                          type="password"
+                          className="w-full py-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-700"
+                          {...registerPassword('newPassword', {
+                            required: 'La nueva contraseña es obligatoria',
+                            minLength: { value: 4, message: 'Mínimo 4 caracteres' },
+                          })}
+                        />
+                        {passwordErrors.newPassword && <p className="text-red-600 text-xs mt-1">{passwordErrors.newPassword.message}</p>}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Confirmar Nueva</label>
+                        <input
+                          type="password"
+                          className="w-full py-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-700"
+                          {...registerPassword('confirmNewPassword', { required: 'Confirma la nueva contraseña' })}
+                        />
+                        {passwordErrors.confirmNewPassword && <p className="text-red-600 text-xs mt-1">{passwordErrors.confirmNewPassword.message}</p>}
+                      </div>
+                      <div className="flex gap-3">
+                        <button
+                          type="submit"
+                          className="flex-1 h-12 bg-gradient-to-r from-green-800 to-green-900 text-white rounded-xl font-bold text-lg flex items-center justify-center hover:from-green-800 hover:to-green-900 transform hover:scale-105 transition-all duration-300 shadow-lg"
+                        >
+                          Actualizar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowPasswordFields(false);
+                            resetPassword();
+                          }}
+                          className="flex-1 h-12 bg-gray-500 text-white rounded-xl font-bold text-lg flex items-center justify-center hover:bg-gray-600 transform hover:scale-105 transition-all duration-300"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <button
+                      onClick={() => setShowPasswordFields(true)}
+                      className="w-full h-12 bg-gradient-to-r from-blue-800 to-blue-900 text-white rounded-xl font-bold text-lg flex items-center justify-center hover:from-blue-800 hover:to-blue-900 transform hover:scale-105 transition-all duration-300 shadow-lg"
                     >
                       Cambiar Contraseña
                     </button>
-                  </form>
-                )}
+                  )}
+                </div>
+
+
               </div>
             </div>
           ) : (
-            <p className="text-center text-red-700">Error al cargar el perfil</p>
+            <div className="text-center py-12">
+              <p className="text-red-600 text-xl">Error al cargar el perfil</p>
+            </div>
           )}
         </div>
       </main>
-    </div>
+
+      <Footer />
+    </>
   );
 };
 

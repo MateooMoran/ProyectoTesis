@@ -167,6 +167,12 @@ export const Home = () => {
       {/* Main Section */}
       <main className="bg-white-50">
         <div className="container mx-auto px-4">
+          <CarruselCategorias
+            categorias={categorias}
+            productos={productos}
+            loadingCategorias={loadingCategorias}
+            errorCategorias={errorCategorias}
+          />
 
           {/* ✅ CARRUSEL 1: */}
           <CarruselProductos
@@ -188,12 +194,6 @@ export const Home = () => {
             onAddToCart={handleAgregarAlCarrito}
           />
 
-          <CarruselCategorias
-            categorias={categorias}
-            productos={productos}
-            loadingCategorias={loadingCategorias}
-            errorCategorias={errorCategorias}
-          />
         </div>
 
       </main>
