@@ -5,13 +5,13 @@ import logo from '../assets/logo.png';
 import storeProfile from '../context/storeProfile';
 import storeAuth from '../context/storeAuth';
 import storeProductos from '../context/storeProductos';
-import { User, LogOut, ShoppingCart, Search } from 'lucide-react';
 import Footer from '../layout/Footer';
 import Carrusel from '../layout/CarruselBanner';
 import CarruselProductos from '../pages/productosGeneral/CarruselProductos';
 import Slider from 'react-slick';
 import CarruselCategorias from './productosGeneral/CarruselCategorias';
-
+import Header from '../layout/Header';
+import { User, LogOut, ShoppingCart, Search, Star, Heart } from 'lucide-react';
 
 export const Home = () => {
   const { user } = storeProfile();
@@ -46,25 +46,16 @@ export const Home = () => {
     }
   };
 
+  const scrollToCarousel = () => {
+    navigate('/');
+  };
+
   // Fetch de productos y categorías
   useEffect(() => {
     fetchProductos();
     fetchCategorias();
   }, [fetchProductos, fetchCategorias]);
 
-  // Cerrar dropdowns al hacer clic fuera
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (categoriesRef.current && !categoriesRef.current.contains(event.target)) {
-        setIsCategoriesOpen(false);
-      }
-      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const handleLogout = () => {
     clearToken();
@@ -81,7 +72,6 @@ export const Home = () => {
   return (
     <>
       <ToastContainer />
-
       {/* Header */}
       <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50">
         <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -108,6 +98,13 @@ export const Home = () => {
 
           {/* Botones */}
           <div className="flex items-center gap-2 flex-col sm:flex-row w-full sm:w-auto text-center">
+            <button
+              onClick={scrollToCarousel}
+              className="flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"
+            >
+              <Heart className="w-5 h-5" />
+              Favoritos
+            </button>
 
             {/* Botón Carrito */}
             {token && user?.rol === 'estudiante' && (
@@ -159,7 +156,7 @@ export const Home = () => {
       <div className="h-20 sm:h-24"></div>
       {/* Hero Section */}
       <div className="text-center mb-2">
-        <h2 className="text-4xl font-extrabold text-blue-900 mb-2 ">
+        <h2 className="text-4xl font-extrabold text-blue-900 mb-2 mt-6 ">
           Bienvenido a <span className="text-red-700">PoliVentas</span>
         </h2>
         <p className="text-lg text-gray-700 mb-6">
