@@ -123,7 +123,7 @@ const Carrusel = () => {
                                 <img
                                     src={banner.src}
                                     alt={banner.alt}
-                                    className="w-full h-120 object-contain"
+                                    className="w-full h-120 object-cover"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent flex items-end p-6">
                                     <div className="text-white ml-4">
@@ -138,17 +138,17 @@ const Carrusel = () => {
 
                 {/* ASOCIACIONES - MOVIMIENTO INDEPENDIENTE */}
                 <div className="max-w-full mx-auto px-4 relative">
-                    <h3 className="text-2xl font-semibold text-center text-gray-700 mb-1">Asociaciones Universitarias</h3>
+                    <h3 className="text-2xl font-semibold text-center text-gray-700 mb-10">Asociaciones Universitarias</h3>
                     <Slider {...assocSettings}>
                         {asociaciones.map((assoc) => (
                             <div key={assoc.id} className="px-2">
-                                <div className="bg-white rounded-lg shadow-md p-3 cursor-pointer hover:shadow-lg transition-all duration-300">
+                                <div className="bg-white rounded-lg p-3 cursor-pointer hover:scale-115 transition-all duration-300">
                                     <img
                                         src={assoc.src}
                                         alt={assoc.alt}
                                         className="w-full h-24 object-contain rounded"
                                     />
-                                    <p className="text-center text-sm font-semibold text-gray-800 mt-2">{assoc.alt}</p>
+                                    <p className="text-center text-sm font-semibold text-gray-800 mt-2 mb-6">{assoc.alt}</p>
                                 </div>
                             </div>
                         ))}

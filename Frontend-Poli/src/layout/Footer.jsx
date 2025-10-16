@@ -89,7 +89,7 @@ const Footer = () => {
                 </div>
 
                 {/* MAPA GOOGLE MAPS */}
-                <div className="bg-white/5 rounded-2xl p-6 mb-8 backdrop-blur-sm border border-white/10">
+                <div className=" p-6 mb-8 border-t border-white/10 pt-6">
                     <h4 className="text-lg font-semibold mb-4 flex items-center text-center sm:text-left">
                         <FaMapMarkerAlt className="mr-2 text-red-400" />
                         Encuentranos en EPN
@@ -110,7 +110,7 @@ const Footer = () => {
                 </div>
 
                 {/* Copyright */}
-                <div className="border-t border-white/10 pt-6 text-center">
+                <div className="border-t border-white/10 pt-6 text-center mb-3">
                     <div className="flex flex-col sm:flex-row justify-between items-center text-gray-300">
                         <p className="flex items-center">
                             <FaCopyright className="mr-2" />

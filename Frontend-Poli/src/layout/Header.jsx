@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, LogOut, ShoppingCart, Search, Star } from 'lucide-react';
+import { User, LogOut, ShoppingCart, Search, Star, Heart } from 'lucide-react';
 import logo from '../assets/logo.png';
 import storeAuth from '../context/storeAuth';
 import storeProfile from '../context/storeProfile';
@@ -106,8 +106,8 @@ const Header = () => {
                             onClick={scrollToCarousel}
                             className="flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"
                         >
-                            <Star className="w-5 h-5" />
-                            Destacado
+                            <Heart className="w-5 h-5" />
+                            Favoritos
                         </button>
 
                         <button
@@ -120,12 +120,6 @@ const Header = () => {
 
                         {/* Categorías Dropdown */}
                         <div className="relative" ref={categoriesRef}>
-                            <button
-                                className="text-blue-800 font-semibold hover:text-red-800 transition-colors"
-                                onMouseEnter={() => setIsCategoriesOpen(true)}
-                            >
-                                Categorías
-                            </button>
                             {isCategoriesOpen && (
                                 <div
                                     className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200 max-h-60 overflow-auto"
