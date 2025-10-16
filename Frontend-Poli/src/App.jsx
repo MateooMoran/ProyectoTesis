@@ -61,6 +61,7 @@ function App() {
           {/* Rutas públicas */}
           <Route element={<PublicRoute />}>
             <Route index element={<Home />} />
+            
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
             <Route path="forgot/:id" element={<Forgot />} />

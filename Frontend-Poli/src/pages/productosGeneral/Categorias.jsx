@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import useFetch from '../../hooks/useFetch';
 import Header from '../../layout/Header';
 import { toast } from 'react-toastify';
+import Footer from '../../layout/Footer';
 
 const placeholderImage = 'https://via.placeholder.com/150?text=Sin+Imagen';
 
@@ -118,25 +119,8 @@ const CategoriaProductos = () => {
           )}
         </div>
       </div>
-      {/* Footer */}
-      <footer className="bg-blue-950 py-4">
-        <div className="text-center">
-          <p className="text-white underline mb-2">
-            © 2025 PoliVentas - Todos los derechos reservados.
-          </p>
-          <div className="flex justify-center gap-6">
-            <a href="#" className="text-white hover:text-red-400 transition-colors">
-              Facebook
-            </a>
-            <a href="#" className="text-white hover:text-red-400 transition-colors">
-              Instagram
-            </a>
-            <a href="#" className="text-white hover:text-red-400 transition-colors">
-              Twitter
-            </a>
-          </div>
-        </div>
-      </footer>
+
+      <Footer></Footer>
     </>
   );
 };
