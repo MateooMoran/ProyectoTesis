@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Slider from "react-slick";
+
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
@@ -122,7 +123,7 @@ const Carrusel = () => {
                                 <img
                                     src={banner.src}
                                     alt={banner.alt}
-                                    className="w-full h-150 object-fill"
+                                    className="w-full h-120 object-contain"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent flex items-end p-6">
                                     <div className="text-white ml-4">

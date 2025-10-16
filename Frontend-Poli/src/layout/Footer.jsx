@@ -4,7 +4,7 @@ import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaFacebook, FaInstagram, FaTwitter
 
 const Footer = () => {
     return (
-        <footer className="bg-gradient-to-r from-blue-950 via-blue-900 to-indigo-950 text-white relative overflow-hidden">
+        <footer className="bg-blue-950 text-white relative overflow-hidden">
             {/* Fondo decorativo S */}
             <div className="absolute inset-0 opacity-10">
                 <div className="absolute top-0 left-0 w-72 h-72 rounded-full mix-blend-multiply blur-3xl animate-blob"></div>
@@ -26,7 +26,6 @@ const Footer = () => {
                             Plataforma universitaria para comprar y vender productos
                             creados por estudiantes. ¡Apoya tu comunidad!
                         </p>
-
                         {/* Redes Sociales */}
                         <div className="flex space-x-4">
                             <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"

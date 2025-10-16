@@ -30,12 +30,12 @@ const Register = () => {
             {/* Contenedor del formulario a la izquierda */}
             <div className="w-full sm:w-1/2 h-screen bg-white flex justify-center items-center">
                 <div className="md:w-4/5 sm:w-full">
-                    <h1 className="text-3xl font-semibold mb-2 text-center uppercase text-blue-800">Crear cuenta</h1>
+                    <h1 className="text-3xl font-semibold mb-2 text-center uppercase text-blue-700">Crear cuenta</h1>
                     <small className="text-gray-500 block my-4 text-sm">Llena los siguientes campos</small>
 
                     <form onSubmit={handleSubmit(registro)}>
                         <div className="mb-3">
-                            <label className="mb-2 block text-sm font-semibold text-blue-800">Nombre</label>
+                            <label className="mb-2 block text-sm font-semibold text-gray-700">Nombre</label>
                             <input
                                 type="text"
                                 placeholder="Ingresa tu nombre"
@@ -46,7 +46,7 @@ const Register = () => {
                         </div>
 
                         <div className="mb-3">
-                            <label className="mb-2 block text-sm font-semibold text-blue-800">Apellido</label>
+                            <label className="mb-2 block text-sm font-semibold text-gray-700">Apellido</label>
                             <input
                                 type="text"
                                 placeholder="Ingresa tu apellido"
@@ -57,7 +57,7 @@ const Register = () => {
                         </div>
 
                         <div className="mb-3">
-                            <label className="mb-2 block text-sm font-semibold text-blue-800">Teléfono</label>
+                            <label className="mb-2 block text-sm font-semibold text-gray-700">Teléfono</label>
                             <input
                                 type="text"
                                 placeholder="Ingresa tu número de teléfono"
@@ -68,7 +68,7 @@ const Register = () => {
                         </div>
 
                         <div className="mb-3">
-                            <label className="mb-2 block text-sm font-semibold text-blue-800">Dirección</label>
+                            <label className="mb-2 block text-sm font-semibold text-gray-700">Dirección</label>
                             <input
                                 type="text"
                                 placeholder="Ingresa tu dirección"
@@ -79,7 +79,7 @@ const Register = () => {
                         </div>
 
                         <div className="mb-3">
-                            <label className="mb-2 block text-sm font-semibold text-blue-800">Correo electrónico</label>
+                            <label className="mb-2 block text-sm font-semibold text-gray-700">Correo electrónico</label>
                             <input
                                 type="email"
                                 placeholder="Ingresa tu correo"
@@ -90,7 +90,7 @@ const Register = () => {
                         </div>
 
                         {/* Campo para contraseña */}
-                        <div className="mb-3 relative text-blue-800">
+                        <div className="mb-3 relative text-gray-700">
                             <label className="mb-2 block text-sm font-semibold">Contraseña</label>
                             <div className="relative">
                                 <input
