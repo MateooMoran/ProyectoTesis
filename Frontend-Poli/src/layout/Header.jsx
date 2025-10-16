@@ -101,7 +101,10 @@ const Header = () => {
 
                     {/* Botones */}
                     <div className="flex items-center gap-2 flex-col sm:flex-row w-full sm:w-auto">
-                        {(rol === 'estudiante' || rol === 'admin' || rol === 'vendedor') && <NotificacionesAdmin />}
+                        {(rol === 'estudiante' || rol === 'admin' || rol === 'vendedor'|| rol === null ) && 
+                        
+                        <NotificacionesAdmin />}
+
                         <button
                             onClick={scrollToCarousel}
                             className="flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"
@@ -117,38 +120,6 @@ const Header = () => {
                             <MessageCircle size={24} />
                         </button>
                         {open && <Chat onClose={() => setOpen(false)} />}
-
-                        {/* Categorías Dropdown */}
-                        <div className="relative" ref={categoriesRef}>
-                            {isCategoriesOpen && (
-                                <div
-                                    className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200 max-h-60 overflow-auto"
-                                    onMouseEnter={() => setIsCategoriesOpen(true)}
-                                >
-                                    {loadingCategorias && (
-                                        <p className="px-4 py-2 text-gray-500 text-sm">Cargando categorías...</p>
-                                    )}
-                                    {error && (
-                                        <p className="px-4 py-2 text-red-700 text-sm">{error}</p>
-                                    )}
-                                    {!loadingCategorias && !error && categorias.length === 0 && (
-                                        <p className="px-4 py-2 text-gray-500 text-sm">No hay categorías disponibles.</p>
-                                    )}
-                                    {!loadingCategorias && !error && categorias.length > 0 && (
-                                        categorias.map((cat) => (
-                                            <Link
-                                                key={cat._id}
-                                                to={token ? `/dashboard/productos/categoria/${cat._id}` : `/productos/categoria/${cat._id}`}
-                                                className="block px-4 py-2 text-gray-800 hover:bg-red-100 hover:text-red-700 text-sm"
-                                                onClick={() => setIsCategoriesOpen(false)}
-                                            >
-                                                {cat.nombreCategoria}
-                                            </Link>
-                                        ))
-                                    )}
-                                </div>
-                            )}
-                        </div>
 
                         {/* Carrito */}
                         {token && rol === 'estudiante' && (
