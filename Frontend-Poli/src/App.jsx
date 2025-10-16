@@ -67,7 +67,7 @@ function App() {
             <Route path="forgot/:id" element={<Forgot />} />
             <Route path="confirm/:token" element={<Confirm />} />
             <Route path="reset/:token" element={<Reset />} />
-            <Route path="/productos/categoria/:id" element={<CategoriaProductos />} />
+            <Route path="productos/categoria/:id" element={<CategoriaProductos />} />
             <Route path="carrito/vacio" element={<CarritoVacio />} />
             <Route path="productos/:id" element={<ProductoDetalle />} />
             <Route path="auth/callback" element={<AuthCallback />} />
@@ -84,7 +84,7 @@ function App() {
             <Route path="listarProd" element={<Productos />} />
             <Route path="/dashboard/productos/categoria/:id" element={<CategoriaProductos />} />
             <Route path="estudiante/carrito" element={<Carrito />} />
-            <Route path="productos/:id" element={<ProductoDetalle />} />
+            <Route path="/dashboard/productos/:id" element={<ProductoDetalle />} />
             <Route path="perfil" element={<Perfil />} />
             <Route path='admin/gestionusuarios' element={<GestionarUsuario />} />
             <Route path='admin/gestionquejas' element={<GestionQuejasSugerencias />} />
