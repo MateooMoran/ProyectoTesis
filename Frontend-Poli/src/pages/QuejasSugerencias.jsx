@@ -25,7 +25,7 @@ export default function QuejasSugerenciasEstudiante() {
             navigate("/login");
             return;
         }
-        if (rol !== "estudiante") {
+        if (rol !== "estudiante" && rol !== "vendedor") {
             navigate("/dashboard");
             return;
         }
@@ -211,8 +211,8 @@ export default function QuejasSugerenciasEstudiante() {
                                     <div className="w-full">
                                         <span
                                             className={`inline-block mb-2 px-3 py-1 rounded-full text-xs font-semibold uppercase ${item.tipo === "queja"
-                                                    ? "bg-orange-100 text-orange-800"
-                                                    : "bg-blue-100 text-blue-800"
+                                                ? "bg-orange-100 text-orange-800"
+                                                : "bg-blue-100 text-blue-800"
                                                 }`}
                                         >
                                             {item.tipo === "queja" ? "Queja" : "Sugerencia"}
@@ -223,8 +223,8 @@ export default function QuejasSugerenciasEstudiante() {
                                             </p>
                                             <span
                                                 className={`inline-block px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${item.estado === "resuelto"
-                                                        ? "bg-green-100 text-green-800"
-                                                        : "bg-red-100 text-red-800"
+                                                    ? "bg-green-100 text-green-800"
+                                                    : "bg-red-100 text-red-800"
                                                     }`}
                                             >
                                                 {item.estado}

@@ -222,7 +222,15 @@ const Header = () => {
                                                     className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
                                                     onClick={() => setIsDropdownOpen(false)}
                                                 >
+                                                    
                                                     Categorías
+                                                </Link>
+                                                <Link
+                                                    to="/dashboard/vendedor/quejas-sugerencias"
+                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
+                                                    onClick={() => setIsDropdownOpen(false)}
+                                                >
+                                                    Mis Quejas y Sugerencias
                                                 </Link>
                                                 <Link
                                                     to="/dashboard/vendedor/productos"
@@ -242,7 +250,7 @@ const Header = () => {
                                                 </Link>
                                             </>
                                         )}
-                                        {rol === 'estudiante' && (
+                                        {rol === 'estudiante' &&  (
                                             <>
                                                 <Link
                                                     to="/dashboard/estudiante/quejas-sugerencias"

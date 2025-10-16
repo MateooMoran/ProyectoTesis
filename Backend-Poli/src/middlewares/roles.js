@@ -19,7 +19,12 @@ export const esEstudiante = (req, res, next) => {
   next();
 };
 
-
+export const esEstudianteOrVendedor = (req, res,next) =>{
+  if (req.estudianteBDD.rol !== 'estudiante' && req.estudianteBDD.rol !== 'vendedor') {
+    return res.status(403).json({ msg: 'Acceso denegado solo para estudiantes y vendedores' });
+  }
+  next()
+}
 export const tieneRol = (...rolesPermitidos) => {
   return (req, res, next) => {
     if (!rolesPermitidos.includes(req.estudianteBDD.rol)) {
