@@ -54,7 +54,7 @@ const Login = () => {
 
           <form onSubmit={handleSubmit(loginUser)} noValidate>
             <div className="mb-3">
-              <label className="mb-2 block text-sm font-semibold text-blue-800">Correo electrónico</label>
+              <label className="mb-2 block text-sm font-semibold text-gray-700">Correo electrónico</label>
               <input type="email" placeholder="Ingresa tu correo" className="block w-full rounded-md border border-gray-300 focus:border-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-700 py-1 px-2 text-gray-700"
                 {...register('email', { required: "El correo es obligatoria" })}
               />
@@ -63,7 +63,7 @@ const Login = () => {
             </div>
 
             <div className="mb-3 relative">
-              <label className="mb-2 block text-sm font-semibold text-blue-800">Contraseña</label>
+              <label className="mb-2 block text-sm font-semibold text-gray-700">Contraseña</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}

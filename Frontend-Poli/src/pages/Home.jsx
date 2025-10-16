@@ -192,7 +192,7 @@ export const Home = () => {
             onAddToCart={handleAgregarAlCarrito} 
           />
 
-          {/* 🔥 BOTONES DE CATEGORÍAS - DISEÑO HERMOSO */}
+          {/* BOTONES DE CATEGORÍAS  */}
           <section className="mb-12">
             <h3 className="text-2xl font-semibold text-gray-700 text-center mb-8">Explora por Categorías</h3>
 
