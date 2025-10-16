@@ -4,6 +4,7 @@ import { toast, ToastContainer } from "react-toastify";
 import useFetch from "../hooks/useFetch";
 import { useNavigate } from "react-router-dom";
 import Header from "../layout/Header";
+import Footer from "../layout/Footer";
 
 export default function QuejasSugerenciasEstudiante() {
     const { fetchDataBackend } = useFetch();
@@ -139,135 +140,154 @@ export default function QuejasSugerenciasEstudiante() {
         }
     };
 
+    if (loading) {
+        return (
+            <>
+                <Header />
+                <div className="h-10 sm:h-5 mb-6" />
+                <div className="min-h-screen bg-blue-50 flex items-center justify-center">
+                    <p className="text-center text-gray-700 text-lg">Cargando...</p>
+                </div>
+                <Footer />
+            </>
+        );
+    }
+
     return (
-        <div className="flex flex-col min-h-screen">
+        <>
+            <ToastContainer />
             <Header />
-            {/* Espacio para compensar header fijo */}
-            <div className="h-20 sm:h-7" />
+            <div className="h-10 sm:h-5 mb-6" />
 
-            <main className="flex-1 p-6 max-w-6xl mx-auto w-full">
-                <ToastContainer />
-                <h2 className="text-2xl font-bold mb-4 text-gray-500 mt-4">
-                    Mis Quejas y Sugerencias
-                </h2>
+            <main className="py-10 bg-blue-50 min-h-screen">
+                <div className="max-w-7xl mx-auto px-4">
+                    {/* 🔥 TÍTULO GRADIENTE */}
+                    <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-700 to-gray-700 bg-clip-text text-transparent text-center mb-12">
+                        📝 Mis Quejas y Sugerencias
+                    </h2>
 
-                <form onSubmit={enviar} className="mb-10">
-                    <div>
-                        <label className="block font-semibold text-blue-800 text-[.98em] mb-2">
-                            Tipo
-                        </label>
-                        <select
-                            value={tipo}
-                            onChange={(e) => setTipo(e.target.value)}
-                            className="mt-1 w-full border border-gray-300 rounded p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        >
-                            <option value="queja">Queja</option>
-                            <option value="sugerencia">Sugerencia</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block mt-4 font-semibold text-[.98em] text-blue-800">
-                            Mensaje
-                        </label>
-                        <textarea
-                            value={mensaje}
-                            onChange={(e) => setMensaje(e.target.value)}
-                            rows={4}
-                            maxLength={500}
-                            className="mt-2 w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[56px] max-h-[120px] resize-none"
-                            placeholder="Escribe tu mensaje..."
-                        />
-                        <p className="text-sm text-gray-500 mt-3">
-                            {mensaje.length}/500 caracteres
-                        </p>
-                    </div>
-                    <button
-                        type="submit"
-                        disabled={enviando}
-                        className={`bg-blue-800 hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center gap-2 transition-transform hover:scale-105 ${enviando ? "opacity-50 cursor-not-allowed" : ""
-                            }`}
-                    >
-                        <Send size={18} /> {enviando ? "Enviando..." : "Enviar"}
-                    </button>
-                </form>
+                    <div className="grid lg:grid-cols-2 gap-8">
 
-                {loading ? (
-                    <p>Cargando...</p>
-                ) : lista.length === 0 ? (
-                    <p className="text-gray-500">
-                        No tienes quejas o sugerencias enviadas.
-                    </p>
-                ) : (
-                    <ul className="space-y-3">
-                        <h2 className="text-2xl font-bold mb-4 text-gray-500">
-                            Visualizar mis Quejas o Sugerencias
-                        </h2>
-                        {lista.map((item) => (
-                            <li
-                                key={item._id}
-                                className="bg-white p-4 rounded shadow flex justify-between items-start"
-                            >
-                                <div className="flex items-start gap-3 overflow-hidden w-full">
-                                    <div className="w-full">
-                                        <span
-                                            className={`inline-block mb-2 px-3 py-1 rounded-full text-xs font-semibold uppercase ${item.tipo === "queja"
-                                                ? "bg-orange-100 text-orange-800"
-                                                : "bg-blue-100 text-blue-800"
-                                                }`}
+                        {/* 🔥 COLUMNA IZQUIERDA: FORMULARIO */}
+                        <div className="space-y-6">
+                            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+                                <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                                    Nueva Queja/Sugerencia
+                                </h3>
+                                <form onSubmit={enviar} className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Tipo
+                                        </label>
+                                        <select
+                                            value={tipo}
+                                            onChange={(e) => setTipo(e.target.value)}
+                                            className="w-full py-3 px-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-semibold"
                                         >
-                                            {item.tipo === "queja" ? "Queja" : "Sugerencia"}
-                                        </span>
-                                        <div className="flex items-center justify-between">
-                                            <p className="font-medium text-gray-800 truncate max-w-[calc(100%-80px)]">
-                                                {item.mensaje}
-                                            </p>
-                                            <span
-                                                className={`inline-block px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${item.estado === "resuelto"
-                                                    ? "bg-green-100 text-green-800"
-                                                    : "bg-red-100 text-red-800"
-                                                    }`}
-                                            >
-                                                {item.estado}
-                                            </span>
-                                        </div>
-                                        {item.respuesta && (
-                                            <p className="mt-2 text-sm text-green-700 bg-green-50 p-2 rounded">
-                                                <span className="font-semibold">Respuesta:</span>{" "}
-                                                {item.respuesta}
-                                            </p>
-                                        )}
+                                            <option value="queja">⚠️ Queja</option>
+                                            <option value="sugerencia">💡 Sugerencia</option>
+                                        </select>
                                     </div>
-                                </div>
-                                <button
-                                    onClick={() => eliminar(item._id)}
-                                    className="text-red-600 hover:text-red-800"
-                                >
-                                    <Trash2 size={18} />
-                                </button>
-                            </li>
-                        ))}
-                    </ul>
-                )}
-            </main>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Mensaje
+                                        </label>
+                                        <textarea
+                                            value={mensaje}
+                                            onChange={(e) => setMensaje(e.target.value)}
+                                            rows={4}
+                                            maxLength={500}
+                                            className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[120px] resize-none"
+                                            placeholder="Escribe tu mensaje detallado (mínimo 10 caracteres)..."
+                                        />
+                                        <p className="text-sm text-gray-500 text-right mt-1">
+                                            {mensaje.length}/500 caracteres
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        disabled={enviando || !mensaje.trim()}
+                                        className={`w-full h-12 bg-gradient-to-r from-blue-800 to-blue-900 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-300 shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed ${enviando ? "opacity-50" : ""
+                                            }`}
+                                    >
+                                        <Send size={20} /> {enviando ? "Enviando..." : "Enviar"}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
 
-            <footer className="bg-blue-950 py-4 mt-auto">
-                <div className="text-center">
-                    <p className="text-white underline mb-2">
-                        © 2025 PoliVentas - Todos los derechos reservados.
-                    </p>
-                    <div className="flex justify-center gap-6">
-                        <a href="#" className="text-white hover:text-red-400 transition-colors">
-                            Facebook
-                        </a>
-                        <a href="#" className="text-white hover:text-red-400 transition-colors">
-                            Instagram
-                        </a>
-                        <a href="#" className="text-white hover:text-red-400 transition-colors">
-                            Twitter
-                        </a>
+                        {/* 🔥 COLUMNA DERECHA: LISTA QUEJAS */}
+                        <div className="space-y-6">
+                            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+                                <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                                    Mis Registros ({lista.length})
+                                </h3>
+                                {lista.length === 0 ? (
+                                    <p className="text-center text-gray-500 py-8">No tienes quejas o sugerencias enviadas</p>
+                                ) : (
+                                    <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                                        {lista.map((item) => (
+                                            <div
+                                                key={item._id}
+                                                className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:shadow-md transition-shadow"
+                                            >
+                                                <div className="flex justify-between items-start gap-3">
+                                                    <div className="flex-1">
+                                                        {/* TIPO */}
+                                                        <span
+                                                            className={`inline-block mb-3 px-3 py-1 rounded-full text-xs font-semibold ${item.tipo === "queja"
+                                                                    ? "bg-orange-100 text-orange-800"
+                                                                    : "bg-blue-100 text-blue-800"
+                                                                }`}
+                                                        >
+                                                            {item.tipo === "queja" ? "⚠️ Queja" : "💡 Sugerencia"}
+                                                        </span>
+
+                                                        {/* MENSAJE */}
+                                                        <p className="text-gray-800 font-medium mb-2 line-clamp-3">
+                                                            {item.mensaje}
+                                                        </p>
+
+                                                        {/* ESTADO */}
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <span
+                                                                className={`px-3 py-1 rounded-full text-xs font-semibold ${item.estado === "resuelto"
+                                                                        ? "bg-green-100 text-green-800"
+                                                                        : "bg-red-100 text-red-800"
+                                                                    }`}
+                                                            >
+                                                                {item.estado === "resuelto" ? "✅ Resuelto" : "⏳ Pendiente"}
+                                                            </span>
+                                                        </div>
+
+                                                        {/* RESPUESTA */}
+                                                        {item.respuesta && (
+                                                            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                                                                <p className="text-sm text-green-700 font-semibold mb-1">Respuesta:</p>
+                                                                <p className="text-sm text-green-600 line-clamp-2">{item.respuesta}</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    {/* BOTÓN ELIMINAR */}
+                                                    <button
+                                                        onClick={() => eliminar(item._id)}
+                                                        className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-colors"
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </footer>
-        </div>
+            </main>
+
+            <Footer />
+        </>
     );
 }

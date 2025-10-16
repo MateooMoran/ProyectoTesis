@@ -30,7 +30,7 @@ const Register = () => {
             {/* Contenedor del formulario a la izquierda */}
             <div className="w-full sm:w-1/2 h-screen bg-white flex justify-center items-center">
                 <div className="md:w-4/5 sm:w-full">
-                    <h1 className="text-3xl font-semibold mb-2 text-center uppercase text-blue-700">Crear cuenta</h1>
+                    <h1 className="text-3xl font-semibold mb-2 text-center uppercase text-blue-900">Crear cuenta</h1>
                     <small className="text-gray-500 block my-4 text-sm">Llena los siguientes campos</small>
 
                     <form onSubmit={handleSubmit(registro)}>
