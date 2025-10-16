@@ -9,10 +9,9 @@ import { User, LogOut, ShoppingCart, Search } from 'lucide-react';
 import Footer from '../layout/Footer';
 import Carrusel from '../layout/CarruselBanner';
 import CarruselProductos from '../pages/productosGeneral/CarruselProductos';
+import Slider from 'react-slick';
+import CarruselCategorias from './productosGeneral/CarruselCategorias';
 
-import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaFacebook, FaInstagram, FaTwitter } from 'react-icons/fa';
-
-const placeholderImage = 'https://via.placeholder.com/150?text=Sin+Imagen';
 
 export const Home = () => {
   const { user } = storeProfile();
@@ -171,7 +170,7 @@ export const Home = () => {
       {/* Main Section */}
       <main className="bg-white-50">
         <div className="container mx-auto px-4">
-          
+
           {/* ✅ CARRUSEL 1: */}
           <CarruselProductos
             productos={productos}
@@ -189,73 +188,17 @@ export const Home = () => {
             error={error}
             title="Últimas Unidades"
             showDots={false}
-            onAddToCart={handleAgregarAlCarrito} 
+            onAddToCart={handleAgregarAlCarrito}
           />
 
-          {/* BOTONES DE CATEGORÍAS  */}
-          <section className="mb-12">
-            <h3 className="text-2xl font-semibold text-gray-700 text-center mb-8">Explora por Categorías</h3>
-
-            {loadingCategorias && <p className="text-center text-gray-700">Cargando categorías...</p>}
-            {errorCategorias && <p className="text-center text-red-700">{errorCategorias}</p>}
-            {!loadingCategorias && !errorCategorias && categorias.length === 0 && (
-              <p className="text-center text-gray-700">No hay categorías disponibles.</p>
-            )}
-
-            {!loadingCategorias && !errorCategorias && categorias.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-                {categorias.map((categoria) => (
-                  <Link
-                    key={categoria._id}
-                    to={`/productos/categoria/${categoria._id}`}
-                    className="group bg-gradient-to-br from-blue-50 to-indigo-100 border-2 border-blue-200 rounded-xl p-6 text-center hover:from-blue-100 hover:to-indigo-200 hover:border-blue-400 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-                  >
-                    {/* Ícono de Categoría */}
-                    <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                      <span className="text-2xl text-white font-bold">
-                        {categoria.icono || '🛍️'}
-                      </span>
-                    </div>
-
-                    {/* Nombre Categoría */}
-                    <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-700 transition-colors">
-                      {categoria.nombreCategoria}
-                    </h3>
-
-                    {/* Cantidad de Productos */}
-                    <p className="text-sm text-gray-600 bg-white/80 px-3 py-1 rounded-full inline-block">
-                      {productos.filter(p => p.categoria?._id === categoria._id).length} productos
-                    </p>
-
-                    {/* Flecha Animada */}
-                    <div className="mt-3 text-blue-600 group-hover:translate-x-1 transition-transform">
-                      →
-                    </div>
-                  </Link>
-                ))}
-
-                {/* Botón "TODOS" */}
-                <Link
-                  to="/productos"
-                  className="group bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-300 rounded-xl p-6 text-center hover:from-gray-100 hover:to-gray-200 hover:border-blue-400 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-                >
-                  <div className="w-16 h-16 bg-gradient-to-r from-gray-600 to-gray-700 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                    <span className="text-2xl text-white font-bold">⭐</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-700 transition-colors">
-                    Ver Todos
-                  </h3>
-                  <p className="text-sm text-gray-600 bg-white/80 px-3 py-1 rounded-full inline-block">
-                    {productos.length} productos
-                  </p>
-                  <div className="mt-3 text-blue-600 group-hover:translate-x-1 transition-transform">
-                    →
-                  </div>
-                </Link>
-              </div>
-            )}
-          </section>
+          <CarruselCategorias
+            categorias={categorias}
+            productos={productos}
+            loadingCategorias={loadingCategorias}
+            errorCategorias={errorCategorias}
+          />
         </div>
+
       </main>
       <Footer />
     </>

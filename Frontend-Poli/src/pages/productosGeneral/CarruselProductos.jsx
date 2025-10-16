@@ -11,7 +11,7 @@ const ProductCarousel = ({
     title = "Productos",
     slidesPerView = 5,
     showDots = false,
-    className = "mb-5 mt-2",
+    className = "my-12",
 }) => {
     // Configuración react-slick MEJORADA
     const settings = {
@@ -117,7 +117,7 @@ const ProductCarousel = ({
                                         <button
                                             onClick={(e) => {
                                                 e.preventDefault();
-                                                console.log(`❤️ Añadir ${producto.nombreProducto} a deseos`);
+                                                console.log(`❤️ Añadir ${producto.nombreProducto} a favoritos`);
                                             }}
                                             className="p-2 bg-gray-200 hover:bg-red-500 hover:text-white text-gray-700 rounded-md transition-all duration-300 hover:scale-110"
                                         >

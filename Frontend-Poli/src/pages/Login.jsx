@@ -39,7 +39,7 @@ const Login = () => {
     <div className="flex flex-col sm:flex-row h-screen">
       <ToastContainer />
       <div
-        className="w-full sm:w-1/2 h-1/3 sm:h-screen bg-[url('/src/assets/Sistemas.jpg')] 
+        className="w-full sm:w-1/2 h-1/3 sm:h-screen bg-[url('/src/assets/imgLogin.jpeg')] 
         bg-no-repeat bg-cover bg-center sm:block hidden"
       ></div>
 

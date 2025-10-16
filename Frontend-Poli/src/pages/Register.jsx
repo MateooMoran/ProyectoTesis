@@ -134,7 +134,7 @@ const Register = () => {
 
             {/* Imagen de fondo a la derecha */}
             <div
-                className="w-full sm:w-1/2 h-1/3 sm:h-screen bg-[url('/src/assets/Sistemas.jpg')] bg-no-repeat bg-cover bg-center sm:block hidden"
+                className="w-full sm:w-1/2 h-1/3 sm:h-screen bg-[url('/src/assets/imgRegister.webp')] bg-no-repeat bg-cover bg-center sm:block hidden"
             />
         </div>
     );
