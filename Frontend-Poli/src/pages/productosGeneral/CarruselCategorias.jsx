@@ -65,7 +65,7 @@ const CategoriesCarousel = ({
 
                                 {/* Botón “Ver más” ancho completo */}
                                 <Link
-                                    to={`/productos/categoria/${categoria._id}`}
+                                    to={`/dashboard/productos/categoria/${categoria._id}`}
                                     className="block bg-blue-900 text-white font-semibold py-3 text-center hover:bg-blue-800 transition-colors w-full hover:scale-115 duration-300 mt-auto"
                                 >
                                     Ver más
