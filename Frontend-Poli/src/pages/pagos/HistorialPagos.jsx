@@ -205,7 +205,7 @@ const HistorialPagos = () => {
                                         onClick={() => navigate(`/dashboard/productos/${order.productos[0]?.producto?._id}`)}
                                         className="bg-gradient-to-r from-blue-900 to-blue-900 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-800 hover:to-blue-800 transform hover:scale-105 transition-all"
                                     >
-                                        👁️ Ver Producto
+                                        Ver Producto
                                     </button>
                                 </div>
                             ))}
@@ -273,7 +273,7 @@ const HistorialPagos = () => {
 
             <main className="py-10 bg-blue-50 min-h-screen">
                 <div className="max-w-7xl mx-auto px-4">
-                    <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-800 to-indigo-800 bg-clip-text text-transparent text-center mb-12">
+                    <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-700 to-gray-700 bg-clip-text text-transparent text-center mb-12">
                         💳 Historial de Compras
                     </h2>
 
@@ -313,11 +313,11 @@ const HistorialPagos = () => {
                                     </Tab>
                                 </TabList>
 
-                                {renderOrdersTab('todos', 'todos', 'Todas', '📋')}
-                                {renderOrdersTab('pagado', 'todos', 'Pagadas', '✅')}
-                                {renderOrdersTab('pendiente', 'todos', 'Pendientes', '⏳')}
-                                {renderOrdersTab('todos', 'efectivo', 'Efectivo', '💵')}
-                                {renderOrdersTab('todos', 'tarjeta', 'Tarjeta', '💳')}
+                                {renderOrdersTab('todos', 'todos', 'Todas', )}
+                                {renderOrdersTab('pagado', 'todos', 'Pagadas', )}
+                                {renderOrdersTab('pendiente', 'todos', 'Pendientes', )}
+                                {renderOrdersTab('todos', 'efectivo', 'Efectivo',)}
+                                {renderOrdersTab('todos', 'tarjeta', 'Tarjeta', )}
                             </Tabs>
                         </div>
                     )}

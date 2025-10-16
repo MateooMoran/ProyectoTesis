@@ -59,7 +59,7 @@ const Carrito = () => {
                                 to="/dashboard/listarProd"
                                 className="inline-block bg-gradient-to-r from-blue-800 to-blue-900 text-white py-4 px-8 rounded-xl font-bold text-lg flex items-center justify-center gap-3 hover:from-blue-800 hover:to-blue-700 transform hover:scale-105 transition-all shadow-lg"
                             >
-                                 Empezar a Comprar
+                                Empezar a Comprar
                             </Link>
                         </div>
                     ) : (

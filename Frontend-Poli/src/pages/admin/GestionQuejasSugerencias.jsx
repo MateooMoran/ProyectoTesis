@@ -74,7 +74,7 @@ function GestionarQuejasSugerencias() {
 
   // 🔥 FILTRO COMBINADO (TAB + FILTROS)
   const getQuejasFiltradas = (tipoTab, estadoTab) => {
-    return quejas.filter(q => 
+    return quejas.filter(q =>
       (tipoTab === 'todos' || q.tipo === tipoTab) &&
       (estadoTab === 'todos' || q.estado === estadoTab) &&
       (filtroTipo === 'todos' || q.tipo === filtroTipo) &&
@@ -207,11 +207,10 @@ function GestionarQuejasSugerencias() {
                         <button
                           disabled={!q.respuesta || q.respuesta.trim() === ""}
                           onClick={() => responderQueja(q._id, q.respuesta || "")}
-                          className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                            !q.respuesta || q.respuesta.trim() === ""
+                          className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${!q.respuesta || q.respuesta.trim() === ""
                               ? "bg-gray-400 text-white cursor-not-allowed"
                               : "bg-gradient-to-r from-blue-900 to-blue-900 text-white hover:from-blue-800 hover:to-blue-900 transform hover:scale-105"
-                          }`}
+                            }`}
                         >
                           💾 Guardar
                         </button>
@@ -235,9 +234,8 @@ function GestionarQuejasSugerencias() {
                     <button
                       key={i + 1}
                       onClick={() => handlePageChange(i + 1, tipoTab, estadoTab)}
-                      className={`px-3 py-2 rounded-xl ${
-                        currentPage === i + 1 ? 'bg-blue-800 text-white' : 'bg-gray-200 hover:bg-blue-100'
-                      }`}
+                      className={`px-3 py-2 rounded-xl ${currentPage === i + 1 ? 'bg-blue-800 text-white' : 'bg-gray-200 hover:bg-blue-100'
+                        }`}
                     >
                       {i + 1}
                     </button>
@@ -279,7 +277,7 @@ function GestionarQuejasSugerencias() {
 
       <main className="py-10 bg-blue-50 min-h-screen">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-4xl font-bold text-gray-700 text-center mb-12">
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-700 to-gray-700 bg-clip-text text-transparent text-center mb-12">
             📝 Gestión de Quejas y Sugerencias
           </h2>
 
