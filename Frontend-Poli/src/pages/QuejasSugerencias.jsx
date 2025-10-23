@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Trash2, Send } from "lucide-react";
+import { Trash2, Send, AlertTriangle, Lightbulb, FileText, CheckCircle, Clock } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import useFetch from "../hooks/useFetch";
 import { useNavigate } from "react-router-dom";
@@ -162,12 +162,12 @@ export default function QuejasSugerenciasEstudiante() {
             <main className="py-10 bg-blue-50 min-h-screen">
                 <div className="max-w-7xl mx-auto px-4">
                     {/* 🔥 TÍTULO GRADIENTE */}
-                    <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-700 to-gray-700 bg-clip-text text-transparent text-center mb-12">
-                        📝 Mis Quejas y Sugerencias
+                    <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-700 to-gray-700 bg-clip-text text-transparent text-center mb-12 flex items-center justify-center gap-2">
+                        <FileText size={34} />
+                        Mis Quejas y Sugerencias
                     </h2>
 
                     <div className="grid lg:grid-cols-2 gap-8">
-
                         {/* 🔥 COLUMNA IZQUIERDA: FORMULARIO */}
                         <div className="space-y-6">
                             <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
@@ -182,10 +182,16 @@ export default function QuejasSugerenciasEstudiante() {
                                         <select
                                             value={tipo}
                                             onChange={(e) => setTipo(e.target.value)}
-                                            className="w-full py-3 px-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-semibold"
+                                            className="w-full py-3 px-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-semibold flex items-center gap-2"
                                         >
-                                            <option value="queja">⚠️ Queja</option>
-                                            <option value="sugerencia">💡 Sugerencia</option>
+                                            <option value="queja">
+                                                <AlertTriangle className="inline-block mr-2 text-orange-600" size={16} />
+                                                Queja
+                                            </option>
+                                            <option value="sugerencia">
+                                                <Lightbulb className="inline-block mr-2 text-blue-600" size={16} />
+                                                Sugerencia
+                                            </option>
                                         </select>
                                     </div>
                                     <div>
@@ -235,12 +241,20 @@ export default function QuejasSugerenciasEstudiante() {
                                                     <div className="flex-1">
                                                         {/* TIPO */}
                                                         <span
-                                                            className={`inline-block mb-3 px-3 py-1 rounded-full text-xs font-semibold ${item.tipo === "queja"
+                                                            className={`inline-flex items-center gap-1 mb-3 px-3 py-1 rounded-full text-xs font-semibold ${item.tipo === "queja"
                                                                     ? "bg-orange-100 text-orange-800"
                                                                     : "bg-blue-100 text-blue-800"
                                                                 }`}
                                                         >
-                                                            {item.tipo === "queja" ? "⚠️ Queja" : "💡 Sugerencia"}
+                                                            {item.tipo === "queja" ? (
+                                                                <>
+                                                                    <AlertTriangle size={14} /> Queja
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <Lightbulb size={14} /> Sugerencia
+                                                                </>
+                                                            )}
                                                         </span>
 
                                                         {/* MENSAJE */}
@@ -251,12 +265,20 @@ export default function QuejasSugerenciasEstudiante() {
                                                         {/* ESTADO */}
                                                         <div className="flex items-center justify-between mb-2">
                                                             <span
-                                                                className={`px-3 py-1 rounded-full text-xs font-semibold ${item.estado === "resuelto"
+                                                                className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${item.estado === "resuelto"
                                                                         ? "bg-green-100 text-green-800"
                                                                         : "bg-red-100 text-red-800"
                                                                     }`}
                                                             >
-                                                                {item.estado === "resuelto" ? "✅ Resuelto" : "⏳ Pendiente"}
+                                                                {item.estado === "resuelto" ? (
+                                                                    <>
+                                                                        <CheckCircle size={14} /> Resuelto
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <Clock size={14} /> Pendiente
+                                                                    </>
+                                                                )}
                                                             </span>
                                                         </div>
 

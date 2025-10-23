@@ -7,6 +7,7 @@ import storeProfile from '../context/storeProfile';
 import storeAuth from '../context/storeAuth';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
+import { FaUser, FaKey, FaSave, FaTimes, FaEdit } from 'react-icons/fa';
 
 const Perfil = () => {
   const navigate = useNavigate();
@@ -47,6 +48,7 @@ const Perfil = () => {
     try {
       await updateProfile(data, user._id);
       resetProfile(data);
+      toast.success('Perfil actualizado correctamente');
     } catch (err) {
       toast.error('Error al actualizar el perfil');
     }
@@ -61,6 +63,7 @@ const Perfil = () => {
       await updatePasswordProfile({ passwordactual: data.currentPassword, passwordnuevo: data.newPassword }, user._id);
       resetPassword();
       setShowPasswordFields(false);
+      toast.success('Contraseña actualizada correctamente');
     } catch (err) {
       toast.error('Error al actualizar la contraseña');
     }
@@ -95,20 +98,20 @@ const Perfil = () => {
         <div className="max-w-7xl mx-auto px-4">
 
           {/* TÍTULO */}
-          <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-700 to-gray-700 bg-clip-text text-transparent text-center mb-12">
-            👤 Mi Perfil
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-700 to-gray-700 bg-clip-text text-transparent text-center mb-12 flex items-center justify-center gap-3">
+            <FaUser className="text-gray-700" /> Mi Perfil
           </h2>
 
           {user ? (
             <div className="grid lg:grid-cols-2 gap-8">
 
-              {/* 🔥 COLUMNA IZQUIERDA: INFO + ACTUALIZAR */}
+              {/* COLUMNA IZQUIERDA */}
               <div className="space-y-6">
 
-                {/* INFO PERSONAL */}
+                {/* INFORMACIÓN PERSONAL */}
                 <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
                   <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                    Información Personal
+                    <FaUser /> Información Personal
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                     <div className="space-y-2">
@@ -143,7 +146,7 @@ const Perfil = () => {
                 {/* ACTUALIZAR PERFIL */}
                 <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
                   <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                    Actualizar Perfil
+                    <FaEdit /> Actualizar Perfil
                   </h3>
                   <form onSubmit={handleSubmitProfile(handleUpdateProfile)} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -184,19 +187,19 @@ const Perfil = () => {
                     </div>
                     <button
                       type="submit"
-                      className="w-full h-12 bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-xl font-bold text-lg flex items-center justify-center hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-300 shadow-lg"
+                      className="w-full h-12 bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-300 shadow-lg"
                     >
-                      Guardar Cambios
+                      <FaSave /> Guardar Cambios
                     </button>
                   </form>
                 </div>
               </div>
 
-              {/* 🔥 COLUMNA DERECHA: CAMBIO CONTRASEÑA */}
+              {/* COLUMNA DERECHA: CAMBIO CONTRASEÑA */}
               <div className="space-y-6">
                 <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
                   <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                    {showPasswordFields ? 'Actualizar Contraseña' : 'Actualizar Contraseña'}
+                    <FaKey /> {showPasswordFields ? 'Actualizar Contraseña' : 'Actualizar Contraseña'}
                   </h3>
 
                   {showPasswordFields ? (
@@ -234,9 +237,9 @@ const Perfil = () => {
                       <div className="flex gap-3">
                         <button
                           type="submit"
-                          className="flex-1 h-12 bg-gradient-to-r from-green-800 to-green-900 text-white rounded-xl font-bold text-lg flex items-center justify-center hover:from-green-800 hover:to-green-900 transform hover:scale-105 transition-all duration-300 shadow-lg"
+                          className="flex-1 h-12 bg-gradient-to-r from-green-800 to-green-900 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:scale-105 transition-all duration-300 shadow-lg"
                         >
-                          Actualizar
+                          <FaSave /> Actualizar
                         </button>
                         <button
                           type="button"
@@ -244,23 +247,21 @@ const Perfil = () => {
                             setShowPasswordFields(false);
                             resetPassword();
                           }}
-                          className="flex-1 h-12 bg-gray-500 text-white rounded-xl font-bold text-lg flex items-center justify-center hover:bg-gray-600 transform hover:scale-105 transition-all duration-300"
+                          className="flex-1 h-12 bg-gray-500 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-gray-600 transform hover:scale-105 transition-all duration-300"
                         >
-                          Cancelar
+                          <FaTimes /> Cancelar
                         </button>
                       </div>
                     </form>
                   ) : (
                     <button
                       onClick={() => setShowPasswordFields(true)}
-                      className="w-full h-12 bg-gradient-to-r from-blue-800 to-blue-900 text-white rounded-xl font-bold text-lg flex items-center justify-center hover:from-blue-800 hover:to-blue-900 transform hover:scale-105 transition-all duration-300 shadow-lg"
+                      className="w-full h-12 bg-gradient-to-r from-blue-800 to-blue-900 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:scale-105 transition-all duration-300 shadow-lg"
                     >
-                      Cambiar Contraseña
+                      <FaKey /> Cambiar Contraseña
                     </button>
                   )}
                 </div>
-
-
               </div>
             </div>
           ) : (
