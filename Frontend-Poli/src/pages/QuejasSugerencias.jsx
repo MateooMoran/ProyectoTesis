@@ -161,7 +161,7 @@ export default function QuejasSugerenciasEstudiante() {
 
             <main className="py-10 bg-blue-50 min-h-screen">
                 <div className="max-w-7xl mx-auto px-4">
-                    {/* 🔥 TÍTULO GRADIENTE */}
+                    {/* TÍTULO GRADIENTE */}
                     <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-700 to-gray-700 bg-clip-text text-transparent text-center mb-12 flex items-center justify-center gap-2">
                         <FileText size={34} />
                         Mis Quejas y Sugerencias
