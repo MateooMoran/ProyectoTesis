@@ -45,7 +45,7 @@ const Productos = () => {
     <>
       <Header />
       {/* Espacio para compensar header fijo */}
-     
+
       <Carrusel />
       <main className="bg-white py-1">
         <div className="container mx-auto px-4">
