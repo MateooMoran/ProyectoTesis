@@ -232,7 +232,7 @@ const OrdenPendiente = () => {
                     <h2 className="text-2xl font-bold text-blue-800 mb-6 text-center">Carrito</h2>
                     <div className="space-y-4 mb-6">
                         {carrito.productos.map((item) => (
-                            <div key={item._id} className="flex items-center justify-between border-b pb-4">
+                            <div key={item._id} className="flex items-center justify-between pb-4">
                                 <div className="flex items-center gap-4">
                                     <img src={item.producto.imagen} alt={item.producto.nombreProducto} className="w-16 h-16 object-cover rounded" />
                                     <div>

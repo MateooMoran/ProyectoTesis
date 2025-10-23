@@ -206,8 +206,13 @@ const Header = () => {
                                                 >
                                                     Gestionar Productos
                                                 </Link>
-
-
+                                                <Link
+                                                    to="/dashboard/vendedor/metodo-pago"
+                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
+                                                    onClick={() => setIsDropdownOpen(false)}
+                                                >
+                                                    Metodos de Pago
+                                                </Link>
                                                 <Link
                                                     to="/dashboard/vendedor/historial-ventas"
                                                     className="block px-4 py-2 text-gray-800 hover:bg-blue-50"

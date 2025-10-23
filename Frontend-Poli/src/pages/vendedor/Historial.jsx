@@ -3,6 +3,19 @@ import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 import useFetch from "../../hooks/useFetch";
 import { toast, ToastContainer } from "react-toastify";
+import { 
+    ShoppingBag, 
+    Clock, 
+    CheckCircle, 
+    Filter,
+    DollarSign,
+    CreditCard,
+    Banknote,
+    Package,
+    TrendingUp,
+    ChevronLeft,
+    ChevronRight
+} from "lucide-react";
 import Header from "../../layout/Header";
 import Footer from "../../layout/Footer";
 
@@ -10,10 +23,9 @@ export default function HistorialVentas() {
     const { fetchDataBackend } = useFetch();
     const [ventas, setVentas] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [ventasPorPagina] = useState(5);
-    const [filtroEstado, setFiltroEstado] = useState("todos");
     const [filtroPago, setFiltroPago] = useState("todos");
+    const [paginaActual, setPaginaActual] = useState(1);
+    const ventasPorPagina = 5;
 
     const token = JSON.parse(localStorage.getItem("auth-token"))?.state?.token;
     const headers = { Authorization: `Bearer ${token}` };
@@ -43,80 +55,83 @@ export default function HistorialVentas() {
                 method: "PUT",
                 config: { headers },
             });
-
             setVentas((prev) =>
                 prev.map((v) => (v._id === idVenta ? { ...v, estado: "pagado" } : v))
             );
-            toast.success("Venta marcada como pagada ✅");
+            toast.success("Venta marcada como pagada");
         } catch {
             toast.error("No se pudo actualizar la venta");
         }
     };
 
-    // 🔥 Filtros combinados
     const getVentasFiltradas = (estadoTab) => {
-        return ventas.filter(
+        const filtradas = ventas.filter(
             (v) =>
                 (estadoTab === "todos" || v.estado === estadoTab) &&
-                (filtroEstado === "todos" || v.estado === filtroEstado) &&
                 (filtroPago === "todos" ||
                     v.metodoPago.toLowerCase() === filtroPago.toLowerCase())
         );
+        
+        return filtradas;
     };
 
-    // 🔢 Paginación
-    const getVentasActuales = (estadoTab) => {
-        const filtradas = getVentasFiltradas(estadoTab);
-        const indexUltima = currentPage * ventasPorPagina;
-        const indexPrimera = indexUltima - ventasPorPagina;
-        return filtradas.slice(indexPrimera, indexUltima);
+    const getPaginacion = (ventasFiltradas) => {
+        const totalVentas = ventasFiltradas.length;
+        const totalPaginas = Math.ceil(totalVentas / ventasPorPagina);
+        const indexInicio = (paginaActual - 1) * ventasPorPagina;
+        const indexFin = indexInicio + ventasPorPagina;
+        const ventasPaginadas = ventasFiltradas.slice(indexInicio, indexFin);
+
+        return { ventasPaginadas, totalVentas, totalPaginas };
     };
 
-    const getTotalPaginas = (estadoTab) => {
-        const filtradas = getVentasFiltradas(estadoTab);
-        return Math.ceil(filtradas.length / ventasPorPagina);
+    const getMetodoPagoIcon = (metodo) => {
+        const iconos = {
+            efectivo: <Banknote className="w-4 h-4" />,
+            transferencia: <CreditCard className="w-4 h-4" />,
+            tarjeta: <CreditCard className="w-4 h-4" />
+        };
+        return iconos[metodo.toLowerCase()] || <DollarSign className="w-4 h-4" />;
     };
 
-    const handlePageChange = (nuevaPagina, estadoTab) => {
-        if (nuevaPagina >= 1 && nuevaPagina <= getTotalPaginas(estadoTab)) {
-            setCurrentPage(nuevaPagina);
-        }
+    const calcularEstadisticas = () => {
+        const total = ventas.reduce((sum, v) => sum + v.total, 0);
+        const pagadas = ventas.filter(v => v.estado === "pagado").length;
+        const pendientes = ventas.filter(v => v.estado === "pendiente").length;
+        
+        return { total, pagadas, pendientes };
     };
 
-    const renderVentasTab = (estadoTab, titulo, icono) => {
-        const ventasActuales = getVentasActuales(estadoTab);
-        const totalPaginas = getTotalPaginas(estadoTab);
-        const totalVentas = getVentasFiltradas(estadoTab).length;
+    const stats = calcularEstadisticas();
+
+    const renderVentasTab = (estadoTab, titulo) => {
+        const ventasFiltradas = getVentasFiltradas(estadoTab);
+        const { ventasPaginadas, totalVentas, totalPaginas } = getPaginacion(ventasFiltradas);
 
         return (
             <TabPanel>
-                {/* 🔥 FILTROS — SIEMPRE VISIBLES */}
-                <div className="bg-white rounded-2xl shadow-md p-6 border mb-6">
-                    <div className="flex flex-col sm:flex-row justify-between gap-4">
-                        <div className="text-lg font-semibold text-blue-800 flex items-center gap-2">
-                            Total: {totalVentas} {titulo.toLowerCase()}
+                {/* Filtro y resumen */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-6 border border-blue-100">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div className="flex items-center gap-3">
+                            <div className="bg-blue-600 p-3 rounded-lg">
+                                <Package className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-600">Total {titulo}</p>
+                                <p className="text-2xl font-bold text-gray-800">{totalVentas}</p>
+                            </div>
                         </div>
-                        <div className="flex gap-4 flex-wrap">
-                            <select
-                                value={filtroEstado}
-                                onChange={(e) => {
-                                    setFiltroEstado(e.target.value);
-                                    setCurrentPage(1);
-                                }}
-                                className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm font-semibold"
-                            >
-                                <option value="todos">Todos los estados</option>
-                                <option value="pendiente">Pendiente</option>
-                                <option value="pagado">Pagado</option>
-                            </select>
-
+                        
+                        <div className="flex items-center gap-3">
+                            <Filter className="w-5 h-5 text-gray-500" />
                             <select
                                 value={filtroPago}
                                 onChange={(e) => {
                                     setFiltroPago(e.target.value);
-                                    setCurrentPage(1);
+                                    setPaginaActual(1);
                                 }}
-                                className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-sm font-semibold"
+                                className="px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none font-medium shadow-sm"
                             >
                                 <option value="todos">Todos los métodos</option>
                                 <option value="efectivo">Efectivo</option>
@@ -127,112 +142,152 @@ export default function HistorialVentas() {
                     </div>
                 </div>
 
-                {/* 🔥 LISTADO O MENSAJE */}
+                {/* Listado de ventas */}
                 {totalVentas === 0 ? (
-                    <p className="text-center text-gray-700 text-lg py-12">
-                        No hay {titulo.toLowerCase()} registradas.
-                    </p>
+                    <div className="text-center py-16">
+                        <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-4">
+                            <ShoppingBag className="w-10 h-10 text-gray-400" />
+                        </div>
+                        <p className="text-gray-500 text-lg font-medium">
+                            No hay {titulo.toLowerCase()} registradas
+                        </p>
+                    </div>
                 ) : (
                     <>
-                        <div className="grid gap-6">
-                            {ventasActuales.map((venta) => (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                            {ventasPaginadas.map((venta) => (
                                 <div
                                     key={venta._id}
-                                    className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-all"
+                                    className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 overflow-hidden"
                                 >
-                                    <div className="flex justify-between items-center pb-4 mb-4 border-b">
-                                        <div>
-                                            <p className="text-sm text-gray-500">Comprador</p>
-                                            <p className="text-lg font-semibold">
-                                                {venta.comprador?.nombre} {venta.comprador?.apellido}
-                                            </p>
-                                        </div>
-                                        <div className="flex items-center gap-3">
+                                    {/* Header de la venta */}
+                                    <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 border-b border-gray-200">
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <p className="text-xs text-gray-500 mb-1">Comprador</p>
+                                                <p className="font-semibold text-gray-800">
+                                                    {venta.comprador?.nombre} {venta.comprador?.apellido}
+                                                </p>
+                                            </div>
                                             <span
-                                                className={`px-3 py-1 rounded-full text-sm font-semibold ${venta.estado === "pagado"
+                                                className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 ${
+                                                    venta.estado === "pagado"
                                                         ? "bg-green-100 text-green-700"
                                                         : "bg-yellow-100 text-yellow-700"
-                                                    }`}
+                                                }`}
                                             >
+                                                {venta.estado === "pagado" ? (
+                                                    <CheckCircle className="w-3 h-3" />
+                                                ) : (
+                                                    <Clock className="w-3 h-3" />
+                                                )}
                                                 {venta.estado.toUpperCase()}
                                             </span>
-                                            {venta.estado === "pendiente" && (
-                                                <button
-                                                    onClick={() => marcarComoPagado(venta._id)}
-                                                    className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold hover:bg-blue-700 transition"
-                                                >
-                                                    Marcar como pagado
-                                                </button>
-                                            )}
                                         </div>
                                     </div>
 
-                                    {venta.productos?.map(
-                                        ({ producto, cantidad, precioUnitario, subtotal }) => (
-                                            <div
-                                                key={producto?._id}
-                                                className="flex items-center gap-4 pb-3 last:pb-0"
-                                            >
-                                                <img
-                                                    src={producto?.imagen || "/placeholder.png"}
-                                                    alt={producto?.nombreProducto || "Producto"}
-                                                    className="w-16 h-16 rounded-lg object-cover border"
-                                                />
-                                                <div className="flex-1">
-                                                    <p className="font-medium">{producto?.nombreProducto}</p>
-                                                    <p className="text-sm text-gray-500">
-                                                        Cantidad: {cantidad} | ${precioUnitario}
-                                                    </p>
+                                    {/* Productos */}
+                                    <div className="p-4 space-y-3">
+                                        {venta.productos?.map(
+                                            ({ producto, cantidad, precioUnitario, subtotal }) => (
+                                                <div
+                                                    key={producto?._id}
+                                                    className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+                                                >
+                                                    <img
+                                                        src={producto?.imagen || "/placeholder.png"}
+                                                        alt={producto?.nombreProducto || "Producto"}
+                                                        className="w-14 h-14 rounded-lg object-cover border border-gray-200"
+                                                    />
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="font-medium text-gray-800 truncate">
+                                                            {producto?.nombreProducto}
+                                                        </p>
+                                                        <p className="text-xs text-gray-500">
+                                                            {cantidad}x ${precioUnitario}
+                                                        </p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="font-bold text-gray-800">${subtotal}</p>
+                                                    </div>
                                                 </div>
-                                                <div className="text-right font-semibold">${subtotal}</div>
-                                            </div>
-                                        )
-                                    )}
+                                            )
+                                        )}
+                                    </div>
 
-                                    <div className="flex justify-between items-center mt-4 pt-4 border-t">
-                                        <p className="text-sm text-gray-500">
-                                            Método de pago:{" "}
-                                            <span className="font-bold capitalize">
-                                                {venta.metodoPago}
-                                            </span>
-                                        </p>
-                                        <p className="text-lg font-bold text-blue-800">
-                                            Total: ${venta.total}
-                                        </p>
+                                    {/* Footer de la venta */}
+                                    <div className="px-4 pb-4">
+                                        <div className="flex justify-between items-center pt-3 border-t border-gray-200">
+                                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                                                {getMetodoPagoIcon(venta.metodoPago)}
+                                                <span className="capitalize font-medium">
+                                                    {venta.metodoPago}
+                                                </span>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-xs text-gray-500">Total</p>
+                                                <p className="text-xl font-bold text-blue-600">
+                                                    ${venta.total}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {venta.estado === "pendiente" && (
+                                            <button
+                                                onClick={() => marcarComoPagado(venta._id)}
+                                                className="w-full mt-3 bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                                            >
+                                                <CheckCircle className="w-4 h-4" />
+                                                Marcar como pagado
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             ))}
                         </div>
 
-                        {/* 🔥 PAGINADOR */}
+                        {/* Paginador */}
                         {totalPaginas > 1 && (
-                            <div className="flex justify-center gap-3 mt-8">
-                                <button
-                                    onClick={() => handlePageChange(currentPage - 1, estadoTab)}
-                                    disabled={currentPage === 1}
-                                    className="px-4 py-2 bg-blue-800 text-white rounded-xl disabled:bg-gray-400"
-                                >
-                                    ← Anterior
-                                </button>
-                                {[...Array(totalPaginas)].map((_, i) => (
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 bg-white p-4 rounded-lg shadow-md border border-gray-200">
+                                <div className="text-sm text-gray-600">
+                                    Mostrando {((paginaActual - 1) * ventasPorPagina) + 1} - {Math.min(paginaActual * ventasPorPagina, totalVentas)} de {totalVentas} ventas
+                                </div>
+                                
+                                <div className="flex items-center gap-2">
                                     <button
-                                        key={i + 1}
-                                        onClick={() => handlePageChange(i + 1, estadoTab)}
-                                        className={`px-3 py-2 rounded-xl ${currentPage === i + 1
-                                                ? "bg-blue-800 text-white"
-                                                : "bg-gray-200 hover:bg-blue-100"
-                                            }`}
+                                        onClick={() => setPaginaActual(prev => Math.max(prev - 1, 1))}
+                                        disabled={paginaActual === 1}
+                                        className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 font-medium"
                                     >
-                                        {i + 1}
+                                        <ChevronLeft className="w-4 h-4" />
+                                        Anterior
                                     </button>
-                                ))}
-                                <button
-                                    onClick={() => handlePageChange(currentPage + 1, estadoTab)}
-                                    disabled={currentPage === totalPaginas}
-                                    className="px-4 py-2 bg-blue-800 text-white rounded-xl disabled:bg-gray-400"
-                                >
-                                    Siguiente →
-                                </button>
+
+                                    <div className="flex gap-1">
+                                        {[...Array(totalPaginas)].map((_, index) => (
+                                            <button
+                                                key={index}
+                                                onClick={() => setPaginaActual(index + 1)}
+                                                className={`w-10 h-10 rounded-lg font-semibold transition-all ${
+                                                    paginaActual === index + 1
+                                                        ? 'bg-blue-600 text-white shadow-lg scale-110'
+                                                        : 'bg-white border border-gray-300 hover:bg-gray-50 text-gray-700'
+                                                }`}
+                                            >
+                                                {index + 1}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <button
+                                        onClick={() => setPaginaActual(prev => Math.min(prev + 1, totalPaginas))}
+                                        disabled={paginaActual === totalPaginas}
+                                        className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 font-medium"
+                                    >
+                                        Siguiente
+                                        <ChevronRight className="w-4 h-4" />
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </>
@@ -246,7 +301,10 @@ export default function HistorialVentas() {
             <>
                 <Header />
                 <div className="min-h-screen flex items-center justify-center">
-                    <p className="text-gray-500">Cargando historial...</p>
+                    <div className="text-center">
+                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                        <p className="text-gray-500">Cargando historial...</p>
+                    </div>
                 </div>
                 <Footer />
             </>
@@ -258,29 +316,85 @@ export default function HistorialVentas() {
             <ToastContainer />
             <div className="h-16" />
 
-            <main className="py-10 bg-blue-50 min-h-screen">
-                <div className="max-w-6xl mx-auto px-4">
-                    <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
-                        💰 Historial de Ventas
-                    </h2>
+            <main className="py-10 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
+                <div className="max-w-7xl mx-auto px-4">
+                    {/* Header con estadísticas */}
+                    <div className="text-center mb-8">
+                        <div className="flex items-center justify-center gap-3 mb-3">
+                            <TrendingUp className="w-10 h-10 text-blue-600" />
+                            <h1 className="text-4xl font-bold text-gray-800">
+                                Historial de Ventas
+                            </h1>
+                        </div>
+                        <p className="text-gray-600">Gestiona y visualiza todas tus transacciones</p>
+                    </div>
 
-                    <div className="bg-white rounded-2xl shadow-lg border border-gray-200 mb-10 p-6">
-                        <Tabs>
-                            <TabList className="flex border-b border-gray-200 mb-6">
-                                <Tab className="flex-1 py-4 text-center font-semibold text-gray-600 cursor-pointer hover:text-blue-700">
-                                    Todas ({ventas.length})
+                    {/* Tarjetas de estadísticas */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+                            <div className="flex items-center gap-4">
+                                <div className="bg-blue-100 p-4 rounded-lg">
+                                    <ShoppingBag className="w-8 h-8 text-blue-600" />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-600">Total Ventas</p>
+                                    <p className="text-3xl font-bold text-gray-800">{ventas.length}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+                            <div className="flex items-center gap-4">
+                                <div className="bg-yellow-100 p-4 rounded-lg">
+                                    <Clock className="w-8 h-8 text-yellow-600" />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-600">Pendientes</p>
+                                    <p className="text-3xl font-bold text-gray-800">{stats.pendientes}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+                            <div className="flex items-center gap-4">
+                                <div className="bg-green-100 p-4 rounded-lg">
+                                    <CheckCircle className="w-8 h-8 text-green-600" />
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-600">Completadas</p>
+                                    <p className="text-3xl font-bold text-gray-800">{stats.pagadas}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Tabs */}
+                    <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6">
+                        <Tabs onSelect={() => setPaginaActual(1)}>
+                            <TabList className="flex border-b-2 border-gray-200 mb-6 gap-2">
+                                <Tab className="flex-1 py-3 px-4 text-center font-semibold text-gray-600 cursor-pointer hover:text-blue-600 hover:bg-blue-50 rounded-t-lg transition-colors">
+                                    <div className="flex items-center justify-center gap-2">
+                                        <ShoppingBag className="w-4 h-4" />
+                                        Todas ({ventas.length})
+                                    </div>
                                 </Tab>
-                                <Tab className="flex-1 py-4 text-center font-semibold text-gray-600 cursor-pointer hover:text-yellow-600">
-                                    Pendientes ({ventas.filter((v) => v.estado === "pendiente").length})
+                                <Tab className="flex-1 py-3 px-4 text-center font-semibold text-gray-600 cursor-pointer hover:text-yellow-600 hover:bg-yellow-50 rounded-t-lg transition-colors">
+                                    <div className="flex items-center justify-center gap-2">
+                                        <Clock className="w-4 h-4" />
+                                        Pendientes ({ventas.filter((v) => v.estado === "pendiente").length})
+                                    </div>
                                 </Tab>
-                                <Tab className="flex-1 py-4 text-center font-semibold text-gray-600 cursor-pointer hover:text-green-700">
-                                    Pagadas ({ventas.filter((v) => v.estado === "pagado").length})
+                                <Tab className="flex-1 py-3 px-4 text-center font-semibold text-gray-600 cursor-pointer hover:text-green-600 hover:bg-green-50 rounded-t-lg transition-colors">
+                                    <div className="flex items-center justify-center gap-2">
+                                        <CheckCircle className="w-4 h-4" />
+                                        Pagadas ({ventas.filter((v) => v.estado === "pagado").length})
+                                    </div>
                                 </Tab>
                             </TabList>
 
-                            {renderVentasTab("todos", "Todas", "🧾")}
-                            {renderVentasTab("pendiente", "Pendientes", "⏳")}
-                            {renderVentasTab("pagado", "Pagadas", "✅")}
+                            {renderVentasTab("todos", "Ventas")}
+                            {renderVentasTab("pendiente", "Pendientes")}
+                            {renderVentasTab("pagado", "Pagadas")}
                         </Tabs>
                     </div>
                 </div>

@@ -31,6 +31,8 @@ import EditarProductos from './pages/vendedor/EditarProductos';
 import HistorialPagos from './pages/pagos/HistorialPagos';
 import Favoritos from './pages/productosGeneral/Favoritos'
 
+import MetodoPago from './pages/vendedor/MetodoPago'
+
 // Componentes de pago que creamos
 import OrdenPendiente from './pages/pagos/OrdenPendiente';
 import Pagos from './pages/pagos/Pagos';
@@ -100,6 +102,8 @@ function App() {
           <Route path="vendedor/visualizar/producto" element={<EditarProductos />} />
           <Route path="vendedor/historial-ventas" element={<Historial />} />
           <Route path="vendedor/quejas-sugerencias" element={<QuejasSugerencias />} />
+          <Route path="vendedor/metodo-pago" element={<MetodoPago />} />
+
 
           {/* Nueva ruta para crear orden pendiente */}
           <Route path="orden-pendiente" element={<OrdenPendiente />} />
