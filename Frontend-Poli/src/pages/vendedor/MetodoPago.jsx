@@ -34,7 +34,7 @@ const MetodoPagoVendedorForm = () => {
     useEffect(() => {
         const cargarMetodoPago = async () => {
             try {
-                const data = await fetchDataBackend(`${import.meta.env.VITE_BACKEND_URL}/estudiante/metodo-pago`, {
+                const data = await fetchDataBackend(`${import.meta.env.VITE_BACKEND_URL}/vendedor/metodo-pago`, {
                     method: 'GET'
                 });
                 if (data?.metodo) {
@@ -93,14 +93,14 @@ const MetodoPagoVendedorForm = () => {
 
             await fetchDataBackend(`${import.meta.env.VITE_BACKEND_URL}/vendedor/metodo-pago`, {
                 method: 'POST',
-                body,
-                config: { headers: { 'Content-Type': 'multipart/form-data' } }
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
             });
-            
-            toast.success('Método de pago actualizado exitosamente');
+
         } catch (err) {
             console.error(err);
-            toast.error('Error al actualizar el método de pago');
         } finally {
             setGuardando(false);
         }
@@ -118,7 +118,7 @@ const MetodoPagoVendedorForm = () => {
             <div className="h-15 sm:h-7 mb-6" />
             <ToastContainer />
 
-            <div className="min-h-screen bg-gray-50 py-8 px-4">
+            <div className="min-h-screen bg-blue-50 py-8 px-4">
                 <div className="max-w-3xl mx-auto">
                     {/* Encabezado */}
                     <div className="bg-gradient-to-r from-blue-800 to-blue-900 rounded-t-xl p-6 text-white">
@@ -139,21 +139,18 @@ const MetodoPagoVendedorForm = () => {
                                         key={tipo.value}
                                         type="button"
                                         onClick={() => setTipoSeleccionado(tipo.value)}
-                                        className={`p-4 rounded-lg border-2 transition-all duration-200 ${
-                                            tipoSeleccionado === tipo.value
+                                        className={`p-4 rounded-lg border-2 transition-all duration-200 ${tipoSeleccionado === tipo.value
                                                 ? 'border-blue-600 bg-blue-50 shadow-md'
                                                 : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
-                                        }`}
+                                            }`}
                                     >
-                                        <Icon 
-                                            className={`mx-auto mb-2 ${
-                                                tipoSeleccionado === tipo.value ? 'text-blue-600' : 'text-gray-400'
-                                            }`} 
-                                            size={32} 
+                                        <Icon
+                                            className={`mx-auto mb-2 ${tipoSeleccionado === tipo.value ? 'text-blue-600' : 'text-gray-400'
+                                                }`}
+                                            size={32}
                                         />
-                                        <span className={`block text-sm font-medium ${
-                                            tipoSeleccionado === tipo.value ? 'text-blue-600' : 'text-gray-700'
-                                        }`}>
+                                        <span className={`block text-sm font-medium ${tipoSeleccionado === tipo.value ? 'text-blue-600' : 'text-gray-700'
+                                            }`}>
                                             {tipo.label}
                                         </span>
                                     </button>
@@ -164,7 +161,7 @@ const MetodoPagoVendedorForm = () => {
 
                     {/* Formulario */}
                     <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-6 border-x border-b border-gray-200 rounded-b-xl shadow-lg">
-                        
+
                         {/* Transferencia */}
                         {tipoSeleccionado === 'transferencia' && (
                             <div className="space-y-4">
