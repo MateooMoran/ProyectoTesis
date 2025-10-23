@@ -6,7 +6,7 @@ import "slick-carousel/slick/slick-theme.css";
 
 // BANNERS PRINCIPALES 
 import banner1 from '../assets/banner1.jpg';
-import banner2 from '../assets/banner2.jpg';
+import banner2 from '../assets/banner2.png';
 import banner3 from '../assets/banner3.png';
 import banner4 from '../assets/banner4.png';
 
@@ -119,16 +119,16 @@ const Carrusel = () => {
                 <div className="mb-10">
                     <Slider {...bannerSettings}>
                         {bannerImages.map((banner) => (
-                            <div key={banner.id} className="relative">
+                            <div key={banner.id} className="relative w-full h-[300px] md:h-[400px] lg:h-[680px]">
                                 <img
                                     src={banner.src}
                                     alt={banner.alt}
-                                    className="w-full h-120 object-cover"
+                                    className="absolute inset-0 w-full h-full object-center"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent flex items-end p-6">
                                     <div className="text-white ml-4">
-                                        <h3 className="text-3xl font-bold mb-1">{banner.alt}</h3>
-                                        <p className="text-xl">¡Descubre más!</p>
+                                        <h3 className="text-2xl sm:text-3xl font-bold mb-1">{banner.alt}</h3>
+                                        <p className="text-lg sm:text-xl">¡Descubre más!</p>
                                     </div>
                                 </div>
                             </div>
@@ -138,7 +138,7 @@ const Carrusel = () => {
 
                 {/* ASOCIACIONES - MOVIMIENTO INDEPENDIENTE */}
                 <div className="max-w-full mx-auto px-4 relative">
-                    <h3 className="text-2xl font-semibold text-center text-gray-700 mb-10">Asociaciones Universitarias</h3>
+                    <h3 className="text-2xl font-semibold text-center text-gray-700 mb-10">Somos Recomendados Por</h3>
                     <Slider {...assocSettings}>
                         {asociaciones.map((assoc) => (
                             <div key={assoc.id} className="px-2">

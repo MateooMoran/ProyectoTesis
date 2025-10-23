@@ -9,13 +9,14 @@ import NotificacionesAdmin from '../pages/admin/Notificaciones';
 import { MessageCircle } from "lucide-react";
 import Chat from '../pages/chat/Chat'
 import storeCarrito from '../context/storeCarrito';
+import Favoritos from '../pages/productosGeneral/Favoritos'
 
 
 
 const Header = () => {
     const navigate = useNavigate();
     const { token, clearToken } = storeAuth();
-    const { user, profile } = storeProfile(); // obtener perfil para rol confiable
+    const { user, profile } = storeProfile();
     const { categorias, loadingCategorias, error, fetchCategorias } = storeProductos();
 
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
@@ -64,7 +65,7 @@ const Header = () => {
     const handleSearch = (e) => {
         e.preventDefault();
         if (searchQuery.trim()) {
-            navigate(`/dashboard/productos/buscar?query=${encodeURIComponent(searchQuery.trim())}`);
+            navigate(`/productos/buscar?query=${encodeURIComponent(searchQuery.trim())}`);
             setSearchQuery('');
         }
     };
@@ -101,17 +102,17 @@ const Header = () => {
 
                     {/* Botones */}
                     <div className="flex items-center gap-2 flex-col sm:flex-row w-full sm:w-auto">
-                        {(rol === 'estudiante' || rol === 'admin' || rol === 'vendedor'|| rol === null ) && 
-                        
-                        <NotificacionesAdmin />}
+                        {(rol === 'estudiante' || rol === 'admin' || rol === 'vendedor' || rol === null) &&
 
-                        <button
-                            onClick={scrollToCarousel}
+                            <NotificacionesAdmin />}
+
+                        <Link
+                            to="/favoritos"
                             className="flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"
                         >
                             <Heart className="w-5 h-5" />
                             Favoritos
-                        </button>
+                        </Link>
 
                         <button
                             onClick={() => setOpen(!open)}
@@ -182,7 +183,7 @@ const Header = () => {
                                                     className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
                                                     onClick={() => setIsDropdownOpen(false)}
                                                 >
-                                                    
+
                                                     Creacion de Categorías
                                                 </Link>
 
@@ -190,7 +191,7 @@ const Header = () => {
                                         )}
                                         {rol === 'vendedor' && (
                                             <>
-                                                
+
                                                 <Link
                                                     to="/dashboard/vendedor/quejas-sugerencias"
                                                     className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
@@ -216,7 +217,7 @@ const Header = () => {
                                                 </Link>
                                             </>
                                         )}
-                                        {rol === 'estudiante' &&  (
+                                        {rol === 'estudiante' && (
                                             <>
                                                 <Link
                                                     to="/dashboard/estudiante/quejas-sugerencias"

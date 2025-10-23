@@ -21,6 +21,9 @@ function useFetch() {
         case 'PUT':
           respuesta = await axios.put(url, body || {}, config);
           break;
+        case 'PATCH':
+          respuesta = await axios.patch(url, body || {}, config);
+          break;
         case 'DELETE':
           respuesta = await axios.delete(url, config);
           break;

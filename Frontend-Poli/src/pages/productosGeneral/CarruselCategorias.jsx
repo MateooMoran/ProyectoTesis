@@ -3,7 +3,26 @@ import { Link } from "react-router-dom";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import Imagen from "../../assets/Ropa2.jpeg";
+
+import HogarImg from "../../assets/hogar.png";
+import MascotasImg from "../../assets/mscotas.jpg";
+import JuguetesImg from "../../assets/juguetes.jpg";
+import TecnologiaImg from "../../assets/tecno.jpg";
+import ComidaImg from "../../assets/comidaaa.jpg";
+import RopaImg from "../../assets/Ropa2.jpeg";
+import MaterialesImg from "../../assets/materiales.jpg";
+import LibrosImg from "../../assets/Libros.jpeg";
+
+const categoryImages = {
+    Hogar: HogarImg,
+    Mascotas: MascotasImg,
+    Juguetes: JuguetesImg,
+    Tecnologia: TecnologiaImg,
+    Comida: ComidaImg,
+    Ropa: RopaImg,
+    Materiales: MaterialesImg,
+    Libros : LibrosImg
+};
 
 const CategoriesCarousel = ({
     categorias = [],
@@ -29,10 +48,9 @@ const CategoriesCarousel = ({
         ],
     };
 
-
     return (
         <section className={className}>
-            <h3 className="text-2xl font-semibold text-gray-700 text-center mb-6">
+            <h3 className="text-2xl font-semibold text-gray-600 text-center mb-6">
                 {title}
             </h3>
 
@@ -52,20 +70,20 @@ const CategoriesCarousel = ({
                         <div key={categoria._id} className="px-2">
                             <div className="flex flex-col bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden h-full">
                                 {/* Título */}
-                                <div className="bg-red-800 text-white text-center text-xl font-semibold py-3">
+                                <div className="bg-red-900 text-white text-center text-xl font-semibold py-3">
                                     {categoria.nombreCategoria}
                                 </div>
 
                                 {/* Imagen */}
                                 <img
-                                    src={categoria.imagen || Imagen}
+                                    src={categoria.Imagen || categoryImages[categoria.nombreCategoria] || RopaImg}
                                     alt={categoria.nombreCategoria}
                                     className="w-full h-[300px] object-cover"
                                 />
 
                                 {/* Botón “Ver más” ancho completo */}
                                 <Link
-                                    to={`/dashboard/productos/categoria/${categoria._id}`}
+                                    to={`/productos/categoria/${categoria._id}`}
                                     className="block bg-blue-900 text-white font-semibold py-3 text-center hover:bg-blue-800 transition-colors w-full hover:scale-115 duration-300 mt-auto"
                                 >
                                     Ver más

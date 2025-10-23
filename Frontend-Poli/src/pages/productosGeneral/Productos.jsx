@@ -45,16 +45,7 @@ const Productos = () => {
     <>
       <Header />
       {/* Espacio para compensar header fijo */}
-      <div className="h-20 sm:h-24"></div>
-      <div className="text-center mb-2">
-        <h2 className="text-4xl font-extrabold text-blue-900 mb-2">
-          Bienvenido a <span className="text-red-700">PoliVentas</span>
-        </h2>
-        <p className="text-lg text-gray-700 mb-6">
-          Descubre productos únicos creados por estudiantes para estudiantes.
-          ¡Explora, compra y apoya a tu comunidad universitaria!
-        </p>
-      </div>
+     
       <Carrusel />
       <main className="bg-white py-1">
         <div className="container mx-auto px-4">
