@@ -92,6 +92,8 @@ function App() {
           <Route path="productos/buscar" element={<BuscarPriv />} />
           <Route path="/dashboard/productos/:id" element={<ProductoDetalle />} />
           <Route path="/dashboard/productos/categoria/:id" element={<CategoriaProductos />} />
+          <Route path="/dashboard/favoritos" element={<Favoritos />} />
+
 
 
 
