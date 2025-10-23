@@ -1,23 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, LogOut, ShoppingCart, Search, Star, Heart } from 'lucide-react';
+import { User, LogOut, ShoppingCart, Search, Star, Heart, MessageCircle } from 'lucide-react';
 import logo from '../assets/logo.png';
 import storeAuth from '../context/storeAuth';
 import storeProfile from '../context/storeProfile';
 import storeProductos from '../context/storeProductos';
-import NotificacionesAdmin from '../pages/admin/Notificaciones';
-import { MessageCircle } from "lucide-react";
-import Chat from '../pages/chat/Chat'
 import storeCarrito from '../context/storeCarrito';
-import Favoritos from '../pages/productosGeneral/Favoritos'
-
-
+import NotificacionesAdmin from '../pages/admin/Notificaciones';
+import Chat from '../pages/chat/Chat';
 
 const Header = () => {
     const navigate = useNavigate();
     const { token, clearToken } = storeAuth();
-    const { user, profile } = storeProfile();
-    const { categorias, loadingCategorias, error, fetchCategorias } = storeProductos();
+    const { user, profile, clearUser } = storeProfile();
+    const { categorias, fetchCategorias } = storeProductos();
+    const { carrito } = storeCarrito();
 
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -25,19 +22,21 @@ const Header = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const categoriesRef = useRef(null);
     const userDropdownRef = useRef(null);
-    const { carrito } = storeCarrito();
-
-    const { clear, clearUser } = storeProfile()
-
 
     const totalCantidad = carrito?.productos?.reduce((acc, item) => acc + item.cantidad, 0) || 0;
+
+    useEffect(() => {
+        // Redirigir a favoritos si hay token
+        if (token) {
+            navigate('/dashboard/favoritos');
+        }
+    }, [token, navigate]);
 
     useEffect(() => {
         fetchCategorias();
     }, [fetchCategorias]);
 
     useEffect(() => {
-        // Cargar perfil si no está cargado pero hay token
         if (token && !user) {
             profile();
         }
@@ -58,7 +57,7 @@ const Header = () => {
 
     const handleLogout = () => {
         clearToken();
-        clearUser()
+        clearUser();
         navigate('/');
     };
 
@@ -70,11 +69,8 @@ const Header = () => {
         }
     };
 
-    const scrollToCarousel = () => {
-        navigate('/');
-    };
-
     const rol = user?.rol || 'estudiante';
+
     return (
         <>
             <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50 ">
@@ -100,11 +96,9 @@ const Header = () => {
                         </div>
                     </form>
 
-                    {/* Botones */}
+                    {/* Botones y dropdown */}
                     <div className="flex items-center gap-2 flex-col sm:flex-row w-full sm:w-auto">
-                        {(rol === 'estudiante' || rol === 'admin' || rol === 'vendedor' || rol === null) &&
-
-                            <NotificacionesAdmin />}
+                        {(rol === 'estudiante' || rol === 'admin' || rol === 'vendedor' || rol === null) && <NotificacionesAdmin />}
 
                         <Link
                             to="/favoritos"
@@ -122,15 +116,11 @@ const Header = () => {
                         </button>
                         {open && <Chat onClose={() => setOpen(false)} />}
 
-                        {/* Carrito */}
                         {token && rol === 'estudiante' && (
                             <Link to="/dashboard/estudiante/carrito" className="relative">
                                 <ShoppingCart className="w-6 h-6 text-blue-800 hover:text-red-800 transition-colors" />
-
                                 {totalCantidad > 0 && (
-                                    <span
-                                        className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow"
-                                    >
+                                    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow">
                                         {totalCantidad}
                                     </span>
                                 )}
@@ -148,110 +138,15 @@ const Header = () => {
                                     <span>{user?.nombre ? `Hola, ${user.nombre}` : 'Usuario'}</span>
                                 </button>
                                 {isDropdownOpen && (
-                                    <div className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-lg py-3 z-50   ">
+                                    <div className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-lg py-3 z-50">
                                         <div className="px-5 py-3 text-sm text-blue-700">
                                             <p><strong>Nombre:</strong> {user?.nombre || 'Usuario'}</p>
                                             <p><strong>Rol:</strong> {rol ? rol.toUpperCase() : 'N/A'}</p>
                                         </div>
-                                        <Link
-                                            to="/dashboard/perfil"
-                                            className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                            onClick={() => setIsDropdownOpen(false)}
-                                        >
+                                        <Link to="/dashboard/perfil" className="block px-4 py-2 text-gray-800 hover:bg-blue-50" onClick={() => setIsDropdownOpen(false)}>
                                             Mi Perfil
                                         </Link>
-
-                                        {/* Opciones extras según rol */}
-                                        {rol === 'admin' && (
-                                            <>
-                                                <Link
-                                                    to="/dashboard/admin/gestionusuarios"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-                                                    Gestión Usuarios
-                                                </Link>
-                                                <Link
-                                                    to="/dashboard/admin/gestionquejas"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-                                                    Gestión Quejas y Sugerencias
-                                                </Link>
-                                                <Link
-                                                    to="/dashboard/vendedor/categorias"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-
-                                                    Creacion de Categorías
-                                                </Link>
-
-                                            </>
-                                        )}
-                                        {rol === 'vendedor' && (
-                                            <>
-
-                                                <Link
-                                                    to="/dashboard/vendedor/quejas-sugerencias"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-                                                    Mis Quejas y Sugerencias
-                                                </Link>
-                                                <Link
-                                                    to="/dashboard/vendedor/productos"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-                                                    Gestionar Productos
-                                                </Link>
-                                                <Link
-                                                    to="/dashboard/vendedor/metodo-pago"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-                                                    Metodos de Pago
-                                                </Link>
-                                                <Link
-                                                    to="/dashboard/vendedor/historial-ventas"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-                                                    Historial Ventas
-                                                </Link>
-                                            </>
-                                        )}
-                                        {rol === 'estudiante' && (
-                                            <>
-                                                <Link
-                                                    to="/dashboard/estudiante/quejas-sugerencias"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-                                                    Mis Quejas y Sugerencias
-                                                </Link>
-                                                <Link
-                                                    to="/dashboard/estudiante/historial-pagos"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-                                                    Mis Compras
-                                                </Link>
-                                                <Link
-                                                    to="/dashboard/estudiante/carrito"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-                                                    Carrito
-                                                </Link>
-                                            </>
-                                        )}
-
-                                        <button
-                                            className="block w-full text-left px-4 py-2 hover:bg-blue-50 text-red-500"
-                                            onClick={handleLogout}
-                                        >
+                                        <button className="block w-full text-left px-4 py-2 hover:bg-blue-50 text-red-500" onClick={handleLogout}>
                                             <LogOut className="w-4 h-4 inline mr-2 text-red-500" />
                                             Salir
                                         </button>
