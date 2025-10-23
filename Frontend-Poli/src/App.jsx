@@ -88,6 +88,10 @@ function App() {
           <Route path='estudiante/quejas-sugerencias' element={<QuejasSugerencias />} />
           <Route path="estudiante/historial-pagos" element={<HistorialPagos />} />
           <Route path="productos/buscar" element={<BuscarPriv />} />
+          <Route path="/dashboard/productos/:id" element={<ProductoDetalle />} />
+          <Route path="/dashboard/productos/categoria/:id" element={<CategoriaProductos />} />
+
+
 
 
           {/* Rutas para vendedor */}

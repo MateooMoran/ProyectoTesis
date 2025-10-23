@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -39,7 +39,6 @@ const useFavorites = () => {
                     method: 'PATCH',
                     config: { headers: { Authorization: `Bearer ${token}` } }
                 });
-                // Actualizar estado basado en el mensaje del backend
                 if (response.msg.includes('agregado')) {
                     setFavorites(prev => [...prev, { _id: productId }]);
                 } else if (response.msg.includes('removido')) {
@@ -68,7 +67,7 @@ const useFavorites = () => {
         }
     };
 
-    return { favorites, isFavorite, toggleFavorite };
+    return { favorites, isFavorite, toggleFavorite, token };
 };
 
 const ProductCarousel = ({
@@ -80,9 +79,13 @@ const ProductCarousel = ({
     showDots = false,
     className = "my-12"
 }) => {
-    const { isFavorite, toggleFavorite } = useFavorites();
+    const { isFavorite, toggleFavorite, token } = useFavorites();
+    const navigate = useNavigate();
 
-    // Configuración react-slick MEJORADA
+    const getProductLink = (id) => {
+        return token ? `/dashboard/productos/${id}` : `/productos/${id}`;
+    };
+
     const settings = {
         dots: showDots,
         infinite: productos.length > slidesPerView,
@@ -93,30 +96,14 @@ const ProductCarousel = ({
         autoplaySpeed: 2000,
         arrows: true,
         pauseOnHover: true,
-        // FLECHAS PERSONALIZADAS
         prevArrow: <SamplePrevArrow />,
         nextArrow: <SampleNextArrow />,
         responsive: [
-            {
-                breakpoint: 1536, // 2xl
-                settings: { slidesToShow: 5 }
-            },
-            {
-                breakpoint: 1280, // xl
-                settings: { slidesToShow: 4 }
-            },
-            {
-                breakpoint: 1024, // lg
-                settings: { slidesToShow: 3 }
-            },
-            {
-                breakpoint: 768, // md
-                settings: { slidesToShow: 2 }
-            },
-            {
-                breakpoint: 640, // sm
-                settings: { slidesToShow: 1 }
-            }
+            { breakpoint: 1536, settings: { slidesToShow: 5 } },
+            { breakpoint: 1280, settings: { slidesToShow: 4 } },
+            { breakpoint: 1024, settings: { slidesToShow: 3 } },
+            { breakpoint: 768, settings: { slidesToShow: 2 } },
+            { breakpoint: 640, settings: { slidesToShow: 1 } }
         ]
     };
 
@@ -134,20 +121,19 @@ const ProductCarousel = ({
                     <Slider {...settings} className="mx-[-10px]">
                         {productos.map((producto) => {
                             const fav = isFavorite(producto._id);
+                            const productLink = getProductLink(producto._id);
+
                             return (
                                 <div key={producto._id} className="px-2">
                                     <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 p-4">
-                                        {/* IMAGEN + STOCK ARRIBA DERECHA */}
                                         <div className="relative mb-3">
-                                            <Link to={`/productos/${producto._id}`} className="block">
+                                            <Link to={productLink} className="block">
                                                 <img
                                                     src={producto.imagen}
                                                     alt={producto.nombreProducto}
                                                     className="w-full h-48 object-contain rounded-md hover:shadow-md transition-shadow duration-300"
                                                 />
                                             </Link>
-
-                                            {/* Alerta stock bajo */}
                                             {producto.stock <= 5 && (
                                                 <span className="absolute top-2 left-2 bg-red-800 text-white text-xs font-semibold px-2 py-1 rounded">
                                                     ¡Solo {producto.stock} Disponibles!
@@ -155,17 +141,12 @@ const ProductCarousel = ({
                                             )}
                                         </div>
 
-                                        {/* Nombre (link) */}
-                                        <Link
-                                            to={`/productos/${producto._id}`}
-                                            className="block mb-3 hover:text-blue-600 transition-colors"
-                                        >
+                                        <Link to={productLink} className="block mb-3 hover:text-blue-600 transition-colors">
                                             <h3 className="text-base font-light text-gray-900 line-clamp-1 text-center">
                                                 {producto.nombreProducto}
                                             </h3>
                                         </Link>
 
-                                        {/* PRECIO */}
                                         <div className="mb-3">
                                             <p className="text-xl font-extrabold text-gray-600">${producto.precio.toFixed(2)}</p>
                                             {producto.descuento && (
@@ -173,7 +154,6 @@ const ProductCarousel = ({
                                             )}
                                         </div>
 
-                                        {/* BOTONES */}
                                         <div className="flex gap-2 mb-3">
                                             <Link
                                                 to="/carrito/vacio"
@@ -203,24 +183,17 @@ const ProductCarousel = ({
     );
 };
 
-// FLECHAS PERSONALIZADAS
 const SamplePrevArrow = (props) => {
     const { className, style, onClick } = props;
     return (
-        <div
-            className={`${className} ${style} custom-arrow custom-prev-arrow`}
-            onClick={onClick}
-        />
+        <div className={`${className} ${style} custom-arrow custom-prev-arrow`} onClick={onClick} />
     );
 };
 
 const SampleNextArrow = (props) => {
     const { className, style, onClick } = props;
     return (
-        <div
-            className={`${className} ${style} custom-arrow custom-next-arrow`}
-            onClick={onClick}
-        />
+        <div className={`${className} ${style} custom-arrow custom-next-arrow`} onClick={onClick} />
     );
 };
 
