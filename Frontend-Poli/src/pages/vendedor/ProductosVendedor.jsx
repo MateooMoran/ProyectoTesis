@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Trash2, PlusCircle, Pencil } from "lucide-react";
+import { Trash2, PlusCircle, Pencil, Package, Image as ImageIcon } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import useFetch from '../../hooks/useFetch';
 import Header from '../../layout/Header';
+import Footer from '../../layout/Footer';
 import { generateAvatar, convertBlobToBase64 } from "../../helpers/ConsultarAI";
 
 
@@ -54,7 +55,7 @@ export default function ProductosVendedor() {
             }
         };
         cargarProductos();
-    }, []); // Solo al montar
+    }, []);
 
     // Cargar categorías
     useEffect(() => {
@@ -74,7 +75,7 @@ export default function ProductosVendedor() {
             }
         };
         cargarCategorias();
-    }, []); // Solo al montar
+    }, []);
 
     const manejarCambio = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -185,7 +186,6 @@ export default function ProductosVendedor() {
 
             resetForm();
 
-            // Recarga solo productos después de crear/actualizar
             const urlProd = `${import.meta.env.VITE_BACKEND_URL}/vendedor/visualizar/producto`;
             const prodData = await fetchDataBackend(urlProd, {
                 method: "GET",
@@ -214,11 +214,7 @@ export default function ProductosVendedor() {
         setPromptIA("");
         setPreviewUrl("");
         setCurrentImage(p.imagenIA || p.imagen || "");
-        // Scroll suave al inicio del formulario
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth',
-        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const eliminarProducto = async (id) => {
@@ -230,256 +226,286 @@ export default function ProductosVendedor() {
                 config: { headers },
             });
             setProductos(productos.filter((p) => p._id !== id));
+            toast.success("Producto eliminado");
         } catch {
-            // Error manejado en fetchDataBackend
+            toast.error("Error al eliminar producto");
         }
     };
 
     return (
         <>
             <Header />
-            {/* Espacio para compensar header fijo */}
-            <div className="h-15 sm:h-7 mb-6" />
-            <ToastContainer></ToastContainer>
-            <div className="max-w-5xl mx-auto p-6 lg:p-8">
-                <h2 className="text-3xl font-bold text-gray-800 mb-6">Gestionar Productos</h2>
-
-                <form
-                    onSubmit={submitProducto}
-                    className="bg-white p-6 rounded-lg shadow-lg mb-8 space-y-5"
-                >
-                    <h3 className="text-xl font-semibold text-gray-800 mb-4">
-                        {editingId ? "Editar Producto" : "Crear Nuevo Producto"}
-                    </h3>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Nombre del Producto
-                            </label>
-                            <input
-                                name="nombreProducto"
-                                placeholder="Nombre del producto"
-                                value={form.nombreProducto}
-                                onChange={manejarCambio}
-                                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                                disabled={guardando || generandoIA}
-                            />
+            <div className="h-16" />
+            <ToastContainer />
+            
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8">
+                <div className="max-w-7xl mx-auto px-4">
+                    {/* Header */}
+                    <div className="text-center mb-8">
+                        <div className="flex items-center justify-center gap-3 mb-3">
+                            <Package className="w-10 h-10 text-blue-600" />
+                            <h1 className="text-4xl font-bold text-gray-800">Gestionar Productos</h1>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Precio
-                            </label>
-                            <input
-                                name="precio"
-                                type="number"
-                                placeholder="Precio"
-                                value={form.precio}
-                                onChange={manejarCambio}
-                                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                                disabled={guardando || generandoIA}
-                            />
-                        </div>
+                        <p className="text-gray-600">Crea y administra tu catálogo de productos</p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Stock
-                            </label>
-                            <input
-                                name="stock"
-                                type="number"
-                                placeholder="Stock"
-                                value={form.stock}
-                                onChange={manejarCambio}
-                                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                                disabled={guardando || generandoIA}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Categoría
-                            </label>
-                            <select
-                                name="categoria"
-                                value={form.categoria}
-                                onChange={manejarCambio}
-                                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                                disabled={guardando || generandoIA || loadingCategorias}
-                            >
-                                <option value="">Selecciona una categoría</option>
-                                {categorias.map((cat) => (
-                                    <option key={cat._id} value={cat._id}>
-                                        {cat.nombreCategoria}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* Columna Izquierda - Formulario */}
+                        <div className="lg:col-span-1">
+                            <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 sticky top-6">
+                                <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                                    <PlusCircle className="w-6 h-6 text-blue-600" />
+                                    {editingId ? "Editar Producto" : "Nuevo Producto"}
+                                </h3>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Descripción
-                        </label>
-                        <textarea
-                            name="descripcion"
-                            placeholder="Descripción del producto"
-                            value={form.descripcion}
-                            onChange={manejarCambio}
-                            className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-y"
-                            rows="4"
-                            disabled={guardando || generandoIA}
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Subir Imagen
-                        </label>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={manejarArchivo}
-                            disabled={guardando || generandoIA}
-                            className="w-full text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Generar Imagen con IA
-                        </label>
-                        <div className="flex items-center gap-4">
-                            <input
-                                type="text"
-                                placeholder="Describe la imagen a generar con IA"
-                                value={promptIA}
-                                onChange={(e) => setPromptIA(e.target.value)}
-                                disabled={guardando || generandoIA}
-                                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                            />
-                            <button
-                                type="button"
-                                onClick={generarImagenIA}
-                                disabled={guardando || generandoIA || !promptIA.trim()}
-                                className={`px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-2 transition-transform hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed`}
-                            >
-                                {generandoIA ? "Generando..." : "Generar Imagen"}
-                            </button>
-                        </div>
-                    </div>
-
-                    {(imagenIA || previewUrl || (editingId && currentImage)) && (
-                        <div className="mt-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Vista Previa / Imagen Actual
-                            </label>
-                            <img
-                                src={imagenIA || previewUrl || currentImage}
-                                alt="Imagen del producto"
-                                className="max-w-xs rounded-lg shadow-md border border-gray-200"
-                            />
-                        </div>
-                    )}
-
-                    <div className="flex gap-4">
-                        <button
-                            type="submit"
-                            disabled={guardando || generandoIA}
-                            className={`w-full md:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg flex items-center justify-center gap-2 transition-transform hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed`}
-                        >
-                            <PlusCircle size={20} /> {editingId ? "Actualizar Producto" : "Crear Producto"}
-                        </button>
-                        {editingId && (
-                            <button
-                                type="button"
-                                onClick={resetForm}
-                                className="w-full md:w-auto px-6 py-3 bg-gray-300 text-gray-800 rounded-lg flex items-center justify-center gap-2 transition-transform hover:bg-gray-400"
-                            >
-                                Cancelar
-                            </button>
-                        )}
-                    </div>
-                </form>
-
-                <h2
-                    id="titulo-productos-registrados"
-                    className="text-2xl font-bold text-gray-800 mb-6"
-                >
-                    Productos Registrados
-                </h2>
-
-                {(loadingProductos || loadingCategorias) ? (
-                    <div className="text-center text-gray-600">Cargando datos...</div>
-                ) : productos.length === 0 ? (
-                    <div className="text-center text-gray-600">No hay productos registrados.</div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {productos.map((p) => (
-                            <div
-                                key={p._id}
-                                className="bg-white p-5 rounded-lg shadow-md hover:shadow-lg transition-shadow"
-                            >
-                                {(p.imagenIA || p.imagen) && (
-                                    <img
-                                        src={p.imagenIA || p.imagen}
-                                        alt={p.nombreProducto}
-                                        className="w-full h-48 object-cover rounded-md mb-4"
-                                    />
-                                )}
-                                <div className="flex justify-between items-start">
+                                <div className="space-y-4">
                                     <div>
-                                        <h3 className="text-lg font-semibold text-gray-800">
-                                            {p.nombreProducto}
-                                        </h3>
-                                        <p className="text-gray-600">Precio: ${p.precio}</p>
-                                        <p className="text-gray-600">Stock: {p.stock}</p>
-                                        <p className="text-gray-600">
-                                            Categoría: {p.categoria?.nombreCategoria || "N/A"}
-                                        </p>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Nombre del Producto
+                                        </label>
+                                        <input
+                                            name="nombreProducto"
+                                            placeholder="Ej: Laptop HP"
+                                            value={form.nombreProducto}
+                                            onChange={manejarCambio}
+                                            className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                            disabled={guardando || generandoIA}
+                                        />
                                     </div>
-                                    <div className="flex flex-col gap-2">
-                                        <button
-                                            onClick={() => eliminarProducto(p._id)}
-                                            className="text-red-500 hover:text-red-700 transition"
-                                            title="Eliminar producto"
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                                Precio ($)
+                                            </label>
+                                            <input
+                                                name="precio"
+                                                type="number"
+                                                placeholder="0.00"
+                                                value={form.precio}
+                                                onChange={manejarCambio}
+                                                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                                disabled={guardando || generandoIA}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                                Stock
+                                            </label>
+                                            <input
+                                                name="stock"
+                                                type="number"
+                                                placeholder="0"
+                                                value={form.stock}
+                                                onChange={manejarCambio}
+                                                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                                disabled={guardando || generandoIA}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Categoría
+                                        </label>
+                                        <select
+                                            name="categoria"
+                                            value={form.categoria}
+                                            onChange={manejarCambio}
+                                            className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                            disabled={guardando || generandoIA || loadingCategorias}
                                         >
-                                            <Trash2 size={20} />
-                                        </button>
+                                            <option value="">Selecciona categoría</option>
+                                            {categorias.map((cat) => (
+                                                <option key={cat._id} value={cat._id}>
+                                                    {cat.nombreCategoria}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Descripción
+                                        </label>
+                                        <textarea
+                                            name="descripcion"
+                                            placeholder="Describe tu producto..."
+                                            value={form.descripcion}
+                                            onChange={manejarCambio}
+                                            className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none"
+                                            rows="3"
+                                            disabled={guardando || generandoIA}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            Subir Imagen
+                                        </label>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={manejarArchivo}
+                                            disabled={guardando || generandoIA}
+                                            className="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:font-medium transition cursor-pointer"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            O genera con IA
+                                        </label>
+                                        <div className="space-y-2">
+                                            <input
+                                                type="text"
+                                                placeholder="Describe la imagen..."
+                                                value={promptIA}
+                                                onChange={(e) => setPromptIA(e.target.value)}
+                                                disabled={guardando || generandoIA}
+                                                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={generarImagenIA}
+                                                disabled={guardando || generandoIA || !promptIA.trim()}
+                                                className="w-full py-2 bg-gray-600 text-white rounded-lg font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+                                            >
+                                                <ImageIcon className="w-4 h-4" />
+                                                {generandoIA ? "Generando..." : "Generar Imagen"}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {(imagenIA || previewUrl || (editingId && currentImage)) && (
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                                Vista Previa
+                                            </label>
+                                            <img
+                                                src={imagenIA || previewUrl || currentImage}
+                                                alt="Preview"
+                                                className="w-full h-40 object-cover rounded-lg border-2 border-gray-200"
+                                            />
+                                        </div>
+                                    )}
+
+                                    <div className="flex gap-2 pt-4">
                                         <button
-                                            onClick={() => editarProducto(p)}
-                                            className="text-blue-500 hover:text-blue-700 transition"
-                                            title="Actualizar producto"
+                                            onClick={submitProducto}
+                                            disabled={guardando || generandoIA}
+                                            className="flex-1 py-3 bg-blue-800 text-white rounded-lg font-semibold hover:bg-blue-900 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
                                         >
-                                            <Pencil size={20} />
+                                            <PlusCircle className="w-5 h-5" />
+                                            {editingId ? "Actualizar" : "Crear Producto"}
                                         </button>
+                                        {editingId && (
+                                            <button
+                                                onClick={resetForm}
+                                                className="px-4 py-3 bg-gray-300 text-gray-800 rounded-lg font-semibold hover:bg-gray-400 transition"
+                                            >
+                                                Cancelar
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-            {/* Footer */}
-            <footer className="bg-blue-950 py-4 mt-20">
-                <div className="text-center">
-                    <p className="text-white underline mb-2">
-                        © 2025 PoliVentas - Todos los derechos reservados.
-                    </p>
-                    <div className="flex justify-center gap-6">
-                        <a href=" #" className="text-white hover:text-red-400 transition-colors">
-                            Facebook
-                        </a>
-                        <a href="#" className="text-white hover:text-red-400 transition-colors">
-                            Instagram
-                        </a>
-                        <a href="#" className="text-white hover:text-red-400 transition-colors">
-                            Twitter
-                        </a>
+                        </div>
+
+                        {/* Columna Derecha - Grid de Productos */}
+                        <div className="lg:col-span-2">
+                            <div className="mb-6">
+                                <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                                    <Package className="w-6 h-6 text-blue-600" />
+                                    Productos Registrados
+                                    <span className="ml-2 text-sm font-normal bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+                                        {productos.length}
+                                    </span>
+                                </h3>
+                            </div>
+
+                            {(loadingProductos || loadingCategorias) ? (
+                                <div className="flex items-center justify-center py-20">
+                                    <div className="text-center">
+                                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                                        <p className="text-gray-500">Cargando productos...</p>
+                                    </div>
+                                </div>
+                            ) : productos.length === 0 ? (
+                                <div className="text-center py-20 bg-white rounded-xl border-2 border-dashed border-gray-300">
+                                    <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                                    <p className="text-gray-500 text-lg font-medium">No hay productos registrados</p>
+                                    <p className="text-gray-400 text-sm mt-2">Crea tu primer producto usando el formulario</p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                                    {productos.map((p) => (
+                                        <div
+                                            key={p._id}
+                                            className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 overflow-hidden group"
+                                        >
+                                            <div className="relative">
+                                                {(p.imagenIA || p.imagen) ? (
+                                                    <img
+                                                        src={p.imagenIA || p.imagen}
+                                                        alt={p.nombreProducto}
+                                                        className="w-full h-40 object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-40 bg-gray-200 flex items-center justify-center">
+                                                        <Package className="w-12 h-12 text-gray-400" />
+                                                    </div>
+                                                )}
+                                                <div className="absolute top-2 right-2 flex gap-1">
+                                                    <button
+                                                        onClick={() => editarProducto(p)}
+                                                        className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition shadow-lg"
+                                                        title="Editar"
+                                                    >
+                                                        <Pencil className="w-4 h-4" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => eliminarProducto(p._id)}
+                                                        className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition shadow-lg"
+                                                        title="Eliminar"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div className="p-4">
+                                                <h4 className="font-bold text-gray-800 text-lg mb-2 truncate">
+                                                    {p.nombreProducto}
+                                                </h4>
+                                                <div className="flex justify-between items-center mb-2">
+                                                    <span className="text-2xl font-bold text-blue-600">
+                                                        ${p.precio}
+                                                    </span>
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                                        p.stock > 10 
+                                                            ? 'bg-green-100 text-green-700' 
+                                                            : p.stock > 0 
+                                                                ? 'bg-yellow-100 text-yellow-700' 
+                                                                : 'bg-red-100 text-red-700'
+                                                    }`}>
+                                                        Stock: {p.stock}
+                                                    </span>
+                                                </div>
+                                                <p className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded">
+                                                    {p.categoria?.nombreCategoria || "Sin categoría"}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
-            </footer>
+            </div>
+
+            <Footer />
         </>
     );
 }
