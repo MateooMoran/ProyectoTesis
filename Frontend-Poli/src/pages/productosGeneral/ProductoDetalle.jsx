@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import storeCarrito from '../../context/storeCarrito';
 import storeProductos from '../../context/storeProductos';
@@ -8,7 +8,70 @@ import storeAuth from '../../context/storeAuth';
 import Header from '../../layout/Header';
 import Footer from '../../layout/Footer';
 import CarruselProductos from '../productosGeneral/CarruselProductos';
-import { FaStar, FaHeart, FaShoppingCart, FaUser, FaTruck, FaCheckCircle, FaCube } from 'react-icons/fa';
+import { FaStar, FaHeart, FaRegHeart, FaShoppingCart, FaUser, FaCheckCircle, FaCube } from 'react-icons/fa';
+import useFetch from '../../hooks/useFetch';
+
+// ✅ Hook de favoritos reutilizable
+const useFavorites = () => {
+  const [favorites, setFavorites] = useState([]);
+  const { token } = storeAuth();
+  const { fetchDataBackend } = useFetch();
+
+  useEffect(() => {
+    const loadFavorites = async () => {
+      if (token) {
+        try {
+          const data = await fetchDataBackend(`${import.meta.env.VITE_BACKEND_URL}/estudiante/favoritos`, {
+            method: 'GET',
+            config: { headers: { Authorization: `Bearer ${token}` } }
+          });
+          setFavorites(data.favoritos || []);
+        } catch { }
+      } else {
+        const localFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
+        setFavorites(localFavs);
+      }
+    };
+    loadFavorites();
+  }, [token]);
+
+  const toggleFavorite = async (productId) => {
+    if (token) {
+      try {
+        const response = await fetchDataBackend(`${import.meta.env.VITE_BACKEND_URL}/estudiante/favorito/${productId}`, {
+          method: 'PATCH',
+          config: { headers: { Authorization: `Bearer ${token}` } }
+        });
+
+        if (response.msg.includes('agregado')) {
+          setFavorites(prev => [...prev, { _id: productId }]);
+          toast.success('Producto agregado a favoritos');
+        } else if (response.msg.includes('removido')) {
+          setFavorites(prev => prev.filter(p => p._id !== productId));
+          toast.success('Producto removido de favoritos');
+        }
+      } catch { }
+    } else {
+      let localFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
+      if (localFavs.includes(productId)) {
+        localFavs = localFavs.filter(id => id !== productId);
+        toast.success('Producto removido de favoritos');
+      } else {
+        localFavs.push(productId);
+        toast.success('Producto agregado a favoritos');
+      }
+      localStorage.setItem('favorites', JSON.stringify(localFavs));
+      setFavorites(localFavs);
+    }
+  };
+
+  const isFavorite = (productId) => {
+    if (token) return favorites.some(fav => fav._id === productId);
+    return favorites.includes(productId);
+  };
+
+  return { favorites, isFavorite, toggleFavorite };
+};
 
 const ProductoDetalle = () => {
   const { id } = useParams();
@@ -17,29 +80,28 @@ const ProductoDetalle = () => {
   const [error, setError] = useState(null);
   const [cantidad, setCantidad] = useState(1);
   const [reseñas, setReseñas] = useState([]);
-  const [ver3D, setVer3D] = useState(false); 
+  const [ver3D, setVer3D] = useState(false);
   const navigate = useNavigate();
 
   const { agregarProducto } = storeCarrito();
-  const { productos, loadingProductos } = storeProductos();
+  const { productos } = storeProductos();
+  const { user } = storeProfile();
   const { token } = storeAuth();
 
-  // ✅ PRODUCTOS RELACIONADOS (misma categoría)
-  const productosRelacionados = productos.filter(
-    p => p.categoria?._id === producto?.categoria?._id && p._id !== id
-  ).slice(0, 8);
+  const { isFavorite, toggleFavorite } = useFavorites();
+
+  // ✅ PRODUCTOS RELACIONADOS
+  const productosRelacionados = productos
+    .filter(p => p.categoria?._id === producto?.categoria?._id && p._id !== id)
+    .slice(0, 8);
 
   const handleAgregarAlCarrito = () => {
     agregarProducto(producto._id, cantidad);
     toast.success(`✨ ${producto.nombreProducto} agregado al carrito`);
-    if (!token) {
-      navigate('/carrito/vacio');
-    } else {
-      navigate(`/dashboard/productos/${producto._id}`);
-    }
+    if (!token) navigate('/carrito/vacio');
+    else navigate(`/dashboard/productos/${producto._id}`);
   };
 
-  // ✅ TOGGLE 3D
   const toggle3D = () => setVer3D(!ver3D);
 
   useEffect(() => {
@@ -52,8 +114,6 @@ const ProductoDetalle = () => {
         if (!response.ok) throw new Error('No se pudo cargar el producto');
         const data = await response.json();
         setProducto(data);
-
-        // ✅ RESEÑAS FALSAS
         setReseñas([
           { usuario: 'Ana López', rating: 5, comentario: '¡Excelente calidad!', fecha: '2025-10-10' },
           { usuario: 'Carlos Ruiz', rating: 4, comentario: 'Muy bueno, llegó rápido', fecha: '2025-10-08' },
@@ -72,6 +132,8 @@ const ProductoDetalle = () => {
   if (error) return <div className="min-h-screen bg-gray-50"><p className="text-center text-red-600 text-lg mt-20">Error: {error}</p></div>;
   if (!producto) return <div className="min-h-screen bg-gray-50"><p className="text-center text-gray-500 text-lg mt-20">Producto no encontrado.</p></div>;
 
+  const fav = isFavorite(producto._id);
+
   return (
     <>
       <Header />
@@ -82,10 +144,10 @@ const ProductoDetalle = () => {
         <section className="py-3 sm:pb-8 bg-white">
           <div className="max-w-7xl mx-auto px-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-              {/* ✅ IMAGEN IZQUIERDA ↔ 3D */}
-              <div className="flex justify-center lg:justify-start">
+
+              {/* ✅ IMAGEN ↔ 3D */}
+              <div className="flex flex-col items-center lg:items-start">
                 {ver3D && producto.modelo_url ? (
-                  // ✅ MODEL-VIEWER HTML PURO
                   <model-viewer
                     src={producto.modelo_url}
                     alt={producto.nombreProducto}
@@ -100,20 +162,26 @@ const ProductoDetalle = () => {
                       borderRadius: '16px',
                       boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
                     }}
-                  >
-                    <div slot="progress-bar" style={{ backgroundColor: '#3B82F6' }}></div>
-                  </model-viewer>
+                  />
                 ) : (
-                  // IMAGEN NORMAL
                   <img
                     src={producto.imagen}
                     alt={producto.nombreProducto}
                     className="w-full max-w-md h-auto object-contain rounded-2xl shadow-2xl"
                   />
                 )}
+                {producto?.modelo_url && (
+                  <button
+                    onClick={toggle3D}
+                    className="mt-4 h-14 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-3 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-300 shadow-lg p-3 w-full max-w-md"
+                  >
+                    <FaCube className="w-6 h-6" />
+                    {ver3D ? 'Regresar a la Imagen' : 'Ver modelo 3D'}
+                  </button>
+                )}
               </div>
 
-              {/* INFO DERECHA */}
+              {/* 🔹 INFORMACIÓN DEL PRODUCTO */}
               <div className="space-y-6">
                 <h1 className="text-4xl font-bold text-gray-700">{producto.nombreProducto}</h1>
 
@@ -132,8 +200,7 @@ const ProductoDetalle = () => {
                 </div>
 
                 {/* DESCRIPCIÓN */}
-                <label className="font-semibold text-gray-700">Detalle del Producto</label>
-                <p className="text-gray-600 text-lg leading-relaxed"> {producto.descripcion}</p>
+                <p className="text-gray-600 text-lg leading-relaxed">{producto.descripcion}</p>
 
                 {/* CANTIDAD */}
                 <div className="flex items-center gap-4">
@@ -149,9 +216,8 @@ const ProductoDetalle = () => {
                   <span className="text-gray-600">de {producto.stock} disponibles</span>
                 </div>
 
-                {/* ✅ BOTONES CON 3D */}
+                {/* BOTONES */}
                 <div className="flex flex-col sm:flex-row gap-4 w-full">
-                  {/* 🛒 BOTÓN AGREGAR AL CARRITO */}
                   <button
                     onClick={handleAgregarAlCarrito}
                     className="flex-1 h-14 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-3 hover:from-red-700 hover:to-red-800 transform hover:scale-105 transition-all duration-300 shadow-lg p-3"
@@ -159,23 +225,14 @@ const ProductoDetalle = () => {
                     <FaShoppingCart className="w-6 h-6" /> Agregar al Carrito
                   </button>
 
-                  {/* 🔷 BOTÓN VER MODELO 3D */}
-                  {producto?.modelo_url && (
-                    <button
-                      onClick={toggle3D}
-                      className="flex-1 h-14 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-3 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-300 shadow-lg p-3"
-                    >
-                      <FaCube className="w-6 h-6" />
-                      {ver3D ? 'Ver Imagen 2D' : 'Ver modelo 3D'}
-                    </button>
-                  )}
-
-                  {/* ❤️ BOTÓN FAVORITO */}
-                  <button className="h-14 w-full sm:w-14 bg-gray-200 rounded-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all duration-300 transform hover:scale-110">
-                    <FaHeart className="w-6 h-6" />
+                  {/* ❤️ FAVORITOS */}
+                  <button
+                    onClick={() => toggleFavorite(producto._id)}
+                    className={`h-14 w-full sm:w-14 rounded-xl flex items-center justify-center transition-all duration-300 transform hover:scale-110 ${fav ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-gray-200 hover:bg-red-500 hover:text-white'}`}
+                  >
+                    {fav ? <FaHeart className="w-6 h-6" /> : <FaRegHeart className="w-6 h-6" />}
                   </button>
                 </div>
-
 
                 {/* INFO ADICIONAL */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -222,17 +279,12 @@ const ProductoDetalle = () => {
           </div>
         </section>
 
-        {/* 🔥 3. PRODUCTOS RELACIONADOS MÁS ABAJO */}
+        {/* 🔥 3. PRODUCTOS RELACIONADOS */}
         {productosRelacionados.length > 0 && (
           <section className="py-8 bg-white">
             <div className="max-w-7xl mx-auto px-4">
               <h2 className="text-2xl font-bold text-gray-800 text-center mb-12">Productos Relacionados</h2>
-              <CarruselProductos
-                productos={productosRelacionados}
-                title=""
-                slidesPerView={4}
-                showDots={false}
-              />
+              <CarruselProductos productos={productosRelacionados} slidesPerView={4} showDots={false} />
             </div>
           </section>
         )}

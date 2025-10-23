@@ -81,7 +81,7 @@ export const Home = () => {
           </Link>
 
           {/* Barra de Búsqueda */}
-          <form onSubmit={handleSearch} className="flex-1 max-w-lg mx-4">
+          <form onSubmit={handleSearch} className="flex-1 max-w-lg mx-4 w-full">
             <div className="relative">
               <input
                 type="text"
@@ -139,7 +139,7 @@ export const Home = () => {
                 )}
               </div>
             ) : (
-              <div className="flex gap-4">
+              <div className="flex gap-4 w-full justify-center sm:justify-start">
                 <Link to="/login" className="bg-blue-800 text-white py-2 px-6 rounded-xl font-semibold hover:bg-red-800 transition-all duration-300">
                   Iniciar Sesión
                 </Link>
@@ -152,52 +152,46 @@ export const Home = () => {
         </div>
       </header>
 
-      {/* Espacio para header fijo */}
-      <div className="h-20 sm:h-24"></div>
-      {/* Hero Section */}
-      <div className="text-center mb-2">
-        <h2 className="text-4xl font-extrabold text-blue-900 mb-2 mt-6 ">
-          Bienvenido a <span className="text-red-700">PoliVentas</span>
-        </h2>
-        <p className="text-lg text-gray-700 mb-6">
-          Descubre productos únicos creados por estudiantes para estudiantes.
-        </p>
+      {/* Contenido principal con padding para header fijo */}
+      <div className="pt-40 sm:pt-24 md:pt-20 lg:pt-16">
+        {/* Hero Section */}
+        <Carrusel />
+
+        {/* Main Section */}
+        <main className="bg-white-50">
+          <div className="container mx-auto px-4">
+            <CarruselCategorias
+              categorias={categorias}
+              productos={productos}
+              loadingCategorias={loadingCategorias}
+              errorCategorias={errorCategorias}
+            />
+
+            {/* ✅ CARRUSEL 1: */}
+            <CarruselProductos
+              productos={productos}
+              loading={loadingProductos}
+              error={error}
+              title="Descubre lo Nuevo"
+              showDots={false}
+              onAddToCart={handleAgregarAlCarrito}
+            />
+
+            {/* ✅ CARRUSEL 2: DESCUENTOS */}
+            <CarruselProductos
+              productos={productos.filter(p => p.stock <= 5)}
+              loading={loadingProductos}
+              error={error}
+              title="Últimas Unidades"
+              showDots={false}
+              onAddToCart={handleAgregarAlCarrito}
+            />
+
+          </div>
+
+        </main>
+        <Footer />
       </div>
-      <Carrusel />
-      {/* Main Section */}
-      <main className="bg-white-50">
-        <div className="container mx-auto px-4">
-          <CarruselCategorias
-            categorias={categorias}
-            productos={productos}
-            loadingCategorias={loadingCategorias}
-            errorCategorias={errorCategorias}
-          />
-
-          {/* ✅ CARRUSEL 1: */}
-          <CarruselProductos
-            productos={productos}
-            loading={loadingProductos}
-            error={error}
-            title="Descubre lo Nuevo"
-            showDots={false}
-            onAddToCart={handleAgregarAlCarrito}
-          />
-
-          {/* ✅ CARRUSEL 2: DESCUENTOS */}
-          <CarruselProductos
-            productos={productos.filter(p => p.stock <= 5)}
-            loading={loadingProductos}
-            error={error}
-            title="Últimas Unidades"
-            showDots={false}
-            onAddToCart={handleAgregarAlCarrito}
-          />
-
-        </div>
-
-      </main>
-      <Footer />
     </>
   );
 };

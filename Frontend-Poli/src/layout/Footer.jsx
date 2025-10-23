@@ -51,7 +51,7 @@ const Footer = () => {
                         </h4>
                         <ul className="space-y-3">
                             {[
-                                
+
                                 { to: "/login", label: "  Mi Cuenta" },
                                 { to: "/carrito/vacio", label: "  Carrito" }
                             ].map((item) => (
@@ -86,26 +86,26 @@ const Footer = () => {
                             </li>
                         </ul>
                     </div>
-                </div>
 
-                {/* MAPA GOOGLE MAPS */}
-                <div className=" p-6 mb-8 border-t border-white/10 pt-6">
-                    <h4 className="text-lg font-semibold mb-4 flex items-center text-center sm:text-left">
-                        <FaMapMarkerAlt className="mr-2 text-red-400" />
-                        Encuentranos en EPN
-                    </h4>
-                    <div className="rounded-xl overflow-hidden shadow-2xl">
-                        <iframe
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3989.791448451573!2d-78.4919169890584!3d-0.2102860353965694!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91d59a107e1cd44b%3A0x88a284f66939ed4!2sESCUELA%20POLIT%C3%89CNICA%20NACIONAL!5e0!3m2!1ses!2sec!4v1760584126135!5m2!1ses!2sec"
-                            width="100%"
-                            height="250"
-                            style={{ border: 0 }}
-                            allowFullScreen=""
-                            loading="lazy"
-                            referrerPolicy="no-referrer-when-downgrade"
-                            title="EPN - Escuela Politécnica Nacional"
-                            className="w-full h-64 rounded-xl"
-                        />
+                    {/* MAPA GOOGLE MAPS */}
+                    <div className="p-6 border-t border-white/10 pt-6 lg:border-t-0 lg:pt-0">
+                        <h4 className="text-lg font-semibold mb-4 flex items-center text-center sm:text-left">
+                            <FaMapMarkerAlt className="mr-2 text-red-400" />
+                            Encuentranos en EPN
+                        </h4>
+                        <div className="rounded-xl overflow-hidden shadow-2xl">
+                            <iframe
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3989.791448451573!2d-78.4919169890584!3d-0.2102860353965694!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x91d59a107e1cd44b%3A0x88a284f66939ed4!2sESCUELA%20POLIT%C3%89CNICA%20NACIONAL!5e0!3m2!1ses!2sec!4v1760584126135!5m2!1ses!2sec"
+                                width="100%"
+                                height="250"
+                                style={{ border: 0 }}
+                                allowFullScreen=""
+                                loading="lazy"
+                                referrerPolicy="no-referrer-when-downgrade"
+                                title="EPN - Escuela Politécnica Nacional"
+                                className="w-full h-64 rounded-xl"
+                            />
+                        </div>
                     </div>
                 </div>
 
