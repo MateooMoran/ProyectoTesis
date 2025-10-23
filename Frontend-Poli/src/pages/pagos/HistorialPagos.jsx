@@ -6,6 +6,14 @@ import { toast, ToastContainer } from 'react-toastify';
 import Header from '../../layout/Header';
 import Footer from '../../layout/Footer';
 import useFetch from '../../hooks/useFetch';
+import {
+    ClipboardList,
+    CheckCircle,
+    Clock,
+    Banknote,
+    CreditCard,
+    ShoppingCart,
+} from 'lucide-react';
 
 const HistorialPagos = () => {
     const [orders, setOrders] = useState([]);
@@ -13,11 +21,10 @@ const HistorialPagos = () => {
     const [error, setError] = useState(null);
     const [filtroEstado, setFiltroEstado] = useState('todos');
     const [filtroMetodo, setFiltroMetodo] = useState('todos');
-    const [ordersPorPagina] = useState(6);
+    const [ordersPorPagina] = useState(4);
     const { fetchDataBackend } = useFetch();
     const navigate = useNavigate();
 
-    // 🔥 PAGINADOR LOCAL POR TAB
     const [currentPage, setCurrentPage] = useState({});
 
     useEffect(() => {
@@ -62,7 +69,6 @@ const HistorialPagos = () => {
         });
     };
 
-    // 🔥 FILTRO COMBINADO (TAB + MANUAL)
     const getOrdersFiltradas = (estadoTab, metodoTab) => {
         return orders.filter(order =>
             (estadoTab === 'todos' || order.estado === estadoTab) &&
@@ -72,14 +78,12 @@ const HistorialPagos = () => {
         );
     };
 
-    // 🔥 CANTIDADES PARA TABS
     const totalTodas = orders.length;
     const totalPagadas = orders.filter(o => o.estado === 'pagado').length;
     const totalPendientes = orders.filter(o => o.estado === 'pendiente').length;
     const totalEfectivo = orders.filter(o => o.metodoPago === 'efectivo').length;
     const totalTarjeta = orders.filter(o => o.metodoPago === 'tarjeta').length;
 
-    // 🔥 PAGINADOR LOCAL
     const getCurrentPage = (estadoTab, metodoTab) => {
         const key = `${estadoTab}-${metodoTab}`;
         return currentPage[key] || 1;
@@ -110,7 +114,7 @@ const HistorialPagos = () => {
         }
     };
 
-    const renderOrdersTab = (estadoTab, metodoTab, titulo, icon) => {
+    const renderOrdersTab = (estadoTab, metodoTab, titulo, Icon) => {
         const ordersActuales = getOrdersActuales(estadoTab, metodoTab);
         const totalPaginas = getTotalPaginas(estadoTab, metodoTab);
         const totalItems = getOrdersFiltradas(estadoTab, metodoTab).length;
@@ -123,19 +127,18 @@ const HistorialPagos = () => {
                         <p className="text-gray-500 text-xl mb-4">No hay {titulo.toLowerCase()} en tu historial</p>
                         <button
                             onClick={() => navigate('/dashboard/listarProd')}
-                            className="bg-blue-900 text-white py-3 px-6 rounded-xl hover:bg-blue-800 transition-all"
+                            className="bg-blue-900 text-white py-3 px-6 rounded-xl hover:bg-blue-800 transition-all flex items-center justify-center gap-2"
                         >
-                            🛒 Explorar Productos
+                            <ShoppingCart size={20} /> Explorar Productos
                         </button>
                     </div>
                 ) : (
                     <>
-                        {/* 🔥 FILTROS POR TAB */}
                         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-200">
                             <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
                                 <div className="flex items-center gap-4 flex-wrap">
                                     <span className="text-lg font-semibold text-blue-800 flex items-center gap-2">
-                                        {icon} Total: {totalItems} {titulo.toLowerCase()}
+                                        <Icon size={20} /> Total: {totalItems} {titulo.toLowerCase()}
                                     </span>
                                     <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
                                         Página {paginaActual} de {totalPaginas}
@@ -170,7 +173,6 @@ const HistorialPagos = () => {
                             </div>
                         </div>
 
-                        {/* 🔥 CARDS ORDENES */}
                         <div className="space-y-4 mb-6">
                             {ordersActuales.map((order) => (
                                 <div
@@ -194,15 +196,20 @@ const HistorialPagos = () => {
                                         </div>
                                         <span
                                             className={`inline-block px-4 py-2 rounded-full text-sm font-bold ${order.estado === 'pagado'
-                                                    ? 'bg-green-100 text-green-800'
-                                                    : 'bg-yellow-100 text-yellow-800'
-                                                }`}
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-yellow-100 text-yellow-800'
+                                                } flex items-center gap-1`}
                                         >
-                                            {order.estado === 'pagado' ? '✅ Pagado' : '⏳ Pendiente'}
+                                            {order.estado === 'pagado' ? (
+                                                <CheckCircle size={16} />
+                                            ) : (
+                                                <Clock size={16} />
+                                            )}
+                                            {order.estado === 'pagado' ? 'Pagado' : 'Pendiente'}
                                         </span>
                                     </div>
                                     <button
-                                        onClick={() => navigate(`/dashboard/productos/${order.productos[0]?.producto?._id}`)}
+                                        onClick={() => navigate(`productos/${order.productos[0]?.producto?._id}`)}
                                         className="bg-gradient-to-r from-blue-900 to-blue-900 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-800 hover:to-blue-800 transform hover:scale-105 transition-all"
                                     >
                                         Ver Producto
@@ -211,9 +218,8 @@ const HistorialPagos = () => {
                             ))}
                         </div>
 
-                        {/* 🔥 PAGINADOR ESTABLE */}
                         {totalPaginas > 1 && (
-                            <div className="bg-white rounded-2xl shadow-lg p-6 border flex justify-center gap-2">
+                            <div className="bg-white rounded-2xl shadow-lg p-6  flex justify-center gap-2">
                                 <button
                                     onClick={() => handlePageChange(paginaActual - 1, estadoTab, metodoTab)}
                                     disabled={paginaActual === 1}
@@ -273,8 +279,8 @@ const HistorialPagos = () => {
 
             <main className="py-10 bg-blue-50 min-h-screen">
                 <div className="max-w-7xl mx-auto px-4">
-                    <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-700 to-gray-700 bg-clip-text text-transparent text-center mb-12">
-                        💳 Historial de Compras
+                    <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-700 to-gray-700 bg-clip-text text-transparent text-center mb-12 flex items-center justify-center gap-2">
+                        <CreditCard size={32} /> Historial de Compras
                     </h2>
 
                     {error ? (
@@ -288,36 +294,31 @@ const HistorialPagos = () => {
                             </button>
                         </div>
                     ) : (
-                        <div className="bg-white rounded-2xl shadow-lg border border-gray-200">
+                        <div className="rounded-2xl shadow-lg">
                             <Tabs>
                                 <TabList className="flex border-b border-gray-200">
                                     <Tab className="flex-1 py-4 px-6 text-center font-semibold text-gray-600 cursor-pointer transition-all hover:text-blue-800 focus:outline-none">
-                                        <span className="text-2xl mb-1">📋</span>
-                                        Todas ({totalTodas})
+                                        <ClipboardList className="inline-block mb-1 mr-1" /> Todas ({totalTodas})
                                     </Tab>
                                     <Tab className="flex-1 py-4 px-6 text-center font-semibold text-gray-600 cursor-pointer transition-all hover:text-green-600 focus:outline-none">
-                                        <span className="text-2xl mb-1">✅</span>
-                                        Pagadas ({totalPagadas})
+                                        <CheckCircle className="inline-block mb-1 mr-1" /> Pagadas ({totalPagadas})
                                     </Tab>
                                     <Tab className="flex-1 py-4 px-6 text-center font-semibold text-gray-600 cursor-pointer transition-all hover:text-yellow-600 focus:outline-none">
-                                        <span className="text-2xl mb-1">⏳</span>
-                                        Pendientes ({totalPendientes})
+                                        <Clock className="inline-block mb-1 mr-1" /> Pendientes ({totalPendientes})
                                     </Tab>
                                     <Tab className="flex-1 py-4 px-6 text-center font-semibold text-gray-600 cursor-pointer transition-all hover:text-green-600 focus:outline-none">
-                                        <span className="text-2xl mb-1">💵</span>
-                                        Efectivo ({totalEfectivo})
+                                        <Banknote className="inline-block mb-1 mr-1" /> Efectivo ({totalEfectivo})
                                     </Tab>
                                     <Tab className="flex-1 py-4 px-6 text-center font-semibold text-gray-600 cursor-pointer transition-all hover:text-blue-600 focus:outline-none">
-                                        <span className="text-2xl mb-1">💳</span>
-                                        Tarjeta ({totalTarjeta})
+                                        <CreditCard className="inline-block mb-1 mr-1" /> Tarjeta ({totalTarjeta})
                                     </Tab>
                                 </TabList>
 
-                                {renderOrdersTab('todos', 'todos', 'Todas', )}
-                                {renderOrdersTab('pagado', 'todos', 'Pagadas', )}
-                                {renderOrdersTab('pendiente', 'todos', 'Pendientes', )}
-                                {renderOrdersTab('todos', 'efectivo', 'Efectivo',)}
-                                {renderOrdersTab('todos', 'tarjeta', 'Tarjeta', )}
+                                {renderOrdersTab('todos', 'todos', 'Todas', ClipboardList)}
+                                {renderOrdersTab('pagado', 'todos', 'Pagadas', CheckCircle)}
+                                {renderOrdersTab('pendiente', 'todos', 'Pendientes', Clock)}
+                                {renderOrdersTab('todos', 'efectivo', 'Efectivo', Banknote)}
+                                {renderOrdersTab('todos', 'tarjeta', 'Tarjeta', CreditCard)}
                             </Tabs>
                         </div>
                     )}
