@@ -51,7 +51,7 @@ function App() {
     if (token) {
       profile();
     }
-  }, [token, profile]); // ⚠️ Agregué profile a las dependencias
+  }, [token]); 
 
   return (
     <BrowserRouter>
