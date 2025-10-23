@@ -25,6 +25,13 @@ export const esEstudianteOrVendedor = (req, res,next) =>{
   }
   next()
 }
+
+export const esVendedorOrAdmin = (req,res, next) =>{
+  if(req.estudianteBDD.rol !== 'vendedor' && req.estudianteBDD.rol !== 'admin'){
+    return res.status(403).json({msg:'Acceso denegado solo para administradores y vendedores'})
+  }
+  next()
+}
 export const tieneRol = (...rolesPermitidos) => {
   return (req, res, next) => {
     if (!rolesPermitidos.includes(req.estudianteBDD.rol)) {
