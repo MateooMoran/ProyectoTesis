@@ -69,7 +69,7 @@ const useFavorites = () => {
     }
   };
 
-  return { favorites, isFavorite, toggleFavorite };
+  return { favorites, isFavorite, toggleFavorite, token };
 };
 
 // FLECHAS PERSONALIZADAS
@@ -101,9 +101,9 @@ const CategoriaProductos = () => {
   const [error, setError] = useState(null);
   const [categoriaNombre, setCategoriaNombre] = useState('');
   const navigate = useNavigate();
-  const { isFavorite, toggleFavorite } = useFavorites();
+  const { isFavorite, toggleFavorite, token } = useFavorites();
 
-  // CONFIGURACIÓN CARRUSEL
+  // Configuración carrusel
   const settings = {
     dots: false,
     infinite: productos.length > 4,
@@ -131,9 +131,7 @@ const CategoriaProductos = () => {
       setError(null);
       try {
         const url = `${import.meta.env.VITE_BACKEND_URL}/estudiante/productos/categoria/${id}`;
-        console.log('Solicitando productos de categoría:', url);
         const response = await fetchDataBackend(url, { method: 'GET' });
-        console.log('Respuesta de productos por categoría:', response);
         if (!response || response.length === 0) {
           setError('No se encontraron productos para esta categoría');
           setProductos([]);
@@ -144,7 +142,6 @@ const CategoriaProductos = () => {
         }
       } catch (err) {
         const errorMessage = err.message || 'Error al cargar los productos';
-        console.error('Error en fetchProductosPorCategoria:', errorMessage, err);
         setError(errorMessage);
         setProductos([]);
         setCategoriaNombre('');
@@ -155,17 +152,13 @@ const CategoriaProductos = () => {
     fetchProductosPorCategoria();
   }, [id]);
 
-  const handleClickProducto = (producto) => {
-    const storedData = JSON.parse(localStorage.getItem('auth-token'));
-    const token = storedData?.state?.token;
-    console.log(token);
+  const getProductoLink = (productoId) => {
+    return token ? `/dashboard/productos/${productoId}` : `/productos/${productoId}`;
+  };
 
-    if (token) {
-      navigate(`/productos/${producto._id}`);
-      toast.success(`Producto ${producto.nombreProducto} seleccionado`);
-    } else {
-      navigate(`/carrito/vacio`);
-    }
+  const handleClickProducto = (producto) => {
+    navigate(getProductoLink(producto._id));
+    toast.success(`Producto ${producto.nombreProducto} seleccionado`);
   };
 
   return (
@@ -191,30 +184,21 @@ const CategoriaProductos = () => {
                   return (
                     <div key={producto._id} className="px-2">
                       <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 p-4">
-                        {/* IMAGEN + STOCK ARRIBA DERECHA */}
-                        <div className="relative mb-3">
-                          <Link to={`/productos/${producto._id}`} className="block">
-                            <img
-                              src={producto.imagen}
-                              alt={producto.nombreProducto}
-                              className="w-full h-48 object-contain rounded-md hover:shadow-md transition-shadow duration-300"
-                            />
-                          </Link>
-
-                          {/* Alerta stock bajo */}
-                          {producto.stock <= 5 && (
-                            <span className="absolute top-2 left-2 bg-red-800 text-white text-xs font-semibold px-2 py-1 rounded">
-                              ¡Solo {producto.stock} Disponibles!
-                            </span>
-                          )}
-                        </div>
+                        {/* IMAGEN + STOCK */}
+                        <Link to={getProductoLink(producto._id)} className="block mb-3">
+                          <img
+                            src={producto.imagen}
+                            alt={producto.nombreProducto}
+                            className="w-full h-48 object-contain rounded-md hover:shadow-md transition-shadow duration-300"
+                          />
+                        </Link>
 
                         {/* Nombre (link) */}
                         <Link
-                          to={`/productos/${producto._id}`}
-                          className="block mb-3 hover:text-blue-600 transition-colors"
+                          to={getProductoLink(producto._id)}
+                          className="block mb-3 hover:text-blue-600 transition-colors text-center"
                         >
-                          <h3 className="text-base font-light text-gray-900 line-clamp-1 text-center">
+                          <h3 className="text-base font-light text-gray-900 line-clamp-1">
                             {producto.nombreProducto}
                           </h3>
                         </Link>
@@ -229,21 +213,16 @@ const CategoriaProductos = () => {
 
                         {/* BOTONES */}
                         <div className="flex gap-2 mb-3">
-                          <Link
-                            to={`/productos/${producto._id}`}
+                          <button
+                            onClick={() => handleClickProducto(producto)}
                             className="flex-1 bg-blue-800 hover:bg-blue-900 text-white text-sm font-semibold py-2 px-3 rounded-md flex items-center justify-center gap-1 hover:scale-105 transition-all duration-300"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleClickProducto(producto);
-                            }}
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 3.5A2 2 0 006.5 17h11a2 2 0 001.6-1.5l-1.5-3.5" />
                             </svg>
                             Añadir al Carrito
-                          </Link>
+                          </button>
 
-                          {/* BOTÓN DE FAVORITOS MEJORADO */}
                           <button
                             onClick={() => toggleFavorite(producto._id)}
                             className={`p-2 rounded-md transition-all duration-300 hover:scale-110 ${fav
@@ -263,7 +242,6 @@ const CategoriaProductos = () => {
           )}
         </div>
       </section>
-
       <Footer />
     </>
   );

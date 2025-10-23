@@ -12,6 +12,7 @@ import ComidaImg from "../../assets/comidaaa.jpg";
 import RopaImg from "../../assets/Ropa2.jpeg";
 import MaterialesImg from "../../assets/materiales.jpg";
 import LibrosImg from "../../assets/Libros.jpeg";
+import storeAuth from "../../context/storeAuth";
 
 const categoryImages = {
     Hogar: HogarImg,
@@ -21,7 +22,7 @@ const categoryImages = {
     Comida: ComidaImg,
     Ropa: RopaImg,
     Materiales: MaterialesImg,
-    Libros : LibrosImg
+    Libros: LibrosImg
 };
 
 const CategoriesCarousel = ({
@@ -31,6 +32,12 @@ const CategoriesCarousel = ({
     title = "Explora por Categorías",
     className = "my-12",
 }) => {
+    const { token } = storeAuth();
+
+    const getCategoryLink = (id) => {
+        return token ? `/dashboard/productos/categoria/${id}` : `/productos/categoria/${id}`;
+    };
+
     const settings = {
         dots: false,
         infinite: true,
@@ -83,7 +90,7 @@ const CategoriesCarousel = ({
 
                                 {/* Botón “Ver más” ancho completo */}
                                 <Link
-                                    to={`/productos/categoria/${categoria._id}`}
+                                    to={getCategoryLink(categoria._id)}
                                     className="block bg-blue-900 text-white font-semibold py-3 text-center hover:bg-blue-800 transition-colors w-full hover:scale-115 duration-300 mt-auto"
                                 >
                                     Ver más

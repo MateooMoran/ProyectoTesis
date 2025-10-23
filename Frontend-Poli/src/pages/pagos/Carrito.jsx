@@ -112,13 +112,6 @@ const Carrito = () => {
                                                 {/* BOTONES ACCIONES */}
                                                 <div className="flex flex-col sm:flex-row gap-3 items-center lg:flex-col lg:gap-4 w-full lg:w-auto">
                                                     <div className="flex items-center gap-2">
-                                                        <button
-                                                            onClick={() => disminuirCantidad(item._id)}
-                                                            className="w-10 h-10 bg-yellow-400 text-yellow-900 rounded-xl flex items-center justify-center font-bold text-lg hover:bg-yellow-500 transition-all transform hover:scale-110 shadow-md"
-                                                            aria-label="Disminuir cantidad"
-                                                        >
-                                                            −
-                                                        </button>
                                                         <span className="text-lg font-bold text-gray-800 px-4 py-2 bg-gray-100 rounded-xl">
                                                             {item.cantidad}
                                                         </span>
