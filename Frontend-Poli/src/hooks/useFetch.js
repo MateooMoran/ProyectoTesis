@@ -35,6 +35,12 @@ function useFetch() {
       return respuesta?.data;
 
     } catch (error) {
+      if (error.response?.data?.errores && Array.isArray(error.response.data.errores)) {
+        error.response.data.errores.forEach(({ msg }) => toast.error(msg));
+        throw new Error('Errores en el formulario');
+      }
+
+      // Manejo del mensaje único de error
       const errorMsg = error.response?.data?.msg || 'Error desconocido';
       toast.error(errorMsg);
       throw new Error(errorMsg);
