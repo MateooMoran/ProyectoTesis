@@ -26,13 +26,6 @@ const Header = () => {
     const totalCantidad = carrito?.productos?.reduce((acc, item) => acc + item.cantidad, 0) || 0;
 
     useEffect(() => {
-        // Redirigir a favoritos si hay token
-        if (token) {
-            navigate('/dashboard/favoritos');
-        }
-    }, [token, navigate]);
-
-    useEffect(() => {
         fetchCategorias();
     }, [fetchCategorias]);
 
