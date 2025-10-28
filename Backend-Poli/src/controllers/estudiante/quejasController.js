@@ -53,6 +53,7 @@ export const eliminarQuejaSugerencia = async (req, res) => {
 
     const queja = await QuejasSugerencias.findById(id);
     if (!queja) return res.status(404).json({ msg: "Queja/Sugerencia no encontrada" });
+    if (queja.estado === "resuelto") return res.status(404).json({ msg: "Queja/Sugerencia no se puede eliminar si esta resuelta" })
     if (!queja.usuario.equals(req.estudianteBDD._id)) return res.status(403).json({ msg: "No autorizado para eliminar esta queja/sugerencia" });
 
     await queja.deleteOne();

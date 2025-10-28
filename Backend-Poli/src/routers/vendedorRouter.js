@@ -34,6 +34,7 @@ router.post("/vendedor/pago/transferencia", verifyTokenJWT, esVendedor, validarT
 router.post("/vendedor/pago/qr", verifyTokenJWT, esVendedor, validarArchivoImagen, crearActualizarQR);
 router.post("/vendedor/pago/efectivo", verifyTokenJWT, esVendedor, validarEfectivo, handleValidationErrors, crearActualizarEfectivo);
 router.get("/vendedor/pago/:tipo", verifyTokenJWT, esVendedor, validarTipo, handleValidationErrors, visualizarMetodosPago);
+
 // Generar modelo 3D
 router.post("/vendedor/generar/producto/:id", verifyTokenJWT, esVendedor, generarModelo3DParaProducto);
 
