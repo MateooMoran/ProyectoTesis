@@ -7,13 +7,12 @@ import { generarEmbedding } from "../../utils/embeddings.js";
 // Crear un producto
 export const crearProducto = async (req, res) => {
   try {
-    const { precio, stock, categoria } = req.body
-    if (Object.values(req.body).includes("")) return res.status(400).json({ msg: "Debe llenar todo los campo" })
-    if (!mongoose.Types.ObjectId.isValid(categoria)) {
-      return res.status(400).json({ msg: 'ID de categoría no válido' });
-    }
-    if (precio < 0 || stock < 0) {
-      return res.status(400).json({ msg: "Precio y stock deben ser positivos" });
+    const { nombreProducto } = req.body;
+
+    // Validar nombre único en toda la DB
+    const existeProducto = await Producto.findOne({ nombreProducto: nombreProducto.trim() });
+    if (existeProducto) {
+      return res.status(400).json({ msg: "Ya existe un producto con ese nombre" });
     }
 
     const nuevoProducto = new Producto({
@@ -45,51 +44,44 @@ export const crearProducto = async (req, res) => {
       nuevoProducto.imagenIA = secure_url
     }
 
-    // Generar embedding para recomendaciones
+    // Generar embedding
     try {
       nuevoProducto.embedding = await generarEmbedding(`${nuevoProducto.nombreProducto} ${nuevoProducto.descripcion}`);
     } catch (err) {
       console.warn("No se pudo generar embedding:", err.message)
     }
-    await nuevoProducto.save()
-    res.status(200).json({ msg: "Producto creado correctamente" })
+
+    await nuevoProducto.save();
+    res.status(200).json({ msg: "Producto creado correctamente" });
   } catch (error) {
     console.error("Error crearProducto:", error);
-    res.status(500).json({ msg: 'Error interno del servidor', error: error.message });
+    res.status(500).json({ msg: "Error interno del servidor", error: error.message });
   }
-}
+};
 
 // Actualizar un producto
 export const actualizarProducto = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombreProducto, precio, stock, descripcion, imagen, categoria, estado, activo } = req.body;
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ msg: 'ID de producto no válido' });
-    }
-
-    if (Object.values(req.body).includes("")) {
-      return res.status(400).json({ msg: "Debe llenar todos los campos" });
-    }
-
-    if (!mongoose.Types.ObjectId.isValid(categoria)) {
-      return res.status(400).json({ msg: 'ID de categoría no válido' });
-    }
-
-    if (precio < 0 || stock < 0) {
-      return res.status(400).json({ msg: "Precio y stock deben ser positivos" });
-    }
+    const { nombreProducto } = req.body;
 
     const producto = await Producto.findOne({ _id: id, vendedor: req.estudianteBDD._id });
     if (!producto) return res.status(403).json({ msg: "Producto no encontrado o sin permisos" });
 
-    // Actualización de campos
-    producto.nombreProducto = nombreProducto ?? producto.nombreProducto;
-    producto.precio = precio ?? producto.precio;
-    producto.stock = stock ?? producto.stock;
-    producto.descripcion = descripcion ?? producto.descripcion;
-    producto.categoria = categoria ?? producto.categoria;
+    // Validar nombre único si se cambia
+    if (nombreProducto && nombreProducto.trim() !== producto.nombreProducto) {
+      const existeProducto = await Producto.findOne({ nombreProducto: nombreProducto.trim() });
+      if (existeProducto) {
+        return res.status(400).json({ msg: "Ya existe un producto con ese nombre" });
+      }
+      producto.nombreProducto = nombreProducto.trim();
+    }
+
+    // Actualizar otros campos
+    producto.precio = req.body.precio ?? producto.precio;
+    producto.stock = req.body.stock ?? producto.stock;
+    producto.descripcion = req.body.descripcion ?? producto.descripcion;
+    producto.categoria = req.body.categoria ?? producto.categoria;
 
     // Si el vendedor actualiza stock el producto se vuelve disponible
     if (producto.stock > 0) {
@@ -102,6 +94,7 @@ export const actualizarProducto = async (req, res) => {
       producto.estado = estado ?? producto.estado;
       producto.activo = activo ?? producto.activo;
     }
+
 
     // Imagen normal
     if (req.files?.imagen) {
@@ -128,6 +121,7 @@ export const actualizarProducto = async (req, res) => {
       producto.imagenID = public_id;
     }
 
+
     // Actualizar embedding
     try {
       producto.embedding = await generarEmbedding(`${producto.nombreProducto} ${producto.descripcion}`);
@@ -137,21 +131,16 @@ export const actualizarProducto = async (req, res) => {
 
     await producto.save();
     res.status(200).json({ msg: "Producto actualizado correctamente" });
-
   } catch (error) {
     console.error("Error actualizarProducto:", error);
     res.status(500).json({ msg: "Error actualizando producto", error: error.message });
   }
 };
 
-
-
-// Eliminar un producto
+// Eliminar producto
 export const eliminarProducto = async (req, res) => {
   try {
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ msg: "ID inválido" });
-
     const producto = await Producto.findOne({ _id: id, vendedor: req.estudianteBDD._id });
     if (!producto) return res.status(404).json({ msg: "Producto no encontrado" });
 
@@ -160,9 +149,9 @@ export const eliminarProducto = async (req, res) => {
     }
 
     await producto.updateOne({
-      $set: { activo: false, eliminadoPorVendedor: true, estado: "no disponible" }
-    }); 
-    
+      $set: { activo: false, eliminadoPorVendedor: true, estado: "no disponible" },
+    });
+
     res.status(200).json({ msg: "Producto eliminado correctamente" });
   } catch (error) {
     console.error(error);
@@ -170,8 +159,7 @@ export const eliminarProducto = async (req, res) => {
   }
 };
 
-
-// Activar productos eliminados
+// Reactivar producto
 export const reactivarProducto = async (req, res) => {
   try {
     const { id } = req.params;
@@ -180,7 +168,7 @@ export const reactivarProducto = async (req, res) => {
     if (!producto.eliminadoPorVendedor) return res.status(400).json({ msg: "Producto ya está activo" });
 
     await producto.updateOne({
-      $set: { activo: true, eliminadoPorVendedor: false, estado: "disponible" }
+      $set: { activo: true, eliminadoPorVendedor: false, estado: "disponible" },
     });
 
     res.status(200).json({ msg: "Producto reactivado correctamente" });
@@ -189,7 +177,6 @@ export const reactivarProducto = async (req, res) => {
     res.status(500).json({ msg: "Error reactivando producto", error: error.message });
   }
 };
-
 
 // Listar todos los productos del vendedor
 export const listarProducto = async (req, res) => {
@@ -226,8 +213,8 @@ export const verProductosEliminados = async (req, res) => {
       vendedor: req.estudianteBDD._id,
       eliminadoPorVendedor: true
     })
-    .select("-__v -createdAt -updatedAt")
-    .populate("categoria", "nombreCategoria");
+      .select("-__v -createdAt -updatedAt")
+      .populate("categoria", "nombreCategoria");
 
     if (!productos.length) {
       return res.status(404).json({ msg: "No hay productos eliminados" });

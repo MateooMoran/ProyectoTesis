@@ -6,13 +6,14 @@ import { registroValidations } from "../validations/validadorEstudiante.js";
 import { confirmarMail, login, registro } from "../controllers/usuarios/authController.js";
 import { comprobarTokenPassword, crearNuevoPassword, recuperarPassword } from "../controllers/usuarios/passwordController.js";
 import { actualizarContraseña, actualizarPerfil, perfil } from "../controllers/usuarios/perfilController.js";
+import handleValidationErrors from "../middlewares/handleValidationErrors.js";
 
 
 const router = Router()
 
 
 //REGISTRO
-router.post('/registro',registroValidations, registro,)
+router.post('/registro',registroValidations, handleValidationErrors,registro,)
 router.get('/confirmar/:token',confirmarMail)
 
 //LOGIN
