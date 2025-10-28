@@ -11,7 +11,6 @@ export const registroValidations = [
       }
       return true;
     }),
-
   check('apellido')
     .notEmpty().withMessage('El apellido es obligatorio')
     .isLength({ min: 2, max: 10 }).withMessage('El apellido debe tener entre 2 y 10 caracteres')
@@ -22,19 +21,15 @@ export const registroValidations = [
       }
       return true;
     }),
-
   check('telefono')
     .notEmpty().withMessage('El teléfono es obligatorio')
     .matches(/^0\d{9}$/).withMessage('El teléfono debe tener 10 números y comenzar con 0'),
-
   check('direccion')
     .notEmpty().withMessage('La dirección es obligatoria'),
-
   check('email')
     .notEmpty().withMessage('El email es obligatorio')
     .isEmail().withMessage('El email debe ser válido'),
-
   check('password')
     .notEmpty().withMessage('La contraseña es obligatoria')
-    .isLength({ min: 4 }).withMessage('La contraseña debe tener al menos 4 caracteres')
+    .isLength({ min: 4 }).withMessage('La contraseña debe tener al menos 4 caracteres'),
 ];
