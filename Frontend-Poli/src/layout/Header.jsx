@@ -227,25 +227,26 @@ const Header = () => {
                                         {rol === 'estudiante' && (
                                             <>
                                                 <Link
-                                                    to="/dashboard/estudiante/quejas-sugerencias"
+                                                    to="/dashboard/estudiante/carrito"
                                                     className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
                                                     onClick={() => setIsDropdownOpen(false)}
                                                 >
-                                                    Mis Quejas y Sugerencias
+                                                    Carrito
                                                 </Link>
                                                 <Link
                                                     to="/dashboard/estudiante/historial-pagos"
                                                     className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
                                                     onClick={() => setIsDropdownOpen(false)}
                                                 >
-                                                    Mis Compras
+                                                    Historial de Compras
                                                 </Link>
+
                                                 <Link
-                                                    to="/dashboard/estudiante/carrito"
+                                                    to="/dashboard/estudiante/quejas-sugerencias"
                                                     className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
                                                     onClick={() => setIsDropdownOpen(false)}
                                                 >
-                                                    Carrito
+                                                    Quejas y Sugerencias
                                                 </Link>
                                             </>
                                         )}

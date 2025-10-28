@@ -5,8 +5,6 @@ import storeCarrito from '../../context/storeCarrito';
 import storeProductos from '../../context/storeProductos';
 import storeProfile from '../../context/storeProfile';
 import storeAuth from '../../context/storeAuth';
-import Header from '../../layout/Header';
-import Footer from '../../layout/Footer';
 import CarruselProductos from '../productosGeneral/CarruselProductos';
 import { FaStar, FaHeart, FaRegHeart, FaShoppingCart, FaUser, FaCheckCircle, FaCube } from 'react-icons/fa';
 import useFetch from '../../hooks/useFetch';
@@ -135,11 +133,8 @@ const ProductoDetalle = () => {
   const fav = isFavorite(producto._id);
 
   return (
-    <>
-      <Header />
-      <div className="h-12 mb-14" />
-
-      <div className="min-h-screen bg-gray-50">
+    <>  
+      <div className="min-h-screen bg-gray-50 mt-24 md:mt-10">
         {/* 🔥 1. IMAGEN IZQUIERDA ↔ MODEL-VIEWER 3D */}
         <section className="py-3 sm:pb-8 bg-white">
           <div className="max-w-7xl mx-auto px-4">
@@ -290,7 +285,6 @@ const ProductoDetalle = () => {
         )}
       </div>
 
-      <Footer />
     </>
   );
 };
