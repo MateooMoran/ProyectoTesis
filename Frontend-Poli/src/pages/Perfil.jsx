@@ -7,7 +7,7 @@ import storeProfile from '../context/storeProfile';
 import storeAuth from '../context/storeAuth';
 import Header from '../layout/Header';
 import Footer from '../layout/Footer';
-import { FaUser, FaKey, FaSave, FaTimes, FaEdit } from 'react-icons/fa';
+import { User, Key, Save, X, Edit } from 'lucide-react';
 
 const Perfil = () => {
   const navigate = useNavigate();
@@ -48,24 +48,19 @@ const Perfil = () => {
     try {
       await updateProfile(data, user._id);
       resetProfile(data);
-      toast.success('Perfil actualizado correctamente');
     } catch (err) {
-      toast.error('Error al actualizar el perfil');
     }
   };
 
   const handleUpdatePassword = async (data) => {
     if (data.newPassword !== data.confirmNewPassword) {
-      toast.error('Las contraseñas nuevas no coinciden');
       return;
     }
     try {
       await updatePasswordProfile({ passwordactual: data.currentPassword, passwordnuevo: data.newPassword }, user._id);
       resetPassword();
       setShowPasswordFields(false);
-      toast.success('Contraseña actualizada correctamente');
     } catch (err) {
-      toast.error('Error al actualizar la contraseña');
     }
   };
 
@@ -95,9 +90,14 @@ const Perfil = () => {
       <main className="py-10 bg-blue-50 min-h-screen">
         <div className="max-w-7xl mx-auto px-4">
           {/* TÍTULO */}
-          <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-700 to-gray-700 bg-clip-text text-transparent text-center mb-12 flex items-center justify-center gap-3">Mi Perfil
-            
-          </h2>
+          <div className="text-center mb-8">
+                        <div className="flex items-center justify-center gap-3 mb-3">
+                            <h1 className="text-4xl font-bold text-gray-700">
+                                Perfil de Usuario
+                            </h1>
+                        </div>
+                        <p className="text-gray-600">Gestiona y actualiza tus datos personales</p>
+                    </div>
 
           {user ? (
             <div className="grid lg:grid-cols-2 gap-8">
@@ -108,8 +108,8 @@ const Perfil = () => {
                 {/* INFORMACIÓN PERSONAL */}
                 <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
                   <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                    <FaUser /> Información Personal
-                  </h3>
+                  <User className="text-blue-600 w-6 h-6" /> Información Personal
+                    </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                     <div className="space-y-2">
                       <p className="text-gray-600 font-semibold">Nombre</p>
@@ -143,7 +143,7 @@ const Perfil = () => {
                 {/* ACTUALIZAR PERFIL */}
                 <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
                   <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                    <FaEdit /> Actualizar Perfil
+                    <Edit className="text-blue-600 w-6 h-6"/> Actualizar Perfil
                   </h3>
                   <form onSubmit={handleSubmitProfile(handleUpdateProfile)} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -186,7 +186,7 @@ const Perfil = () => {
                       type="submit"
                       className="w-full h-12 bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-300 shadow-lg"
                     >
-                      <FaSave /> Guardar Cambios
+                      <Save className="w-5 h-5" /> Guardar Cambios
                     </button>
                   </form>
                 </div>
@@ -196,7 +196,7 @@ const Perfil = () => {
               <div className="space-y-6">
                 <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
                   <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                    <FaKey /> {showPasswordFields ? 'Actualizar Contraseña' : 'Actualizar Contraseña'}
+                    <Key className="text-blue-600 w-6 h-6" /> {showPasswordFields ? 'Actualizar Contraseña' : 'Actualizar Contraseña'}
                   </h3>
 
                   {showPasswordFields ? (
@@ -236,7 +236,7 @@ const Perfil = () => {
                           type="submit"
                           className="flex-1 h-12 bg-gradient-to-r from-green-800 to-green-900 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:scale-105 transition-all duration-300 shadow-lg"
                         >
-                          <FaSave /> Actualizar
+                          <Save className="w-5 h-5" /> Actualizar
                         </button>
                         <button
                           type="button"
@@ -246,7 +246,7 @@ const Perfil = () => {
                           }}
                           className="flex-1 h-12 bg-gray-500 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-gray-600 transform hover:scale-105 transition-all duration-300"
                         >
-                          <FaTimes /> Cancelar
+                          <X className="w-5 h-5" /> Cancelar
                         </button>
                       </div>
                     </form>
@@ -255,7 +255,7 @@ const Perfil = () => {
                       onClick={() => setShowPasswordFields(true)}
                       className="w-full h-12 bg-gradient-to-r from-blue-800 to-blue-900 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:scale-105 transition-all duration-300 shadow-lg"
                     >
-                      <FaKey /> Cambiar Contraseña
+                      <Key className="w-5 h-5" /> Cambiar Contraseña
                     </button>
                   )}
                 </div>
