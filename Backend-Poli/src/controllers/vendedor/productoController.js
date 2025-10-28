@@ -181,14 +181,28 @@ export const reactivarProducto = async (req, res) => {
 // Listar todos los productos del vendedor
 export const listarProducto = async (req, res) => {
   try {
-    const productos = await Producto.find({ vendedor: req.estudianteBDD._id }).select("-__v -createdAt -updatedAt").populate('categoria', 'nombreCategoria').sort({ createdAt: -1 });
-    if (!productos.length) return res.status(404).json({ msg: "No hay productos registrados" });
+    const productos = await Producto.find({
+      vendedor: req.estudianteBDD._id,
+      $or: [
+        { eliminadoPorVendedor: false },
+        { eliminadoPorVendedor: { $exists: false } } 
+      ]
+    })
+      .select("-__v -createdAt -updatedAt")
+      .populate("categoria", "nombreCategoria")
+      .sort({ createdAt: -1 });
+
+    if (!productos.length) {
+      return res.status(404).json({ msg: "No hay productos registrados" });
+    }
+
     res.status(200).json(productos);
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Error listando productos", error: error.message });
   }
 };
+
 
 // Listar productos por categoría
 export const visualizarProductoCategoria = async (req, res) => {
