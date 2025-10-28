@@ -33,15 +33,17 @@ const Header = () => {
     const totalCantidad = carrito?.productos?.reduce((acc, item) => acc + item.cantidad, 0) || 0;
 
     useEffect(() => {
-        fetchCategorias();
-    }, [fetchCategorias]);
+        if (categorias.length === 0) {
+            fetchCategorias();
+        }
+    }, []);
 
     useEffect(() => {
         // Cargar perfil si no está cargado pero hay token
         if (token && !user) {
             profile();
         }
-    }, [token, user, profile]);
+    }, [token, user]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -107,7 +109,7 @@ const Header = () => {
                             <NotificacionesAdmin />}
 
                         <Link
-                            to="/favoritos"
+                            to={token ? "/dashboard/favoritos" : "/favoritos"}
                             className="flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"
                         >
                             <Heart className="w-5 h-5" />
@@ -158,7 +160,7 @@ const Header = () => {
                                             className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
                                             onClick={() => setIsDropdownOpen(false)}
                                         >
-                                            Mi Perfil
+                                            Perfil
                                         </Link>
 
                                         {/* Opciones extras según rol */}
@@ -193,13 +195,6 @@ const Header = () => {
                                             <>
 
                                                 <Link
-                                                    to="/dashboard/vendedor/quejas-sugerencias"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-                                                    Mis Quejas y Sugerencias
-                                                </Link>
-                                                <Link
                                                     to="/dashboard/vendedor/productos"
                                                     className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
                                                     onClick={() => setIsDropdownOpen(false)}
@@ -219,6 +214,13 @@ const Header = () => {
                                                     onClick={() => setIsDropdownOpen(false)}
                                                 >
                                                     Historial Ventas
+                                                </Link>
+                                                <Link
+                                                    to="/dashboard/vendedor/quejas-sugerencias"
+                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
+                                                    onClick={() => setIsDropdownOpen(false)}
+                                                >
+                                                    Quejas y Sugerencias
                                                 </Link>
                                             </>
                                         )}
@@ -279,7 +281,7 @@ const Header = () => {
             </header>
 
             {/* Espacio para compensar header fijo */}
-            <div className="h-40 sm:h-7" />
+            <div className="h-18 sm:h-5" />
         </>
     );
 };

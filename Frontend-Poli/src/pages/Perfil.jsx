@@ -79,7 +79,6 @@ const Perfil = () => {
     return (
       <>
         <Header />
-        <div className="h-10 sm:h-5 mb-6" />
         <div className="min-h-screen bg-blue-50 flex items-center justify-center">
           <p className="text-center text-gray-700 text-lg">Cargando perfil...</p>
         </div>
@@ -92,14 +91,12 @@ const Perfil = () => {
     <>
       <ToastContainer />
       <Header />
-      <div className="h-10 sm:h-5 mb-6" />
 
       <main className="py-10 bg-blue-50 min-h-screen">
         <div className="max-w-7xl mx-auto px-4">
-
           {/* TÍTULO */}
-          <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-700 to-gray-700 bg-clip-text text-transparent text-center mb-12 flex items-center justify-center gap-3">
-            <FaUser className="text-gray-700" /> Mi Perfil
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-700 to-gray-700 bg-clip-text text-transparent text-center mb-12 flex items-center justify-center gap-3">Mi Perfil
+            
           </h2>
 
           {user ? (
@@ -271,8 +268,6 @@ const Perfil = () => {
           )}
         </div>
       </main>
-
-      <Footer />
     </>
   );
 };

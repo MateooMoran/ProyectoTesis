@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Trash2, PlusCircle, Pencil, Package, Image as ImageIcon } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import useFetch from '../../hooks/useFetch';
-import Header from '../../layout/Header';
-import Footer from '../../layout/Footer';
 import { generateAvatar, convertBlobToBase64 } from "../../helpers/ConsultarAI";
 
 
@@ -234,24 +232,21 @@ export default function ProductosVendedor() {
 
     return (
         <>
-            <Header />
-            <div className="h-16" />
             <ToastContainer />
-            
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8">
-                <div className="max-w-9xl mx-40 px-4">
+            <div className="mt-35 md:mt-18"></div>
+            <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+                <div className="max-w-7xl mx-auto px-4">
                     {/* Header */}
                     <div className="text-center mb-8">
                         <div className="flex items-center justify-center gap-3 mb-3">
-                            <Package className="w-10 h-10 text-blue-600" />
                             <h1 className="text-4xl font-bold text-gray-800">Gestionar Productos</h1>
                         </div>
                         <p className="text-gray-600">Crea y administra tu catálogo de productos</p>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8 pb-8 lg:h-[calc(100vh-220px)]">
                         {/* Columna Izquierda - Formulario */}
-                        <div className="lg:col-span-1">
+                        <div className="lg:col-span-1 order-1 lg:order-1">
                             <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 sticky top-6">
                                 <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
                                     <PlusCircle className="w-6 h-6 text-blue-600" />
@@ -413,99 +408,100 @@ export default function ProductosVendedor() {
                         </div>
 
                         {/* Columna Derecha - Grid de Productos */}
-                        <div className="lg:col-span-2">
-                            <div className="mb-6">
-                                <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                                    <Package className="w-6 h-6 text-blue-600" />
+                        <div className="lg:col-span-2 order-2 lg:order-2 flex flex-col lg:border lg:border-gray-200 lg:rounded-xl lg:bg-white lg:p-4 lg:overflow-hidden">
+                            <div className="mb-4 lg:mb-6 flex-shrink-0">
+                                <h3 className="text-xl lg:text-2xl font-bold text-gray-800 flex items-center gap-2">
+                                    <Package className="w-5 h-5 lg:w-6 lg:h-6 text-blue-600" />
                                     Productos Registrados
-                                    <span className="ml-2 text-sm font-normal bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+                                    <span className="ml-2 text-xs lg:text-sm font-normal bg-blue-100 text-blue-700 px-2 lg:px-3 py-1 rounded-full">
                                         {productos.length}
                                     </span>
                                 </h3>
                             </div>
 
-                            {(loadingProductos || loadingCategorias) ? (
-                                <div className="flex items-center justify-center py-20">
-                                    <div className="text-center">
-                                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-                                        <p className="text-gray-500">Cargando productos...</p>
-                                    </div>
-                                </div>
-                            ) : productos.length === 0 ? (
-                                <div className="text-center py-20 bg-white rounded-xl border-2 border-dashed border-gray-300">
-                                    <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                                    <p className="text-gray-500 text-lg font-medium">No hay productos registrados</p>
-                                    <p className="text-gray-400 text-sm mt-2">Crea tu primer producto usando el formulario</p>
-                                </div>
-                            ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                                    {productos.map((p) => (
-                                        <div
-                                            key={p._id}
-                                            className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 overflow-hidden group"
-                                        >
-                                            <div className="relative">
-                                                {(p.imagenIA || p.imagen) ? (
-                                                    <img
-                                                        src={p.imagenIA || p.imagen}
-                                                        alt={p.nombreProducto}
-                                                        className="w-full h-40 object-cover"
-                                                    />
-                                                ) : (
-                                                    <div className="w-full h-40 bg-gray-200 flex items-center justify-center">
-                                                        <Package className="w-12 h-12 text-gray-400" />
-                                                    </div>
-                                                )}
-                                                <div className="absolute top-2 right-2 flex gap-1">
-                                                    <button
-                                                        onClick={() => editarProducto(p)}
-                                                        className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition shadow-lg"
-                                                        title="Editar"
-                                                    >
-                                                        <Pencil className="w-4 h-4" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => eliminarProducto(p._id)}
-                                                        className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition shadow-lg"
-                                                        title="Eliminar"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            <div className="p-4">
-                                                <h4 className="font-bold text-gray-800 text-lg mb-2 truncate">
-                                                    {p.nombreProducto}
-                                                </h4>
-                                                <div className="flex justify-between items-center mb-2">
-                                                    <span className="text-2xl font-bold text-blue-600">
-                                                        ${p.precio}
-                                                    </span>
-                                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                                                        p.stock > 10 
-                                                            ? 'bg-green-100 text-green-700' 
-                                                            : p.stock > 0 
-                                                                ? 'bg-yellow-100 text-yellow-700' 
-                                                                : 'bg-red-100 text-red-700'
-                                                    }`}>
-                                                        Stock: {p.stock}
-                                                    </span>
-                                                </div>
-                                                <p className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded">
-                                                    {p.categoria?.nombreCategoria || "Sin categoría"}
-                                                </p>
-                                            </div>
+                            {/* Contenedor con scroll solo en desktop */}
+                            <div className="flex-1 overflow-y-auto">
+                                {(loadingProductos || loadingCategorias) ? (
+                                    <div className="flex items-center justify-center py-20">
+                                        <div className="text-center">
+                                            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                                            <p className="text-gray-500">Cargando productos...</p>
                                         </div>
-                                    ))}
-                                </div>
-                            )}
+                                    </div>
+                                ) : productos.length === 0 ? (
+                                    <div className="text-center py-20 bg-white lg:bg-transparent rounded-xl lg:rounded-none border-2 border-dashed border-gray-300">
+                                        <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                                        <p className="text-gray-500 text-lg font-medium">No hay productos registrados</p>
+                                        <p className="text-gray-400 text-sm mt-2">Crea tu primer producto usando el formulario</p>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 lg:gap-4 pr-2">
+                                        {productos.map((p) => (
+                                            <div
+                                                key={p._id}
+                                                className="bg-white rounded-lg lg:rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 overflow-hidden group"
+                                            >
+                                                <div className="relative">
+                                                    {(p.imagenIA || p.imagen) ? (
+                                                        <img
+                                                            src={p.imagenIA || p.imagen}
+                                                            alt={p.nombreProducto}
+                                                            className="w-full h-32 lg:h-40 object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-32 lg:h-40 bg-gray-200 flex items-center justify-center">
+                                                            <Package className="w-8 lg:w-12 h-8 lg:h-12 text-gray-400" />
+                                                        </div>
+                                                    )}
+                                                    <div className="absolute top-2 right-2 flex gap-1">
+                                                        <button
+                                                            onClick={() => editarProducto(p)}
+                                                            className="bg-blue-600 text-white p-1.5 lg:p-2 rounded-lg hover:bg-blue-700 transition shadow-lg"
+                                                            title="Editar"
+                                                        >
+                                                            <Pencil className="w-3 h-3 lg:w-4 lg:h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => eliminarProducto(p._id)}
+                                                            className="bg-red-600 text-white p-1.5 lg:p-2 rounded-lg hover:bg-red-700 transition shadow-lg"
+                                                            title="Eliminar"
+                                                        >
+                                                            <Trash2 className="w-3 h-3 lg:w-4 lg:h-4" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div className="p-3 lg:p-4">
+                                                    <h4 className="font-bold text-gray-800 text-sm lg:text-lg mb-2 truncate">
+                                                        {p.nombreProducto}
+                                                    </h4>
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <span className="text-lg lg:text-2xl font-bold text-gray-600">
+                                                            ${p.precio}
+                                                        </span>
+                                                        <span className={`px-2 py-0.5 lg:py-1 rounded-full text-xs font-semibold ${
+                                                            p.stock > 10 
+                                                                ? 'bg-green-100 text-green-700' 
+                                                                : p.stock > 0 
+                                                                    ? 'bg-yellow-100 text-yellow-700' 
+                                                                    : 'bg-red-100 text-red-700'
+                                                        }`}>
+                                                            Stock: {p.stock}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded">
+                                                        {p.categoria?.nombreCategoria || "Sin categoría"}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <Footer />
         </>
     );
 }

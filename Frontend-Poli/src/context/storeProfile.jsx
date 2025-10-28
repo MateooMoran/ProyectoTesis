@@ -28,6 +28,7 @@ const storeProfile = create(
           console.error('Error en profile:', error);
           toast.error(error.response?.data?.msg || 'Error al cargar el perfil');
           set({ user: null });
+          storeAuth.getState().clearToken(); // 🔧 AGREGA ESTO
           throw error;
         }
       },
