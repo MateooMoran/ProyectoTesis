@@ -1,14 +1,12 @@
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import Header from '../../layout/Header';
 import storeProfile from '../../context/storeProfile';
 import storeAuth from '../../context/storeAuth';
 import storeProductos from '../../context/storeProductos';
 import Carrusel from '../../layout/CarruselBanner';
 import CarruselProductos from '../productosGeneral/CarruselProductos';
 import CarruselCategorias from '../productosGeneral/CarruselCategorias';
-import Footer from '../../layout/Footer';
 
 const Productos = () => {
   const navigate = useNavigate();
@@ -37,20 +35,23 @@ const Productos = () => {
   };
 
   useEffect(() => {
-    fetchProductos();
-    fetchCategorias();
-  }, [fetchProductos, fetchCategorias]);
+    // Solo hace fetch UNA VEZ al montar el componente
+    const loadData = async () => {
+      if (productos.length === 0) {
+        fetchProductos();
+      }
+      if (categorias.length === 0) {
+        fetchCategorias();
+      }
+    };
+    loadData();
+  }, []);
 
   return (
     <>
-      <Header />
-      {/* Espacio para compensar header fijo */}
-
       <Carrusel />
       <main className="bg-white py-1">
         <div className="container mx-auto px-4">
-          {/* Hero Section */}
-
           {/* CARRUSEL DE CATEGORÍAS */}
           <CarruselCategorias
             categorias={categorias}
@@ -77,12 +78,8 @@ const Productos = () => {
             showDots={false}
             onAddToCart={handleAgregarAlCarrito}
           />
-
-
         </div>
       </main>
-
-      <Footer />
     </>
   );
 };

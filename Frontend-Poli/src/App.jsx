@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom'; // ⚠️ CAMBIO AQUÍ
+import { BrowserRouter, Route, Routes } from 'react-router-dom'; 
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { Outlet } from 'react-router-dom';
@@ -39,7 +39,7 @@ import Pagos from './pages/pagos/Pagos';
 import ConfirmarOrden from './pages/pagos/ConfirmarOrden';
 import Exito from './pages/pagos/Exito';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import storeProfile from './context/storeProfile';
 import storeAuth from './context/storeAuth';
 
@@ -48,12 +48,14 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 function App() {
   const { profile } = storeProfile();
   const { token } = storeAuth();
+  const hasCalledProfile = useRef(false);
 
   useEffect(() => {
-    if (token) {
+    if (token && !hasCalledProfile.current) {
+      hasCalledProfile.current = true;
       profile();
     }
-  }, [token]); 
+  }, [token, profile]); 
 
   return (
     <BrowserRouter>
@@ -72,57 +74,49 @@ function App() {
           <Route path="auth/callback" element={<AuthCallback />} />
           <Route path="productos/buscar" element={<ProductoBuscado />} />
           <Route path="favoritos" element={<Favoritos />} />
-
         </Route>
 
-        {/* Rutas protegidas */}
-        <Route path="dashboard" element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }>
-          <Route index element={<Productos />} />
-          <Route path="listarProd" element={<Productos />} />
-          <Route path="estudiante/carrito" element={<Carrito />} />
-          <Route path="perfil" element={<Perfil />} />
-          <Route path='admin/gestionusuarios' element={<GestionarUsuario />} />
-          <Route path='admin/gestionquejas' element={<GestionQuejasSugerencias />} />
-          <Route path='estudiante/quejas-sugerencias' element={<QuejasSugerencias />} />
-          <Route path="estudiante/historial-pagos" element={<HistorialPagos />} />
-          <Route path="productos/buscar" element={<BuscarPriv />} />
-          <Route path="/dashboard/productos/:id" element={<ProductoDetalle />} />
-          <Route path="/dashboard/productos/categoria/:id" element={<CategoriaProductos />} />
-          <Route path="/dashboard/favoritos" element={<Favoritos />} />
+        {/* Rutas protegidas con Dashboard */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="dashboard" element={<Dashboard />}>
+            <Route index element={<Productos />} />
+            <Route path="listarProd" element={<Productos />} />
+            <Route path="estudiante/carrito" element={<Carrito />} />
+            <Route path="perfil" element={<Perfil />} />
+            <Route path="admin/gestionusuarios" element={<GestionarUsuario />} />
+            <Route path="admin/gestionquejas" element={<GestionQuejasSugerencias />} />
+            <Route path="estudiante/quejas-sugerencias" element={<QuejasSugerencias />} />
+            <Route path="estudiante/historial-pagos" element={<HistorialPagos />} />
+            <Route path="productos/buscar" element={<BuscarPriv />} />
+            <Route path="productos/:id" element={<ProductoDetalle />} />
+            <Route path="productos/categoria/:id" element={<CategoriaProductos />} />
+            <Route path="favoritos" element={<Favoritos />} />
+            
+            {/* Rutas para vendedor */}
+            <Route path="vendedor/categorias" element={<Categorias />} />
+            <Route path="vendedor/productos" element={<ProductosVendedor />} />
+            <Route path="vendedor/visualizar/producto" element={<EditarProductos />} />
+            <Route path="vendedor/historial-ventas" element={<Historial />} />
+            <Route path="vendedor/quejas-sugerencias" element={<QuejasSugerencias />} />
+            <Route path="vendedor/metodo-pago" element={<MetodoPago />} />
 
+            {/* Nueva ruta para crear orden pendiente */}
+            <Route path="orden-pendiente" element={<OrdenPendiente />} />
 
+            {/* Rutas para pago con Stripe */}
+            <Route
+              path="pagos"
+              element={
+                <Elements stripe={stripePromise}>
+                  <Pagos />
+                </Elements>
+              }
+            />
 
-
-
-          {/* Rutas para vendedor */}
-          <Route path="vendedor/categorias" element={<Categorias />} />
-          <Route path="vendedor/productos" element={<ProductosVendedor />} />
-          <Route path="vendedor/visualizar/producto" element={<EditarProductos />} />
-          <Route path="vendedor/historial-ventas" element={<Historial />} />
-          <Route path="vendedor/quejas-sugerencias" element={<QuejasSugerencias />} />
-          <Route path="vendedor/metodo-pago" element={<MetodoPago />} />
-
-
-          {/* Nueva ruta para crear orden pendiente */}
-          <Route path="orden-pendiente" element={<OrdenPendiente />} />
-
-          {/* Rutas para pago con Stripe - envolver en Elements */}
-          <Route
-            path="pagos"
-            element={
-              <Elements stripe={stripePromise}>
-                <Pagos />
-              </Elements>
-            }
-          />
-
-          {/* Rutas de confirmación y éxito */}
-          <Route path="pagos/confirmar" element={<ConfirmarOrden />} />
-          <Route path="pagos/exito" element={<Exito />} />
+            {/* Rutas de confirmación y éxito */}
+            <Route path="pagos/confirmar" element={<ConfirmarOrden />} />
+            <Route path="pagos/exito" element={<Exito />} />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>
