@@ -6,6 +6,8 @@ import { eliminarFavorito, seleccionarFavorito, verFavoritos } from "../controll
 import { crearCarrito, disminuirCantidadProducto, eliminarProductoCarrito, vaciarCarrito, visualizarCarrito } from "../controllers/estudiante/carritoController.js";
 import { cancelarOrden, cancelarOrdenesVencidas, crearOrdenPendiente, procesarPago, visualizarHistorialPagos } from "../controllers/estudiante/ordenesController.js";
 import { crearQuejasSugerencias, eliminarQuejaSugerencia, visualizarQuejasSugerencias } from "../controllers/estudiante/quejasController.js";
+import handleValidationErrors from "../middlewares/handleValidationErrors.js";
+import { quejasValidations } from "../validations/validatorQuejas.js";
 
 const router = Router()
 // PRODUCTOS
@@ -41,7 +43,7 @@ router.post('/estudiante/orden/cancelar-vencidas', verifyTokenJWT, esEstudiante,
 router.get('/estudiante/historial-pagos', verifyTokenJWT, esEstudiante, visualizarHistorialPagos);
 
 // QUEJAS - SUGERENCIAS
-router.post('/estudiante/quejas-sugerencias', verifyTokenJWT,esEstudianteOrVendedor, crearQuejasSugerencias)
+router.post('/estudiante/quejas-sugerencias', verifyTokenJWT,esEstudianteOrVendedor,quejasValidations,handleValidationErrors, crearQuejasSugerencias)
 router.get('/estudiante/quejas-sugerencias', verifyTokenJWT, esEstudianteOrVendedor, visualizarQuejasSugerencias)
 router.delete('/estudiante/quejas-sugerencias/:id', verifyTokenJWT, esEstudianteOrVendedor,eliminarQuejaSugerencia);
 

@@ -7,6 +7,7 @@ import { confirmarMail, login, registro } from "../controllers/usuarios/authCont
 import { comprobarTokenPassword, crearNuevoPassword, recuperarPassword } from "../controllers/usuarios/passwordController.js";
 import { actualizarContraseña, actualizarPerfil, perfil } from "../controllers/usuarios/perfilController.js";
 import handleValidationErrors from "../middlewares/handleValidationErrors.js";
+import { validarDatosPersona } from "../validations/validadorDatosUsuario.js";
 
 
 const router = Router()
@@ -26,7 +27,7 @@ router.post('/nuevopassword/:token',crearNuevoPassword)
 
 // PERFIL
 router.get('/perfil', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'),perfil)
-router.put('/perfil/actualizarperfil/:id',verifyTokenJWT,tieneRol('estudiante', 'admin', 'vendedor'),actualizarPerfil)
+router.put('/perfil/actualizarperfil/:id',verifyTokenJWT,tieneRol('estudiante', 'admin', 'vendedor'),validarDatosPersona,handleValidationErrors,actualizarPerfil)
 router.put('/perfil/actualizarpassword/:id',verifyTokenJWT,tieneRol('estudiante', 'admin', 'vendedor'),actualizarContraseña)
 
 export default router;
