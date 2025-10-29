@@ -25,10 +25,8 @@ const storeProfile = create(
           set({ user: respuesta.data });
           return respuesta.data;
         } catch (error) {
-          console.error('Error en profile:', error);
-          toast.error(error.response?.data?.msg || 'Error al cargar el perfil');
           set({ user: null });
-          storeAuth.getState().clearToken(); // 🔧 AGREGA ESTO
+          storeAuth.getState().clearToken();
           throw error;
         }
       },
@@ -44,12 +42,21 @@ const storeProfile = create(
               Authorization: `Bearer ${token}`,
             },
           });
+
           set({ user: respuesta.data });
-          toast.success('Perfil actualizado correctamente');
+          toast.success('Actualizado correctamente');
           return respuesta.data;
         } catch (error) {
-          console.error('Error en updateProfile:', error);
-          toast.error(error.response?.data?.msg || 'Error al actualizar el perfil');
+          if (error.response?.data?.errores && Array.isArray(error.response.data.errores)) {
+            error.response.data.errores.forEach(({ msg }) => toast.error(msg));
+            throw new Error('Errores en el formulario');
+          }
+          else if (error.response?.data?.msg) {
+            toast.error(error.response.data.msg);
+          }
+          else {
+            toast.error('Error al actualizar el perfil');
+          }
           throw error;
         }
       },
@@ -65,18 +72,24 @@ const storeProfile = create(
               Authorization: `Bearer ${token}`,
             },
           });
-          toast.success(respuesta?.data?.msg || 'Contraseña actualizada correctamente');
-          return respuesta;
+
+          toast.success('Actualizado correctamente');
+          return respuesta.data;
         } catch (error) {
-          console.error('Error en updatePasswordProfile:', error);
-          toast.error(error.response?.data?.msg || 'Error al actualizar la contraseña');
+          if (error.response?.data?.errores && Array.isArray(error.response.data.errores)) {
+            error.response.data.errores.forEach(({ msg }) => toast.error(msg));
+            throw new Error('Errores en el formulario');
+          } else if (error.response?.data?.msg) {
+            toast.error(error.response.data.msg);
+          } else {
+            toast.error('Error al actualizar la contraseña');
+          }
           throw error;
         }
       },
+
     }),
-    {
-      name: 'profile-storage',
-    }
+    { name: 'profile-storage' }
   )
 );
 
