@@ -28,17 +28,13 @@ const Footer = () => {
                         </p>
                         {/* Redes Sociales */}
                         <div className="flex space-x-4">
-                            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"
+                            <a href="https://www.facebook.com/profile.php?id=61582749197042" target="_blank" rel="noopener noreferrer"
                                 className="w-10 h-10 bg-white/10 hover:bg-red-500 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110">
                                 <FaFacebook className="text-white" />
                             </a>
-                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
+                            <a href="https://www.instagram.com/poliventas.uni/" target="_blank" rel="noopener noreferrer"
                                 className="w-10 h-10 bg-white/10 hover:bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110">
                                 <FaInstagram className="text-white" />
-                            </a>
-                            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer"
-                                className="w-10 h-10 bg-white/10 hover:bg-blue-400 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110">
-                                <FaTwitter className="text-white" />
                             </a>
                         </div>
                     </div>

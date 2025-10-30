@@ -5,16 +5,16 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 // BANNERS PRINCIPALES 
-import banner1 from '../assets/banner1.jpg';
+import banner1 from '../assets/banner3d.png';
 import banner2 from '../assets/banner2.png';
 import banner3 from '../assets/banner3.png';
-import banner4 from '../assets/banner4.png';
+import banner4 from '../assets/bannerIA.png';
 
 const bannerImages = [
-    { id: 1, src: banner1, alt: 'Material de Estudio' },
+    { id: 1, src: banner1, alt: 'Mira los productos en 3D' },
     { id: 2, src: banner2, alt: 'Nuevos Productos' },
     { id: 3, src: banner3, alt: 'Grandes Descuentos' },
-    { id: 4, src: banner4, alt: 'Compra Segura' },
+    { id: 4, src: banner4, alt: 'Nueva implementación de la IA' },
 ];
 
 // ASOCIACIONES UNIVERSITARIAS 
@@ -119,7 +119,7 @@ const Carrusel = () => {
                 <div className="mb-10">
                     <Slider {...bannerSettings}>
                         {bannerImages.map((banner) => (
-                            <div key={banner.id} className="relative w-full h-[300px] md:h-[400px] lg:h-[680px]">
+                            <div key={banner.id} className="relative w-full h-[300px] md:h-[400px] lg:h-[690px]">
                                 <img
                                     src={banner.src}
                                     alt={banner.alt}
