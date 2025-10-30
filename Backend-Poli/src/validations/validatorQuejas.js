@@ -9,3 +9,11 @@ export const quejasValidations = [
         .matches(textoValidoRegex)
         .withMessage('El mensaje contiene caracteres inválidos o repetidos')
 ];
+
+export const respuestaQuejasValidations = [
+    check('respuesta')
+        .isLength({ min: 10, max: 250 })
+        .withMessage('El mensaje debe tener al menos 10 caracteres')
+        .matches(textoValidoRegex)
+        .withMessage('El mensaje contiene caracteres inválidos o repetidos')
+];
