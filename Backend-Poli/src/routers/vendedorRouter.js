@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyTokenJWT } from "../middlewares/JWT.js";
-import { esAdmin, esVendedor, esVendedorOrAdmin } from "../middlewares/roles.js";
+import { esAdmin, esEstudianteOrVendedor, esVendedor, esVendedorOrAdmin } from "../middlewares/roles.js";
 
 import { crearCategoria, listarCategorias, eliminarCategoria } from "../controllers/vendedor/categoriaController.js";
 import { crearProducto, listarProducto, actualizarProducto, eliminarProducto, visualizarProductoCategoria, reactivarProducto, verProductosEliminados } from "../controllers/vendedor/productoController.js";
@@ -33,7 +33,7 @@ router.patch('/vendedor/activar/producto/:id', verifyTokenJWT, esVendedor, react
 router.post("/vendedor/pago/transferencia", verifyTokenJWT, esVendedor, validarTransferencia, handleValidationErrors, crearActualizarTransferencia);
 router.post("/vendedor/pago/qr", verifyTokenJWT, esVendedor, validarArchivoImagen, crearActualizarQR);
 router.post("/vendedor/pago/efectivo", verifyTokenJWT, esVendedor, validarEfectivo, handleValidationErrors, crearActualizarEfectivo);
-router.get("/vendedor/pago/:tipo", verifyTokenJWT, esVendedor, validarTipo, handleValidationErrors, visualizarMetodosPago);
+router.get("/vendedor/pago/:tipo", verifyTokenJWT, esEstudianteOrVendedor, validarTipo, handleValidationErrors, visualizarMetodosPago);
 
 // Generar modelo 3D
 router.post("/vendedor/generar/producto/:id", verifyTokenJWT, esVendedor, generarModelo3DParaProducto);

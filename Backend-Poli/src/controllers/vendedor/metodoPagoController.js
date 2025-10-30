@@ -92,8 +92,24 @@ export const crearActualizarEfectivo = async (req, res) => {
 // VISUALIZAR métodos de pago por tipo
 export const visualizarMetodosPago = async (req, res) => {
   try {
-    const { tipo } = req.params; 
-    const metodos = await MetodoPagoVendedor.find({ vendedor: req.estudianteBDD._id, tipo })
+    const { tipo } = req.params;
+
+    let idBusqueda;
+
+    if (req.vendedorBDD) {
+      idBusqueda = req.vendedorBDD._id;
+    }
+    else if (req.estudianteBDD) {
+      idBusqueda = req.query.vendedorId || req.body.vendedorId;
+
+      if (!idBusqueda) {
+        return res.status(400).json({ msg: "Debe enviar el ID del vendedor para consultar sus métodos de pago." });
+      }
+    } else {
+      return res.status(401).json({ msg: "Usuario no autenticado" });
+    }
+
+    const metodos = await MetodoPagoVendedor.find({ vendedor: idBusqueda, tipo })
       .select('-vendedor -createdAt -updatedAt -__v');
 
     if (!metodos || metodos.length === 0) {

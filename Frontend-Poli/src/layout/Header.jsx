@@ -108,13 +108,16 @@ const Header = () => {
 
                             <NotificacionesAdmin />}
 
-                        <Link
-                            to={token ? "/dashboard/favoritos" : "/favoritos"}
-                            className="flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"
-                        >
-                            <Heart className="w-5 h-5" />
-                            Favoritos
-                        </Link>
+                        {(user?.rol === "estudiante" || user?.rol === null) && (
+                            <Link
+                                to={token ? "/dashboard/favoritos" : "/favoritos"}
+                                className="flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"
+                            >
+                                <Heart className="w-5 h-5" />
+                                Favoritos
+                            </Link>
+                        )}
+
 
                         <button
                             onClick={() => setOpen(!open)}

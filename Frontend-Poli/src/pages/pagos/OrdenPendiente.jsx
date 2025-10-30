@@ -375,7 +375,6 @@ const OrdenPendiente = () => {
                     {renderStepContent()}
                 </div>
             </div>
-            <Footer />
         </Elements>
     );
 };

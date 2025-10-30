@@ -1,6 +1,7 @@
 import { body, param } from "express-validator";
 
 const textoValidoRegex = /^(?!.*([a-zA-Z0-9])\1{3,})(?!.*[<>@])([a-zA-Z0-9]+(\s[a-zA-Z0-9]+)*)$/;
+const soloNumerosRegex = /^(?!.*(\d)\1{3,})\d+$/;
 
 // Validación para TRANSFERENCIA
 export const validarTransferencia = [
@@ -12,9 +13,8 @@ export const validarTransferencia = [
 
   body("numeroCuenta")
     .notEmpty().withMessage("El número de cuenta es obligatorio")
-    .isString().withMessage("El número de cuenta debe ser texto")
-    .isLength({ max: 15 }).withMessage("Número de cuenta no puede tener más de 15 caracteres")
-    .matches(textoValidoRegex).withMessage("Número de cuenta contiene caracteres inválidos o repetidos"),
+    .isLength({ min: 10, max: 10 }).withMessage("Número de cuenta debe tener exactamente 10 dígitos")
+    .matches(soloNumerosRegex).withMessage("Número de cuenta solo puede contener números y no letras"),
 
   body("titular")
     .notEmpty().withMessage("El titular es obligatorio")
@@ -24,7 +24,6 @@ export const validarTransferencia = [
 
   body("cedula")
     .notEmpty().withMessage("La cédula es obligatoria")
-    .isNumeric().withMessage("La cédula solo puede contener números")
     .isLength({ min: 10, max: 10 }).withMessage("La cédula debe tener exactamente 10 dígitos"),
 ];
 
