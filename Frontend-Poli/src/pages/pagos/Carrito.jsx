@@ -98,7 +98,7 @@ const Carrito = () => {
                 <div className="max-w-7xl mx-auto px-4">
                     {/* TÍTULO */}
                     <div className="text-center mb-10">
-                        <h1 className="text-3xl lg:text-5xl font-bold text-gray-800 flex items-center justify-center gap-3">
+                        <h1 className="text-3xl lg:text-4xl font-bold text-gray-800 flex items-center justify-center gap-3">
                             Carrito de Compras
                         </h1>
                         <p className="text-gray-600 mt-3 text-base lg:text-lg">
