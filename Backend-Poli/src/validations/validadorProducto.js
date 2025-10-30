@@ -25,7 +25,7 @@ export const validarProducto = [
 
   body("stock")
     .notEmpty().withMessage("El stock es obligatorio")
-    .isInt({ min: 0, max: 9999 }).withMessage("El stock debe ser un entero entre 0 y 9999"),
+    .isInt({ min: 1, max: 999 }).withMessage("Cantidad de stock inválida (1 - 999)"),
 
   body("descripcion")
     .trim()

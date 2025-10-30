@@ -6,10 +6,10 @@ import storeProductos from '../../context/storeProductos';
 import storeProfile from '../../context/storeProfile';
 import storeAuth from '../../context/storeAuth';
 import CarruselProductos from '../productosGeneral/CarruselProductos';
-import { FaStar, FaHeart, FaRegHeart, FaShoppingCart, FaUser, FaCheckCircle, FaCube } from 'react-icons/fa';
+import { FaStar, FaHeart, FaRegHeart, FaShoppingCart, FaUser, FaCheckCircle, FaCube, FaCreditCard } from 'react-icons/fa';
+import { Banknote, CreditCard, CreditCardIcon, DollarSign, QrCode, X } from 'lucide-react';
 import useFetch from '../../hooks/useFetch';
 
-// ✅ Hook de favoritos reutilizable
 const useFavorites = () => {
   const [favorites, setFavorites] = useState([]);
   const { token } = storeAuth();
@@ -79,6 +79,9 @@ const ProductoDetalle = () => {
   const [cantidad, setCantidad] = useState(1);
   const [reseñas, setReseñas] = useState([]);
   const [ver3D, setVer3D] = useState(false);
+  const [modalMetodosPago, setModalMetodosPago] = useState(false);
+  const [metodosPago, setMetodosPago] = useState({ transferencia: null, qr: null, efectivo: null });
+  const [loadingMetodos, setLoadingMetodos] = useState(false);
   const navigate = useNavigate();
 
   const { agregarProducto } = storeCarrito();
@@ -88,7 +91,6 @@ const ProductoDetalle = () => {
 
   const { isFavorite, toggleFavorite } = useFavorites();
 
-  // ✅ PRODUCTOS RELACIONADOS
   const productosRelacionados = productos
     .filter(p => p.categoria?._id === producto?.categoria?._id && p._id !== id)
     .slice(0, 8);
@@ -102,6 +104,51 @@ const ProductoDetalle = () => {
 
   const toggle3D = () => setVer3D(!ver3D);
 
+  // VISUALIZAR MÉTODOS DE PAGO - PRODUCTO DETALLE
+  const cargarMetodosPago = async (vendedorId) => {
+    if (!vendedorId) return;
+    setLoadingMetodos(true);
+    try {
+      const tipos = ['transferencia', 'qr', 'efectivo'];
+      const resultados = {};
+
+      for (const tipo of tipos) {
+        try {
+          // PASAMOS vendedorId como query
+          const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/vendedor/pago/${tipo}?vendedorId=${vendedorId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+
+          if (!res.ok) {
+            resultados[tipo] = null; // Si no hay métodos
+            continue;
+          }
+
+          const data = await res.json();
+          resultados[tipo] = data.metodos?.[0] || null; // Nos quedamos con el primer método si existe
+        } catch (err) {
+          console.error(`Error cargando ${tipo}:`, err);
+          resultados[tipo] = null;
+        }
+      }
+
+      setMetodosPago(resultados);
+    } catch (err) {
+      console.error('Error general:', err);
+      toast.error('No se pudieron cargar los métodos de pago');
+    } finally {
+      setLoadingMetodos(false);
+    }
+  };
+
+
+  const abrirModalMetodosPago = () => {
+    setModalMetodosPago(true);
+    if (producto?.vendedor?._id) {
+      cargarMetodosPago(producto.vendedor._id);
+    }
+  };
+
   useEffect(() => {
     const fetchProducto = async () => {
       try {
@@ -111,6 +158,7 @@ const ProductoDetalle = () => {
         const response = await fetch(url);
         if (!response.ok) throw new Error('No se pudo cargar el producto');
         const data = await response.json();
+        console.log(data)
         setProducto(data);
         setReseñas([
           { usuario: 'Ana López', rating: 5, comentario: '¡Excelente calidad!', fecha: '2025-10-10' },
@@ -133,9 +181,8 @@ const ProductoDetalle = () => {
   const fav = isFavorite(producto._id);
 
   return (
-    <>  
+    <>
       <div className="min-h-screen bg-gray-50 mt-24 md:mt-10">
-        {/* 🔥 1. IMAGEN IZQUIERDA ↔ MODEL-VIEWER 3D */}
         <section className="py-3 sm:pb-8 bg-white">
           <div className="max-w-7xl mx-auto px-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
@@ -231,6 +278,15 @@ const ProductoDetalle = () => {
 
                 {/* INFO ADICIONAL */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    onClick={abrirModalMetodosPago}
+
+                    className="flex items-center justify-center gap-2 p-6 bg-blue-300/20 cursor-pointer text-blue-700 rounded-xl w-full hover:bg-blue-100 transition font-semibold"
+                  >
+                    <FaCreditCard className="w-5 h-5" />
+                    Métodos de Pago
+                  </button>
                   <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl">
                     <FaCheckCircle className="w-6 h-6 text-green-600" />
                     <div>
@@ -246,6 +302,7 @@ const ProductoDetalle = () => {
                     </div>
                   </div>
                 </div>
+
               </div>
             </div>
           </div>
@@ -284,6 +341,97 @@ const ProductoDetalle = () => {
           </section>
         )}
       </div>
+
+      {/* MODAL MÉTODOS DE PAGO */}
+      {modalMetodosPago && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-neutral-100 rounded-3xl  overflow-y-auto shadow-xl border border-gray-100">
+
+            {/* HEADER */}
+            <div className="sticky top-0 bg-gray-100 border-b border-gray-200 p-6 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                <CreditCardIcon className="w-6 h-6 text-blue-600" />
+                Métodos de Pago
+              </h2>
+              <button
+                onClick={() => setModalMetodosPago(false)}
+                className="text-gray-400 hover:text-gray-700 transition"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* CONTENT */}
+            <div className="p-6">
+              {loadingMetodos ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-500 animate-pulse">Cargando métodos de pago...</p>
+                </div>
+              ) : (
+                <div className="flex flex-col sm:flex-row sm:overflow-x-auto sm:gap-4 gap-6">
+                  {/* TRANSFERENCIA */}
+                  {metodosPago.transferencia && (
+                    <div className="min-w-[250px] bg-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition flex-shrink-0">
+                      <h3 className="text-lg font-bold text-blue-800 mb-4 flex items-center gap-2">
+                        <Banknote className="w-5 h-5 text-blue-600" />
+                        Transferencia Bancaria
+                      </h3>
+                      <div className="space-y-2 text-sm text-gray-700">
+                        <p><span className="font-semibold">Banco:</span> {metodosPago.transferencia.banco}</p>
+                        <p><span className="font-semibold">N° Cuenta:</span> {metodosPago.transferencia.numeroCuenta}</p>
+                        <p><span className="font-semibold">Titular:</span> {metodosPago.transferencia.titular}</p>
+                        <p><span className="font-semibold">Cédula:</span> {metodosPago.transferencia.cedula}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* QR */}
+                  {metodosPago.qr?.imagenComprobante && (
+                    <div className="min-w-[250px] bg-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition flex-shrink-0">
+                      <h3 className="text-lg font-bold text-purple-800 mb-4 flex items-center gap-2">
+                        <QrCode className="w-5 h-5 text-purple-600" />
+                        Código QR
+                      </h3>
+                      <img
+                        src={metodosPago.qr.imagenComprobante}
+                        alt="Código QR"
+                        className="w-full max-w-xs mx-auto rounded-lg shadow-md border border-purple-300"
+                      />
+                    </div>
+                  )}
+
+                  {/* EFECTIVO */}
+                  {metodosPago.efectivo?.lugarRetiro?.length > 0 && (
+                    <div className="min-w-[250px] bg-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition flex-shrink-0">
+                      <h3 className="text-lg font-bold text-green-800 mb-4 flex items-center gap-2">
+                        <DollarSign className="w-5 h-5 text-green-600" />
+                        Retiro en Efectivo
+                      </h3>
+                      <ul className="space-y-2 text-gray-700 text-sm">
+                        {metodosPago.efectivo.lugarRetiro.map((lugar, idx) => (
+                          <li key={idx} className="flex items-start gap-2">
+                            <span className="text-green-600 font-bold text-lg">•</span>
+                            <span>{lugar}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* SIN MÉTODOS */}
+                  {!metodosPago.transferencia && !metodosPago.qr?.imagenComprobante && !metodosPago.efectivo?.lugarRetiro?.length && (
+                    <div className="text-center py-12 w-full">
+                      <p className="text-gray-400 italic">El vendedor aún no ha configurado métodos de pago.</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+
 
     </>
   );

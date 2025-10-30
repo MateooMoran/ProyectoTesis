@@ -9,7 +9,7 @@ function GestionarUsuario() {
     const [loading, setLoading] = useState(true);
     const [filtroRol, setFiltroRol] = useState('todos');
     const [currentPage, setCurrentPage] = useState(1);
-    const [usuariosPorPagina] = useState(10);
+    const [usuariosPorPagina] = useState(5);
 
     useEffect(() => {
         const obtenerUsuarios = async () => {
@@ -95,7 +95,7 @@ function GestionarUsuario() {
             <main className="py-4 lg:py-10 bg-blue-50 min-h-screen">
                 <div className="max-w-7xl mx-auto px-3 lg:px-4">
                     {/* Título y descripción */}
-                    <div className="text-center mb-6 lg:mb-12">
+                    <div className="text-center mb-6 lg:mb-5">
                         <div className="flex items-center justify-center gap-2 lg:gap-3 mb-2 lg:mb-3">
                             <h1 className="text-2xl lg:text-4xl font-bold text-gray-800">
                                 Gestión de Usuarios
@@ -142,7 +142,7 @@ function GestionarUsuario() {
                             {/* TABLA USUARIOS */}
                             <div className="rounded-lg lg:rounded-2xl border border-gray-200 overflow-hidden mb-4 lg:mb-8">
                                 {/* HEADER TABLA */}
-                                <div className="hidden sm:grid grid-cols-[1.5fr_1fr_0.8fr_0.8fr_1fr] bg-gradient-to-r from-blue-50 to-indigo-50 px-4 lg:px-6 py-3 lg:py-4 text-xs lg:text-sm font-bold text-blue-800 border-b">
+                                <div className="hidden sm:grid grid-cols-[1.5fr_1fr_0.8fr_0.8fr_1fr]  px-4 lg:px-6 py-3 lg:py-4 text-xs lg:text-sm font-bold">
                                     <div>Usuario</div>
                                     <div>Teléfono</div>
                                     <div>Rol</div>
@@ -155,10 +155,10 @@ function GestionarUsuario() {
                                     {usuariosActuales.map((user) => (
                                         <div
                                             key={user._id}
-                                            className="sm:grid sm:grid-cols-[1.5fr_1fr_0.8fr_0.8fr_1fr] gap-3 lg:gap-4 px-3 lg:px-6 py-3 lg:py-4 hover:bg-gray-50 transition-colors"
+                                            className="sm:grid  bg-white sm:grid-cols-[1.5fr_1fr_0.8fr_0.8fr_1fr] gap-3 lg:gap-4 px-3 lg:px-6 py-3 lg:py-4 hover:bg-gray-50 transition-colors"
                                         >
                                             {/* MOBILE CARD */}
-                                            <div className="sm:hidden bg-blue-50 rounded-lg p-3 mb-3">
+                                            <div className="sm:hidden bg-white rounded-lg p-3 mb-3">
                                                 <div className="flex items-center gap-2 lg:gap-3">
                                                     <img
                                                         src="https://media-public.canva.com/rVvfU/MAFlPzrVvfU/1/tl.png"

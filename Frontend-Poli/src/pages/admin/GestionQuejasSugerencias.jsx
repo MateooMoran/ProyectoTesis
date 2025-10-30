@@ -11,7 +11,7 @@ function GestionarQuejasSugerencias() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [filtroTipo, setFiltroTipo] = useState('todos');
-  const [quejasPorPagina] = useState(8);
+  const [quejasPorPagina] = useState(3);
 
   useEffect(() => {
     const obtenerQuejas = async () => {
@@ -57,10 +57,8 @@ function GestionarQuejasSugerencias() {
         body,
         config: { headers },
       });
-      toast.success("¡Respuesta guardada correctamente!");
     } catch (error) {
       console.error("Error al responder la queja/sugerencia", error);
-      toast.error("Error al guardar la respuesta");
     }
   };
 

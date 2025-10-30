@@ -39,7 +39,6 @@ export default function QuejasSugerenciasEstudiante() {
                 setLista(data);
             } catch (error) {
                 console.error(error);
-                toast.error("Error cargando tus quejas/sugerencias");
             } finally {
                 setLoading(false);
             }
