@@ -5,11 +5,25 @@ import mongoose from "mongoose";
 // Crear una categoría
 export const crearCategoria = async (req, res) => {
   try {
-    const { nombreCategoria } = req.body;
-    if (!nombreCategoria) return res.status(400).json({ msg: "Debe llenar el campo" });
+    let { nombreCategoria } = req.body;
 
-    const existe = await Categoria.findOne({ nombreCategoria: { $regex: `^${nombreCategoria}$`, $options: "i" } });
-    if (existe) return res.status(400).json({ msg: "La categoría ya existe" });
+    if (!nombreCategoria || !nombreCategoria.trim()) {
+      return res.status(400).json({ msg: "Debe llenar el campo" });
+    }
+
+    const normalizarTexto = (texto) =>
+      texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+
+    const nombreNormalizado = normalizarTexto(nombreCategoria);
+
+    const categorias = await Categoria.find();
+    const existe = categorias.some(
+      (cat) => normalizarTexto(cat.nombreCategoria) === nombreNormalizado
+    );
+
+    if (existe) {
+      return res.status(400).json({ msg: "La categoría ya existe" });
+    }
 
     const nuevaCategoria = new Categoria({ nombreCategoria });
     await nuevaCategoria.save();
