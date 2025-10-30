@@ -89,36 +89,43 @@ export const crearActualizarEfectivo = async (req, res) => {
   }
 };
 
-// VISUALIZAR métodos de pago por tipo
+
 export const visualizarMetodosPago = async (req, res) => {
   try {
     const { tipo } = req.params;
 
-    let idBusqueda;
-
-    if (req.vendedorBDD) {
-      idBusqueda = req.vendedorBDD._id;
+    if (!req.estudianteBDD) {
+      return res.status(401).json({ msg: "No autenticado" });
     }
-    else if (req.estudianteBDD) {
-      idBusqueda = req.query.vendedorId || req.body.vendedorId;
 
-      if (!idBusqueda) {
-        return res.status(400).json({ msg: "Debe enviar el ID del vendedor para consultar sus métodos de pago." });
+    let idBusqueda = null;
+
+    if (req.estudianteBDD.rol === 'vendedor') {
+      idBusqueda = req.estudianteBDD._id;
+    }
+    else if (req.estudianteBDD.rol === 'estudiante') {
+      const vendedorId = req.query.vendedorId;
+      if (!vendedorId) {
+        return res.status(400).json({ msg: "Falta vendedorId" });
       }
-    } else {
-      return res.status(401).json({ msg: "Usuario no autenticado" });
+      if (!mongoose.Types.ObjectId.isValid(vendedorId)) {
+        return res.status(400).json({ msg: "vendedorId inválido" });
+      }
+      idBusqueda = vendedorId;
     }
 
-    const metodos = await MetodoPagoVendedor.find({ vendedor: idBusqueda, tipo })
-      .select('-vendedor -createdAt -updatedAt -__v');
+    const metodos = await MetodoPagoVendedor.find({
+      vendedor: idBusqueda,
+      tipo
+    }).select('-vendedor -createdAt -updatedAt -__v');
 
-    if (!metodos || metodos.length === 0) {
-      return res.status(404).json({ msg: `No hay métodos de pago ${tipo} registrados` });
+    if (metodos.length === 0) {
+      return res.status(404).json({ msg: `No hay métodos ${tipo}` });
     }
 
-    res.status(200).json({ metodos });
+    res.json({ metodos });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: "Error al obtener métodos de pago", error: error.message });
+    console.error("Error:", error);
+    res.status(500).json({ msg: "Error del servidor" });
   }
 };

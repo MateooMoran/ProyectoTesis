@@ -10,10 +10,11 @@ import { crearActualizarEfectivo, crearActualizarQR, crearActualizarTransferenci
 import { validarArchivoImagen, validarEfectivo, validarTipo, validarTransferencia } from "../validations/validadorPagos.js";
 import handleValidationErrors from "../middlewares/handleValidationErrors.js";
 import { validarProducto } from "../validations/validadorProducto.js";
+import { validarCategoria } from "../validations/validatorCategoria.js";
 const router = Router();
 
 //  CATEGORÍAS 
-router.post('/vendedor/crear/categoria', verifyTokenJWT, esAdmin, crearCategoria);
+router.post('/vendedor/crear/categoria', verifyTokenJWT, esAdmin,validarCategoria,handleValidationErrors, crearCategoria);
 router.get('/vendedor/visualizar/categoria', verifyTokenJWT, esVendedorOrAdmin, listarCategorias);
 router.delete('/vendedor/eliminar/categoria/:id', verifyTokenJWT, esAdmin, eliminarCategoria);
 
