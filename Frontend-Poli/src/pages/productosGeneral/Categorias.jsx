@@ -7,6 +7,8 @@ import Slider from 'react-slick';
 import { Heart } from 'lucide-react';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import Header from '../../layout/Header';
+import Footer from '../../layout/Footer';
 
 // HOOK DE FAVORITOS
 const useFavorites = () => {
@@ -160,7 +162,9 @@ const CategoriaProductos = () => {
   };
 
   return (
+
     <>
+      <Header />
       <div className="mt-20 md:mt-14"></div>
       <section className="py-4 lg:py-10 bg-blue-50">
         <div className="max-w-7xl mx-auto px-3 lg:px-4">
@@ -222,11 +226,10 @@ const CategoriaProductos = () => {
 
                           <button
                             onClick={() => toggleFavorite(producto._id)}
-                            className={`p-1.5 lg:p-2 rounded-md transition-all duration-300 hover:scale-110 flex-shrink-0 ${
-                              fav
+                            className={`p-1.5 lg:p-2 rounded-md transition-all duration-300 hover:scale-110 flex-shrink-0 ${fav
                                 ? 'bg-red-500 text-white hover:bg-red-600'
                                 : 'bg-gray-200 hover:bg-red-500 hover:text-white text-gray-700'
-                            }`}
+                              }`}
                           >
                             <Heart className={`w-3 h-3 lg:w-5 lg:h-5 ${fav ? 'fill-current' : ''}`} />
                           </button>
@@ -240,6 +243,7 @@ const CategoriaProductos = () => {
           )}
         </div>
       </section>
+      <Footer/>
     </>
   );
 };

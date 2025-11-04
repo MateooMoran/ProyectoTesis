@@ -6,9 +6,11 @@ import storeProductos from '../../context/storeProductos';
 import storeProfile from '../../context/storeProfile';
 import storeAuth from '../../context/storeAuth';
 import CarruselProductos from '../productosGeneral/CarruselProductos';
-import { FaStar, FaHeart, FaRegHeart, FaShoppingCart, FaUser, FaCheckCircle, FaCube, FaCreditCard } from 'react-icons/fa';
-import { Banknote, CreditCard, CreditCardIcon, DollarSign, QrCode, X } from 'lucide-react';
+import { FaStar, FaHeart, FaRegHeart, FaShoppingCart, FaUser, FaCheckCircle, FaCube, FaCreditCard,  } from 'react-icons/fa';
+import { Banknote, CreditCard, CreditCardIcon, DollarSign, QrCode, X, HandCoins } from 'lucide-react';
 import useFetch from '../../hooks/useFetch';
+import Header from '../../layout/Header';
+import Footer from '../../layout/Footer';
 
 const useFavorites = () => {
   const [favorites, setFavorites] = useState([]);
@@ -97,8 +99,7 @@ const ProductoDetalle = () => {
 
   const handleAgregarAlCarrito = () => {
     agregarProducto(producto._id, cantidad);
-    toast.success(`✨ ${producto.nombreProducto} agregado al carrito`);
-    if (!token) navigate('/carrito/vacio');
+    if (!token) navigate('/carrito/procesopago');
     else navigate(`/dashboard/productos/${producto._id}`);
   };
 
@@ -181,7 +182,10 @@ const ProductoDetalle = () => {
   const fav = isFavorite(producto._id);
 
   return (
+
     <>
+    <Header/>
+    <div className="mt-24 md:mt-18"></div>
       <div className="min-h-screen bg-gray-50 mt-24 md:mt-10">
         <section className="py-3 sm:pb-8 bg-white">
           <div className="max-w-7xl mx-auto px-4">
@@ -262,9 +266,9 @@ const ProductoDetalle = () => {
                 <div className="flex flex-col sm:flex-row gap-4 w-full">
                   <button
                     onClick={handleAgregarAlCarrito}
-                    className="flex-1 h-14 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-3 hover:from-red-700 hover:to-red-800 transform hover:scale-105 transition-all duration-300 shadow-lg p-3"
+                    className="flex-1 h-14 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-3 hover:from-green-700 hover:to-green-800 transform hover:scale-105 transition-all duration-300 shadow-lg p-3"
                   >
-                    <FaShoppingCart className="w-6 h-6" /> Agregar al Carrito
+                    <HandCoins className="w-6 h-6" /> Proceder al pago
                   </button>
 
                   {/* ❤️ FAVORITOS */}
@@ -430,9 +434,7 @@ const ProductoDetalle = () => {
           </div>
         </div>
       )}
-
-
-
+        <Footer/>
     </>
   );
 };
