@@ -107,8 +107,8 @@ const Footer = () => {
 
                 {/* Copyright */}
                 <div className="border-t border-white/10 pt-6 text-center mb-3">
-                    <div className="flex flex-col sm:flex-row justify-between items-center text-gray-300">
-                        <p className="flex items-center">
+                    <div className="flex flex-col sm:flex-row justify-center items-center text-gray-300">
+                        <p className="flex items-center text-center">
                             <FaCopyright className="mr-2" />
                             {new Date().getFullYear()} PoliVentas. Todos los derechos reservados.
                         </p>

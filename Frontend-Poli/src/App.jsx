@@ -16,7 +16,7 @@ import CategoriaProductos from './pages/productosGeneral/Categorias';
 import Perfil from "./pages/Perfil";
 import ProductoBuscado from './pages/productosGeneral/ProductoBuscado';
 import AuthCallback from './pages/AuthCallback';
-import CarritoVacio from './pages/productosGeneral/CarritoVacio';
+import PrePagoProceso from './pages/productosGeneral/PrePagoProceso'
 import Carrito from './pages/pagos/Carrito';
 import ProductoDetalle from './pages/productosGeneral/ProductoDetalle';
 import GestionarUsuario from './pages/admin/GestionarUsuario';
@@ -69,7 +69,7 @@ function App() {
           <Route path="confirm/:token" element={<Confirm />} />
           <Route path="reset/:token" element={<Reset />} />
           <Route path="productos/categoria/:id" element={<CategoriaProductos />} />
-          <Route path="carrito/vacio" element={<CarritoVacio />} />
+          <Route path="carrito/procesopago" element={<PrePagoProceso />} />
           <Route path="productos/:id" element={<ProductoDetalle />} />
           <Route path="auth/callback" element={<AuthCallback />} />
           <Route path="productos/buscar" element={<ProductoBuscado />} />
