@@ -1,54 +1,43 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, LogOut, ShoppingCart, Search, Star, Heart } from 'lucide-react';
+import { User, LogOut, ShoppingCart, Search, Heart, MessageCircle } from 'lucide-react';
 import logo from '../assets/logo.png';
 import storeAuth from '../context/storeAuth';
 import storeProfile from '../context/storeProfile';
 import storeProductos from '../context/storeProductos';
 import NotificacionesAdmin from '../pages/admin/Notificaciones';
-import { MessageCircle } from "lucide-react";
-import Chat from '../pages/chat/Chat'
+import Chat from '../pages/chat/Chat';
 import storeCarrito from '../context/storeCarrito';
-
-
 
 const Header = () => {
     const navigate = useNavigate();
     const { token, clearToken } = storeAuth();
-    const { user, profile } = storeProfile();
-    const { categorias, loadingCategorias, error, fetchCategorias } = storeProductos();
-
-    const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [open, setOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
-    const categoriesRef = useRef(null);
-    const userDropdownRef = useRef(null);
+    const { user, profile, clear: clearProfile, clearUser } = storeProfile();
+    const { categorias, fetchCategorias } = storeProductos();
     const { carrito } = storeCarrito();
 
-    const { clear, clearUser } = storeProfile()
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [openChat, setOpenChat] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
-
+    const userDropdownRef = useRef(null);
     const totalCantidad = carrito?.productos?.reduce((acc, item) => acc + item.cantidad, 0) || 0;
 
     useEffect(() => {
         if (categorias.length === 0) {
-            fetchCategorias();
+            fetchCategorias().catch(err => console.error('Error al cargar categorías:', err));
         }
     }, []);
 
     useEffect(() => {
-        // Cargar perfil si no está cargado pero hay token
         if (token && !user) {
-            profile();
+            console.log('Token detectado, cargando perfil...');
+            profile().catch(err => console.error('Error al cargar perfil:', err));
         }
     }, [token, user]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (categoriesRef.current && !categoriesRef.current.contains(event.target)) {
-                setIsCategoriesOpen(false);
-            }
             if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
                 setIsDropdownOpen(false);
             }
@@ -58,45 +47,52 @@ const Header = () => {
     }, []);
 
     const handleLogout = () => {
+        console.log('Cerrando sesión...');
         clearToken();
-        clearUser()
+        clearUser();
         navigate('/');
     };
 
-
     const handleSearch = (e) => {
         e.preventDefault();
-        const { token } = storeAuth(); 
 
-        if (searchQuery.trim()) {
+        try {
+            console.log('🔍 Ejecutando búsqueda:', searchQuery);
+
+            if (!searchQuery.trim()) {
+                console.warn('Campo de búsqueda vacío');
+                return;
+            }
+
             const query = encodeURIComponent(searchQuery.trim());
 
             if (token) {
+                console.log('➡️ Redirigiendo a dashboard con token');
                 navigate(`/dashboard/productos/buscar?query=${query}`);
             } else {
+                console.log('➡️ Redirigiendo a búsqueda pública');
                 navigate(`/productos/buscar?query=${query}`);
             }
 
             setSearchQuery('');
+        } catch (error) {
+            console.error('❌ Error en handleSearch:', error);
         }
     };
 
-
-    const scrollToCarousel = () => {
-        navigate('/');
-    };
-
     const rol = user?.rol || 'estudiante';
+
     return (
         <>
-            <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50 ">
+            <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50">
                 <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+
                     {/* Logo */}
-                    <Link to={token ? '/' : '/'}>
+                    <Link to="/">
                         <img src={logo} alt="PoliVentas" className="w-36 h-12 object-cover" />
                     </Link>
 
-                    {/* Barra de Búsqueda */}
+                    {/* Búsqueda */}
                     <form onSubmit={handleSearch} className="flex-1 max-w-lg mx-4">
                         <div className="relative">
                             <input
@@ -112,45 +108,43 @@ const Header = () => {
                         </div>
                     </form>
 
-                    {/* Botones */}
-                    <div className="flex items-center gap-2 flex-col sm:flex-row w-full sm:w-auto">
-                        {(rol === 'estudiante' || rol === 'admin' || rol === 'vendedor') &&
-                            <NotificacionesAdmin />}
-                        {(rol === "estudiante" || rol === null) && (
+                    {/* Iconos y opciones */}
+                    <div className="flex items-center gap-3 flex-col sm:flex-row w-full sm:w-auto">
+
+                        {(rol === 'estudiante' || rol === 'admin' || rol === 'vendedor') && <NotificacionesAdmin />}
+
+                        {(rol === 'estudiante' || rol === null) && (
                             <Link
-                                to={token ? "/dashboard/favoritos" : "/favoritos"}
-                                className="z-50  flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"
+                                to={token ? '/dashboard/favoritos' : '/favoritos'}
+                                className="z-50 flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"
                             >
                                 <Heart className="w-5 h-5" />
                                 Favoritos
                             </Link>
                         )}
 
-
+                        {/* Chat */}
                         <button
-                            onClick={() => setOpen(!open)}
+                            onClick={() => setOpenChat(!openChat)}
                             className="fixed bottom-5 right-5 p-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700"
                         >
                             <MessageCircle size={24} />
                         </button>
-                        {open && <Chat onClose={() => setOpen(false)} />}
+                        {openChat && <Chat onClose={() => setOpenChat(false)} />}
 
                         {/* Carrito */}
                         {token && rol === 'estudiante' && (
                             <Link to="/dashboard/estudiante/carrito" className="relative">
                                 <ShoppingCart className="w-6 h-6 text-blue-800 hover:text-red-800 transition-colors" />
-
                                 {totalCantidad > 0 && (
-                                    <span
-                                        className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow"
-                                    >
+                                    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow">
                                         {totalCantidad}
                                     </span>
                                 )}
                             </Link>
                         )}
 
-                        {/* Perfil o login/register */}
+                        {/* Perfil / Sesión */}
                         {token ? (
                             <div className="relative" ref={userDropdownRef}>
                                 <button
@@ -160,12 +154,14 @@ const Header = () => {
                                     <User className="w-5 h-5" />
                                     <span>{user?.nombre ? `Hola, ${user.nombre}` : 'Usuario'}</span>
                                 </button>
+
                                 {isDropdownOpen && (
-                                    <div className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-lg py-3 z-50   ">
+                                    <div className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-lg py-3 z-50">
                                         <div className="px-5 py-3 text-sm text-blue-700">
                                             <p><strong>Nombre:</strong> {user?.nombre || 'Usuario'}</p>
-                                            <p><strong>Rol:</strong> {rol ? rol.toUpperCase() : 'N/A'}</p>
+                                            <p><strong>Rol:</strong> {rol.toUpperCase()}</p>
                                         </div>
+
                                         <Link
                                             to="/dashboard/perfil"
                                             className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
@@ -173,87 +169,6 @@ const Header = () => {
                                         >
                                             Perfil
                                         </Link>
-
-                                        {/* Opciones extras según rol */}
-                                        {rol === 'admin' && (
-                                            <>
-                                                <Link
-                                                    to="/dashboard/admin/gestionusuarios"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-                                                    Gestión Usuarios
-                                                </Link>
-                                                <Link
-                                                    to="/dashboard/admin/gestionquejas"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-                                                    Gestión Quejas y Sugerencias
-                                                </Link>
-                                                <Link
-                                                    to="/dashboard/vendedor/categorias"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-
-                                                    Creacion de Categorías
-                                                </Link>
-
-                                            </>
-                                        )}
-                                        {rol === 'vendedor' && (
-                                            <>
-
-                                                <Link
-                                                    to="/dashboard/vendedor/productos"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-                                                    Gestionar Productos
-                                                </Link>
-                                                <Link
-                                                    to="/dashboard/vendedor/metodo-pago"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-                                                    Metodos de Pago
-                                                </Link>
-                                                <Link
-                                                    to="/dashboard/vendedor/historial-ventas"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-                                                    Historial Ventas
-                                                </Link>
-                                                <Link
-                                                    to="/dashboard/vendedor/quejas-sugerencias"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-                                                    Quejas y Sugerencias
-                                                </Link>
-                                            </>
-                                        )}
-                                        {rol === 'estudiante' && (
-                                            <>
-                                                <Link
-                                                    to="/dashboard/estudiante/historial-pagos"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-                                                    Historial de Compras
-                                                </Link>
-
-                                                <Link
-                                                    to="/dashboard/estudiante/quejas-sugerencias"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-                                                    Quejas y Sugerencias
-                                                </Link>
-                                            </>
-                                        )}
 
                                         <button
                                             className="block w-full text-left px-4 py-2 hover:bg-blue-50 text-red-500"
@@ -285,7 +200,6 @@ const Header = () => {
                 </div>
             </header>
 
-            {/* Espacio para compensar header fijo */}
             <div className="h-18 sm:h-5" />
         </>
     );
