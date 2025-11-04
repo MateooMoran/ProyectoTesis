@@ -1,25 +1,21 @@
 import Estudiante from "../../models/Estudiante.js";
 
-// Buscar estudiantes por nombre y/o apellido, excluyendo admins
+// Buscar estudiantes por nombre, excluyendo admins
 export const buscarEstudiantePorNombre = async (req, res) => {
     try {
-        const { nombre, apellido } = req.query;
+        const { nombre } = req.query;
 
-        if (!nombre && !apellido) {
-            return res.status(400).json({ msg: "Debe proporcionar al menos un nombre o apellido" });
+        if (!nombre) {
+            return res.status(400).json({ msg: "Debe proporcionar un nombre" });
         }
 
-        const condiciones = [];
-        if (nombre) condiciones.push({ nombre: { $regex: nombre, $options: 'i' } });
-        if (apellido) condiciones.push({ apellido: { $regex: apellido, $options: 'i' } });
-
         const estudiantes = await Estudiante.find({
-            $or: condiciones,
+            nombre: { $regex: nombre, $options: 'i' },
             rol: { $ne: 'admin' }
         }).select('nombre apellido rol');
 
         if (!estudiantes.length) {
-            return res.status(404).json({ msg: "No se encontraron estudiantes con esos datos" });
+            return res.status(404).json({ msg: "No se encontraron estudiantes con ese nombre" });
         }
 
         res.status(200).json(estudiantes);

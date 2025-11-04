@@ -44,6 +44,6 @@ router.delete("/vendedor/pago/:id", verifyTokenJWT, esVendedor, eliminarMetodoPa
 
 // PAGOS Y VENTAS
 router.put('/vendedor/ventas/:id/pagar', verifyTokenJWT, esVendedor, confirmarPagoVenta);
-router.get('/vendedor/historial-pagos', verifyTokenJWT, esVendedor, visualizarHistorialVentasVendedor);
+router.get('/vendedor/historial-ventas', verifyTokenJWT, esVendedor, visualizarHistorialVentasVendedor);
 
 export default router;
