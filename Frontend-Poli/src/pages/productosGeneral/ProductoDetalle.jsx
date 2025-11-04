@@ -6,72 +6,12 @@ import storeProductos from '../../context/storeProductos';
 import storeProfile from '../../context/storeProfile';
 import storeAuth from '../../context/storeAuth';
 import CarruselProductos from '../productosGeneral/CarruselProductos';
-import { FaStar, FaHeart, FaRegHeart, FaShoppingCart, FaUser, FaCheckCircle, FaCube, FaCreditCard,  } from 'react-icons/fa';
-import { Banknote, CreditCard, CreditCardIcon, DollarSign, QrCode, X, HandCoins } from 'lucide-react';
+import BotonFavorito from '../../components/BotonFavorito';
+import { FaStar, FaCheckCircle, FaCube, FaCreditCard, FaUser } from 'react-icons/fa';
+import { Banknote, CreditCardIcon, DollarSign, QrCode, X, HandCoins } from 'lucide-react';
 import useFetch from '../../hooks/useFetch';
 import Header from '../../layout/Header';
 import Footer from '../../layout/Footer';
-
-const useFavorites = () => {
-  const [favorites, setFavorites] = useState([]);
-  const { token } = storeAuth();
-  const { fetchDataBackend } = useFetch();
-
-  useEffect(() => {
-    const loadFavorites = async () => {
-      if (token) {
-        try {
-          const data = await fetchDataBackend(`${import.meta.env.VITE_BACKEND_URL}/estudiante/favoritos`, {
-            method: 'GET',
-            config: { headers: { Authorization: `Bearer ${token}` } }
-          });
-          setFavorites(data.favoritos || []);
-        } catch { }
-      } else {
-        const localFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
-        setFavorites(localFavs);
-      }
-    };
-    loadFavorites();
-  }, [token]);
-
-  const toggleFavorite = async (productId) => {
-    if (token) {
-      try {
-        const response = await fetchDataBackend(`${import.meta.env.VITE_BACKEND_URL}/estudiante/favorito/${productId}`, {
-          method: 'PATCH',
-          config: { headers: { Authorization: `Bearer ${token}` } }
-        });
-
-        if (response.msg.includes('agregado')) {
-          setFavorites(prev => [...prev, { _id: productId }]);
-          toast.success('Producto agregado a favoritos');
-        } else if (response.msg.includes('removido')) {
-          setFavorites(prev => prev.filter(p => p._id !== productId));
-          toast.success('Producto removido de favoritos');
-        }
-      } catch { }
-    } else {
-      let localFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
-      if (localFavs.includes(productId)) {
-        localFavs = localFavs.filter(id => id !== productId);
-        toast.success('Producto removido de favoritos');
-      } else {
-        localFavs.push(productId);
-        toast.success('Producto agregado a favoritos');
-      }
-      localStorage.setItem('favorites', JSON.stringify(localFavs));
-      setFavorites(localFavs);
-    }
-  };
-
-  const isFavorite = (productId) => {
-    if (token) return favorites.some(fav => fav._id === productId);
-    return favorites.includes(productId);
-  };
-
-  return { favorites, isFavorite, toggleFavorite };
-};
 
 const ProductoDetalle = () => {
   const { id } = useParams();
@@ -90,8 +30,6 @@ const ProductoDetalle = () => {
   const { productos } = storeProductos();
   const { user } = storeProfile();
   const { token } = storeAuth();
-
-  const { isFavorite, toggleFavorite } = useFavorites();
 
   const productosRelacionados = productos
     .filter(p => p.categoria?._id === producto?.categoria?._id && p._id !== id)
@@ -115,18 +53,17 @@ const ProductoDetalle = () => {
 
       for (const tipo of tipos) {
         try {
-          // PASAMOS vendedorId como query
           const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/vendedor/pago/${tipo}?vendedorId=${vendedorId}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
 
           if (!res.ok) {
-            resultados[tipo] = null; // Si no hay métodos
+            resultados[tipo] = null;
             continue;
           }
 
           const data = await res.json();
-          resultados[tipo] = data.metodos?.[0] || null; // Nos quedamos con el primer método si existe
+          resultados[tipo] = data.metodos?.[0] || null;
         } catch (err) {
           console.error(`Error cargando ${tipo}:`, err);
           resultados[tipo] = null;
@@ -141,7 +78,6 @@ const ProductoDetalle = () => {
       setLoadingMetodos(false);
     }
   };
-
 
   const abrirModalMetodosPago = () => {
     setModalMetodosPago(true);
@@ -159,7 +95,7 @@ const ProductoDetalle = () => {
         const response = await fetch(url);
         if (!response.ok) throw new Error('No se pudo cargar el producto');
         const data = await response.json();
-        console.log(data)
+        console.log(data);
         setProducto(data);
         setReseñas([
           { usuario: 'Ana López', rating: 5, comentario: '¡Excelente calidad!', fecha: '2025-10-10' },
@@ -179,13 +115,10 @@ const ProductoDetalle = () => {
   if (error) return <div className="min-h-screen bg-gray-50"><p className="text-center text-red-600 text-lg mt-20">Error: {error}</p></div>;
   if (!producto) return <div className="min-h-screen bg-gray-50"><p className="text-center text-gray-500 text-lg mt-20">Producto no encontrado.</p></div>;
 
-  const fav = isFavorite(producto._id);
-
   return (
-
     <>
-    <Header/>
-    <div className="mt-24 md:mt-18"></div>
+      <Header />
+      <div className="mt-40 md:mt-25"></div>
       <div className="min-h-screen bg-gray-50 mt-24 md:mt-10">
         <section className="py-3 sm:pb-8 bg-white">
           <div className="max-w-7xl mx-auto px-4">
@@ -262,7 +195,7 @@ const ProductoDetalle = () => {
                   <span className="text-gray-600">de {producto.stock} disponibles</span>
                 </div>
 
-                {/* BOTONES */}
+                {/* ✅ BOTONES CON BOTON FAVORITO */}
                 <div className="flex flex-col sm:flex-row gap-4 w-full">
                   <button
                     onClick={handleAgregarAlCarrito}
@@ -271,13 +204,13 @@ const ProductoDetalle = () => {
                     <HandCoins className="w-6 h-6" /> Proceder al pago
                   </button>
 
-                  {/* ❤️ FAVORITOS */}
-                  <button
-                    onClick={() => toggleFavorite(producto._id)}
-                    className={`h-14 w-full sm:w-14 rounded-xl flex items-center justify-center transition-all duration-300 transform hover:scale-110 ${fav ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-gray-200 hover:bg-red-500 hover:text-white'}`}
-                  >
-                    {fav ? <FaHeart className="w-6 h-6" /> : <FaRegHeart className="w-6 h-6" />}
-                  </button>
+                  {/* ❤️ BOTÓN FAVORITO REUTILIZABLE */}
+                  <BotonFavorito 
+                    productoId={producto._id}
+                    variant="icon"
+                    size="lg"
+                    className="h-14 w-full sm:w-14 shadow-lg"
+                  />
                 </div>
 
                 {/* INFO ADICIONAL */}
@@ -285,7 +218,6 @@ const ProductoDetalle = () => {
                   <button
                     type="button"
                     onClick={abrirModalMetodosPago}
-
                     className="flex items-center justify-center gap-2 p-6 bg-blue-300/20 cursor-pointer text-blue-700 rounded-xl w-full hover:bg-blue-100 transition font-semibold"
                   >
                     <FaCreditCard className="w-5 h-5" />
@@ -349,7 +281,7 @@ const ProductoDetalle = () => {
       {/* MODAL MÉTODOS DE PAGO */}
       {modalMetodosPago && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-neutral-100 rounded-3xl  overflow-y-auto shadow-xl border border-gray-100">
+          <div className="bg-neutral-100 rounded-3xl overflow-y-auto shadow-xl border border-gray-100">
 
             {/* HEADER */}
             <div className="sticky top-0 bg-gray-100 border-b border-gray-200 p-6 flex items-center justify-between">
@@ -434,7 +366,6 @@ const ProductoDetalle = () => {
           </div>
         </div>
       )}
-        <Footer/>
     </>
   );
 };

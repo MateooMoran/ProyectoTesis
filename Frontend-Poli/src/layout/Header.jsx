@@ -9,7 +9,6 @@ import NotificacionesAdmin from '../pages/admin/Notificaciones';
 import { MessageCircle } from "lucide-react";
 import Chat from '../pages/chat/Chat'
 import storeCarrito from '../context/storeCarrito';
-import Favoritos from '../pages/productosGeneral/Favoritos'
 
 
 
@@ -108,7 +107,7 @@ const Header = () => {
 
                             <NotificacionesAdmin />}
 
-                        {(user?.rol === "estudiante" || user?.rol === null) && (
+                        {( rol === "estudiante" || rol === null) && (
                             <Link
                                 to={token ? "/dashboard/favoritos" : "/favoritos"}
                                 className="flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"
@@ -229,13 +228,6 @@ const Header = () => {
                                         )}
                                         {rol === 'estudiante' && (
                                             <>
-                                                <Link
-                                                    to="/dashboard/estudiante/carrito"
-                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
-                                                    onClick={() => setIsDropdownOpen(false)}
-                                                >
-                                                    Carrito
-                                                </Link>
                                                 <Link
                                                     to="/dashboard/estudiante/historial-pagos"
                                                     className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
