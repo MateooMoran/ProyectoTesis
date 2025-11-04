@@ -90,3 +90,20 @@ export const eliminarFavorito = async (req, res) => {
     res.status(500).json({ msg: "Error eliminando favorito", error: error.message });
   }
 };
+
+// Eliminar todos los favoritos
+export const eliminarTodosFavoritos = async (req, res) => {
+  try {
+    const estudianteId = req.estudianteBDD._id;
+    const estudiante = await Estudiante.findById(estudianteId);
+    if (!estudiante) {
+      return res.status(404).json({ msg: "Estudiante no encontrado" });
+    }
+    estudiante.favoritos = [];
+    await estudiante.save();
+    res.status(200).json({ msg: "Todos los favoritos han sido eliminados", favoritos: estudiante.favoritos });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Error eliminando favoritos", error: error.message });
+  }
+}

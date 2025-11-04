@@ -19,6 +19,8 @@ export const verProductos = async (req, res) => {
     const productos = await Producto.find({ estado: "disponible", stock: { $gt: 0 }, activo: true })
       .select('nombreProducto precio imagen stock categoria estado descripcion')
       .populate('categoria', 'nombreCategoria _id')
+      .populate({ path: "vendedor", select: "nombre apellido" })
+
       .sort({ createdAt: -1 });
 
     res.status(200).json(productos);

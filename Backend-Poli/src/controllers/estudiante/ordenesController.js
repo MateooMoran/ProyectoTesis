@@ -1,149 +1,252 @@
 import Orden from "../../models/Orden.js";
-import Carrito from "../../models/Carrito.js";
 import Producto from "../../models/Producto.js";
+import MetodoPagoVendedor from "../../models/MetodoPagoVendedor.js";
 import Notificacion from "../../models/Notificacion.js";
 import Stripe from 'stripe';
 import mongoose from "mongoose";
-import { sendMailOrdenCompra } from "../../config/nodemailer.js";
-import { generarYEnviarRecomendaciones } from "./recomendacionesController.js";
+import { v2 as cloudinary } from 'cloudinary';
+import { promises as fs } from 'fs';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
-// Verificar Stock
-const verificarStock = async (productos) => {
-  for (const item of productos) {
-    const producto = await Producto.findById(item.producto);
-    if (!producto || producto.stock < item.cantidad) {
-      throw new Error(`Stock insuficiente para ${producto?.nombreProducto || "producto no disponible"}`);
-    }
-  }
-};
 
 // Para crear notificaciones
 const crearNotificacion = async (usuario, mensaje, tipo) => {
   await Notificacion.create({ usuario, mensaje, tipo });
 };
 
-export const crearOrdenPendiente = async (req, res) => {
+// Crear orden (Compra directa)
+export const crearOrden = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    const { metodoPago } = req.body;
-    if (!["efectivo", "transferencia"].includes(metodoPago)) {
-      return res.status(400).json({ msg: "Método de pago inválido para orden pendiente" });
+    const { productoId, cantidad, metodoPagoVendedorId, lugarRetiro } = req.body;
+    
+    // Validar producto y stock
+    const producto = await Producto.findById(productoId);
+    if (!producto) {
+      return res.status(404).json({ msg: "Producto no encontrado" });
+    }
+    if (producto.stock < cantidad) {
+      return res.status(400).json({ msg: "Stock insuficiente" });
     }
 
-    const carrito = await Carrito.findOne({ comprador: req.estudianteBDD._id });
-    if (!carrito || carrito.productos.length === 0) {
-      return res.status(400).json({ msg: "El carrito está vacío" });
+    // Validar método de pago del vendedor
+    const metodoPago = await MetodoPagoVendedor.findOne({
+      _id: metodoPagoVendedorId,
+      vendedor: producto.vendedor
+    });
+    
+    if (!metodoPago) {
+      return res.status(400).json({ msg: "Método de pago inválido para este vendedor" });
     }
 
-    await verificarStock(carrito.productos);
-
-    for (const item of carrito.productos) {
-      const producto = await Producto.findById(item.producto);
-
-      const orden = new Orden({
-        comprador: req.estudianteBDD._id,
-        vendedor: producto.vendedor,
-        productos: [item],
-        total: item.subtotal,
-        estado: "pendiente",
-        metodoPago,
-      });
-
-      await orden.save({ session });
-
-      await crearNotificacion(
-        producto.vendedor,
-        `Tienes una nueva orden pendiente por ${item.cantidad} unidad(es) de "${producto.nombreProducto}"`,
-        "venta"
-      );
+    if (metodoPago.tipo === "retiro") {
+      if (!lugarRetiro) {
+        return res.status(400).json({ msg: "Debes seleccionar un lugar de retiro" });
+      }
+      
+      if (!metodoPago.lugares || !metodoPago.lugares.includes(lugarRetiro)) {
+        return res.status(400).json({ msg: "El lugar de retiro seleccionado no es válido" });
+      }
     }
 
-    await Carrito.findByIdAndDelete(carrito._id, { session });
+    const subtotal = parseFloat((producto.precio * cantidad).toFixed(2));
+    
+    const orden = new Orden({
+      comprador: req.estudianteBDD._id,
+      vendedor: producto.vendedor,
+      producto: producto._id,
+      cantidad,
+      precioUnitario: parseFloat(producto.precio.toFixed(2)),
+      subtotal,
+      total: subtotal,
+      metodoPagoVendedor: metodoPago._id,
+      lugarRetiroSeleccionado: lugarRetiro || null, 
+      estado: "pendiente_pago"
+    });
+
+    await orden.save({ session });
+
+    // Actualizar stock
+    producto.stock -= cantidad;
+    await producto.save({ session });
+
+    const mensajeNotificacion = lugarRetiro 
+      ? `Nueva orden de ${cantidad} unidad(es) de "${producto.nombreProducto}" - Retiro en: ${lugarRetiro}`
+      : `Nueva orden de ${cantidad} unidad(es) de "${producto.nombreProducto}"`;
+      
+    await crearNotificacion(
+      producto.vendedor,
+      mensajeNotificacion,
+      "venta"
+    );
+
     await session.commitTransaction();
-    res.status(200).json({ msg: "Orden creada con estado pendiente, máximo pagar en 12 horas." });
+    res.status(201).json({ 
+      msg: "Orden creada exitosamente", 
+      orden 
+    });
+
   } catch (error) {
     await session.abortTransaction();
-    console.error("Error creando orden pendiente:", error);
-    res.status(500).json({ msg: "Error creando orden pendiente", error: error.message });
+    console.error(error);
+    res.status(500).json({ msg: "Error creando orden", error: error.message });
   } finally {
     session.endSession();
   }
 };
 
-// Procesar pago con tarjeta
-export const procesarPago = async (req, res) => {
+// Subir comprobante de pago
+export const subirComprobante = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    const { paymentMethodId, metodoPago = "tarjeta" } = req.body;
-
-    if (metodoPago !== "tarjeta") {
-      return res.status(400).json({ msg: "Este endpoint es solo para pagos con tarjeta" });
+    const orden = await Orden.findById(req.params.id);
+    if (!orden) {
+      return res.status(404).json({ msg: "Orden no encontrada" });
+    }
+    if (!orden.comprador.equals(req.estudianteBDD._id)) {
+      return res.status(403).json({ msg: "No autorizado" });
+    }
+    if (orden.estado !== "pendiente_pago") {
+      return res.status(400).json({ msg: "La orden no está en estado pendiente de pago" });
     }
 
-    const carrito = await Carrito.findOne({ comprador: req.estudianteBDD._id })
-      .populate("productos.producto");
-
-    if (!carrito || carrito.productos.length === 0) {
-      return res.status(400).json({ msg: "El carrito está vacío" });
+    if (!req.files?.comprobante) {
+      return res.status(400).json({ msg: "Debe subir un comprobante de pago" });
     }
 
-    await verificarStock(carrito.productos);
+    const file = req.files.comprobante;
+    if (!file.mimetype.startsWith("image/")) {
+      if (file.tempFilePath) await fs.unlink(file.tempFilePath);
+      return res.status(400).json({ msg: "Solo se permiten archivos de imagen" });
+    }
 
-    const totalReal = carrito.productos.reduce((sum, item) => sum + item.subtotal, 0);
+    // Subir comprobante a Cloudinary
+    const { secure_url } = await cloudinary.uploader.upload(file.tempFilePath, {
+      folder: 'poli-market/comprobantes_pago'
+    });
+    
+    // Eliminar archivo temporal después de subir
+    if (file.tempFilePath) await fs.unlink(file.tempFilePath);
+    
+    orden.comprobantePago = secure_url;
+    orden.estado = "comprobante_subido";
+    orden.fechaComprobanteSubido = new Date();
+    await orden.save({ session });
+
+    // Notificar al vendedor
+    await crearNotificacion(
+      orden.vendedor,
+      `El comprador ha subido el comprobante de pago para la orden ${orden._id}`,
+      "venta"
+    );
+
+    await session.commitTransaction();
+    res.json({ msg: "Comprobante subido correctamente", orden });
+  } catch (error) {
+    if (req.files?.comprobante?.tempFilePath) {
+      await fs.unlink(req.files.comprobante.tempFilePath);
+    }
+    await session.abortTransaction();
+    res.status(500).json({ msg: "Error subiendo comprobante", error: error.message });
+  } finally {
+    session.endSession();
+  }
+};
+
+
+
+// Procesar pago con tarjeta
+export const procesarPagoTarjeta = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const { paymentMethodId, ordenId } = req.body;
+
+    const orden = await Orden.findById(ordenId);
+    if (!orden) {
+      return res.status(404).json({ msg: "Orden no encontrada" });
+    }
+    if (!orden.comprador.equals(req.estudianteBDD._id)) {
+      return res.status(403).json({ msg: "No autorizado" });
+    }
+    if (orden.estado !== "pendiente_pago") {
+      return res.status(400).json({ msg: "La orden no está en estado pendiente de pago" });
+    }
 
     // Crear pago con Stripe
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(totalReal * 100),
+      amount: Math.round(orden.total * 100),
       currency: "usd",
       payment_method: paymentMethodId,
       confirm: true,
       automatic_payment_methods: { enabled: true, allow_redirects: "never" },
-      metadata: { comprador: req.estudianteBDD._id.toString() },
+      metadata: { 
+        ordenId: orden._id.toString(),
+        comprador: req.estudianteBDD._id.toString() 
+      },
     });
 
-    const productosComprados = [];
+    orden.estado = "pago_confirmado_vendedor";
+    orden.confirmadoPagoVendedor = true;
+    orden.fechaPagoConfirmado = new Date();
+    await orden.save({ session });
 
-    for (const item of carrito.productos) {
-      const producto = await Producto.findById(item.producto._id);
-      if (!producto) continue;
+    // Notificar al vendedor (cambiar tipo a "venta")
+    await crearNotificacion(
+      orden.vendedor,
+      `Se ha procesado un pago con tarjeta para la orden ${orden._id}`,
+      "venta"
+    );
 
-      // Guardamos la info incluyendo imagen
-      productosComprados.push({
-        nombreProducto: producto.nombreProducto,
-        cantidad: item.cantidad,
-        precioUnitario: item.precioUnitario,
-        subtotal: item.subtotal,
-        imagen: producto.imagen || `${process.env.URL_FRONTEND}/default.jpg`, // fallback
-      });
+    await session.commitTransaction();
+    res.json({ 
+      msg: "Pago con tarjeta procesado correctamente", 
+      orden,
+      paymentIntent 
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    res.status(500).json({ msg: "Error procesando pago con tarjeta", error: error.message });
+  } finally {
+    session.endSession();
+  }
+};
 
-      const orden = new Orden({
-        comprador: req.estudianteBDD._id,
-        vendedor: producto.vendedor,
-        productos: [
-          {
-            producto: producto._id,
-            cantidad: item.cantidad,
-            precioUnitario: item.precioUnitario,
-            subtotal: item.subtotal,
-          },
-        ],
-        total: item.subtotal,
-        estado: "pagado",
-        metodoPago,
-      });
 
-      await orden.save({ session });
 
-      // Actualizar inventario
-      producto.stock -= item.cantidad;
-      producto.vendidos += item.cantidad;
+// Confirmar entrega por comprador
+export const confirmarEntrega = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
+  try {
+    const orden = await Orden.findById(req.params.id);
+    if (!orden) {
+      return res.status(404).json({ msg: "Orden no encontrada" });
+    }
+    if (!orden.comprador.equals(req.estudianteBDD._id)) {
+      return res.status(403).json({ msg: "No autorizado" });
+    }
+    if (orden.estado !== "pago_confirmado_vendedor") {
+      return res.status(400).json({ msg: "El vendedor aún no ha confirmado el pago" });
+    }
+
+    orden.estado = "completada";
+    orden.confirmadoEntregaComprador = true;
+    orden.fechaCompletada = new Date();
+    await orden.save({ session });
+
+    // Actualizar stock del producto
+    const producto = await Producto.findById(orden.producto);
+    if (producto) {
+      producto.stock -= orden.cantidad;
+      producto.vendidos += orden.cantidad;
+      
       if (producto.stock <= 0) {
         producto.estado = "no disponible";
         producto.activo = false;
@@ -153,180 +256,58 @@ export const procesarPago = async (req, res) => {
           "sistema"
         );
       }
-
       await producto.save({ session });
-
-      await crearNotificacion(
-        producto.vendedor,
-        `Has vendido ${item.cantidad} unidad(es) de "${producto.nombreProducto}"`,
-        "venta"
-      );
     }
 
-    // Eliminar carrito tras pago exitoso
-    await Carrito.findByIdAndDelete(carrito._id, { session });
-
-    await session.commitTransaction();
-
-    // Enviar correo de confirmación al comprador
-    await sendMailOrdenCompra(req.estudianteBDD.email, req.estudianteBDD.nombre, {
-      productos: productosComprados,
-      total: Number(totalReal), 
-      estado: "pagado",
-      metodoPago,
-    });
-
-    // Enviar recomendaciones en background
-    generarYEnviarRecomendaciones(req.estudianteBDD._id).catch(console.error);
-
-    return res.status(200).json({
-      msg: "Pago procesado correctamente",
-      paymentIntent,
-    });
-
-  } catch (error) {
-    if (session.inTransaction()) {
-      await session.abortTransaction();
-    }
-    console.error("Error procesando pago:", error);
-    return res.status(500).json({
-      msg: "Error procesando pago",
-      error: error.message,
-    });
-  } finally {
-    session.endSession();
-  }
-};
-
-
-
-// Cancelar orden individual
-export const cancelarOrden = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
-  try {
-    const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id))
-      return res.status(400).json({ msg: "ID de orden inválido" });
-
-    const orden = await Orden.findById(id);
-    if (!orden) return res.status(404).json({ msg: "Orden no encontrada" });
-    if (!orden.comprador.equals(req.estudianteBDD._id))
-      return res.status(403).json({ msg: "No autorizado para cancelar esta orden" });
-    if (orden.estado !== "pendiente")
-      return res.status(400).json({ msg: "Solo se pueden cancelar órdenes pendientes" });
-
-    for (const item of orden.productos) {
-      const producto = await Producto.findById(item.producto);
-      if (!producto) continue;
-
-      producto.stock += item.cantidad;
-      if (producto.stock > 0) {
-        producto.estado = "disponible";
-        producto.activo = true;
-      }
-      await producto.save({ session });
-
-      await crearNotificacion(
-        producto.vendedor,
-        `Se liberó el stock de "${producto.nombreProducto}" por cancelación manual de orden.`,
-        "sistema"
-      );
-    }
-
-    orden.estado = "cancelado";
-    await orden.save({ session });
-
+    // Notificar al vendedor
     await crearNotificacion(
-      orden.comprador,
-      `Tu orden con ID ${orden._id} ha sido cancelada.`,
-      "sistema"
+      orden.vendedor,
+      `El comprador ha confirmado la entrega de la orden ${orden._id}`,
+      "venta"
     );
 
     await session.commitTransaction();
-    res.status(200).json({ msg: "Orden cancelada correctamente", orden });
+    res.json({ msg: "Entrega confirmada correctamente", orden });
   } catch (error) {
     await session.abortTransaction();
-    console.error("Error cancelando orden:", error);
-    res.status(500).json({ msg: "Error cancelando orden", error: error.message });
+    res.status(500).json({ msg: "Error confirmando entrega", error: error.message });
   } finally {
     session.endSession();
   }
 };
 
-// Cancelar órdenes pendientes vencidas
-export const cancelarOrdenesVencidas = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
+// Cancelar orden
+export const cancelarOrden = async (req, res) => {
   try {
-    const ahora = new Date();
-    const hace12Horas = new Date(ahora.getTime() - 12 * 60 * 60 * 1000);
+    const orden = await Orden.findById(req.params.id);
+    if (!orden) {
+      return res.status(404).json({ msg: "Orden no encontrada" });
+    }
 
-    const ordenesPendientes = await Orden.find({
-      estado: "pendiente",
-      createdAt: { $lte: hace12Horas },
+    if (!orden.comprador.equals(req.estudianteBDD._id)) {
+      return res.status(403).json({ msg: "No autorizado" });
+    }
+
+    if (orden.estado !== "pendiente_pago") {
+      return res.status(400).json({ msg: "Solo se pueden cancelar órdenes en estado pendiente de pago" });
+    }
+
+    const canceladas = await Orden.countDocuments({
+      comprador: req.estudianteBDD._id,
+      estado: "cancelada"
     });
 
-    for (const orden of ordenesPendientes) {
-      for (const item of orden.productos) {
-        const producto = await Producto.findById(item.producto);
-        if (!producto) continue;
-
-        producto.stock += item.cantidad;
-        if (producto.stock > 0) {
-          producto.estado = "disponible";
-          producto.activo = true;
-        }
-        await producto.save({ session });
-
-        await crearNotificacion(
-          producto.vendedor,
-          `Se liberó el stock de "${producto.nombreProducto}" por vencimiento de orden.`,
-          "sistema"
-        );
-      }
-
-      orden.estado = "cancelado";
-      await orden.save({ session });
-
-      await crearNotificacion(
-        orden.comprador,
-        `Tu orden con ID ${orden._id} fue cancelada por no completarse en 12 horas.`,
-        "sistema"
-      );
+    if (canceladas >= 2) {
+      return res.status(400).json({ msg: "Has alcanzado el límite de 2 órdenes canceladas" });
     }
 
-    await session.commitTransaction();
+    // Cancelar la orden
+    orden.estado = "cancelada";
+    await orden.save();
 
-    if (res) {
-      res.status(200).json({
-        msg: `Órdenes vencidas canceladas correctamente: ${ordenesPendientes.length}`,
-      });
-    } else {
-      console.log(`Órdenes vencidas canceladas: ${ordenesPendientes.length}`);
-    }
+    res.json({ msg: "Orden cancelada correctamente", orden });
+
   } catch (error) {
-    await session.abortTransaction();
-    console.error("Error cancelando órdenes vencidas:", error);
-    if (res) {
-      res.status(500).json({ msg: "Error cancelando órdenes vencidas", error: error.message });
-    }
-  } finally {
-    session.endSession();
-  }
-};
-// Visualizar historial de pagos
-export const visualizarHistorialPagos = async (req, res) => {
-  try {
-    const historial = await Orden.find({ comprador: req.estudianteBDD._id })
-      .populate("productos.producto", "nombreProducto precio imagen")
-      .sort({ createdAt: -1 });
-
-    res.status(200).json(historial);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: "Error obteniendo historial de pagos", error: error.message });
+    res.status(500).json({ msg: "Error cancelando orden", error: error.message });
   }
 };
