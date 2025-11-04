@@ -28,9 +28,8 @@ export const validarTransferencia = [
 ];
 
 // Validación para EFECTIVO
-export const validarEfectivo = [
-  body("lugarRetiro")
-    .notEmpty().withMessage("Debe enviar al menos un lugar de retiro")
+export const validarLugarRetiro = [
+  body("lugares")
     .isArray({ min: 1 }).withMessage("Lugar de Retiro debe ser uno o más lugares")
     .custom(arr => {
       if (arr.length > 3) throw new Error("Solo puedes enviar un máximo de 3 lugares de retiro");
@@ -47,12 +46,6 @@ export const validarEfectivo = [
 
 
 
-// Validación de tipo
-export const validarTipo = [
-  param("tipo")
-    .notEmpty().withMessage("El tipo es obligatorio")
-    .isIn(["transferencia", "qr", "efectivo"]).withMessage('Tipo inválido ["transferencia", "qr", "efectivo"'),
-];
 
 export const validarArchivoImagen = (req, res, next) => {
   if (!req.files?.comprobante) {
