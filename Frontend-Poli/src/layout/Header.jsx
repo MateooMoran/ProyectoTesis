@@ -63,13 +63,24 @@ const Header = () => {
         navigate('/');
     };
 
+
     const handleSearch = (e) => {
         e.preventDefault();
+        const { token } = storeAuth(); 
+
         if (searchQuery.trim()) {
-            navigate(`/productos/buscar?query=${encodeURIComponent(searchQuery.trim())}`);
+            const query = encodeURIComponent(searchQuery.trim());
+
+            if (token) {
+                navigate(`/dashboard/productos/buscar?query=${query}`);
+            } else {
+                navigate(`/productos/buscar?query=${query}`);
+            }
+
             setSearchQuery('');
         }
     };
+
 
     const scrollToCarousel = () => {
         navigate('/');
@@ -103,14 +114,12 @@ const Header = () => {
 
                     {/* Botones */}
                     <div className="flex items-center gap-2 flex-col sm:flex-row w-full sm:w-auto">
-                        {(rol === 'estudiante' || rol === 'admin' || rol === 'vendedor' || rol === null) &&
-
+                        {(rol === 'estudiante' || rol === 'admin' || rol === 'vendedor') &&
                             <NotificacionesAdmin />}
-
-                        {( rol === "estudiante" || rol === null) && (
+                        {(rol === "estudiante" || rol === null) && (
                             <Link
                                 to={token ? "/dashboard/favoritos" : "/favoritos"}
-                                className="flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"
+                                className="z-50  flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"
                             >
                                 <Heart className="w-5 h-5" />
                                 Favoritos

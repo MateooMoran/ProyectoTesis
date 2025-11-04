@@ -55,7 +55,7 @@ const Productos = () => {
       <Header />
       <div className="mt-24 md:mt-5"></div>
       <Carrusel />
-      <main className="bg-white py-1">
+      <main className="bg-blue-50 py-1">
         <div className="container mx-auto px-4">
           {/* CARRUSEL DE CATEGORÍAS */}
           <CarruselCategorias
