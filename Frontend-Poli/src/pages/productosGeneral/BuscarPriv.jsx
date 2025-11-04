@@ -8,6 +8,8 @@ import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
+const placeholderImage = '/placeholder.png';
+
 // FLECHAS PERSONALIZADAS
 const SamplePrevArrow = (props) => {
     const { className, style, onClick } = props;
@@ -28,6 +30,7 @@ const SampleNextArrow = (props) => {
         />
     );
 };
+
 const BuscarPriv = () => {
     const [searchParams] = useSearchParams();
     const query = searchParams.get('query') || '';
@@ -36,7 +39,7 @@ const BuscarPriv = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // ✅ CONFIGURACIÓN CARRUSEL (EXACTA)
+    // CONFIGURACIÓN CARRUSEL
     const settings = {
         dots: false,
         infinite: productos.length > 4,
@@ -54,29 +57,57 @@ const BuscarPriv = () => {
             { breakpoint: 1280, settings: { slidesToShow: 4 } },
             { breakpoint: 1024, settings: { slidesToShow: 3 } },
             { breakpoint: 768, settings: { slidesToShow: 2 } },
-            { breakpoint: 640, settings: { slidesToShow: 1 } }
-        ]
+            { breakpoint: 640, settings: { slidesToShow: 1 } },
+        ],
     };
 
     useEffect(() => {
         const fetchProductosBuscados = async () => {
+            console.log('🔎 Iniciando búsqueda de productos...');
+            console.log('📦 Query recibido desde URL:', query);
+
+            if (!query.trim()) {
+                console.warn('⚠️ Query vacío, no se realiza la búsqueda.');
+                return;
+            }
+
             setLoading(true);
             setError(null);
+
+            const endpoint = `${import.meta.env.VITE_BACKEND_URL}/estudiante/productos/buscar?query=${encodeURIComponent(query)}`;
+            console.log('🌐 URL solicitada al backend:', endpoint);
+
             try {
-                const response = await fetchDataBackend(`${import.meta.env.VITE_BACKEND_URL}/estudiante/productos/buscar?query=${encodeURIComponent(query)}`, {
-                    method: 'GET',
-                });
-                console.log('Productos buscados:', response);
-                setProductos(response);
+                const response = await fetchDataBackend(endpoint, { method: 'GET' });
+                console.log('✅ Respuesta completa del backend:', response);
+
+                if (!response) {
+                    console.error('❌ No se recibió respuesta del backend.');
+                    setError('No se obtuvo respuesta del servidor.');
+                    return;
+                }
+
+                if (Array.isArray(response)) {
+                    console.log(`📊 Se recibieron ${response.length} productos.`);
+                    setProductos(response);
+                } else if (response.data && Array.isArray(response.data)) {
+                    console.log(`📊 Se recibieron ${response.data.length} productos en response.data.`);
+                    setProductos(response.data);
+                } else {
+                    console.warn('⚠️ La respuesta no tiene el formato esperado:', response);
+                    setProductos([]);
+                }
+
             } catch (err) {
+                console.error('💥 Error en fetchProductosBuscados:', err);
                 setError(err.message || 'Error al buscar productos');
             } finally {
                 setLoading(false);
+                console.log('🕓 Finalizó búsqueda.');
             }
         };
-        if (query.trim()) {
-            fetchProductosBuscados();
-        }
+
+        fetchProductosBuscados();
     }, [query]);
 
     const handleClickProducto = (producto) => {
@@ -86,7 +117,7 @@ const BuscarPriv = () => {
     return (
         <>
             <Header />
-            <div className="h-10 sm:h-7 mb-6" />
+            <div className="h-15 sm:h-7 mb-6" />
 
             {/* 🔥 DISEÑO EXACTO QUE PEDISTE */}
             <section className="py-10 bg-blue-50">
@@ -108,7 +139,7 @@ const BuscarPriv = () => {
                                         <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 p-4">
                                             {/* IMAGEN + STOCK ARRIBA DERECHA */}
                                             <div className="relative mb-3">
-                                                <Link to={`/productos/${producto._id}`} className="block">
+                                                <Link to={`/dashboard//productos/${producto._id}`} className="block">
                                                     <img
                                                         src={producto.imagen || placeholderImage}
                                                         alt={producto.nombreProducto}
@@ -126,7 +157,7 @@ const BuscarPriv = () => {
 
                                             {/* Nombre (link) */}
                                             <Link
-                                                to={`/productos/${producto._id}`}
+                                                to={`/dashboard/productos/${producto._id}`}
                                                 className="block mb-3 hover:text-blue-600 transition-colors"
                                                 onClick={() => handleClickProducto(producto)}
                                             >
@@ -146,7 +177,7 @@ const BuscarPriv = () => {
                                             {/* BOTONES */}
                                             <div className="flex gap-2 mb-3">
                                                 <Link
-                                                    to={`/productos/${producto._id}`}
+                                                    to={`/carrito/vacio`}
                                                     className="flex-1 bg-blue-800 hover:bg-blue-900 text-white text-sm font-semibold py-2 px-3 rounded-md flex items-center justify-center gap-1 hover:scale-105 transition-all duration-300"
                                                     onClick={(e) => {
                                                         e.preventDefault();
@@ -156,7 +187,7 @@ const BuscarPriv = () => {
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 3.5A2 2 0 006.5 17h11a2 2 0 001.6-1.5l-1.5-3.5" />
                                                     </svg>
-                                                    Añadir al Carrito
+                                                    Proceder al Pago
                                                 </Link>
 
                                                 <button
@@ -179,8 +210,6 @@ const BuscarPriv = () => {
                     )}
                 </div>
             </section>
-
-            <Footer />
         </>
     );
 };
