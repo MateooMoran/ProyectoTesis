@@ -147,3 +147,4 @@ export const eliminarMetodoPago = async (req, res) => {
     res.status(500).json({ msg: "Error al eliminar método de pago"});
   }
 };
+

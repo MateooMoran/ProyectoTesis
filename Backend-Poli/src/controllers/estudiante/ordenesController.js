@@ -21,7 +21,7 @@ export const crearOrden = async (req, res) => {
 
   try {
     const { productoId, cantidad, metodoPagoVendedorId, lugarRetiro } = req.body;
-    
+
     // Validar producto y stock
     const producto = await Producto.findById(productoId);
     if (!producto) {
@@ -36,7 +36,7 @@ export const crearOrden = async (req, res) => {
       _id: metodoPagoVendedorId,
       vendedor: producto.vendedor
     });
-    
+
     if (!metodoPago) {
       return res.status(400).json({ msg: "Método de pago inválido para este vendedor" });
     }
@@ -45,14 +45,14 @@ export const crearOrden = async (req, res) => {
       if (!lugarRetiro) {
         return res.status(400).json({ msg: "Debes seleccionar un lugar de retiro" });
       }
-      
+
       if (!metodoPago.lugares || !metodoPago.lugares.includes(lugarRetiro)) {
         return res.status(400).json({ msg: "El lugar de retiro seleccionado no es válido" });
       }
     }
 
     const subtotal = parseFloat((producto.precio * cantidad).toFixed(2));
-    
+
     const orden = new Orden({
       comprador: req.estudianteBDD._id,
       vendedor: producto.vendedor,
@@ -62,7 +62,7 @@ export const crearOrden = async (req, res) => {
       subtotal,
       total: subtotal,
       metodoPagoVendedor: metodoPago._id,
-      lugarRetiroSeleccionado: lugarRetiro || null, 
+      lugarRetiroSeleccionado: lugarRetiro || null,
       estado: "pendiente_pago"
     });
 
@@ -72,10 +72,10 @@ export const crearOrden = async (req, res) => {
     producto.stock -= cantidad;
     await producto.save({ session });
 
-    const mensajeNotificacion = lugarRetiro 
+    const mensajeNotificacion = lugarRetiro
       ? `Nueva orden de ${cantidad} unidad(es) de "${producto.nombreProducto}" - Retiro en: ${lugarRetiro}`
       : `Nueva orden de ${cantidad} unidad(es) de "${producto.nombreProducto}"`;
-      
+
     await crearNotificacion(
       producto.vendedor,
       mensajeNotificacion,
@@ -83,9 +83,9 @@ export const crearOrden = async (req, res) => {
     );
 
     await session.commitTransaction();
-    res.status(201).json({ 
-      msg: "Orden creada exitosamente", 
-      orden 
+    res.status(201).json({
+      msg: "Orden creada exitosamente",
+      orden
     });
 
   } catch (error) {
@@ -128,10 +128,10 @@ export const subirComprobante = async (req, res) => {
     const { secure_url } = await cloudinary.uploader.upload(file.tempFilePath, {
       folder: 'poli-market/comprobantes_pago'
     });
-    
+
     // Eliminar archivo temporal después de subir
     if (file.tempFilePath) await fs.unlink(file.tempFilePath);
-    
+
     orden.comprobantePago = secure_url;
     orden.estado = "comprobante_subido";
     orden.fechaComprobanteSubido = new Date();
@@ -185,9 +185,9 @@ export const procesarPagoTarjeta = async (req, res) => {
       payment_method: paymentMethodId,
       confirm: true,
       automatic_payment_methods: { enabled: true, allow_redirects: "never" },
-      metadata: { 
+      metadata: {
         ordenId: orden._id.toString(),
-        comprador: req.estudianteBDD._id.toString() 
+        comprador: req.estudianteBDD._id.toString()
       },
     });
 
@@ -204,10 +204,10 @@ export const procesarPagoTarjeta = async (req, res) => {
     );
 
     await session.commitTransaction();
-    res.json({ 
-      msg: "Pago con tarjeta procesado correctamente", 
+    res.json({
+      msg: "Pago con tarjeta procesado correctamente",
       orden,
-      paymentIntent 
+      paymentIntent
     });
   } catch (error) {
     await session.abortTransaction();
@@ -246,7 +246,7 @@ export const confirmarEntrega = async (req, res) => {
     if (producto) {
       producto.stock -= orden.cantidad;
       producto.vendidos += orden.cantidad;
-      
+
       if (producto.stock <= 0) {
         producto.estado = "no disponible";
         producto.activo = false;
@@ -309,5 +309,37 @@ export const cancelarOrden = async (req, res) => {
 
   } catch (error) {
     res.status(500).json({ msg: "Error cancelando orden", error: error.message });
+  }
+};
+
+export const verOrdenes = async (req, res) => {
+  try {
+    if (!req.estudianteBDD || !req.estudianteBDD._id) {
+      return res.status(401).json({ msg: "Usuario no autenticado" });
+    }
+
+    const ordenes = await Orden.find({ comprador: req.estudianteBDD._id })
+      .populate({
+        path: "producto",
+        select: "nombreProducto precio stock descripcion categoria estado activo vendidos imagen",
+      })
+      .populate({
+        path: "metodoPagoVendedor",
+        select: "tipo banco numeroCuenta titular",
+      })
+      .populate({
+        path: "comprador",
+        select: "nombre apellido email",
+      })
+      .populate({
+        path: "vendedor",
+        select: "nombre apellido email",
+      })
+      .lean();
+
+    res.status(200).json(ordenes);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Error obteniendo órdenes", error: error.message });
   }
 };
