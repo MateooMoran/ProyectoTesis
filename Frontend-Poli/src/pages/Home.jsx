@@ -39,10 +39,9 @@ export const Home = () => {
   const handleAgregarAlCarrito = (producto, cantidad = 1) => {
     agregarProducto(producto._id, cantidad);
     if (!token) {
-      navigate(`/carrito/vacio`);
+      navigate(`/carrito/proceso-pago`);
     } else {
       navigate(`/dashboard/productos/${producto._id}`);
-      toast.success(`Producto ${producto.nombreProducto} agregado al carrito`);
     }
   };
 

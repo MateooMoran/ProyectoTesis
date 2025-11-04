@@ -188,14 +188,14 @@ const OrdenPendiente = () => {
                 <div className={`rounded-full w-8 h-8 flex items-center justify-center ${currentStep >= 1 ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'}`}>
                     1
                 </div>
-                <span className="ml-2 text-lg font-medium">Carrito</span>
+                <span className="ml-2 text-lg font-medium">Detalles de compra</span>
             </div>
             <hr className="flex-1 mx-4 border-t border-gray-300" />
             <div className="flex items-center">
                 <div className={`rounded-full w-8 h-8 flex items-center justify-center ${currentStep >= 2 ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'}`}>
                     2
                 </div>
-                <span className="ml-2 text-lg font-medium">Datos facturación y envío</span>
+                <span className="ml-2 text-lg font-medium">Datos, facturación y envío</span>
             </div>
             <hr className="flex-1 mx-4 border-t border-gray-300" />
             <div className="flex items-center">

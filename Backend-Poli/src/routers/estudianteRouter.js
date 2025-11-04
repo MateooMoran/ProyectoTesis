@@ -3,7 +3,11 @@ import { verifyTokenJWT } from "../middlewares/JWT.js";
 import { esEstudiante, esEstudianteOrVendedor } from "../middlewares/roles.js";
 import { buscarProductos, verProductoPorId, verProductosPorCategoria, verCategorias, verProductos } from "../controllers/estudiante/categoriaProductoController.js";
 import { eliminarFavorito, eliminarTodosFavoritos, seleccionarFavorito, verFavoritos } from "../controllers/estudiante/favoritosController.js";
+<<<<<<< HEAD
 import { crearOrden, subirComprobante, procesarPagoTarjeta,confirmarEntrega} from "../controllers/estudiante/ordenesController.js";
+=======
+import { crearOrden, subirComprobante, procesarPagoTarjeta,confirmarEntrega, verOrdenes} from "../controllers/estudiante/ordenesController.js";
+>>>>>>> c0edcfe1c1985dfaada7d979b8075f13d4409641
 import { crearQuejasSugerencias, eliminarQuejaSugerencia, visualizarQuejasSugerencias } from "../controllers/estudiante/quejasController.js";
 import handleValidationErrors from "../middlewares/handleValidationErrors.js";
 import { quejasValidations } from "../validations/validatorQuejas.js";
@@ -27,7 +31,11 @@ router.post('/estudiante/orden', verifyTokenJWT, esEstudiante, crearOrden);
 router.post('/estudiante/orden/:id/comprobante', verifyTokenJWT, esEstudiante, subirComprobante);
 router.post('/estudiante/orden/pago-tarjeta', verifyTokenJWT, esEstudiante, procesarPagoTarjeta);
 router.put('/estudiante/orden/:id/confirmar-entrega', verifyTokenJWT, esEstudiante, confirmarEntrega);
+<<<<<<< HEAD
 
+=======
+router.get('/estudiante/historial-pagos', verifyTokenJWT,esEstudiante,verOrdenes)
+>>>>>>> c0edcfe1c1985dfaada7d979b8075f13d4409641
 
 // QUEJAS - SUGERENCIAS
 router.post('/estudiante/quejas-sugerencias', verifyTokenJWT, esEstudianteOrVendedor, quejasValidations, handleValidationErrors, crearQuejasSugerencias)

@@ -37,8 +37,8 @@ const ProductoDetalle = () => {
 
   const handleAgregarAlCarrito = () => {
     agregarProducto(producto._id, cantidad);
-    if (!token) navigate('/carrito/procesopago');
-    else navigate(`/dashboard/productos/${producto._id}`);
+    if (!token) navigate('/carrito/proceso-pago');
+    else navigate(`/dashboard/orden-pendiente`);
   };
 
   const toggle3D = () => setVer3D(!ver3D);
@@ -118,7 +118,7 @@ const ProductoDetalle = () => {
   return (
     <>
       <Header />
-      <div className="mt-40 md:mt-15"></div>
+      <div className="mt-40 md:mt-19"></div>
       <div className="min-h-screen bg-gray-50 mt-24 md:mt-10">
         <section className="py-3 sm:pb-8 bg-blue-50">
           <div className="max-w-7xl mx-auto px-4">
@@ -205,7 +205,7 @@ const ProductoDetalle = () => {
                   </button>
 
                   {/* ❤️ BOTÓN FAVORITO REUTILIZABLE */}
-                  <BotonFavorito 
+                  <BotonFavorito
                     productoId={producto._id}
                     variant="icon"
                     size="lg"
@@ -366,6 +366,7 @@ const ProductoDetalle = () => {
           </div>
         </div>
       )}
+      {!token && <Footer />}
     </>
   );
 };

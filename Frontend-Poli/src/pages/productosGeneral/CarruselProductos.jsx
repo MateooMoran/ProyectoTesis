@@ -110,7 +110,6 @@ const ProductCarousel = ({
     return (
         <section className={className}>
             <h3 className="text-2xl font-semibold text-gray-700 text-center mb-6">{title}</h3>
-
             {loading && <p className="text-center text-gray-700">Cargando productos...</p>}
             {error && <p className="text-center text-red-700">{error}</p>}
             {!loading && !error && productos.length === 0 && (
@@ -156,13 +155,13 @@ const ProductCarousel = ({
 
                                         <div className="flex gap-2 mb-3">
                                             <Link
-                                                to="/carrito/vacio"
+                                                to="/carrito/proceso-pago"
                                                 className="flex-1 bg-blue-800 hover:bg-blue-900 text-white text-sm font-semibold py-2 px-3 rounded-md flex items-center justify-center gap-1 hover:scale-105 transition-all duration-300"
                                             >
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 3.5A2 2 0 006.5 17h11a2 2 0 001.6-1.5l-1.5-3.5" />
                                                 </svg>
-                                                Añadir al Carrito
+                                                Proceder al Pago
                                             </Link>
 
                                             <button

@@ -86,7 +86,7 @@ const Perfil = () => {
     <>
       <ToastContainer />
       <Header />
-
+      <div className="mt-24 md:mt-8"></div>
       <main className="py-10 bg-blue-50 min-h-screen">
         <div className="max-w-7xl mx-auto px-4">
           {/* TÍTULO */}

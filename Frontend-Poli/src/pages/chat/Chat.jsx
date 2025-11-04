@@ -99,7 +99,7 @@ export default function ChatWindow({ onClose, showBadge = true }) {
 
     const marcarComoLeida = async () => {
       try {
-        const res = await fetch(`${API_URL}/chat/conversacion/${roomId}/leer`, {
+        const res = await fetch(`${API_URL}/conversacion/${roomId}/leer`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,

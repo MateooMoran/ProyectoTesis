@@ -69,7 +69,7 @@ function App() {
           <Route path="confirm/:token" element={<Confirm />} />
           <Route path="reset/:token" element={<Reset />} />
           <Route path="productos/categoria/:id" element={<CategoriaProductos />} />
-          <Route path="carrito/procesopago" element={<PrePagoProceso />} />
+          <Route path="carrito/proceso-pago" element={<PrePagoProceso />} />
           <Route path="productos/:id" element={<ProductoDetalle />} />
           <Route path="auth/callback" element={<AuthCallback />} />
           <Route path="productos/buscar" element={<ProductoBuscado />} />

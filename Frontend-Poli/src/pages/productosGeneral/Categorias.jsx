@@ -221,7 +221,7 @@ const CategoriaProductos = () => {
                             <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 3.5A2 2 0 006.5 17h11a2 2 0 001.6-1.5l-1.5-3.5" />
                             </svg>
-                            <span className="hidden sm:inline">Carrito</span>
+                            <span className="hidden sm:inline">Proceder al Pago</span>
                           </button>
 
                           <button
