@@ -118,9 +118,9 @@ const ProductoDetalle = () => {
   return (
     <>
       <Header />
-      <div className="mt-40 md:mt-25"></div>
+      <div className="mt-40 md:mt-15"></div>
       <div className="min-h-screen bg-gray-50 mt-24 md:mt-10">
-        <section className="py-3 sm:pb-8 bg-white">
+        <section className="py-3 sm:pb-8 bg-blue-50">
           <div className="max-w-7xl mx-auto px-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 
