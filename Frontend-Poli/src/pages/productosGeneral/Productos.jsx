@@ -7,6 +7,9 @@ import storeProductos from '../../context/storeProductos';
 import Carrusel from '../../layout/CarruselBanner';
 import CarruselProductos from '../productosGeneral/CarruselProductos';
 import CarruselCategorias from '../productosGeneral/CarruselCategorias';
+import Header from '../../layout/Header';
+import Footer from '../../layout/Footer';
+
 
 const Productos = () => {
   const navigate = useNavigate();
@@ -49,6 +52,8 @@ const Productos = () => {
 
   return (
     <>
+      <Header />
+      <div className="mt-24 md:mt-5"></div>
       <Carrusel />
       <main className="bg-white py-1">
         <div className="container mx-auto px-4">

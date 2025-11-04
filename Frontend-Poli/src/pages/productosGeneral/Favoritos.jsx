@@ -1,21 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
-import storeAuth from '../../context/storeAuth';
-import storeProductos from '../../context/storeProductos';
-import useFetch from '../../hooks/useFetch';
 import Header from '../../layout/Header';
 import Footer from '../../layout/Footer';
 import { FaHeart, FaTrash, FaEye } from 'react-icons/fa';
+import useFavoritos from '../../hooks/useFavoritos';
+import storeProductos from '../../context/storeProductos';
+import storeAuth from '../../context/storeAuth';
 
 const Favoritos = () => {
-    const [favoritos, setFavoritos] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const { token } = storeAuth();
-    const { fetchDataBackend } = useFetch();
-    const { productos, fetchProductos } = storeProductos();
     const navigate = useNavigate();
+    const { productos, fetchProductos } = storeProductos();
+    const { token } = storeAuth();
+    const { 
+        favoritos, 
+        favoritosIds,
+        loading, 
+        eliminarFavorito, 
+        vaciarFavoritos,
+        recargarFavoritos 
+    } = useFavoritos();
+
+    const [productosFavoritos, setProductosFavoritos] = useState([]);
 
     useEffect(() => {
         const loadProductos = async () => {
@@ -24,92 +29,49 @@ const Favoritos = () => {
             }
         };
         loadProductos();
-    }, [fetchProductos]);
+    }, [fetchProductos, productos.length]);
 
+    // Solo recargar favoritos cuando el componente se monta
     useEffect(() => {
-        const fetchFavoritos = async () => {
-            setLoading(true);
-            try {
-                if (token) {
-                    // Usuario autenticado → traer desde backend
-                    const data = await fetchDataBackend(`${import.meta.env.VITE_BACKEND_URL}/estudiante/favoritos`, {
-                        method: 'GET',
-                        config: { headers: { Authorization: `Bearer ${token}` } }
-                    });
-                    setFavoritos(data.favoritos || []);
-                } else {
-                    // Usuario sin sesión → traer desde localStorage
-                    const localFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
-                    const favProducts = productos.filter(p => localFavs.includes(p._id));
-                    setFavoritos(favProducts);
-                }
-            } catch (err) {
-                setError('Error al cargar favoritos');
-            } finally {
-                setLoading(false);
-            }
-        };
+        recargarFavoritos();
+    }, []); // Array vacío - solo al montar
 
-        // ✅ Ejecutar solo cuando haya usuario autenticado o productos listos
-        if (token || (!token && productos.length > 0)) {
-            fetchFavoritos();
-        }
-
-        // 🚨 No pongas `productos` ni `fetchDataBackend` como dependencias,
-        // ya que cambian en cada render y causan el bucle infinito.
-    }, []);
-
-    const handleRemoveFavorite = async (productoId) => {
+    // Combinar favoritos del backend o localStorage con productos completos
+    useEffect(() => {
         if (token) {
-            try {
-                await fetchDataBackend(`${import.meta.env.VITE_BACKEND_URL}/estudiante/favorito/${productoId}`, {
-                    method: 'DELETE',
-                    config: { headers: { Authorization: `Bearer ${token}` } }
-                });
-                setFavoritos(favoritos.filter(fav => fav._id !== productoId));
-                toast.success('Producto removido de favoritos');
-            } catch (err) {
-                // Error manejado por useFetch
-            }
+            // Usuario autenticado: usar favoritos del backend (ya vienen con datos completos)
+            console.log('✅ Usuario autenticado, favoritos del backend:', favoritos);
+            setProductosFavoritos(favoritos);
         } else {
-            let localFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
-            localFavs = localFavs.filter(id => id !== productoId);
-            localStorage.setItem('favorites', JSON.stringify(localFavs));
-            setFavoritos(favoritos.filter(fav => fav._id !== productoId));
-            toast.success('Producto removido de favoritos');
-        }
-    };
-
-    const handleVaciarFavoritos = async () => {
-        if (token) {
-            // Si hay una ruta en el backend para vaciar todos los favoritos
-            try {
-                // await fetchDataBackend(`${import.meta.env.VITE_BACKEND_URL}/estudiante/favoritos`, {
-                //     method: 'DELETE',
-                //     config: { headers: { Authorization: `Bearer ${token}` } }
-                // });
-                setFavoritos([]);
-                toast.success('Favoritos vaciados');
-            } catch (err) {
-                // Error manejado por useFetch
+            // Usuario sin autenticación: combinar IDs de localStorage con productos
+            if (productos.length > 0) {
+                const favIds = Array.from(favoritosIds);
+                const productosFiltrados = productos.filter(p => favIds.includes(p._id));
+                console.log('🔄 IDs de favoritos:', favIds);
+                console.log('🔄 Productos totales disponibles:', productos.length);
+                console.log('🔄 Productos favoritos encontrados:', productosFiltrados);
+                setProductosFavoritos(productosFiltrados);
             }
-        } else {
-            localStorage.removeItem('favorites');
-            setFavoritos([]);
-            toast.success('Favoritos vaciados');
         }
-    };
+    }, [favoritos, favoritosIds, productos, token]);
 
-    if (loading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><p className="text-gray-500 text-lg">Cargando favoritos...</p></div>;
-    if (error) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><p className="text-red-600 text-lg">{error}</p></div>;
+    if (loading && productos.length === 0) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <p className="text-gray-500 text-lg">Cargando favoritos...</p>
+            </div>
+        );
+    }
 
     return (
         <>
+            <Header />
+            <div className="mt-24 md:mt-2"></div>
             <div className="pt-20 min-h-screen bg-gray-50">
                 <div className="max-w-7xl mx-auto px-4 py-8">
                     <h1 className="text-3xl font-bold text-gray-700 mb-8">Mis Favoritos</h1>
 
-                    {favoritos.length === 0 ? (
+                    {productosFavoritos.length === 0 ? (
                         <div className="text-center text-gray-600 py-12">
                             <FaHeart className="w-16 h-16 mx-auto mb-4 text-red-300" />
                             <p className="text-lg mb-4">No tienes productos en favoritos.</p>
@@ -128,8 +90,11 @@ const Favoritos = () => {
 
                                 {/* Contenido de la tabla */}
                                 <div className="divide-y divide-gray-200">
-                                    {favoritos.map((producto) => (
-                                        <div key={producto._id} className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gray-50 transition-colors">
+                                    {productosFavoritos.map((producto) => (
+                                        <div 
+                                            key={producto._id} 
+                                            className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gray-50 transition-colors"
+                                        >
                                             {/* Columna Producto */}
                                             <div className="col-span-6 flex items-center gap-4">
                                                 <img
@@ -146,9 +111,10 @@ const Favoritos = () => {
                                                     </p>
                                                 </div>
                                             </div>
+
                                             {/* Columna Estado */}
                                             <div className="col-span-3 flex justify-center">
-                                                {producto.stock > 0 ? (
+                                                {producto.estado === 'disponible' ? (
                                                     <span className="bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm font-medium">
                                                         DISPONIBLE
                                                     </span>
@@ -169,7 +135,7 @@ const Favoritos = () => {
                                                     <FaEye className="w-4 h-4" />
                                                 </button>
                                                 <button
-                                                    onClick={() => handleRemoveFavorite(producto._id)}
+                                                    onClick={() => eliminarFavorito(producto._id)}
                                                     className="bg-red-800 hover:bg-red-900 text-white p-2 rounded-full transition-colors"
                                                     title="Eliminar de favoritos"
                                                 >
@@ -190,7 +156,7 @@ const Favoritos = () => {
                                     Continuar comprando
                                 </button>
                                 <button
-                                    onClick={handleVaciarFavoritos}
+                                    onClick={vaciarFavoritos}
                                     className="bg-red-800 hover:bg-red-900 text-white px-6 py-3 rounded-lg font-medium transition-colors"
                                 >
                                     Vaciar favoritos
