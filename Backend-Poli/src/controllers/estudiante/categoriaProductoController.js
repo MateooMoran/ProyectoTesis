@@ -19,8 +19,7 @@ export const verProductos = async (req, res) => {
     const productos = await Producto.find({ estado: "disponible", stock: { $gt: 0 }, activo: true })
       .select('nombreProducto precio imagen stock categoria estado descripcion')
       .populate('categoria', 'nombreCategoria _id')
-      .populate({ path: "vendedor", select: "nombre apellido" })
-
+      .populate({ path: "vendedor", select: "_id nombre apellido" })
       .sort({ createdAt: -1 });
 
     res.status(200).json(productos);
@@ -39,8 +38,9 @@ export const verProductoPorId = async (req, res) => {
 
     const producto = await Producto.findOne({ _id: id, estado: "disponible", stock: { $gt: 0 }, activo: true })
       .populate('categoria', 'nombreCategoria _id')
-      .populate({ path: "vendedor", select: "nombre apellido" })
+      .populate({ path: "vendedor", select: "_id nombre apellido" })
       .select("-createdAt -updatedAt -__v");
+  
 
     if (!producto) return res.status(404).json({ msg: "Producto no encontrado o sin stock" });
     res.status(200).json(producto);
@@ -90,6 +90,7 @@ export const verProductosPorCategoria = async (req, res) => {
     })
       .select('nombreProducto precio imagen stock categoria estado descripcion')
       .populate('categoria', 'nombreCategoria _id')
+      .populate({ path: "vendedor", select: "_id nombre apellido" })
       .sort({ createdAt: -1 });
 
     res.status(200).json(productos);

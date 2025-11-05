@@ -110,15 +110,18 @@ export const visualizarMetodosPago = async (req, res) => {
       filtro.tipo = tipo;
     }
 
+
     const metodos = await MetodoPagoVendedor.find(filtro)
       .select("-vendedor -createdAt -updatedAt -__v");
 
-    if (metodos.length === 0)
+
+    if (metodos.length === 0) {
       return res.status(404).json({ msg: "No se encontraron métodos de pago" });
+    }
 
     res.json({ metodos });
   } catch (error) {
-    console.error("Error:", error);
+    console.error(error);
     res.status(500).json({ msg: "Error del servidor" });
   }
 };

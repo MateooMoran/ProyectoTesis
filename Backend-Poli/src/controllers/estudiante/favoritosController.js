@@ -46,7 +46,7 @@ export const verFavoritos = async (req, res) => {
 
     const estudiante = await Estudiante.findById(estudianteId).populate({
       path: "favoritos", 
-      select: "_id nombreProducto descripcion categoria estado imagen"
+      select: "_id nombreProducto descripcion categoria estado imagen precio"
     });
 
     if (!estudiante) {

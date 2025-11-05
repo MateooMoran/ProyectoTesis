@@ -138,16 +138,20 @@ export const Paso3MetodoPago = ({
                 Elige tu Método de Pago
             </h2>
 
-            {metodosPago.length === 0 ? (
+            {metodosPago.filter(m => m.tipo !== 'retiro').length === 0 ? (
                 <div className="text-center py-12">
                     <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">Métodos de pago no disponibles</h3>
                     <p className="text-gray-600 mb-2">Este vendedor aún no ha configurado métodos de pago.</p>
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="mt-4 text-blue-600 hover:underline"
-                    >
-                        Volver al producto
-                    </button>
+                    <p className="text-sm text-gray-500 mb-4">Por favor, contacta al vendedor o selecciona otro producto.</p>
+                    <div className="flex gap-3 justify-center mt-6">
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+                        >
+                            Volver al producto
+                        </button>
+                    </div>
                 </div>
             ) : (
                 <div className="space-y-4 mb-6">

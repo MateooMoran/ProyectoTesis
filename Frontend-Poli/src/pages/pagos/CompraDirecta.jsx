@@ -221,25 +221,37 @@ const CompraDirecta = () => {
                 console.log(dataProducto)
                 setProducto(dataProducto);
 
-                // Cargar métodos de pago del vendedor del producto
+                // Cargar métodos de pago del vendedor específico del producto
                 if (dataProducto?.vendedor?._id) {
+
                     try {
                         const responseMetodos = await fetchDataBackend(
                             `${import.meta.env.VITE_BACKEND_URL}/vendedor/pago?vendedorId=${dataProducto.vendedor._id}`,
                             { method: 'GET', config: { headers: { Authorization: `Bearer ${token}` } } }
                         );
-                        const metodos = responseMetodos.metodos || [];
+                        
+                        console.log('✅ Respuesta del backend:', responseMetodos);
+                        
+                        const metodos = responseMetodos?.metodos || [];
+                        
                         setMetodosPago(metodos);
                         
                         // Verificar si tiene retiro disponible
                         const metodoRetiro = metodos.find(m => m.tipo === 'retiro');
                         setTieneRetiro(!!metodoRetiro);
+                        
+                        if (metodos.length === 0) {
+                            console.warn(` El vendedor ${dataProducto.vendedor.nombre} (ID: ${dataProducto.vendedor._id}) no tiene métodos de pago configurados`);
+                        } else {
+                            console.log(`Métodos de pago configurados:`, metodos.map(m => ({ tipo: m.tipo, id: m._id })));
+                        }
                     } catch (errorMetodos) {
-                        console.error('Error al cargar métodos de pago:', errorMetodos);
-                        toast.warning('No se pudieron cargar los métodos de pago del vendedor');
                         setMetodosPago([]);
                         setTieneRetiro(false);
                     }
+                } else {
+                    setMetodosPago([]);
+                    setTieneRetiro(false);
                 }
 
             } catch (error) {
