@@ -81,15 +81,16 @@ const ProductosBuscados = () => {
   }, [query]);
 
 
-  const handleClickProducto = (producto) => {
+  const handleComprar = (producto) => {
     const storedData = JSON.parse(localStorage.getItem('auth-token'));
     const token = storedData?.state?.token;
 
     if (token) {
-      toast.success(`Producto ${producto.nombreProducto} seleccionado`);
+      Navigate(`/dashboard/compra/${producto._id}`);
     }
     else{
-      Navigate(`/carrito/vacio`);
+      toast.error('Debes iniciar sesión para comprar');
+      Navigate('/login');
     }
   };
 
@@ -153,26 +154,14 @@ const ProductosBuscados = () => {
 
                       {/* BOTONES */}
                       <div className="flex gap-2 mb-3">
-                        <Link
-                          to={`/carrito/proceso-pago`}
+                        <button
+                          onClick={() => handleComprar(producto)}
                           className="flex-1 bg-blue-800 hover:bg-blue-900 text-white text-sm font-semibold py-2 px-3 rounded-md flex items-center justify-center gap-1 hover:scale-105 transition-all duration-300"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 3.5A2 2 0 006.5 17h11a2 2 0 001.6-1.5l-1.5-3.5" />
                           </svg>
-                          Proceder al Pago
-                        </Link>
-
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            console.log(`❤️ Añadir ${producto.nombreProducto} a favoritos`);
-                          }}
-                          className="p-2 bg-gray-200 hover:bg-red-500 hover:text-white text-gray-700 rounded-md transition-all duration-300 hover:scale-110"
-                        >
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
-                          </svg>
+                          Comprar Ahora
                         </button>
                       </div>
                     </div>

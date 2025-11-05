@@ -1,12 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, LogOut, ShoppingCart, Search, Heart } from 'lucide-react';
+import { User, LogOut, Search,Heart } from 'lucide-react';
 import { MessageCircle } from "lucide-react";
 import logo from '../assets/logo.png';
 import storeAuth from '../context/storeAuth';
 import storeProfile from '../context/storeProfile';
 import storeProductos from '../context/storeProductos';
-import storeCarrito from '../context/storeCarrito';
 import NotificacionesAdmin from '../pages/admin/Notificaciones';
 import Chat from '../pages/chat/Chat';
 
@@ -15,7 +14,6 @@ const Header = () => {
     const { token, clearToken } = storeAuth();
     const { user, profile, clearUser } = storeProfile();
     const { categorias, fetchCategorias } = storeProductos();
-    const { carrito } = storeCarrito();
 
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -24,8 +22,6 @@ const Header = () => {
 
     const categoriesRef = useRef(null);
     const userDropdownRef = useRef(null);
-
-    const totalCantidad = carrito?.productos?.reduce((acc, item) => acc + item.cantidad, 0) || 0;
 
     // Cargar categorías solo una vez
     useEffect(() => {
@@ -102,7 +98,19 @@ const Header = () => {
                     <div className="flex items-center gap-2 flex-col sm:flex-row w-full sm:w-auto">
                         {(rol === 'estudiante' || rol === 'admin' || rol === 'vendedor') && <NotificacionesAdmin />}
 
-                        {(rol === "estudiante" || rol === null) && (
+                        {/* Botón de chat (solo visible si el rol NO es null) */}
+                        {rol !== null && (
+                            <>
+                                <button
+                                    onClick={() => setOpen(!open)}
+                                    className="fixed bottom-5 right-5 p-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 z-50"
+                                >
+                                    <MessageCircle size={24} />
+                                </button>
+                                {open && <Chat onClose={() => setOpen(false)} />}
+                            </>
+                        )}
+ {(rol === "estudiante" || rol === null) && (
                             <Link
                                 to={token ? "/dashboard/favoritos" : "/favoritos"}
                                 className="z-50 flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"
@@ -111,32 +119,6 @@ const Header = () => {
                                 Favoritos
                             </Link>
                         )}
-
-                        {/* Botón de chat (solo visible si el rol NO es null) */}
-                        {rol !== null && (
-                            <>
-                                <button
-                                    onClick={() => setOpen(!open)}
-                                    className="fixed bottom-5 right-5 p-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700"
-                                >
-                                    <MessageCircle size={24} />
-                                </button>
-                                {open && <Chat onClose={() => setOpen(false)} />}
-                            </>
-                        )}
-
-                        {/* Carrito */}
-                        {token && rol === 'estudiante' && (
-                            <Link to="/dashboard/estudiante/carrito" className="relative">
-                                <ShoppingCart className="w-6 h-6 text-blue-800 hover:text-red-800 transition-colors" />
-                                {totalCantidad > 0 && (
-                                    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow">
-                                        {totalCantidad}
-                                    </span>
-                                )}
-                            </Link>
-                        )}
-
                         {/* Perfil o login/register */}
                         {token ? (
                             <div className="relative" ref={userDropdownRef}>

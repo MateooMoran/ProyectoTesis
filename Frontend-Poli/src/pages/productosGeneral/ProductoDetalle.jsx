@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import storeCarrito from '../../context/storeCarrito';
 import storeProductos from '../../context/storeProductos';
 import storeProfile from '../../context/storeProfile';
 import storeAuth from '../../context/storeAuth';
 import CarruselProductos from '../productosGeneral/CarruselProductos';
 import BotonFavorito from '../../components/BotonFavorito';
 import { FaStar, FaCheckCircle, FaCube, FaCreditCard, FaUser } from 'react-icons/fa';
-import { Banknote, CreditCardIcon, DollarSign, QrCode, X, HandCoins } from 'lucide-react';
+import { Banknote, CreditCardIcon, DollarSign, QrCode, X, HandCoins, ShoppingCart } from 'lucide-react';
 import useFetch from '../../hooks/useFetch';
 import Header from '../../layout/Header';
 import Footer from '../../layout/Footer';
@@ -22,11 +21,10 @@ const ProductoDetalle = () => {
   const [reseñas, setReseñas] = useState([]);
   const [ver3D, setVer3D] = useState(false);
   const [modalMetodosPago, setModalMetodosPago] = useState(false);
-  const [metodosPago, setMetodosPago] = useState({ transferencia: null, qr: null, efectivo: null });
+  const [metodosPago, setMetodosPago] = useState({ transferencia: null, qr: null, retiro: null });
   const [loadingMetodos, setLoadingMetodos] = useState(false);
   const navigate = useNavigate();
 
-  const { agregarProducto } = storeCarrito();
   const { productos } = storeProductos();
   const { user } = storeProfile();
   const { token } = storeAuth();
@@ -35,10 +33,13 @@ const ProductoDetalle = () => {
     .filter(p => p.categoria?._id === producto?.categoria?._id && p._id !== id)
     .slice(0, 8);
 
-  const handleAgregarAlCarrito = () => {
-    agregarProducto(producto._id, cantidad);
-    if (!token) navigate('/carrito/proceso-pago');
-    else navigate(`/dashboard/orden-pendiente`);
+  const handleComprarAhora = () => {
+    if (!token) {
+      toast.error('Debes iniciar sesión para comprar');
+      navigate('/login');
+      return;
+    }
+    navigate(`/dashboard/compra/${id}`);
   };
 
   const toggle3D = () => setVer3D(!ver3D);
@@ -48,7 +49,7 @@ const ProductoDetalle = () => {
     if (!vendedorId) return;
     setLoadingMetodos(true);
     try {
-      const tipos = ['transferencia', 'qr', 'efectivo'];
+      const tipos = ['transferencia', 'qr', 'retiro'];
       const resultados = {};
 
       for (const tipo of tipos) {
@@ -195,13 +196,13 @@ const ProductoDetalle = () => {
                   <span className="text-gray-600">de {producto.stock} disponibles</span>
                 </div>
 
-                {/* ✅ BOTONES CON BOTON FAVORITO */}
+                {/* ✅ BOTONES DE COMPRA */}
                 <div className="flex flex-col sm:flex-row gap-4 w-full">
                   <button
-                    onClick={handleAgregarAlCarrito}
-                    className="flex-1 h-14 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-3 hover:from-green-700 hover:to-green-800 transform hover:scale-105 transition-all duration-300 shadow-lg p-3"
+                    onClick={handleComprarAhora}
+                    className="flex-1 h-14 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-3 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-300 shadow-lg p-3"
                   >
-                    <HandCoins className="w-6 h-6" /> Proceder al pago
+                    <ShoppingCart className="w-6 h-6" /> Comprar Ahora
                   </button>
 
                   {/* ❤️ BOTÓN FAVORITO REUTILIZABLE */}
@@ -336,15 +337,15 @@ const ProductoDetalle = () => {
                     </div>
                   )}
 
-                  {/* EFECTIVO */}
-                  {metodosPago.efectivo?.lugarRetiro?.length > 0 && (
+                  {/* RETIRO */}
+                  {metodosPago.retiro?.lugares?.length > 0 && (
                     <div className="min-w-[250px] bg-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition flex-shrink-0">
                       <h3 className="text-lg font-bold text-green-800 mb-4 flex items-center gap-2">
-                        <DollarSign className="w-5 h-5 text-green-600" />
-                        Retiro en Efectivo
+                        <HandCoins className="w-5 h-5 text-green-600" />
+                        RETIRO - Recojo en Persona
                       </h3>
                       <ul className="space-y-2 text-gray-700 text-sm">
-                        {metodosPago.efectivo.lugarRetiro.map((lugar, idx) => (
+                        {metodosPago.retiro.lugares.map((lugar, idx) => (
                           <li key={idx} className="flex items-start gap-2">
                             <span className="text-green-600 font-bold text-lg">•</span>
                             <span>{lugar}</span>
@@ -355,7 +356,7 @@ const ProductoDetalle = () => {
                   )}
 
                   {/* SIN MÉTODOS */}
-                  {!metodosPago.transferencia && !metodosPago.qr?.imagenComprobante && !metodosPago.efectivo?.lugarRetiro?.length && (
+                  {!metodosPago.transferencia && !metodosPago.qr?.imagenComprobante && !metodosPago.retiro?.lugares?.length && (
                     <div className="text-center py-12 w-full">
                       <p className="text-gray-400 italic">El vendedor aún no ha configurado métodos de pago.</p>
                     </div>

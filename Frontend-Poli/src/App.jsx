@@ -1,7 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'; 
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
-import { Outlet } from 'react-router-dom';
 import { Home } from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -16,9 +15,8 @@ import CategoriaProductos from './pages/productosGeneral/Categorias';
 import Perfil from "./pages/Perfil";
 import ProductoBuscado from './pages/productosGeneral/ProductoBuscado';
 import AuthCallback from './pages/AuthCallback';
-import PrePagoProceso from './pages/productosGeneral/PrePagoProceso'
-import Carrito from './pages/pagos/Carrito';
 import ProductoDetalle from './pages/productosGeneral/ProductoDetalle';
+import CompraDirecta from './pages/pagos/CompraDirecta';
 import GestionarUsuario from './pages/admin/GestionarUsuario';
 import QuejasSugerencias from "./pages/QuejasSugerencias";
 import GestionQuejasSugerencias from './pages/admin/GestionQuejasSugerencias';
@@ -29,19 +27,12 @@ import ProductosVendedor from './pages/vendedor/ProductosVendedor';
 import Historial from './pages/vendedor/Historial';
 import EditarProductos from './pages/vendedor/EditarProductos';
 import HistorialPagos from './pages/pagos/HistorialPagos';
-import Favoritos from './pages/productosGeneral/Favoritos'
-
-import MetodoPago from './pages/vendedor/MetodoPago'
-
-// Componentes de pago que creamos
-import OrdenPendiente from './pages/pagos/OrdenPendiente';
-import Pagos from './pages/pagos/Pagos';
-import ConfirmarOrden from './pages/pagos/ConfirmarOrden';
-import Exito from './pages/pagos/Exito';
+import MetodoPago from './pages/vendedor/MetodoPago';
 
 import { useEffect, useRef } from 'react';
 import storeProfile from './context/storeProfile';
 import storeAuth from './context/storeAuth';
+import Favoritos from './pages/productosGeneral/Favoritos';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -69,7 +60,6 @@ function App() {
           <Route path="confirm/:token" element={<Confirm />} />
           <Route path="reset/:token" element={<Reset />} />
           <Route path="productos/categoria/:id" element={<CategoriaProductos />} />
-          <Route path="carrito/proceso-pago" element={<PrePagoProceso />} />
           <Route path="productos/:id" element={<ProductoDetalle />} />
           <Route path="auth/callback" element={<AuthCallback />} />
           <Route path="productos/buscar" element={<ProductoBuscado />} />
@@ -81,7 +71,7 @@ function App() {
           <Route path="dashboard" element={<Dashboard />}>
             <Route index element={<Productos />} />
             <Route path="listarProd" element={<Productos />} />
-            <Route path="estudiante/carrito" element={<Carrito />} />
+            <Route path="compra/:productoId" element={<CompraDirecta />} />
             <Route path="perfil" element={<Perfil />} />
             <Route path="admin/gestionusuarios" element={<GestionarUsuario />} />
             <Route path="admin/gestionquejas" element={<GestionQuejasSugerencias />} />
@@ -90,7 +80,6 @@ function App() {
             <Route path="productos/buscar" element={<BuscarPriv />} />
             <Route path="productos/:id" element={<ProductoDetalle />} />
             <Route path="productos/categoria/:id" element={<CategoriaProductos />} />
-            <Route path="favoritos" element={<Favoritos />} />
             
             {/* Rutas para vendedor */}
             <Route path="vendedor/categorias" element={<Categorias />} />
@@ -99,23 +88,6 @@ function App() {
             <Route path="vendedor/historial-ventas" element={<Historial />} />
             <Route path="vendedor/quejas-sugerencias" element={<QuejasSugerencias />} />
             <Route path="vendedor/metodo-pago" element={<MetodoPago />} />
-
-            {/* Nueva ruta para crear orden pendiente */}
-            <Route path="orden-pendiente" element={<OrdenPendiente />} />
-
-            {/* Rutas para pago con Stripe */}
-            <Route
-              path="pagos"
-              element={
-                <Elements stripe={stripePromise}>
-                  <Pagos />
-                </Elements>
-              }
-            />
-
-            {/* Rutas de confirmación y éxito */}
-            <Route path="pagos/confirmar" element={<ConfirmarOrden />} />
-            <Route path="pagos/exito" element={<Exito />} />
           </Route>
         </Route>
       </Routes>

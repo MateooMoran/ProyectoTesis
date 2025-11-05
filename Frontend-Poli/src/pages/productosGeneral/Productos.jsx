@@ -23,19 +23,8 @@ const Productos = () => {
     error,
     errorCategorias,
     fetchProductos,
-    fetchCategorias,
-    agregarProducto
+    fetchCategorias
   } = storeProductos();
-
-  const handleAgregarAlCarrito = (producto, cantidad = 1) => {
-    agregarProducto(producto._id, cantidad);
-    if (!token) {
-      navigate(`/carrito/vacio`);
-    } else {
-      navigate(`/dashboard/productos/${producto._id}`);
-      toast.success(`Producto ${producto.nombreProducto} agregado al carrito`);
-    }
-  };
 
   useEffect(() => {
     // Solo hace fetch UNA VEZ al montar el componente
@@ -71,7 +60,6 @@ const Productos = () => {
             error={error}
             title="Descubre lo Nuevo"
             showDots={false}
-            onAddToCart={handleAgregarAlCarrito}
           />
 
           {/* CARRUSEL 2: ÚLTIMAS UNIDADES */}
@@ -81,7 +69,6 @@ const Productos = () => {
             error={error}
             title="Últimas Unidades"
             showDots={false}
-            onAddToCart={handleAgregarAlCarrito}
           />
         </div>
       </main>

@@ -20,7 +20,7 @@ const ordenSchema = new Schema({
     ],
     default: "pendiente_pago"
   },
-  metodoPagoVendedor: { type: Schema.Types.ObjectId, ref: "MetodoPagoVendedor", required: true },
+  metodoPagoVendedor: { type: Schema.Types.ObjectId, ref: "MetodoPagoVendedor", required: false },
   lugarRetiroSeleccionado: { type: String, trim: true },
 
   comprobantePago: { type: String },

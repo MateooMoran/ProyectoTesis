@@ -11,7 +11,7 @@ import CarruselProductos from '../pages/productosGeneral/CarruselProductos';
 import Slider from 'react-slick';
 import CarruselCategorias from './productosGeneral/CarruselCategorias';
 import Header from '../layout/Header';
-import { User, LogOut, ShoppingCart, Search, Star, Heart } from 'lucide-react';
+import { User, LogOut, Search } from 'lucide-react';
 
 export const Home = () => {
   const { user } = storeProfile();
@@ -24,8 +24,7 @@ export const Home = () => {
     categorias,
     loadingCategorias,
     error: errorCategorias,
-    fetchCategorias,
-    agregarProducto
+    fetchCategorias
   } = storeProductos();
 
   const navigate = useNavigate();
@@ -36,14 +35,7 @@ export const Home = () => {
   const userDropdownRef = useRef(null);
 
 
-  const handleAgregarAlCarrito = (producto, cantidad = 1) => {
-    agregarProducto(producto._id, cantidad);
-    if (!token) {
-      navigate(`/carrito/proceso-pago`);
-    } else {
-      navigate(`/dashboard/productos/${producto._id}`);
-    }
-  };
+
 
   const scrollToCarousel = () => {
     navigate('/');
@@ -97,21 +89,6 @@ export const Home = () => {
 
           {/* Botones */}
           <div className="flex items-center gap-2 flex-col sm:flex-row w-full sm:w-auto text-center">
-            <button
-              onClick={scrollToCarousel}
-              className="flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"
-            >
-              <Heart className="w-5 h-5" />
-              Favoritos
-            </button>
-
-            {/* Botón Carrito */}
-            {token && user?.rol === 'estudiante' && (
-              <Link to="/estudiante/carrito" className="relative">
-                <ShoppingCart className="w-6 h-6 text-blue-800 hover:text-red-800 transition-colors" />
-              </Link>
-            )}
-
             {/* Autenticación */}
             {token ? (
               <div className="relative" ref={userDropdownRef}>
@@ -173,7 +150,6 @@ export const Home = () => {
               error={error}
               title="Descubre lo Nuevo"
               showDots={false}
-              onAddToCart={handleAgregarAlCarrito}
             />
 
             {/* ✅ CARRUSEL 2: DESCUENTOS */}
@@ -183,7 +159,6 @@ export const Home = () => {
               error={error}
               title="Últimas Unidades"
               showDots={false}
-              onAddToCart={handleAgregarAlCarrito}
             />
 
           </div>

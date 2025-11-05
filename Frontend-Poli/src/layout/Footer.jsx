@@ -47,9 +47,8 @@ const Footer = () => {
                         </h4>
                         <ul className="space-y-3">
                             {[
-
                                 { to: "/login", label: "  Mi Cuenta" },
-                                { to: "/carrito/vacio", label: "  Carrito" }
+                                { to: "/productos/buscar", label: "  Productos" }
                             ].map((item) => (
                                 <li key={item.to}>
                                     <Link to={item.to} className="flex items-center text-gray-300 hover:text-white transition-all duration-300 group">

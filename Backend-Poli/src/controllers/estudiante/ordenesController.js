@@ -165,17 +165,84 @@ export const procesarPagoTarjeta = async (req, res) => {
   session.startTransaction();
 
   try {
-    const { paymentMethodId, ordenId } = req.body;
+    const { paymentMethodId, ordenId, productoId, cantidad, metodoPagoVendedorId, lugarRetiro } = req.body;
 
-    const orden = await Orden.findById(ordenId);
-    if (!orden) {
-      return res.status(404).json({ msg: "Orden no encontrada" });
-    }
-    if (!orden.comprador.equals(req.estudianteBDD._id)) {
-      return res.status(403).json({ msg: "No autorizado" });
-    }
-    if (orden.estado !== "pendiente_pago") {
-      return res.status(400).json({ msg: "La orden no está en estado pendiente de pago" });
+    let orden;
+
+    // Si no hay ordenId, crear la orden primero
+    if (!ordenId) {
+      if (!productoId || !cantidad) {
+        return res.status(400).json({ msg: "Faltan datos para crear la orden (productoId, cantidad)" });
+      }
+
+      // Validar producto y stock
+      const producto = await Producto.findById(productoId);
+      if (!producto) {
+        return res.status(404).json({ msg: "Producto no encontrado" });
+      }
+      if (producto.stock < cantidad) {
+        return res.status(400).json({ msg: "Stock insuficiente" });
+      }
+
+      let metodoPagoId = null;
+
+      // Si no es pago con tarjeta Stripe, validar método de pago del vendedor
+      if (metodoPagoVendedorId && metodoPagoVendedorId !== "stripe") {
+        const metodoPago = await MetodoPagoVendedor.findOne({
+          _id: metodoPagoVendedorId,
+          vendedor: producto.vendedor
+        });
+
+        if (!metodoPago) {
+          return res.status(400).json({ msg: "Método de pago inválido para este vendedor" });
+        }
+
+        if (metodoPago.tipo === "retiro") {
+          if (!lugarRetiro) {
+            return res.status(400).json({ msg: "Debes seleccionar un lugar de retiro" });
+          }
+          if (!metodoPago.lugares || !metodoPago.lugares.includes(lugarRetiro)) {
+            return res.status(400).json({ msg: "El lugar de retiro seleccionado no es válido" });
+          }
+        }
+
+        metodoPagoId = metodoPago._id;
+      }
+
+      const subtotal = parseFloat((producto.precio * cantidad).toFixed(2));
+
+      // Crear la orden
+      orden = new Orden({
+        comprador: req.estudianteBDD._id,
+        vendedor: producto.vendedor,
+        producto: producto._id,
+        cantidad,
+        precioUnitario: parseFloat(producto.precio.toFixed(2)),
+        subtotal,
+        total: subtotal,
+        metodoPagoVendedor: metodoPagoId, // Puede ser null para pago con tarjeta
+        lugarRetiroSeleccionado: lugarRetiro || null,
+        estado: "pendiente_pago"
+      });
+
+      await orden.save({ session });
+
+      // Actualizar stock
+      producto.stock -= cantidad;
+      await producto.save({ session });
+
+    } else {
+      // Si ya existe la orden, buscarla
+      orden = await Orden.findById(ordenId);
+      if (!orden) {
+        return res.status(404).json({ msg: "Orden no encontrada" });
+      }
+      if (!orden.comprador.equals(req.estudianteBDD._id)) {
+        return res.status(403).json({ msg: "No autorizado" });
+      }
+      if (orden.estado !== "pendiente_pago") {
+        return res.status(400).json({ msg: "La orden no está en estado pendiente de pago" });
+      }
     }
 
     // Crear pago con Stripe
@@ -196,7 +263,7 @@ export const procesarPagoTarjeta = async (req, res) => {
     orden.fechaPagoConfirmado = new Date();
     await orden.save({ session });
 
-    // Notificar al vendedor (cambiar tipo a "venta")
+    // Notificar al vendedor
     await crearNotificacion(
       orden.vendedor,
       `Se ha procesado un pago con tarjeta para la orden ${orden._id}`,
