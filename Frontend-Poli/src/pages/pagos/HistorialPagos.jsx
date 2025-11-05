@@ -106,7 +106,8 @@ const HistorialPagos = () => {
         return orders.filter(order => {
             const estadosPermitidos = Array.isArray(estadoTab) ? estadoTab : [estadoTab];
             const matchEstado = estadoTab === 'todos' || estadosPermitidos.includes(order.estado);
-            const matchMetodo = filtroMetodo === 'todos' || order.metodoPagoVendedor?.tipo === filtroMetodo;
+            const tipoOrden = order.tipoPago || order.metodoPagoVendedor?.tipo;
+            const matchMetodo = filtroMetodo === 'todos' || tipoOrden === filtroMetodo;
             return matchEstado && matchMetodo;
         });
     };
@@ -216,8 +217,11 @@ const HistorialPagos = () => {
                                                         <span className="font-bold">Total:</span> ${order.total.toFixed(2)}
                                                     </p>
                                                     <p className="flex items-center gap-1">
-                                                        {getMetodoIcon(metodo.tipo)}
-                                                        <span className="font-bold">Método:</span> {metodo.tipo.charAt(0).toUpperCase() + metodo.tipo.slice(1)}
+                                                        {getMetodoIcon(order.tipoPago || metodo?.tipo)}
+                                                        <span className="font-bold">Método:</span> {
+                                                            (order.tipoPago || metodo?.tipo)?.charAt(0).toUpperCase() + 
+                                                            (order.tipoPago || metodo?.tipo)?.slice(1)
+                                                        }
                                                     </p>
                                                 </div>
 

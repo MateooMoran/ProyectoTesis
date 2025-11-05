@@ -11,17 +11,18 @@ import { Banknote, CreditCardIcon, DollarSign, QrCode, X, HandCoins, ShoppingCar
 import useFetch from '../../hooks/useFetch';
 import Header from '../../layout/Header';
 import Footer from '../../layout/Footer';
-
+import SeccionResenas from './Resenas'
 const ProductoDetalle = () => {
   const { id } = useParams();
   const [producto, setProducto] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [cantidad, setCantidad] = useState(1);
-  const [reseñas, setReseñas] = useState([]);
   const [ver3D, setVer3D] = useState(false);
   const [modalMetodosPago, setModalMetodosPago] = useState(false);
   const [metodosPago, setMetodosPago] = useState({ transferencia: null, qr: null, retiro: null });
+  // Estado para estadísticas de reseñas
+  const [estadisticasResenas, setEstadisticasResenas] = useState(null);
   const [loadingMetodos, setLoadingMetodos] = useState(false);
   const navigate = useNavigate();
 
@@ -96,13 +97,7 @@ const ProductoDetalle = () => {
         const response = await fetch(url);
         if (!response.ok) throw new Error('No se pudo cargar el producto');
         const data = await response.json();
-        console.log(data);
         setProducto(data);
-        setReseñas([
-          { usuario: 'Ana López', rating: 5, comentario: '¡Excelente calidad!', fecha: '2025-10-10' },
-          { usuario: 'Carlos Ruiz', rating: 4, comentario: 'Muy bueno, llegó rápido', fecha: '2025-10-08' },
-          { usuario: 'María Gómez', rating: 5, comentario: 'Lo recomiendo 100%', fecha: '2025-10-05' }
-        ]);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -165,18 +160,35 @@ const ProductoDetalle = () => {
               <div className="space-y-6">
                 <h1 className="text-4xl font-bold text-gray-700">{producto.nombreProducto}</h1>
 
-                {/* PRECIO + RATING */}
+                {/* PRECIO + RATING DINÁMICO */}
                 <div className="flex items-center gap-4">
                   <span className="text-4xl font-bold text-black">${producto.precio.toFixed(2)}</span>
                   {producto.descuento && (
                     <span className="text-xl text-gray-500 line-through">${(producto.precio * 1.2).toFixed(2)}</span>
                   )}
-                  <div className="flex items-center gap-1 text-yellow-400 ml-auto">
-                    {[...Array(5)].map((_, i) => (
-                      <FaStar key={i} className={`w-5 h-5 ${i < 4.5 ? 'fill-current' : ''}`} />
-                    ))}
-                    <span className="ml-2 text-gray-600">(13 reseñas)</span>
-                  </div>
+                  {/* Rating y cantidad de reseñas dinámico */}
+{estadisticasResenas ? (
+  <div className="flex items-center gap-1 ml-auto">
+    {[...Array(5)].map((_, i) => (
+      <FaStar
+        key={i}
+        className={`w-5 h-5 ${
+          i < Math.round(estadisticasResenas.promedio)
+            ? "text-yellow-400"
+            : "text-gray-300"
+        }`}
+      />
+    ))}
+    <span className="ml-2 text-gray-600">({estadisticasResenas.total} reseñas)</span>
+  </div>
+) : (
+  <div className="flex items-center gap-1 ml-auto">
+    {[...Array(5)].map((_, i) => (
+      <FaStar key={i} className="w-5 h-5 text-gray-300" />
+    ))}
+    <span className="ml-2 text-gray-400">(Sin reseñas)</span>
+  </div>
+)}
                 </div>
 
                 {/* DESCRIPCIÓN */}
@@ -244,29 +256,14 @@ const ProductoDetalle = () => {
             </div>
           </div>
         </section>
-
+        
         {/* 🔥 2. RESEÑAS ABAJO */}
-        <section className="py-8 bg-gray-50">
-          <div className="max-w-6xl mx-auto px-4">
-            <h2 className="text-2xl font-bold text-gray-800 text-center mb-12">Reseñas</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {reseñas.map((reseña, i) => (
-                <div key={i} className="bg-white p-6 rounded-2xl shadow-sm">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="flex text-yellow-400">
-                      {[...Array(5)].map((_, j) => (
-                        <FaStar key={j} className={`w-5 h-5 ${j < reseña.rating ? 'fill-current' : ''}`} />
-                      ))}
-                    </div>
-                    <span className="text-sm text-gray-600">{reseña.fecha}</span>
-                  </div>
-                  <p className="font-semibold text-gray-900 mb-2">{reseña.usuario}</p>
-                  <p className="text-gray-600">{reseña.comentario}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <SeccionResenas
+          productoId={id}
+          onEstadisticas={setEstadisticasResenas}
+        />
+
+      
 
         {/* 🔥 3. PRODUCTOS RELACIONADOS */}
         {productosRelacionados.length > 0 && (

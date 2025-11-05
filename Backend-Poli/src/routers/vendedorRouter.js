@@ -6,7 +6,7 @@ import { crearCategoria, listarCategorias, eliminarCategoria } from "../controll
 import { crearProducto, listarProducto, actualizarProducto, eliminarProducto, visualizarProductoCategoria, reactivarProducto, verProductosEliminados } from "../controllers/vendedor/productoController.js";
 import { generarModelo3DParaProducto } from "../controllers/vendedor/modelo3DController.js";
 import { confirmarPagoVenta, visualizarHistorialVentasVendedor } from "../controllers/vendedor/ventasController.js";
-import {crearActualizarLugarRetiro, crearActualizarQR, crearActualizarTransferencia, eliminarMetodoPago, visualizarMetodosPago } from "../controllers/vendedor/metodoPagoController.js";
+import {crearActualizarLugarRetiro, crearActualizarQR, crearActualizarTransferencia, eliminarLugarRetiro, eliminarMetodoPago, visualizarMetodosPago } from "../controllers/vendedor/metodoPagoController.js";
 import { validarArchivoImagen, validarLugarRetiro, validarTransferencia } from "../validations/validadorPagos.js";
 import handleValidationErrors from "../middlewares/handleValidationErrors.js";
 import { validarProducto } from "../validations/validadorProducto.js";
@@ -37,6 +37,7 @@ router.patch('/vendedor/activar/producto/:id', verifyTokenJWT, esVendedor, react
 router.post("/vendedor/pago/transferencia", verifyTokenJWT, esVendedor, validarTransferencia, handleValidationErrors, crearActualizarTransferencia);
 router.post("/vendedor/pago/qr", verifyTokenJWT, esVendedor, validarArchivoImagen, crearActualizarQR);
 router.post("/vendedor/pago/retiro", verifyTokenJWT, esVendedor, validarLugarRetiro, handleValidationErrors, crearActualizarLugarRetiro);
+router.delete("/vendedor/pago/retiro/lugar", verifyTokenJWT, esVendedor, eliminarLugarRetiro);
 router.get("/vendedor/pago/:tipo", verifyTokenJWT, esEstudianteOrVendedor, visualizarMetodosPago);
 router.get("/vendedor/pago", verifyTokenJWT, esEstudianteOrVendedor, visualizarMetodosPago);
 router.delete("/vendedor/pago/:id", verifyTokenJWT, esVendedor, eliminarMetodoPago);

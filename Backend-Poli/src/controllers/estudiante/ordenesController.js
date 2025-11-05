@@ -62,6 +62,7 @@ export const crearOrden = async (req, res) => {
       subtotal,
       total: subtotal,
       metodoPagoVendedor: metodoPago._id,
+      tipoPago: metodoPago.tipo, 
       lugarRetiroSeleccionado: lugarRetiro || null,
       estado: "pendiente_pago"
     });
@@ -186,7 +187,6 @@ export const procesarPagoTarjeta = async (req, res) => {
 
       let metodoPagoId = null;
 
-      // Si no es pago con tarjeta Stripe, validar método de pago del vendedor
       if (metodoPagoVendedorId && metodoPagoVendedorId !== "stripe") {
         const metodoPago = await MetodoPagoVendedor.findOne({
           _id: metodoPagoVendedorId,
@@ -220,7 +220,8 @@ export const procesarPagoTarjeta = async (req, res) => {
         precioUnitario: parseFloat(producto.precio.toFixed(2)),
         subtotal,
         total: subtotal,
-        metodoPagoVendedor: metodoPagoId, // Puede ser null para pago con tarjeta
+        metodoPagoVendedor: metodoPagoId,
+        tipoPago: "tarjeta", // 🔥 Siempre es tarjeta cuando usa Stripe
         lugarRetiroSeleccionado: lugarRetiro || null,
         estado: "pendiente_pago"
       });

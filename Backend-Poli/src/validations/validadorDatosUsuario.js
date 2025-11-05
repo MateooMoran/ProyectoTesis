@@ -2,7 +2,7 @@ import { body } from "express-validator";
 
 const soloLetrasRegex = /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]+$/;
 
-const textoValidoRegex = /^(?!.*([a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ])\1{3,})(?!.*[<>@])[\wáéíóúüñÁÉÍÓÚÜÑ\s.,#°]+$/;
+const textoValidoRegex = /^(?!.*([a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ])\1{3,})(?!.*[<>@])[a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ\s.,#°-]+$/;
 
 export const validarDatosPersona = [
   body("nombre")

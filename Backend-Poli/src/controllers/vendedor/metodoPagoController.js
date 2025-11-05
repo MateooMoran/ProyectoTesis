@@ -127,7 +127,56 @@ export const visualizarMetodosPago = async (req, res) => {
 };
 
 
-// ELIMINAR MÉTODO
+// ELIMINAR UN LUGAR ESPECÍFICO DE RETIRO
+export const eliminarLugarRetiro = async (req, res) => {
+  try {
+    const { lugar } = req.body; // El nombre del lugar a eliminar
+    
+    if (!lugar) {
+      return res.status(400).json({ msg: "Se requiere el nombre del lugar a eliminar" });
+    }
+
+    // Buscar el método de retiro del vendedor
+    const metodoRetiro = await MetodoPagoVendedor.findOne({
+      vendedor: req.estudianteBDD._id,
+      tipo: "retiro"
+    });
+
+    if (!metodoRetiro) {
+      return res.status(404).json({ msg: "No tienes lugares de retiro configurados" });
+    }
+
+    // Verificar que el lugar existe en el array
+    if (!metodoRetiro.lugares.includes(lugar)) {
+      return res.status(404).json({ msg: "El lugar especificado no existe" });
+    }
+
+    // Eliminar el lugar del array
+    metodoRetiro.lugares = metodoRetiro.lugares.filter(l => l !== lugar);
+
+    // Si ya no quedan lugares, eliminar todo el método de retiro
+    if (metodoRetiro.lugares.length === 0) {
+      await MetodoPagoVendedor.findByIdAndDelete(metodoRetiro._id);
+      return res.json({ 
+        msg: "Último lugar eliminado. Método de retiro desactivado",
+        lugares: []
+      });
+    }
+
+    // Guardar cambios
+    await metodoRetiro.save();
+
+    res.json({ 
+      msg: "Lugar de retiro eliminado correctamente",
+      lugares: metodoRetiro.lugares
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Error al eliminar lugar de retiro", error: error.message });
+  }
+};
+
+// ELIMINAR MÉTODO COMPLETO
 export const eliminarMetodoPago = async (req, res) => {
   try {
     const metodoPago = await MetodoPagoVendedor.findOneAndDelete({

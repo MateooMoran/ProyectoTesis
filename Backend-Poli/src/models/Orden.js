@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 
 const ordenSchema = new Schema({
-  comprador: { type: Schema.Types.ObjectId, ref: "Estudiantes", required: true },
+  comprador: { type: Schema.Types. ObjectId, ref: "Estudiantes", required: true },
   vendedor: { type: Schema.Types.ObjectId, ref: "Estudiantes", required: true },
   producto: { type: Schema.Types.ObjectId, ref: "Producto", required: true },
   cantidad: { type: Number, required: true },
@@ -21,6 +21,7 @@ const ordenSchema = new Schema({
     default: "pendiente_pago"
   },
   metodoPagoVendedor: { type: Schema.Types.ObjectId, ref: "MetodoPagoVendedor", required: false },
+  tipoPago: { type: String, enum: ["transferencia", "qr", "retiro", "tarjeta"], default: null },
   lugarRetiroSeleccionado: { type: String, trim: true },
 
   comprobantePago: { type: String },
