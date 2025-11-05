@@ -218,17 +218,18 @@ const CategoriaProductos = () => {
                             onClick={() => handleClickProducto(producto)}
                             className="flex-1 bg-blue-800 hover:bg-blue-900 text-white text-xs lg:text-sm font-semibold py-1.5 lg:py-2 px-2 lg:px-3 rounded-md flex items-center justify-center gap-1 hover:scale-105 transition-all duration-300"
                           >
-                            <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 3.5A2 2 0 006.5 17h11a2 2 0 001.6-1.5l-1.5-3.5" />
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
-                            <span className="hidden sm:inline">Proceder al Pago</span>
+                            <span className="hidden sm:inline">Ver detalles</span>
                           </button>
 
                           <button
                             onClick={() => toggleFavorite(producto._id)}
                             className={`p-1.5 lg:p-2 rounded-md transition-all duration-300 hover:scale-110 flex-shrink-0 ${fav
-                                ? 'bg-red-500 text-white hover:bg-red-600'
-                                : 'bg-gray-200 hover:bg-red-500 hover:text-white text-gray-700'
+                              ? 'bg-red-500 text-white hover:bg-red-600'
+                              : 'bg-gray-200 hover:bg-red-500 hover:text-white text-gray-700'
                               }`}
                           >
                             <Heart className={`w-3 h-3 lg:w-5 lg:h-5 ${fav ? 'fill-current' : ''}`} />
@@ -243,7 +244,7 @@ const CategoriaProductos = () => {
           )}
         </div>
       </section>
-      <Footer/>
+      {!token && <Footer />}
     </>
   );
 };

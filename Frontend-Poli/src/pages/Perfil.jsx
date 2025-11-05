@@ -91,13 +91,13 @@ const Perfil = () => {
         <div className="max-w-7xl mx-auto px-4">
           {/* TÍTULO */}
           <div className="text-center mb-8">
-                        <div className="flex items-center justify-center gap-3 mb-3">
-                            <h1 className="text-4xl font-bold text-gray-700">
-                                Perfil de Usuario
-                            </h1>
-                        </div>
-                        <p className="text-gray-600">Gestiona y actualiza tus datos personales</p>
-                    </div>
+            <div className="flex items-center justify-center gap-3 mb-3">
+              <h1 className="text-4xl font-bold text-gray-700">
+                Perfil de Usuario
+              </h1>
+            </div>
+            <p className="text-gray-600">Gestiona y actualiza tus datos personales</p>
+          </div>
 
           {user ? (
             <div className="grid lg:grid-cols-2 gap-8">
@@ -108,8 +108,8 @@ const Perfil = () => {
                 {/* INFORMACIÓN PERSONAL */}
                 <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
                   <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                  <User className="text-blue-600 w-6 h-6" /> Información Personal
-                    </h3>
+                    <User className="text-blue-600 w-6 h-6" /> Información Personal
+                  </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                     <div className="space-y-2">
                       <p className="text-gray-600 font-semibold">Nombre</p>
@@ -143,8 +143,9 @@ const Perfil = () => {
                 {/* ACTUALIZAR PERFIL */}
                 <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
                   <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                    <Edit className="text-blue-600 w-6 h-6"/> Actualizar Perfil
+                    <Edit className="text-blue-600 w-6 h-6" /> Actualizar Perfil
                   </h3>
+
                   <form onSubmit={handleSubmitProfile(handleUpdateProfile)} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
@@ -154,8 +155,11 @@ const Perfil = () => {
                           className="w-full py-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-700"
                           {...registerProfile('nombre', { required: 'El nombre es obligatorio' })}
                         />
-                        {profileErrors.nombre && <p className="text-red-600 text-xs mt-1">{profileErrors.nombre.message}</p>}
+                        {profileErrors.nombre && (
+                          <p className="text-red-600 text-xs mt-1">{profileErrors.nombre.message}</p>
+                        )}
                       </div>
+
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-1">Apellido</label>
                         <input
@@ -163,9 +167,13 @@ const Perfil = () => {
                           className="w-full py-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-700"
                           {...registerProfile('apellido', { required: 'El apellido es obligatorio' })}
                         />
-                        {profileErrors.apellido && <p className="text-red-600 text-xs mt-1">{profileErrors.apellido.message}</p>}
+                        {profileErrors.apellido && (
+                          <p className="text-red-600 text-xs mt-1">{profileErrors.apellido.message}</p>
+                        )}
                       </div>
-                      <div>
+
+                      {/* Dirección: ocupa las 2 columnas */}
+                      <div className="sm:col-span-2">
                         <label className="block text-sm font-semibold text-gray-700 mb-1">Dirección</label>
                         <input
                           type="text"
@@ -173,7 +181,9 @@ const Perfil = () => {
                           {...registerProfile('direccion')}
                         />
                       </div>
-                      <div>
+
+                      {/* Teléfono: ocupa las 2 columnas */}
+                      <div className="sm:col-span-2">
                         <label className="block text-sm font-semibold text-gray-700 mb-1">Teléfono</label>
                         <input
                           type="text"
@@ -182,6 +192,7 @@ const Perfil = () => {
                         />
                       </div>
                     </div>
+
                     <button
                       type="submit"
                       className="w-full h-12 bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-300 shadow-lg"
@@ -196,68 +207,58 @@ const Perfil = () => {
               <div className="space-y-6">
                 <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
                   <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                    <Key className="text-blue-600 w-6 h-6" /> {showPasswordFields ? 'Actualizar Contraseña' : 'Actualizar Contraseña'}
+                    <Key className="text-blue-600 w-6 h-6" /> Actualizar Contraseña
                   </h3>
 
-                  {showPasswordFields ? (
-                    <form onSubmit={handleSubmitPassword(handleUpdatePassword)} className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">Contraseña Actual</label>
-                        <input
-                          type="password"
-                          className="w-full py-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-700"
-                          {...registerPassword('currentPassword', { required: 'La contraseña actual es obligatoria' })}
-                        />
-                        {passwordErrors.currentPassword && <p className="text-red-600 text-xs mt-1">{passwordErrors.currentPassword.message}</p>}
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">Nueva Contraseña</label>
-                        <input
-                          type="password"
-                          className="w-full py-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-700"
-                          {...registerPassword('newPassword', {
-                            required: 'La nueva contraseña es obligatoria',
-                            minLength: { value: 4, message: 'Mínimo 4 caracteres' },
-                          })}
-                        />
-                        {passwordErrors.newPassword && <p className="text-red-600 text-xs mt-1">{passwordErrors.newPassword.message}</p>}
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">Confirmar Nueva</label>
-                        <input
-                          type="password"
-                          className="w-full py-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-700"
-                          {...registerPassword('confirmNewPassword', { required: 'Confirma la nueva contraseña' })}
-                        />
-                        {passwordErrors.confirmNewPassword && <p className="text-red-600 text-xs mt-1">{passwordErrors.confirmNewPassword.message}</p>}
-                      </div>
-                      <div className="flex gap-3">
-                        <button
-                          type="submit"
-                          className="flex-1 h-12 bg-gradient-to-r from-green-800 to-green-900 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:scale-105 transition-all duration-300 shadow-lg"
-                        >
-                          <Save className="w-5 h-5" /> Actualizar
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setShowPasswordFields(false);
-                            resetPassword();
-                          }}
-                          className="flex-1 h-12 bg-gray-500 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-gray-600 transform hover:scale-105 transition-all duration-300"
-                        >
-                          <X className="w-5 h-5" /> Cancelar
-                        </button>
-                      </div>
-                    </form>
-                  ) : (
-                    <button
-                      onClick={() => setShowPasswordFields(true)}
-                      className="w-full h-12 bg-gradient-to-r from-blue-800 to-blue-900 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:scale-105 transition-all duration-300 shadow-lg"
-                    >
-                      <Key className="w-5 h-5" /> Cambiar Contraseña
-                    </button>
-                  )}
+                  <form onSubmit={handleSubmitPassword(handleUpdatePassword)} className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">Contraseña Actual</label>
+                      <input
+                        type="password"
+                        className="w-full py-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-700"
+                        {...registerPassword('currentPassword', { required: 'La contraseña actual es obligatoria' })}
+                      />
+                      {passwordErrors.currentPassword && (
+                        <p className="text-red-600 text-xs mt-1">{passwordErrors.currentPassword.message}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">Nueva Contraseña</label>
+                      <input
+                        type="password"
+                        className="w-full py-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-700"
+                        {...registerPassword('newPassword', {
+                          required: 'La nueva contraseña es obligatoria',
+                          minLength: { value: 4, message: 'Mínimo 4 caracteres' },
+                        })}
+                      />
+                      {passwordErrors.newPassword && (
+                        <p className="text-red-600 text-xs mt-1">{passwordErrors.newPassword.message}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">Confirmar Nueva</label>
+                      <input
+                        type="password"
+                        className="w-full py-3 px-4 rounded-xl border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-700"
+                        {...registerPassword('confirmNewPassword', { required: 'Confirma la nueva contraseña' })}
+                      />
+                      {passwordErrors.confirmNewPassword && (
+                        <p className="text-red-600 text-xs mt-1">{passwordErrors.confirmNewPassword.message}</p>
+                      )}
+                    </div>
+
+                    <div className="flex justify-end">
+                      <button
+                        type="submit"
+                        className="w-full h-12 bg-gradient-to-r from-blue-900 to-blue-800 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-300 shadow-lg"
+                      >
+                        <Save className="w-5 h-5" /> Actualizar
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </div>
             </div>

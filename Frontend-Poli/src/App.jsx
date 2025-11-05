@@ -28,6 +28,7 @@ import Historial from './pages/vendedor/Historial';
 import EditarProductos from './pages/vendedor/EditarProductos';
 import HistorialPagos from './pages/pagos/HistorialPagos';
 import MetodoPago from './pages/vendedor/MetodoPago';
+import PrePagoProceso from './pages/productosGeneral/PrePagoProceso'
 
 import { useEffect, useRef } from 'react';
 import storeProfile from './context/storeProfile';
@@ -64,6 +65,8 @@ function App() {
           <Route path="auth/callback" element={<AuthCallback />} />
           <Route path="productos/buscar" element={<ProductoBuscado />} />
           <Route path="favoritos" element={<Favoritos />} />
+          <Route path="prepago" element={<PrePagoProceso />} />
+
         </Route>
 
         {/* Rutas protegidas con Dashboard */}
@@ -80,6 +83,7 @@ function App() {
             <Route path="productos/buscar" element={<BuscarPriv />} />
             <Route path="productos/:id" element={<ProductoDetalle />} />
             <Route path="productos/categoria/:id" element={<CategoriaProductos />} />
+            <Route path="favoritos" element={<Favoritos />} />
             
             {/* Rutas para vendedor */}
             <Route path="vendedor/categorias" element={<Categorias />} />

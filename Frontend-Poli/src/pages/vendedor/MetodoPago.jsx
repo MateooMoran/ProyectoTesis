@@ -19,21 +19,21 @@ const MetodoPagoVendedorForm = () => {
             numeroCuenta: '',
             titular: '',
             cedula: '',
-            lugarRetiro: [{ lugar: '' }],
+            lugares: [{ lugar: '' }], // ← CORRECTO: lugar
             qr: null
         }
     });
 
     const { fields, append, remove } = useFieldArray({
         control,
-        name: 'lugarRetiro'
+        name: 'lugares' // ← CORRECTO
     });
 
     const qrFile = watch('qr');
 
     const cargarMetodos = async () => {
         try {
-            const tipos = ['transferencia', 'qr', 'efectivo'];
+            const tipos = ['transferencia', 'qr', 'retiro'];
             const resultados = {};
 
             for (const tipo of tipos) {
@@ -78,6 +78,7 @@ const MetodoPagoVendedorForm = () => {
                     cedula: formData.cedula
                 });
                 headers['Content-Type'] = 'application/json';
+
             } else if (tipoSeleccionado === 'qr') {
                 endpoint = '/vendedor/pago/qr';
                 body = new FormData();
@@ -88,15 +89,20 @@ const MetodoPagoVendedorForm = () => {
                     setGuardando(false);
                     return;
                 }
-            } else if (tipoSeleccionado === 'efectivo') {
-                endpoint = '/vendedor/pago/efectivo';
-                const lugares = formData.lugarRetiro.map(l => l.lugar).filter(l => l.trim());
+
+            } else if (tipoSeleccionado === 'retiro') {
+                endpoint = '/vendedor/pago/retiro';
+                const lugares = formData.lugares
+                    .map(l => l.lugar)
+                    .filter(l => l?.trim());
+
                 if (lugares.length === 0) {
                     toast.error('Debes agregar al menos un lugar de retiro');
                     setGuardando(false);
                     return;
                 }
-                body = JSON.stringify({ lugarRetiro: lugares });
+
+                body = JSON.stringify({ lugares }); // ← CORRECTO: { lugares: [...] }
                 headers['Content-Type'] = 'application/json';
             }
 
@@ -124,6 +130,7 @@ const MetodoPagoVendedorForm = () => {
 
         } catch (err) {
             console.error(err);
+            toast.error('Error de conexión');
         } finally {
             setGuardando(false);
         }
@@ -132,7 +139,7 @@ const MetodoPagoVendedorForm = () => {
     const tiposPago = [
         { value: 'transferencia', label: 'Transferencia Bancaria', icon: CreditCard },
         { value: 'qr', label: 'Código QR', icon: QrCode },
-        { value: 'efectivo', label: 'Efectivo', icon: DollarSign }
+        { value: 'retiro', label: 'Retiro', icon: DollarSign }
     ];
 
     return (
@@ -153,12 +160,11 @@ const MetodoPagoVendedorForm = () => {
                         </p>
                     </div>
 
-                    {/*  ADVERTENCIA  */}
+                    {/* ADVERTENCIA */}
                     <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded mb-4">
                         <p className="text-yellow-800 text-sm">
-                            ⚠️ Solo puedes tener un método de pago por tipo. Si ya existe, puedes actualizarlo.
+                            Solo puedes tener un método de pago por tipo. Si ya existe, puedes actualizarlo.
                         </p>
-
                     </div>
 
                     {/* Selector de tipo */}
@@ -175,8 +181,8 @@ const MetodoPagoVendedorForm = () => {
                                             type="button"
                                             onClick={() => setTipoSeleccionado(tipo.value)}
                                             className={`p-4 rounded-lg border-2 transition-all duration-200 w-full ${tipoSeleccionado === tipo.value
-                                                ? 'border-blue-600 bg-blue-50 shadow-md'
-                                                : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                                                    ? 'border-blue-600 bg-blue-50 shadow-md'
+                                                    : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
                                                 }`}
                                         >
                                             <Icon
@@ -188,7 +194,7 @@ const MetodoPagoVendedorForm = () => {
                                             </span>
                                         </button>
 
-                                        {/* BOTÓN VER MÉTODO DEBAJO */}
+                                        {/* BOTÓN VER MÉTODO */}
                                         {metodosGuardados[tipo.value] && (
                                             <button
                                                 type="button"
@@ -196,7 +202,7 @@ const MetodoPagoVendedorForm = () => {
                                                     setModalContent({ ...metodosGuardados[tipo.value], tipo: tipo.label });
                                                     setModalVisible(true);
                                                 }}
-                                                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg transition flex items-center justify-center gap-2 text-sm font-medium shadow cursor-pointer"
+                                                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg transition flex items-center justify-center gap-2 text-sm font-medium shadow"
                                             >
                                                 <Eye size={16} /> Ver Método Guardado
                                             </button>
@@ -223,7 +229,7 @@ const MetodoPagoVendedorForm = () => {
                                         </label>
                                         <input
                                             {...register(field)}
-                                            placeholder={`Ingresa ${field}`}
+                                            placeholder={`Ingresa ${field === 'banco' ? 'el banco' : field === 'numeroCuenta' ? 'el número' : field === 'titular' ? 'el titular' : 'la cédula'}`}
                                             className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             disabled={guardando}
                                         />
@@ -252,13 +258,13 @@ const MetodoPagoVendedorForm = () => {
                             </div>
                         )}
 
-                        {/* Efectivo */}
-                        {tipoSeleccionado === 'efectivo' && (
+                        {/* RETIRO - CORREGIDO */}
+                        {tipoSeleccionado === 'retiro' && (
                             <div className="space-y-4">
                                 {fields.map((field, index) => (
                                     <div key={field.id} className="flex gap-2 mb-2">
                                         <input
-                                            {...register(`lugarRetiro.${index}.lugar`)}
+                                            {...register(`lugares.${index}.lugar`)} // ← CORRECTO
                                             placeholder={`Lugar ${index + 1}`}
                                             className="flex-1 border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                                             disabled={guardando}
@@ -279,7 +285,7 @@ const MetodoPagoVendedorForm = () => {
                                 {fields.length < 3 && (
                                     <button
                                         type="button"
-                                        onClick={() => append({ lugar: '' })}
+                                        onClick={() => append({ lugar: '' })} // ← CORRECTO
                                         className="w-full bg-green-50 text-green-700 border-2 border-dashed border-green-300 py-2 rounded-lg hover:bg-green-100 transition flex items-center justify-center gap-2 font-medium"
                                         disabled={guardando}
                                     >
@@ -291,14 +297,12 @@ const MetodoPagoVendedorForm = () => {
                                 {fields.length >= 3 && (
                                     <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded mb-4">
                                         <p className="text-yellow-800 text-sm">
-                                            ⚠️ Solo puedes agregar hasta 3 lugares.
+                                            Solo puedes agregar hasta 3 lugares.
                                         </p>
-
                                     </div>
                                 )}
                             </div>
                         )}
-
 
                         <div className="mt-6 pt-4 border-t border-gray-200">
                             <button
@@ -312,7 +316,7 @@ const MetodoPagoVendedorForm = () => {
                         </div>
                     </form>
 
-                    {/* -------------------- MODAL -------------------- */}
+                    {/* MODAL */}
                     {modalVisible && modalContent && (
                         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                             <div className="bg-white p-6 rounded-lg max-w-md w-full relative shadow-xl">
@@ -339,11 +343,11 @@ const MetodoPagoVendedorForm = () => {
                                     </div>
                                 )}
 
-                                {!modalContent.banco && modalContent.lugarRetiro?.length > 0 && (
+                                {modalContent.lugares?.length > 0 && (
                                     <div>
                                         <p className="text-sm text-gray-500 font-semibold mb-3">Lugares de Retiro:</p>
                                         <ul className="bg-gray-50 p-3 rounded-lg space-y-2">
-                                            {modalContent.lugarRetiro.map((lugar, idx) => (
+                                            {modalContent.lugares.map((lugar, idx) => (
                                                 <li
                                                     key={idx}
                                                     className="text-sm text-gray-700 flex items-center gap-2 p-2 rounded-md hover:bg-gray-200 transition"
@@ -355,7 +359,6 @@ const MetodoPagoVendedorForm = () => {
                                         </ul>
                                     </div>
                                 )}
-
 
                                 {modalContent.imagenComprobante && (
                                     <div>
@@ -370,7 +373,6 @@ const MetodoPagoVendedorForm = () => {
                             </div>
                         </div>
                     )}
-
                 </div>
             </div>
         </>

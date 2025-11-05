@@ -6,18 +6,19 @@ import { FaHeart, FaTrash, FaEye } from 'react-icons/fa';
 import useFavoritos from '../../hooks/useFavoritos';
 import storeProductos from '../../context/storeProductos';
 import storeAuth from '../../context/storeAuth';
+import { Heart } from 'lucide-react';
 
 const Favoritos = () => {
     const navigate = useNavigate();
     const { productos, fetchProductos } = storeProductos();
     const { token } = storeAuth();
-    const { 
-        favoritos, 
+    const {
+        favoritos,
         favoritosIds,
-        loading, 
-        eliminarFavorito, 
+        loading,
+        eliminarFavorito,
         vaciarFavoritos,
-        recargarFavoritos 
+        recargarFavoritos
     } = useFavoritos();
 
     const [productosFavoritos, setProductosFavoritos] = useState([]);
@@ -26,7 +27,10 @@ const Favoritos = () => {
         const loadProductos = async () => {
             if (productos.length === 0) {
                 await fetchProductos();
+
             }
+            console.log(productos);
+
         };
         loadProductos();
     }, [fetchProductos, productos.length]);
@@ -62,6 +66,8 @@ const Favoritos = () => {
             </div>
         );
     }
+    console.log(productosFavoritos);
+
 
     return (
         <>
@@ -72,10 +78,19 @@ const Favoritos = () => {
                     <h1 className="text-3xl font-bold text-gray-700 mb-8">Mis Favoritos</h1>
 
                     {productosFavoritos.length === 0 ? (
-                        <div className="text-center text-gray-600 py-12">
-                            <FaHeart className="w-16 h-16 mx-auto mb-4 text-red-300" />
-                            <p className="text-lg mb-4">No tienes productos en favoritos.</p>
-                            <Link to="/" className="text-blue-600 hover:underline">Explora productos</Link>
+                        <div className="flex flex-col items-center justify-center py-16 px-6 bg-white ">
+                            <Heart className="w-20 h-20 text-blue-600 mb-6 animate-bounce" />
+                            <h2 className="text-2xl font-semibold text-gray-700 mb-2">Sin favoritos aún</h2>
+                            <p className="text-gray-500 text-center max-w-md mb-6">
+                                Aún no tienes productos en tu lista de favoritos.
+                                ¡Explora nuestro catálogo y agrega los que más te gusten!
+                            </p>
+                            <Link
+                                to="/"
+                                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full shadow-md transition transform hover:scale-105"
+                            >
+                                Explorar productos
+                            </Link>
                         </div>
                     ) : (
                         <>
@@ -91,8 +106,8 @@ const Favoritos = () => {
                                 {/* Contenido de la tabla */}
                                 <div className="divide-y divide-gray-200">
                                     {productosFavoritos.map((producto) => (
-                                        <div 
-                                            key={producto._id} 
+                                        <div
+                                            key={producto._id}
                                             className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gray-50 transition-colors"
                                         >
                                             {/* Columna Producto */}
@@ -107,7 +122,7 @@ const Favoritos = () => {
                                                         {producto.nombreProducto}
                                                     </h3>
                                                     <p className="text-sm text-gray-500">
-                                                        Precio: ${producto.precio || 'N/A'}
+                                                        Precio: ${producto?.precio}
                                                     </p>
                                                 </div>
                                             </div>
@@ -128,7 +143,7 @@ const Favoritos = () => {
                                             {/* Columna Acciones */}
                                             <div className="col-span-3 flex justify-center gap-2">
                                                 <button
-                                                    onClick={() => navigate(`/productos/${producto._id}`)}
+                                                    onClick={() => navigate(`/dashboard/productos/${producto._id}`)}
                                                     className="bg-blue-800 hover:bg-blue-900 text-white p-2 rounded-full transition-colors"
                                                     title="Ver detalle"
                                                 >

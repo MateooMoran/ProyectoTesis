@@ -36,7 +36,7 @@ const ProductoDetalle = () => {
   const handleComprarAhora = () => {
     if (!token) {
       toast.error('Debes iniciar sesión para comprar');
-      navigate('/login');
+      navigate('/prepago');
       return;
     }
     navigate(`/dashboard/compra/${id}`);

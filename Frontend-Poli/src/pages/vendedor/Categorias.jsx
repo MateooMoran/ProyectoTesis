@@ -92,12 +92,24 @@ export default function Categorias() {
     <>
       <ToastContainer position="top-right" autoClose={3000} />
       <Header />
-      <div className="h-15 sm:h-7 mb-6" />
+      <div className="h-15 sm:h-7 mb-10" />
 
-      <div className="max-w-7xl mx-auto px-3 lg:px-4 flex flex-col lg:flex-row gap-6">
+      {/* Título y descripción */}
+      <div className="text-center mb-6 lg:mb-10">
+        <div className="flex items-center justify-center gap-2 lg:gap-3 mb-2 lg:mb-3">
+          <h1 className="text-2xl lg:text-4xl font-bold text-gray-800">
+            Gestión de Categorías
+          </h1>
+        </div>
+        <p className="text-xs lg:text-base text-gray-600">
+          Organiza tus productos en categorías para mejorar la experiencia de tus clientes
+        </p>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-3 lg:px-4 flex flex-col lg:flex-row gap-6 mb-4">
         {/* MITAD IZQUIERDA: FORMULARIO */}
         <div className="lg:w-1/2 bg-white p-6 rounded-xl shadow-lg">
-          <h2 className="text-3xl font-extrabold mb-6 text-gray-700">Crear Categoría</h2>
+          <h2 className="text-2xl font-bold mb-6 text-gray-700">Crear Categoría</h2>
           <form onSubmit={crearCategoria} className="flex flex-col gap-4">
             <input
               type="text"
@@ -120,7 +132,7 @@ export default function Categorias() {
 
         {/* MITAD DERECHA: LISTADO + PAGINADOR */}
         <div className="lg:w-1/2 bg-white p-6 rounded-xl shadow-lg">
-          <h2 className="text-3xl font-extrabold mb-6 text-gray-700">Categorías Registradas</h2>
+          <h2 className="text-2xl font-bold mb-6 text-gray-700">Categorías Registradas</h2>
 
           {loading ? (
             <p className="text-center text-gray-500">Cargando categorías...</p>

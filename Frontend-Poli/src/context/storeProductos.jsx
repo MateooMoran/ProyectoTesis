@@ -21,7 +21,6 @@ const storeProductos = create((set, get) => {
       const { fetchDataBackend } = useFetch();
       const token = storeAuth.getState().token;
       const rol = storeAuth.getState().rol;
-      console.log('fetchProductos: token=', token, 'user.rol=', rol);
 
       set({ loadingProductos: true, error: null });
 

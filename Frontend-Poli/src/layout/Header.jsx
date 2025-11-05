@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, LogOut, Search,Heart } from 'lucide-react';
+import { User, LogOut, Search, Heart } from 'lucide-react';
 import { MessageCircle } from "lucide-react";
 import logo from '../assets/logo.png';
 import storeAuth from '../context/storeAuth';
@@ -110,7 +110,7 @@ const Header = () => {
                                 {open && <Chat onClose={() => setOpen(false)} />}
                             </>
                         )}
- {(rol === "estudiante" || rol === null) && (
+                        {(rol === "estudiante" || rol === 'admin' || rol === 'vendedor'|| rol === null) && (
                             <Link
                                 to={token ? "/dashboard/favoritos" : "/favoritos"}
                                 className="z-50 flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"

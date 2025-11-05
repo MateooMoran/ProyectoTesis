@@ -57,14 +57,21 @@ function GestionarQuejasSugerencias() {
         body,
         config: { headers },
       });
+      toast.success("Respuesta guardada");
+      // Opcional: recargar o actualizar estado local
     } catch (error) {
       console.error("Error al responder la queja/sugerencia", error);
+      toast.error("Error al guardar la respuesta");
     }
   };
 
   const handleRespuestaChange = (id, value) => {
     setQuejas((prev) =>
-      prev.map((q) => (q._id === id ? { ...q, respuesta: value } : q))
+      prev.map((q) =>
+        q._id === id && q.estado !== 'resuelto'
+          ? { ...q, respuesta: value }
+          : q
+      )
     );
   };
 
@@ -199,22 +206,25 @@ function GestionarQuejasSugerencias() {
                         <textarea
                           value={q.respuesta || ""}
                           onChange={(e) => handleRespuestaChange(q._id, e.target.value)}
-                          className="w-full border border-gray-300 rounded-lg lg:rounded-xl px-3 py-2 text-xs lg:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px] lg:min-h-[100px] mb-2"
-                          placeholder="Escribe una respuesta..."
+                          disabled={q.estado === 'resuelto'} // NO EDITABLE SI RESUELTO
+                          className={`w-full border ${q.estado === 'resuelto' ? 'bg-gray-100 border-gray-300 cursor-not-allowed' : 'border-gray-300'} rounded-lg lg:rounded-xl px-3 py-2 text-xs lg:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px] lg:min-h-[100px] mb-2`}
+                          placeholder={q.estado === 'resuelto' ? "Esta respuesta ya fue enviada" : "Escribe una respuesta..."}
                           maxLength={250}
                         />
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs text-gray-500">{(q.respuesta?.length || 0)}/250</span>
                           <button
-                            disabled={!q.respuesta || q.respuesta.trim() === ""}
+                            disabled={q.estado === 'resuelto' || !q.respuesta?.trim()} // NO GUARDAR SI RESUELTO
                             onClick={() => responderQueja(q._id, q.respuesta || "")}
-                            className={`flex items-center gap-1 px-3 lg:px-4 py-1.5 lg:py-2 rounded-lg lg:rounded-xl text-xs lg:text-sm font-semibold transition-all ${!q.respuesta || q.respuesta.trim() === ""
+                            className={`flex items-center gap-1 px-3 lg:px-4 py-1.5 lg:py-2 rounded-lg lg:rounded-xl text-xs lg:text-sm font-semibold transition-all ${q.estado === 'resuelto' || !q.respuesta?.trim()
                                 ? "bg-gray-400 text-white cursor-not-allowed"
                                 : "bg-gradient-to-r from-blue-900 to-blue-900 text-white hover:from-blue-800 hover:to-blue-900 transform hover:scale-105"
                               }`}
                           >
                             <Save className="w-3 h-3 lg:w-4 lg:h-4" />
-                            <span className="hidden sm:inline">Guardar</span>
+                            <span className="hidden sm:inline">
+                              {q.estado === 'resuelto' ? "Resuelto" : "Guardar"}
+                            </span>
                           </button>
                         </div>
                       </div>
