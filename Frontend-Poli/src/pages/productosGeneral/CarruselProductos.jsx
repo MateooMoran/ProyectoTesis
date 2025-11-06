@@ -155,7 +155,7 @@ const ProductCarousel = ({
 
                                         <div className="flex gap-2 mb-3">
                                             <Link
-                                                to={`/productos/${producto._id}`}
+                                                to={`/dashboard/productos/${producto._id}`}
                                                 className="flex-1 bg-blue-800 hover:bg-blue-900 text-white text-sm font-semibold py-2 px-3 rounded-md flex items-center justify-center gap-1 hover:scale-105 transition-all duration-300"
                                             >
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

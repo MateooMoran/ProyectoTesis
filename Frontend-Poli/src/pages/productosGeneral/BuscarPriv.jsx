@@ -139,7 +139,7 @@ const BuscarPriv = () => {
                                         <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 p-4">
                                             {/* IMAGEN + STOCK ARRIBA DERECHA */}
                                             <div className="relative mb-3">
-                                                <Link to={`/dashboard//productos/${producto._id}`} className="block">
+                                                <Link to={`/dashboard/productos/${producto._id}`} className="block">
                                                     <img
                                                         src={producto.imagen || placeholderImage}
                                                         alt={producto.nombreProducto}
