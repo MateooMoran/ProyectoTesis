@@ -32,7 +32,7 @@ export const seleccionarFavorito = async (req, res) => {
 
     await estudiante.save();
     res.status(200).json({ msg, favoritos: estudiante.favoritos });
-    
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Error actualizando favoritos", error: error.message });
@@ -45,8 +45,12 @@ export const verFavoritos = async (req, res) => {
     const estudianteId = req.estudianteBDD._id;
 
     const estudiante = await Estudiante.findById(estudianteId).populate({
-      path: "favoritos", 
-      select: "_id nombreProducto descripcion categoria estado imagen precio"
+      path: "favoritos",
+      select: "_id nombreProducto descripcion estado imagen precio stock",
+      populate: {
+        path: "categoria",
+        select: "nombreCategoria"
+      }
     });
 
     if (!estudiante) {
