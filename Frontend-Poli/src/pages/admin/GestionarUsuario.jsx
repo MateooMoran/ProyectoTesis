@@ -37,6 +37,8 @@ function GestionarUsuario() {
     }, []);
 
     const cambiarRolUsuario = async (idUsuario, nuevoRol) => {
+        const confirmar = window.confirm(`¿Estás seguro que deseas cambiar el rol de este usuario a "${nuevoRol}"?`);
+        if (!confirmar) return;
         try {
             const url = `${import.meta.env.VITE_BACKEND_URL}/admin/rol/${idUsuario}`;
             const storedUser = JSON.parse(localStorage.getItem("auth-token"));
