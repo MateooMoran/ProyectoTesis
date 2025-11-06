@@ -41,6 +41,10 @@ const initSocket = (server) => {
             }
         });
 
+        socket.on('escribiendo', ({ roomId }) => {
+            socket.to(roomId).emit('escribiendo', { roomId });
+        });
+
         // Enviar mensaje con límite de palabras
         socket.on('enviar-mensaje', async ({ roomId, texto, emisor }) => {
             try {
@@ -77,6 +81,7 @@ const initSocket = (server) => {
                 console.error('Error al eliminar conversación:', error);
             }
         });
+
 
         // Desconexión
         socket.on('disconnect', () => {
