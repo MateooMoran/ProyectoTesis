@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { toast } from 'react-toastify';
 import storeAuth from '../context/storeAuth';
 import useFetch from './useFetch';
 
@@ -16,119 +15,98 @@ const useFavoritos = () => {
             setLoading(true);
             try {
                 if (token) {
-                    console.log('🔍 Cargando favoritos con token...');
-                    // Usuario autenticado → traer desde backend
-                    const data = await fetchDataBackend(`${import.meta.env.VITE_BACKEND_URL}/estudiante/favoritos`, {
-                        method: 'GET',
-                        config: { headers: { Authorization: `Bearer ${token}` } }
-                    });
-                    console.log('📦 Favoritos cargados inicialmente:', data);
+                    const data = await fetchDataBackend(
+                        `${import.meta.env.VITE_BACKEND_URL}/estudiante/favoritos`,
+                        {
+                            method: 'GET',
+                            config: { headers: { Authorization: `Bearer ${token}` } },
+                        }
+                    );
                     setFavoritos(data.favoritos || []);
-                    setFavoritosIds(new Set(data.favoritos.map(f => f._id)));
+                    setFavoritosIds(new Set((data.favoritos || []).map(f => f._id)));
                 } else {
-                    console.log('🔍 Cargando favoritos desde localStorage...');
-                    // Usuario sin sesión → traer desde localStorage
                     const localFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
-                    console.log('📦 Favoritos desde localStorage:', localFavs);
                     setFavoritosIds(new Set(localFavs));
                 }
             } catch (err) {
-                console.error('❌ Error al cargar favoritos:', err);
+                console.error('Error al cargar favoritos:', err);
             } finally {
                 setLoading(false);
             }
         };
-        
+
         cargarFavoritos();
-    }, [token]); // Solo depende de token
+    }, [token]);
 
     // Verificar si un producto está en favoritos
-    const esFavorito = useCallback((productoId) => {
-        return favoritosIds.has(productoId);
-    }, [favoritosIds]);
+    const esFavorito = useCallback(
+        productoId => favoritosIds.has(productoId),
+        [favoritosIds]
+    );
 
-    // Toggle favorito (agregar o quitar)
-    const toggleFavorito = async (productoId) => {
+    // Agregar o quitar favorito
+    const toggleFavorito = async productoId => {
         if (token) {
-            // Usuario autenticado
             try {
-                console.log('🔄 Toggling favorito:', productoId);
-                
-                const response = await fetchDataBackend(
+                await fetchDataBackend(
                     `${import.meta.env.VITE_BACKEND_URL}/estudiante/favorito/${productoId}`,
                     {
                         method: 'PATCH',
-                        config: { headers: { Authorization: `Bearer ${token}` } }
+                        config: { headers: { Authorization: `Bearer ${token}` } },
                     }
                 );
-                
-                console.log('✅ Response toggle:', response);
-                
-                // Recargar favoritos completos desde el backend
-                const data = await fetchDataBackend(`${import.meta.env.VITE_BACKEND_URL}/estudiante/favoritos`, {
-                    method: 'GET',
-                    config: { headers: { Authorization: `Bearer ${token}` } }
-                });
-                
-                console.log('📦 Favoritos recargados:', data);
-                
+
+                const data = await fetchDataBackend(
+                    `${import.meta.env.VITE_BACKEND_URL}/estudiante/favoritos`,
+                    {
+                        method: 'GET',
+                        config: { headers: { Authorization: `Bearer ${token}` } },
+                    }
+                );
+
                 setFavoritos(data.favoritos || []);
                 setFavoritosIds(new Set((data.favoritos || []).map(f => f._id)));
-                
-                toast.success(response.msg || 'Favorito actualizado');
-                return response;
             } catch (err) {
-                console.error('❌ Error en toggleFavorito:', err);
-                toast.error('Error al actualizar favorito');
-                throw err;
+                console.error('Error al actualizar favorito:', err);
             }
         } else {
-            // Usuario sin sesión → guardar en localStorage
             let localFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
             const index = localFavs.indexOf(productoId);
-            
-            if (index === -1) {
-                localFavs.push(productoId);
-                toast.success('Producto agregado a favoritos');
-            } else {
-                localFavs.splice(index, 1);
-                toast.success('Producto removido de favoritos');
-            }
-            
+
+            if (index === -1) localFavs.push(productoId);
+            else localFavs.splice(index, 1);
+
             localStorage.setItem('favorites', JSON.stringify(localFavs));
             setFavoritosIds(new Set(localFavs));
         }
     };
 
     // Eliminar un favorito específico
-    const eliminarFavorito = async (productoId) => {
+    const eliminarFavorito = async productoId => {
         if (token) {
             try {
                 await fetchDataBackend(
                     `${import.meta.env.VITE_BACKEND_URL}/estudiante/favorito/${productoId}`,
                     {
                         method: 'DELETE',
-                        config: { headers: { Authorization: `Bearer ${token}` } }
+                        config: { headers: { Authorization: `Bearer ${token}` } },
                     }
                 );
-                
+
                 setFavoritos(favoritos.filter(fav => fav._id !== productoId));
                 setFavoritosIds(prev => {
                     const newSet = new Set(prev);
                     newSet.delete(productoId);
                     return newSet;
                 });
-                toast.success('Producto eliminado de favoritos');
             } catch (err) {
-                toast.error('Error al eliminar favorito');
-                throw err;
+                console.error('Error al eliminar favorito:', err);
             }
         } else {
             let localFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
             localFavs = localFavs.filter(id => id !== productoId);
             localStorage.setItem('favorites', JSON.stringify(localFavs));
             setFavoritosIds(new Set(localFavs));
-            toast.success('Producto removido de favoritos');
         }
     };
 
@@ -140,34 +118,34 @@ const useFavoritos = () => {
                     `${import.meta.env.VITE_BACKEND_URL}/estudiante/favoritas/id`,
                     {
                         method: 'DELETE',
-                        config: { headers: { Authorization: `Bearer ${token}` } }
+                        config: { headers: { Authorization: `Bearer ${token}` } },
                     }
                 );
                 setFavoritos([]);
                 setFavoritosIds(new Set());
-                toast.success('Todos los favoritos han sido eliminados');
             } catch (err) {
-                toast.error('Error al vaciar favoritos');
-                throw err;
+                console.error('Error al vaciar favoritos:', err);
             }
         } else {
             localStorage.removeItem('favorites');
             setFavoritos([]);
             setFavoritosIds(new Set());
-            toast.success('Favoritos vaciados');
         }
     };
 
-    // Recargar favoritos manualmente cuando sea necesario
+    // Recargar favoritos manualmente
     const recargarFavoritos = async () => {
         try {
             if (token) {
-                const data = await fetchDataBackend(`${import.meta.env.VITE_BACKEND_URL}/estudiante/favoritos`, {
-                    method: 'GET',
-                    config: { headers: { Authorization: `Bearer ${token}` } }
-                });
+                const data = await fetchDataBackend(
+                    `${import.meta.env.VITE_BACKEND_URL}/estudiante/favoritos`,
+                    {
+                        method: 'GET',
+                        config: { headers: { Authorization: `Bearer ${token}` } },
+                    }
+                );
                 setFavoritos(data.favoritos || []);
-                setFavoritosIds(new Set(data.favoritos.map(f => f._id)));
+                setFavoritosIds(new Set((data.favoritos || []).map(f => f._id)));
             } else {
                 const localFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
                 setFavoritosIds(new Set(localFavs));
@@ -185,7 +163,7 @@ const useFavoritos = () => {
         toggleFavorito,
         eliminarFavorito,
         vaciarFavoritos,
-        recargarFavoritos
+        recargarFavoritos,
     };
 };
 
