@@ -1,6 +1,9 @@
 import Conversacion from "../models/Conversacion.js";
+import Mensaje from "../models/Mensaje.js";
+import Notificacion from "../models/Notificacion.js";
 import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
+import { v2 as cloudinary } from 'cloudinary';
 
 const initSocket = (server) => {
     const io = new Server(server, {
@@ -31,136 +34,318 @@ const initSocket = (server) => {
 
     io.on('connection', (socket) => {
         console.log('🔌 Usuario conectado:', socket.userId);
+        
+        // Unirse a sala personal para notificaciones
+        socket.join(`user:${socket.userId}`);
 
         // Unirse a una conversación
-        socket.on('join-chat', async ({ userId, otherUserId }) => {
-            // Validar que el usuario autenticado es quien dice ser
-            if (socket.userId !== userId) {
-                return socket.emit('error-mensaje', 'No autorizado');
-            }
+        socket.on('join-chat', async ({ conversacionId }) => {
             try {
-                let conversacion = await Conversacion.findOne({
-                    miembros: { $all: [userId, otherUserId] },
-                });
+                const conversacion = await Conversacion.findById(conversacionId);
 
                 if (!conversacion) {
-                    conversacion = await Conversacion.create({
-                        miembros: [userId, otherUserId],
-                        mensajes: [],
-                        ocultadaPor: [] // Inicializar vacío
-                    });
-                } else {
-                    // Si el usuario que se une había ocultado la conversación, removerlo del array
-                    if (conversacion.ocultadaPor.includes(userId)) {
-                        conversacion.ocultadaPor = conversacion.ocultadaPor.filter(
-                            id => id.toString() !== userId.toString()
-                        );
-                        await conversacion.save();
-                    }
+                    return socket.emit('error-mensaje', 'Conversación no encontrada');
                 }
 
-                const roomId = conversacion._id.toString();
+                // Validar que el usuario sea miembro
+                if (!conversacion.miembros.some(m => m.toString() === socket.userId)) {
+                    return socket.emit('error-mensaje', 'No eres miembro de esta conversación');
+                }
+
+                const roomId = conversacionId;
                 socket.join(roomId);
 
-                await conversacion.populate({
-                    path: 'mensajes.emisor',
-                    select: 'nombre apellido',
-                });
+                // Obtener mensajes de la conversación
+                const mensajes = await Mensaje.find({
+                    conversacion: conversacionId,
+                    eliminado: false
+                })
+                    .sort({ createdAt: 1 })
+                    .limit(50)
+                    .populate('emisor', 'nombre apellido rol')
+                    .lean();
 
                 socket.emit('chat-joined', {
                     roomId,
-                    mensajes: conversacion.mensajes,
+                    mensajes
                 });
                 
-                console.log(`✅ Usuario ${userId} unido a conversación ${roomId}`);
+                console.log(`✅ Usuario ${socket.userId} unido a conversación ${roomId}`);
             } catch (error) {
                 console.error('❌ Error en join-chat:', error);
                 socket.emit('error-mensaje', 'Error al unirse al chat');
             }
         });
 
-        socket.on('escribiendo', ({ roomId }) => {
-            socket.to(roomId).emit('escribiendo', { roomId });
+        // Usuario escribiendo
+        socket.on('escribiendo', ({ conversacionId }) => {
+            socket.to(conversacionId).emit('usuario-escribiendo', { 
+                conversacionId,
+                usuarioId: socket.userId 
+            });
         });
 
-        // Enviar mensaje con límite de palabras
-        socket.on('enviar-mensaje', async ({ roomId, texto, emisor }) => {
+        // Usuario dejó de escribir
+        socket.on('dejo-escribir', ({ conversacionId }) => {
+            socket.to(conversacionId).emit('usuario-dejo-escribir', { 
+                conversacionId,
+                usuarioId: socket.userId 
+            });
+        });
+
+        // Enviar mensaje de texto
+        socket.on('enviar-mensaje', async ({ conversacionId, contenido }) => {
+            console.log('📨 Recibiendo mensaje:', { conversacionId, contenido, userId: socket.userId });
+            
             try {
-                // Validar que el emisor sea el usuario autenticado
-                if (socket.userId !== emisor) {
-                    return socket.emit('error-mensaje', 'No autorizado');
+                if (!contenido?.trim()) {
+                    console.log('❌ Mensaje vacío');
+                    return socket.emit('error-mensaje', 'El mensaje no puede estar vacío');
                 }
 
-                const cantidadPalabras = texto.trim().split(/\s+/).length;
-
-                if (cantidadPalabras > 100) {
-                    return socket.emit('error-mensaje', 'El mensaje excede el límite de 100 palabras.');
+                const palabras = contenido.trim().split(/\s+/).length;
+                if (palabras > 100) {
+                    console.log('❌ Mensaje muy largo');
+                    return socket.emit('error-mensaje', 'El mensaje excede el límite de 100 palabras');
                 }
 
-                const nuevoMensaje = { texto, emisor, fecha: new Date() };
-
-                // Si el emisor había ocultado la conversación, removerlo del array para "reactivarla"
-                const conversacion = await Conversacion.findByIdAndUpdate(
-                    roomId,
-                    { 
-                        $push: { mensajes: nuevoMensaje },
-                        $pull: { ocultadaPor: emisor } // Remover al emisor del array de ocultamiento
-                    },
-                    { new: true }
-                ).populate({
-                    path: 'mensajes.emisor',
-                    select: 'nombre apellido',
-                });
-
+                const conversacion = await Conversacion.findById(conversacionId);
                 if (!conversacion) {
+                    console.log('❌ Conversación no encontrada:', conversacionId);
                     return socket.emit('error-mensaje', 'Conversación no encontrada');
                 }
 
-                // Emitir a todos en la sala
-                io.to(roomId).emit('nuevo-mensaje', conversacion.mensajes);
+                // Validar membresía
+                if (!conversacion.miembros.some(m => m.toString() === socket.userId)) {
+                    console.log('❌ Usuario no es miembro');
+                    return socket.emit('error-mensaje', 'No eres miembro de esta conversación');
+                }
+
+                console.log('✅ Validaciones pasadas, creando mensaje...');
+
+                // Crear mensaje
+                const nuevoMensaje = await Mensaje.create({
+                    conversacion: conversacionId,
+                    emisor: socket.userId,
+                    tipo: 'texto',
+                    contenido: contenido.trim()
+                });
+
+                console.log('✅ Mensaje creado:', nuevoMensaje._id);
+
+                // Populate el mensaje
+                const mensajePopulado = await Mensaje.findById(nuevoMensaje._id)
+                    .populate('emisor', 'nombre apellido rol');
+
+                console.log('✅ Mensaje populado:', mensajePopulado);
+                console.log('✅ Actualizando conversación...');
+
+                // Actualizar conversación
+                const otroMiembro = conversacion.miembros.find(
+                    m => m.toString() !== socket.userId
+                );
+
+                console.log('👤 Otro miembro:', otroMiembro);
+
+                conversacion.ultimoMensaje = nuevoMensaje._id;
+                conversacion.updatedAt = new Date();
+                conversacion.ocultadaPor = conversacion.ocultadaPor.filter(
+                    id => id.toString() !== socket.userId
+                );
+
+                // Incrementar contador para el otro usuario
+                const mensajesNoLeidosActualizado = conversacion.mensajesNoLeidos.map(item => {
+                    if (item.usuario.toString() === otroMiembro.toString()) {
+                        return { usuario: item.usuario, cantidad: item.cantidad + 1 };
+                    }
+                    return item;
+                });
+
+                if (!mensajesNoLeidosActualizado.some(
+                    item => item.usuario.toString() === otroMiembro.toString()
+                )) {
+                    mensajesNoLeidosActualizado.push({ 
+                        usuario: otroMiembro, 
+                        cantidad: 1 
+                    });
+                }
+
+                conversacion.mensajesNoLeidos = mensajesNoLeidosActualizado;
+                await conversacion.save();
+
+                console.log('✅ Conversación actualizada');
+
+                // Crear notificación
+                await Notificacion.create({
+                    usuario: otroMiembro,
+                    mensaje: 'Tienes un nuevo mensaje',
+                    tipo: 'mensaje',
+                    leido: false
+                });
+
+                console.log('✅ Notificación creada');
+
+                // Emitir eventos
+                console.log('📡 Emitiendo mensaje a sala:', conversacionId);
+                console.log('📡 Mensaje a emitir:', JSON.stringify(mensajePopulado, null, 2));
                 
-                console.log(`📨 Mensaje enviado en ${roomId} por ${emisor}`);
+                io.to(conversacionId).emit('message:new', {
+                    mensaje: mensajePopulado
+                });
+
+                console.log('📡 Mensaje emitido a la sala');
+
+                // Notificar actualización de chat al otro usuario
+                io.to(`user:${otroMiembro}`).emit('chat:updated', {
+                    conversacionId,
+                    ultimoMensaje: mensajePopulado,
+                    mensajesNoLeidos: 1
+                });
+
+                console.log(`✅ Mensaje enviado correctamente en ${conversacionId} por ${socket.userId}`);
+                
+                // Confirmar al emisor
+                socket.emit('mensaje:confirmado', {
+                    mensajeId: mensajePopulado._id
+                });
             } catch (error) {
                 console.error('❌ Error en enviar-mensaje:', error);
-                socket.emit('error-mensaje', 'Error al enviar mensaje');
+                console.error('Stack:', error.stack);
+                socket.emit('error-mensaje', 'Error al enviar mensaje: ' + error.message);
             }
         });
 
-        // Eliminar conversación (ya no se usa desde socket, se usa el endpoint REST)
-        // Mantener por compatibilidad pero deprecado
-        socket.on('eliminar-conversacion', async ({ roomId, userId }) => {
+        // Enviar imagen
+        socket.on('enviar-imagen', async ({ conversacionId, imagenUrl, imagenPublicId }) => {
             try {
-                const conversacion = await Conversacion.findById(roomId);
-                
+                const conversacion = await Conversacion.findById(conversacionId);
                 if (!conversacion) {
                     return socket.emit('error-mensaje', 'Conversación no encontrada');
                 }
 
-                // Ocultar para el usuario que lo solicita
-                if (!conversacion.ocultadaPor.includes(userId)) {
-                    conversacion.ocultadaPor.push(userId);
+                // Validar membresía
+                if (!conversacion.miembros.some(m => m.toString() === socket.userId)) {
+                    return socket.emit('error-mensaje', 'No eres miembro de esta conversación');
+                }
+
+                // Crear mensaje de imagen
+                const nuevoMensaje = await Mensaje.create({
+                    conversacion: conversacionId,
+                    emisor: socket.userId,
+                    tipo: 'imagen',
+                    imagenUrl,
+                    imagenPublicId
+                });
+
+                await nuevoMensaje.populate('emisor', 'nombre apellido rol');
+
+                // Actualizar conversación
+                const otroMiembro = conversacion.miembros.find(
+                    m => m.toString() !== socket.userId
+                );
+
+                conversacion.ultimoMensaje = nuevoMensaje._id;
+                conversacion.updatedAt = new Date();
+                conversacion.ocultadaPor = conversacion.ocultadaPor.filter(
+                    id => id.toString() !== socket.userId
+                );
+
+                // Incrementar contador
+                const mensajesNoLeidosActualizado = conversacion.mensajesNoLeidos.map(item => {
+                    if (item.usuario.toString() === otroMiembro.toString()) {
+                        return { usuario: item.usuario, cantidad: item.cantidad + 1 };
+                    }
+                    return item;
+                });
+
+                if (!mensajesNoLeidosActualizado.some(
+                    item => item.usuario.toString() === otroMiembro.toString()
+                )) {
+                    mensajesNoLeidosActualizado.push({ 
+                        usuario: otroMiembro, 
+                        cantidad: 1 
+                    });
+                }
+
+                conversacion.mensajesNoLeidos = mensajesNoLeidosActualizado;
+                await conversacion.save();
+
+                // Crear notificación
+                await Notificacion.create({
+                    usuario: otroMiembro,
+                    mensaje: 'Te han enviado una imagen',
+                    tipo: 'mensaje',
+                    leido: false
+                });
+
+                // Emitir eventos
+                io.to(conversacionId).emit('message:new', {
+                    mensaje: nuevoMensaje
+                });
+
+                io.to(`user:${otroMiembro}`).emit('chat:updated', {
+                    conversacionId,
+                    ultimoMensaje: nuevoMensaje,
+                    mensajesNoLeidos: 1
+                });
+
+                console.log(`🖼️ Imagen enviada en ${conversacionId} por ${socket.userId}`);
+            } catch (error) {
+                console.error('❌ Error en enviar-imagen:', error);
+                socket.emit('error-mensaje', 'Error al enviar imagen');
+            }
+        });
+
+        // Eliminar mensaje
+        socket.on('eliminar-mensaje', async ({ mensajeId }) => {
+            try {
+                const mensaje = await Mensaje.findById(mensajeId);
+                
+                if (!mensaje) {
+                    return socket.emit('error-mensaje', 'Mensaje no encontrado');
+                }
+
+                // Verificar que el usuario sea el autor
+                if (mensaje.emisor.toString() !== socket.userId) {
+                    return socket.emit('error-mensaje', 'Solo puedes eliminar tus propios mensajes');
+                }
+
+                // Soft delete
+                mensaje.eliminado = true;
+                await mensaje.save();
+
+                // Si es imagen, eliminar de Cloudinary
+                if (mensaje.tipo === 'imagen' && mensaje.imagenPublicId) {
+                    try {
+                        await cloudinary.uploader.destroy(mensaje.imagenPublicId);
+                    } catch (cloudinaryError) {
+                        console.error('Error eliminando imagen de Cloudinary:', cloudinaryError);
+                    }
+                }
+
+                // Actualizar último mensaje si era el último
+                const conversacion = await Conversacion.findById(mensaje.conversacion);
+                if (conversacion?.ultimoMensaje?.toString() === mensajeId) {
+                    const nuevoUltimoMensaje = await Mensaje.findOne({
+                        conversacion: mensaje.conversacion,
+                        eliminado: false
+                    }).sort({ createdAt: -1 });
+
+                    conversacion.ultimoMensaje = nuevoUltimoMensaje?._id || null;
                     await conversacion.save();
                 }
 
-                // Si ambos usuarios ocultaron, eliminar permanentemente
-                const todosOcultaron = conversacion.miembros.every(miembro => 
-                    conversacion.ocultadaPor.some(oculto => oculto.toString() === miembro.toString())
-                );
+                // Emitir evento
+                io.to(mensaje.conversacion.toString()).emit('message:delete', {
+                    mensajeId
+                });
 
-                if (todosOcultaron) {
-                    await Conversacion.findByIdAndDelete(roomId);
-                    io.to(roomId).emit('conversacion-eliminada', { roomId });
-                    console.log(`Conversación ${roomId} eliminada permanentemente.`);
-                } else {
-                    socket.emit('conversacion-ocultada', { roomId });
-                    console.log(`Conversación ${roomId} ocultada para usuario ${userId}.`);
-                }
+                console.log(`🗑️ Mensaje ${mensajeId} eliminado por ${socket.userId}`);
             } catch (error) {
-                console.error('Error al eliminar conversación:', error);
-                socket.emit('error-mensaje', 'Error al eliminar conversación');
+                console.error('❌ Error en eliminar-mensaje:', error);
+                socket.emit('error-mensaje', 'Error al eliminar mensaje');
             }
         });
-
 
         // Desconexión
         socket.on('disconnect', () => {

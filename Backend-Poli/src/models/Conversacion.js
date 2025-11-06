@@ -2,26 +2,31 @@ import { Schema, model } from "mongoose";
 
 const conversacionSchema = new Schema(
   {
-    miembros: [{ type: Schema.Types.ObjectId, ref: 'Estudiantes' }],
-    mensajes: [
-      {
-        emisor: { type: Schema.Types.ObjectId, ref: 'Estudiantes' },
-        texto: String,
-        fecha: { type: Date, default: Date.now }
-      }
-    ],
-    lecturas: [
-      {
-        usuario: { type: Schema.Types.ObjectId, ref: 'Estudiantes' },
-        ultimaLectura: { type: Date, default: Date.now }
-      }
-    ],
-    // Array de usuarios que han ocultado esta conversación
-    ocultadaPor: [{ type: Schema.Types.ObjectId, ref: 'Estudiantes' }]
+    miembros: [{ 
+      type: Schema.Types.ObjectId, 
+      ref: 'Estudiantes',
+      required: true
+    }],
+    ultimoMensaje: {
+      type: Schema.Types.ObjectId,
+      ref: 'Mensaje'
+    },
+    mensajesNoLeidos: [{
+      usuario: { type: Schema.Types.ObjectId, ref: 'Estudiantes' },
+      cantidad: { type: Number, default: 0 }
+    }],
+    ocultadaPor: [{ 
+      type: Schema.Types.ObjectId, 
+      ref: 'Estudiantes' 
+    }]
   },
   {
     timestamps: true,
   }
 );
+
+// Índice compuesto para búsqueda rápida
+conversacionSchema.index({ miembros: 1 });
+conversacionSchema.index({ updatedAt: -1 });
 
 export default model("Conversacion", conversacionSchema);

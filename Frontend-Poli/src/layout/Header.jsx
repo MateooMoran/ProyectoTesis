@@ -7,7 +7,7 @@ import storeAuth from '../context/storeAuth';
 import storeProfile from '../context/storeProfile';
 import storeProductos from '../context/storeProductos';
 import NotificacionesAdmin from '../pages/admin/Notificaciones';
-import Chat from '../pages/chat/Chat';
+import ChatBadge from '../components/ChatBadge';
 
 const Header = () => {
     const navigate = useNavigate();
@@ -53,7 +53,6 @@ const Header = () => {
         navigate('/');
     };
 
-    // ✅ Corregido: no se vuelve a llamar al hook storeAuth() aquí
     const handleSearch = (e) => {
         e.preventDefault();
         if (searchQuery.trim()) {
@@ -98,18 +97,9 @@ const Header = () => {
                     <div className="flex items-center gap-2 flex-col sm:flex-row w-full sm:w-auto">
                         {(rol === 'estudiante' || rol === 'admin' || rol === 'vendedor') && <NotificacionesAdmin />}
 
-                        {/* Botón de chat (solo visible si hay TOKEN y rol válido) */}
-                        {token && (rol === 'estudiante' || rol === 'admin' || rol === 'vendedor') && (
-                            <>
-                                <button
-                                    onClick={() => setOpen(!open)}
-                                    className="fixed bottom-5 right-5 p-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 z-50"
-                                >
-                                    <MessageCircle size={24} />
-                                </button>
-                                {open && <Chat onClose={() => setOpen(false)} />}
-                            </>
-                        )}
+                        {/* Chat Badge - Solo para usuarios autenticados */}
+                        {token && (rol === 'estudiante' || rol === 'admin' || rol === 'vendedor') && <ChatBadge />}
+
                         {(rol === "estudiante" || rol === 'admin' || rol === 'vendedor' || rol === null) && (
                             <Link
                                 to={token ? "/dashboard/favoritos" : "/favoritos"}

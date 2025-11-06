@@ -28,7 +28,10 @@ import Historial from './pages/vendedor/Historial';
 import EditarProductos from './pages/vendedor/EditarProductos';
 import HistorialPagos from './pages/pagos/HistorialPagos';
 import MetodoPago from './pages/vendedor/MetodoPago';
-import PrePagoProceso from './pages/productosGeneral/PrePagoProceso'
+import PrePagoProceso from './pages/productosGeneral/PrePagoProceso';
+
+import ChatPage from './pages/ChatPage';
+import { SocketProvider } from './context/SocketContext';
 
 import { useEffect, useRef } from 'react';
 import storeProfile from './context/storeProfile';
@@ -50,10 +53,11 @@ function App() {
   }, [token, profile]); 
 
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Rutas públicas */}
-        <Route element={<PublicRoute />}>
+    <SocketProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Rutas públicas */}
+          <Route element={<PublicRoute />}>
           <Route index element={<Home />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
@@ -92,10 +96,13 @@ function App() {
             <Route path="vendedor/historial-ventas" element={<Historial />} />
             <Route path="vendedor/quejas-sugerencias" element={<QuejasSugerencias />} />
             <Route path="vendedor/metodo-pago" element={<MetodoPago />} />
+            
+            <Route path="chat" element={<ChatPage />} />
           </Route>
         </Route>
       </Routes>
     </BrowserRouter>
+    </SocketProvider>
   );
 }
 
