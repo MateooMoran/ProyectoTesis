@@ -1,5 +1,5 @@
 // src/components/chat/ChatWindow.jsx
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Search, Send, X, MessageCircle, Info, Trash2 } from "lucide-react";
 import useChat from "../../hooks/useChat";
 import useFetch from "../../hooks/useFetch";
@@ -25,7 +25,7 @@ export default function ChatWindow({ onClose, showBadge = true }) {
   const [conversandoCon, setConversandoCon] = useState(null);
   const [conversaciones, setConversaciones] = useState([]);
   const [mostrarModal, setMostrarModal] = useState(false);
-  const [mensajesNuevos, setMensajesNuevos] = useState(new Set());
+  const [mensajesNuevos, setMensajesNuevos] = useState(new Map()); // Map: roomId → count
   const [totalMensajesNuevos, setTotalMensajesNuevos] = useState(0);
   const [texto, setTexto] = useState("");
   const [escribiendo, setEscribiendo] = useState(false);
@@ -43,7 +43,7 @@ export default function ChatWindow({ onClose, showBadge = true }) {
   }, [mensajes]);
 
   // --- CARGAR CONVERSACIONES ---
-  const fetchConversaciones = async () => {
+  const fetchConversaciones = useCallback(async () => {
     try {
       const data = await fetchDataBackend(`${API_URL}/chat/conversaciones`, {
         method: "GET",
@@ -52,16 +52,19 @@ export default function ChatWindow({ onClose, showBadge = true }) {
 
       setConversaciones(data);
 
-      const nuevos = new Set();
-      let count = 0;
+      // Recalcular contador desde backend
+      const nuevos = new Map();
+      let total = 0;
       data.forEach(conv => {
-        if (tieneMensajesNoLeidos(conv)) {
-          nuevos.add(conv.conversacionId);
-          count++;
+        const noLeidos = tieneMensajesNoLeidos(conv) ? 1 : 0;
+        if (noLeidos > 0) {
+          nuevos.set(conv.conversacionId, noLeidos);
+          total += noLeidos;
         }
       });
+
       setMensajesNuevos(nuevos);
-      setTotalMensajesNuevos(count);
+      setTotalMensajesNuevos(total);
     } catch (err) {
       if (err.message.includes("Token")) {
         localStorage.removeItem("auth-token");
@@ -69,14 +72,14 @@ export default function ChatWindow({ onClose, showBadge = true }) {
         window.location.reload();
       }
     }
-  };
+  }, [fetchDataBackend, token]);
 
   useEffect(() => {
-    if (token && usuarioActual) {
+    if (token) {
       fetchConversaciones();
       setMostrarModal(true);
     }
-  }, [token]);
+  }, [token, fetchConversaciones]);
 
   // --- MARCAR COMO LEÍDO ---
   useEffect(() => {
@@ -87,9 +90,9 @@ export default function ChatWindow({ onClose, showBadge = true }) {
           method: "POST",
           config: { headers: { Authorization: `Bearer ${token}` } },
         });
-        fetchConversaciones();
+        // Actualizar contador
         setMensajesNuevos(prev => {
-          const copia = new Set(prev);
+          const copia = new Map(prev);
           copia.delete(roomId);
           setTotalMensajesNuevos(copia.size);
           return copia;
@@ -99,28 +102,35 @@ export default function ChatWindow({ onClose, showBadge = true }) {
       }
     };
     marcarLeido();
-  }, [roomId, token]);
+  }, [roomId, token, fetchDataBackend]);
 
-  // --- NUEVO MENSAJE (SOCKET) ---
+  // --- NUEVO MENSAJE (SOCKET) - TIEMPO REAL ---
   useEffect(() => {
     if (!mensajes.length || !roomId) return;
     const ultimo = mensajes[mensajes.length - 1];
+
     if (ultimo.emisor?._id !== usuarioActual._id) {
+      // Si el mensaje es de otro, incrementar contador
       setMensajesNuevos(prev => {
-        const copia = new Set(prev);
-        copia.add(roomId);
-        setTotalMensajesNuevos(copia.size);
+        const copia = new Map(prev);
+        const current = copia.get(roomId) || 0;
+        copia.set(roomId, current + 1);
+        setTotalMensajesNuevos(prevTotal => prevTotal + 1);
         return copia;
       });
+
+      // Notificación
       if (Notification.permission === "granted") {
         new Notification("Nuevo mensaje", {
           body: `${ultimo.emisor.nombre}: ${ultimo.texto}`,
           icon: "/logo.png",
         });
       }
-      fetchConversaciones(); // Refresca contador
+
+      // Refrescar lista de conversaciones
+      fetchConversaciones();
     }
-  }, [mensajes, roomId, usuarioActual._id]);
+  }, [mensajes, roomId, usuarioActual._id, fetchConversaciones]);
 
   // --- ESCRIBIENDO ---
   useEffect(() => {
@@ -141,7 +151,7 @@ export default function ChatWindow({ onClose, showBadge = true }) {
       socket.off("escribiendo", handleEscribiendo);
       if (escribiendoTimer) clearTimeout(escribiendoTimer);
     };
-  }, [roomId, socketRef]);
+  }, [roomId, socketRef, escribiendoTimer]);
 
   const handleInputChange = (e) => {
     setTexto(e.target.value);
@@ -208,7 +218,7 @@ export default function ChatWindow({ onClose, showBadge = true }) {
       toast.success("Eliminada");
       setConversandoCon(null);
       setMensajesNuevos(prev => {
-        const copia = new Set(prev);
+        const copia = new Map(prev);
         copia.delete(roomId);
         setTotalMensajesNuevos(copia.size);
         return copia;
@@ -328,7 +338,7 @@ export default function ChatWindow({ onClose, showBadge = true }) {
             <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
               {conversaciones.length > 0 ? (
                 conversaciones.map((conv) => {
-                  const noLeido = tieneMensajesNoLeidos(conv) || mensajesNuevos.has(conv.conversacionId);
+                  const noLeido = mensajesNuevos.has(conv.conversacionId);
                   return (
                     <div
                       key={conv.conversacionId}
