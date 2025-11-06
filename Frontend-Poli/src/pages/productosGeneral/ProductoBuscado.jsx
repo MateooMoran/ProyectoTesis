@@ -86,7 +86,7 @@ const ProductosBuscados = () => {
     const token = storedData?.state?.token;
 
     if (token) {
-      Navigate(`/dashboard/compra/${producto._id}`);
+      Navigate(`/prepago`);
     }
     else{
       toast.error('Debes iniciar sesión para comprar');
