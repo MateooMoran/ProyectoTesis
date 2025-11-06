@@ -110,7 +110,7 @@ const Header = () => {
                                 {open && <Chat onClose={() => setOpen(false)} />}
                             </>
                         )}
-                        {(rol === "estudiante" || rol === 'admin' || rol === 'vendedor'|| rol === null) && (
+                        {(rol === "estudiante" || rol === 'admin' || rol === 'vendedor' || rol === null) && (
                             <Link
                                 to={token ? "/dashboard/favoritos" : "/favoritos"}
                                 className="z-50 flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors"

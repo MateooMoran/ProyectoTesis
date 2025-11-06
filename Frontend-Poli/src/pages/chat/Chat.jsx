@@ -1,26 +1,25 @@
-// src/pages/chat/ChatWindow.jsx
+// src/components/chat/ChatWindow.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { Search, Send, X, MessageCircle, Info, Trash2 } from "lucide-react";
 import useChat from "../../hooks/useChat";
+import useFetch from "../../hooks/useFetch";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000/api";
 
 export default function ChatWindow({ onClose, showBadge = true }) {
-  // OBTENER DATOS DE localStorage
+  const { fetchDataBackend } = useFetch();
+
+  // --- DATOS DEL USUARIO ---
   const storedToken = JSON.parse(localStorage.getItem("auth-token"));
   const profile = JSON.parse(localStorage.getItem("profile-storage"));
-
   const token = storedToken?.state?.token || null;
   const usuarioActual = profile?.state?.user || null;
 
-  // Si no hay token o usuario, no renderizar
-  if (!token || !usuarioActual) {
-    return null;
-  }
+  if (!token || !usuarioActual) return null;
 
-  // Estados del chat
+  // --- ESTADOS ---
   const [nombreBuscar, setNombreBuscar] = useState("");
   const [resultados, setResultados] = useState([]);
   const [conversandoCon, setConversandoCon] = useState(null);
@@ -32,43 +31,25 @@ export default function ChatWindow({ onClose, showBadge = true }) {
   const [escribiendo, setEscribiendo] = useState(false);
   const [escribiendoTimer, setEscribiendoTimer] = useState(null);
 
-  // Hook de chat
-  const {
-    roomId,
-    mensajes,
-    error,
-    joinChat,
-    sendMessage,
-    socketRef
-  } = useChat(token, usuarioActual._id);
-
+  // --- SOCKET ---
+  const { roomId, mensajes, error, joinChat, sendMessage, socketRef } = useChat(token, usuarioActual._id);
   const mensajesRef = useRef(null);
 
-  // Scroll automático
+  // --- SCROLL AUTOMÁTICO ---
   useEffect(() => {
     if (mensajesRef.current) {
       mensajesRef.current.scrollTop = mensajesRef.current.scrollHeight;
     }
   }, [mensajes]);
 
-  // Cargar conversaciones
+  // --- CARGAR CONVERSACIONES ---
   const fetchConversaciones = async () => {
     try {
-      const res = await fetch(`${API_URL}/chat/conversaciones`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const data = await fetchDataBackend(`${API_URL}/chat/conversaciones`, {
+        method: "GET",
+        config: { headers: { Authorization: `Bearer ${token}` } },
       });
-      if (!res.ok) {
-        const err = await res.json();
-        if (err.msg?.includes("Token")) {
-          localStorage.removeItem("auth-token");
-          localStorage.removeItem("profile-storage");
-          toast.error("Sesión expirada");
-          window.location.reload();
-          return;
-        }
-        throw new Error(err.msg || "Error al cargar");
-      }
-      const data = await res.json();
+
       setConversaciones(data);
 
       const nuevos = new Set();
@@ -82,7 +63,11 @@ export default function ChatWindow({ onClose, showBadge = true }) {
       setMensajesNuevos(nuevos);
       setTotalMensajesNuevos(count);
     } catch (err) {
-      toast.error(err.message);
+      if (err.message.includes("Token")) {
+        localStorage.removeItem("auth-token");
+        localStorage.removeItem("profile-storage");
+        window.location.reload();
+      }
     }
   };
 
@@ -93,24 +78,15 @@ export default function ChatWindow({ onClose, showBadge = true }) {
     }
   }, [token]);
 
-  // Marcar como leída
+  // --- MARCAR COMO LEÍDO ---
   useEffect(() => {
     if (!roomId || !token) return;
-    const marcar = async () => {
+    const marcarLeido = async () => {
       try {
-        const res = await fetch(`${API_URL}/conversacion/${roomId}/leer`, {
+        await fetchDataBackend(`${API_URL}/conversacion/${roomId}/leer`, {
           method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
+          config: { headers: { Authorization: `Bearer ${token}` } },
         });
-        if (!res.ok) {
-          const err = await res.json();
-          if (err.msg?.includes("Token")) {
-            localStorage.removeItem("auth-token");
-            localStorage.removeItem("profile-storage");
-            window.location.reload();
-            return;
-          }
-        }
         fetchConversaciones();
         setMensajesNuevos(prev => {
           const copia = new Set(prev);
@@ -118,14 +94,14 @@ export default function ChatWindow({ onClose, showBadge = true }) {
           setTotalMensajesNuevos(copia.size);
           return copia;
         });
-      } catch (error) {
-        console.error("Error marcando como leída");
+      } catch (err) {
+        console.error("Error marcando como leído");
       }
     };
-    marcar();
+    marcarLeido();
   }, [roomId, token]);
 
-  // Nuevo mensaje
+  // --- NUEVO MENSAJE (SOCKET) ---
   useEffect(() => {
     if (!mensajes.length || !roomId) return;
     const ultimo = mensajes[mensajes.length - 1];
@@ -142,11 +118,11 @@ export default function ChatWindow({ onClose, showBadge = true }) {
           icon: "/logo.png",
         });
       }
-      fetchConversaciones();
+      fetchConversaciones(); // Refresca contador
     }
   }, [mensajes, roomId, usuarioActual._id]);
 
-  // Indicador de escritura
+  // --- ESCRIBIENDO ---
   useEffect(() => {
     const socket = socketRef?.current;
     if (!socket || !roomId) return;
@@ -180,33 +156,24 @@ export default function ChatWindow({ onClose, showBadge = true }) {
     return new Date(conv.ultimoMensaje.fecha) > new Date(conv.ultimaLectura);
   };
 
-  // Buscar
+  // --- BUSCAR USUARIOS ---
   const buscarUsuarios = async () => {
     const nombre = nombreBuscar.trim();
-    if (!nombre) {
-      toast.warn("Escribe un nombre");
-      return;
-    }
+    if (!nombre) return toast.warn("Escribe un nombre");
+
     try {
-      const res = await fetch(`${API_URL}/chat/buscar?nombre=${encodeURIComponent(nombre)}`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const data = await fetchDataBackend(`${API_URL}/chat/buscar?nombre=${encodeURIComponent(nombre)}`, {
+        method: "GET",
+        config: { headers: { Authorization: `Bearer ${token}` } },
       });
-      if (!res.ok) {
-        const err = await res.json();
-        if (err.msg?.includes("Token")) {
-          localStorage.removeItem("auth-token");
-          localStorage.removeItem("profile-storage");
-          window.location.reload();
-          return;
-        }
-        throw new Error(err.msg);
-      }
-      const data = await res.json();
       setResultados(data.filter(u => u._id !== usuarioActual._id));
       setConversaciones([]);
-      toast.success(`Encontrados ${data.length} usuario(s)`);
-    } catch (error) {
-      toast.error(error.message);
+    } catch (err) {
+      if (err.message.includes("Token")) {
+        localStorage.removeItem("auth-token");
+        localStorage.removeItem("profile-storage");
+        window.location.reload();
+      }
     }
   };
 
@@ -224,10 +191,7 @@ export default function ChatWindow({ onClose, showBadge = true }) {
   };
 
   const enviarMensaje = () => {
-    if (!texto.trim() || !roomId) {
-      toast.warn("Escribe un mensaje");
-      return;
-    }
+    if (!texto.trim() || !roomId) return toast.warn("Escribe un mensaje");
     sendMessage(roomId, texto.trim(), usuarioActual._id);
     setTexto("");
   };
@@ -235,21 +199,12 @@ export default function ChatWindow({ onClose, showBadge = true }) {
   const eliminarConversacion = async () => {
     if (!roomId || !token) return;
     if (!confirm("¿Eliminar conversación?")) return;
+
     try {
-      const res = await fetch(`${API_URL}/chat/conversacion/${roomId}`, {
+      await fetchDataBackend(`${API_URL}/chat/conversacion/${roomId}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        config: { headers: { Authorization: `Bearer ${token}` } },
       });
-      if (!res.ok) {
-        const err = await res.json();
-        if (err.msg?.includes("Token")) {
-          localStorage.removeItem("auth-token");
-          localStorage.removeItem("profile-storage");
-          window.location.reload();
-          return;
-        }
-        throw new Error(err.msg);
-      }
       toast.success("Eliminada");
       setConversandoCon(null);
       setMensajesNuevos(prev => {
@@ -259,8 +214,12 @@ export default function ChatWindow({ onClose, showBadge = true }) {
         return copia;
       });
       fetchConversaciones();
-    } catch (error) {
-      toast.error(error.message);
+    } catch (err) {
+      if (err.message.includes("Token")) {
+        localStorage.removeItem("auth-token");
+        localStorage.removeItem("profile-storage");
+        window.location.reload();
+      }
     }
   };
 
@@ -284,7 +243,7 @@ export default function ChatWindow({ onClose, showBadge = true }) {
     <>
       <ToastContainer position="top-right" autoClose={3000} />
 
-      {/* Badge flotante */}
+      {/* Badge */}
       {showBadge && totalMensajesNuevos > 0 && !conversandoCon && (
         <div className="fixed bottom-6 right-6 z-50">
           <div className="relative">
@@ -301,7 +260,7 @@ export default function ChatWindow({ onClose, showBadge = true }) {
         </div>
       )}
 
-      {/* Modal explicativo */}
+      {/* Modal */}
       {mostrarModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4">
           <div className="bg-white rounded-lg lg:rounded-xl shadow-2xl max-w-sm w-full p-4 lg:p-6 animate-in fade-in zoom-in duration-300">
