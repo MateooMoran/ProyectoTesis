@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Trash2, PlusCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
-import useFetch from '../../hooks/useFetch';
-import Header from '../../layout/Header';
+import { useForm } from "react-hook-form";
+import useFetch from "../../hooks/useFetch";
+import Header from "../../layout/Header";
 
 export default function Categorias() {
   const { fetchDataBackend } = useFetch();
   const [categorias, setCategorias] = useState([]);
-  const [nombreCategoria, setNombreCategoria] = useState("");
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -18,6 +18,8 @@ export default function Categorias() {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
   };
+
+  const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
   const cargarCategorias = async () => {
     try {
@@ -39,12 +41,9 @@ export default function Categorias() {
     cargarCategorias();
   }, []);
 
-  const crearCategoria = async (e) => {
-    e.preventDefault();
-    if (!nombreCategoria.trim()) {
-      toast.error("El nombre de la categoría es obligatorio");
-      return;
-    }
+  const crearCategoria = async (formData) => {
+    const { nombreCategoria } = formData;
+
     setGuardando(true);
     try {
       const url = `${import.meta.env.VITE_BACKEND_URL}/vendedor/crear/categoria`;
@@ -53,7 +52,7 @@ export default function Categorias() {
         body: { nombreCategoria: nombreCategoria.trim() },
         config: { headers },
       });
-      setNombreCategoria("");
+      reset();
       cargarCategorias();
     } catch {
       // manejado en fetchDataBackend
@@ -110,15 +109,29 @@ export default function Categorias() {
         {/* MITAD IZQUIERDA: FORMULARIO */}
         <div className="lg:w-1/2 bg-white p-6 rounded-xl shadow-lg">
           <h2 className="text-2xl font-bold mb-6 text-gray-700">Crear Categoría</h2>
-          <form onSubmit={crearCategoria} className="flex flex-col gap-4">
+          <form onSubmit={handleSubmit(crearCategoria)} className="flex flex-col gap-4">
             <input
               type="text"
-              value={nombreCategoria}
-              onChange={(e) => setNombreCategoria(e.target.value)}
               placeholder="Nueva categoría"
-              className="border border-gray-300 rounded-md p-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               disabled={guardando}
+              className={`border ${
+                errors.nombreCategoria ? "border-red-500" : "border-gray-300"
+              } rounded-md p-3 text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition`}
+              {...register("nombreCategoria", {
+                required: "El nombre de la categoría es obligatorio",
+                pattern: {
+                  value: /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/,
+                  message:
+                    "Solo se permiten letras, espacios, tildes y la letra ñ",
+                },
+              })}
             />
+            {errors.nombreCategoria && (
+              <p className="text-red-500 text-sm">
+                {errors.nombreCategoria.message}
+              </p>
+            )}
+
             <button
               type="submit"
               disabled={guardando}
@@ -174,7 +187,11 @@ export default function Categorias() {
                     <button
                       key={i + 1}
                       onClick={() => handlePageChange(i + 1)}
-                      className={`w-8 h-8  rounded-lg font-semibold text-sm transition-all ${currentPage === i + 1 ? 'bg-blue-800 text-white shadow-lg' : 'bg-gray-200 hover:bg-blue-100'}`}
+                      className={`w-8 h-8  rounded-lg font-semibold text-sm transition-all ${
+                        currentPage === i + 1
+                          ? "bg-blue-800 text-white shadow-lg"
+                          : "bg-gray-200 hover:bg-blue-100"
+                      }`}
                     >
                       {i + 1}
                     </button>
