@@ -15,7 +15,9 @@ const conversacionSchema = new Schema(
         usuario: { type: Schema.Types.ObjectId, ref: 'Estudiantes' },
         ultimaLectura: { type: Date, default: Date.now }
       }
-    ]
+    ],
+    // Array de usuarios que han ocultado esta conversación
+    ocultadaPor: [{ type: Schema.Types.ObjectId, ref: 'Estudiantes' }]
   },
   {
     timestamps: true,

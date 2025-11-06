@@ -17,7 +17,11 @@ export default function ChatWindow({ onClose, showBadge = true }) {
   const token = storedToken?.state?.token || null;
   const usuarioActual = profile?.state?.user || null;
 
-  if (!token || !usuarioActual) return null;
+  // Si no hay token o usuario, no renderizar nada
+  if (!token || !usuarioActual) {
+    console.log("❌ Chat: No hay token o usuario");
+    return null;
+  }
 
   // --- ESTADOS ---
   const [nombreBuscar, setNombreBuscar] = useState("");
@@ -79,47 +83,65 @@ export default function ChatWindow({ onClose, showBadge = true }) {
       fetchConversaciones();
       setMostrarModal(true);
     }
-  }, [token, fetchConversaciones]);
+  }, [token]);
 
-  // --- MARCAR COMO LEÍDO ---
+  // --- MARCAR COMO LEÍDO cuando se abre un chat ---
   useEffect(() => {
-    if (!roomId || !token) return;
+    if (!roomId || !token || !conversandoCon) return;
+    
     const marcarLeido = async () => {
       try {
         await fetchDataBackend(`${API_URL}/conversacion/${roomId}/leer`, {
           method: "POST",
           config: { headers: { Authorization: `Bearer ${token}` } },
         });
-        // Actualizar contador
+        
+        // Resetear contador para este chat específico
         setMensajesNuevos(prev => {
           const copia = new Map(prev);
+          const cantidad = copia.get(roomId) || 0;
           copia.delete(roomId);
-          setTotalMensajesNuevos(copia.size);
+          
+          // Actualizar total restando la cantidad que tenía este chat
+          setTotalMensajesNuevos(prevTotal => Math.max(0, prevTotal - cantidad));
           return copia;
         });
+        
+        console.log(`✅ Conversación ${roomId} marcada como leída`);
       } catch (err) {
-        console.error("Error marcando como leído");
+        console.error("❌ Error marcando como leído:", err);
       }
     };
-    marcarLeido();
-  }, [roomId, token, fetchDataBackend]);
+    
+    // Marcar como leído después de un pequeño delay
+    const timer = setTimeout(marcarLeido, 500);
+    return () => clearTimeout(timer);
+  }, [roomId, token, conversandoCon, fetchDataBackend]);
 
   // --- NUEVO MENSAJE (SOCKET) - TIEMPO REAL ---
   useEffect(() => {
     if (!mensajes.length || !roomId) return;
+    
     const ultimo = mensajes[mensajes.length - 1];
-
-    if (ultimo.emisor?._id !== usuarioActual._id) {
-      // Si el mensaje es de otro, incrementar contador
-      setMensajesNuevos(prev => {
-        const copia = new Map(prev);
-        const current = copia.get(roomId) || 0;
-        copia.set(roomId, current + 1);
+    
+    // Verificar si el último mensaje NO es del usuario actual
+    if (ultimo.emisor?._id && ultimo.emisor._id !== usuarioActual._id) {
+      console.log('📨 Nuevo mensaje recibido de otro usuario');
+      
+      // Solo incrementar contador si NO estamos viendo ese chat actualmente
+      if (!conversandoCon || conversandoCon._id !== ultimo.emisor._id) {
+        setMensajesNuevos(prev => {
+          const copia = new Map(prev);
+          const current = copia.get(roomId) || 0;
+          copia.set(roomId, current + 1);
+          return copia;
+        });
+        
         setTotalMensajesNuevos(prevTotal => prevTotal + 1);
-        return copia;
-      });
+        console.log(`🔔 Contador incrementado para conversación ${roomId}`);
+      }
 
-      // Notificación
+      // Notificación del navegador
       if (Notification.permission === "granted") {
         new Notification("Nuevo mensaje", {
           body: `${ultimo.emisor.nombre}: ${ultimo.texto}`,
@@ -130,7 +152,7 @@ export default function ChatWindow({ onClose, showBadge = true }) {
       // Refrescar lista de conversaciones
       fetchConversaciones();
     }
-  }, [mensajes, roomId, usuarioActual._id, fetchConversaciones]);
+  }, [mensajes, roomId, usuarioActual._id, conversandoCon, fetchConversaciones]);
 
   // --- ESCRIBIENDO ---
   useEffect(() => {
@@ -198,6 +220,16 @@ export default function ChatWindow({ onClose, showBadge = true }) {
   const iniciarChatConConversacion = (conv) => {
     setConversandoCon(conv.otroMiembro);
     joinChat(conv.otroMiembro._id);
+    
+    // Resetear badge inmediatamente al abrir
+    const conversacionId = conv.conversacionId;
+    setMensajesNuevos(prev => {
+      const copia = new Map(prev);
+      const cantidad = copia.get(conversacionId) || 0;
+      copia.delete(conversacionId);
+      setTotalMensajesNuevos(prevTotal => Math.max(0, prevTotal - cantidad));
+      return copia;
+    });
   };
 
   const enviarMensaje = () => {

@@ -5,7 +5,11 @@ export const obtenerConversacionesRecientes = async (req, res) => {
     const userId = req.estudianteBDD._id;
 
     try {
-        const conversaciones = await Conversacion.find({ miembros: userId })
+        // Filtrar conversaciones que NO han sido ocultadas por el usuario
+        const conversaciones = await Conversacion.find({ 
+            miembros: userId,
+            ocultadaPor: { $ne: userId } // Excluir conversaciones ocultadas por este usuario
+        })
             .populate('miembros', 'nombre apellido rol')
             .lean();
 
@@ -70,12 +74,37 @@ export const conversacionLectura = async (req, res) => {
 
 export const eliminarConversacion = async (req, res) => {
     const conversacionId = req.params.id;
+    const usuarioId = req.estudianteBDD._id;
+    
     try {
-        const conversacion = await Conversacion.findByIdAndDelete(conversacionId);
+        const conversacion = await Conversacion.findById(conversacionId);
+        
         if (!conversacion) {
             return res.status(404).json({ message: "Conversación no encontrada" });
         }
-        res.json({ message: "Conversación eliminada correctamente" });
+
+        // Verificar que el usuario sea miembro de la conversación
+        if (!conversacion.miembros.includes(usuarioId)) {
+            return res.status(403).json({ message: "No tienes acceso a esta conversación" });
+        }
+
+        // Agregar al usuario al array de ocultadaPor si no está ya
+        if (!conversacion.ocultadaPor.includes(usuarioId)) {
+            conversacion.ocultadaPor.push(usuarioId);
+            await conversacion.save();
+        }
+
+        // Si AMBOS usuarios han ocultado la conversación, entonces eliminarla permanentemente
+        const todosOcultaron = conversacion.miembros.every(miembro => 
+            conversacion.ocultadaPor.some(oculto => oculto.toString() === miembro.toString())
+        );
+
+        if (todosOcultaron) {
+            await Conversacion.findByIdAndDelete(conversacionId);
+            return res.json({ message: "Conversación eliminada permanentemente (ambos usuarios la ocultaron)" });
+        }
+
+        res.json({ message: "Conversación ocultada correctamente" });
     }
     catch (error) {
         console.error("Error eliminando conversación:", error);

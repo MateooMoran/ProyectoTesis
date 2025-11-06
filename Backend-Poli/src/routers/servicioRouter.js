@@ -8,6 +8,9 @@ import { callbackGoogle, loginGoogle, logout, obtenerUsuario } from "../controll
 
 const router = Router();
 
+// RUTAS DE CHAT
+// ✅ Admin, Estudiante y Vendedor pueden usar el chat
+// ⚠️ PERO los admins NO aparecen en los resultados de búsqueda (filtrado en el controlador)
 router.get('/chat/buscar', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), buscarEstudiantePorNombre);
 router.get('/chat/conversaciones', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'),obtenerConversacionesRecientes);
 router.post("/conversacion/:id/leer", verifyTokenJWT,tieneRol('estudiante', 'admin', 'vendedor'), conversacionLectura);

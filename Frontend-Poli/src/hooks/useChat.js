@@ -10,35 +10,49 @@ export default function useChat(token, usuarioId) {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    if (!token) {
-      console.log("No hay token para conectar socket");
+    if (!token || !usuarioId) {
+      console.log("❌ No hay token o usuarioId para conectar socket");
       return;
     }
-    console.log("Conectando socket con token:", token);
+    
+    console.log("🔌 Conectando socket...");
 
     socketRef.current = io(SOCKET_URL, {
-      transports: ["websocket"],
+      transports: ["websocket", "polling"],
       auth: { token },
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5
+    });
+
+    socketRef.current.on("connect", () => {
+      console.log("✅ Socket conectado correctamente");
+      setError(null);
+    });
+
+    socketRef.current.on("connect_error", (err) => {
+      console.error("❌ Error de conexión socket:", err.message);
+      setError("Error de conexión al chat");
     });
 
     const handleChatJoined = ({ roomId, mensajes }) => {
-      console.log("Socket chat-joined:", roomId, mensajes);
+      console.log("✅ Socket chat-joined:", roomId, `${mensajes?.length || 0} mensajes`);
       setRoomId(roomId);
       setMensajes(mensajes || []);
+      setError(null);
     };
 
     const handleNuevoMensaje = (mensajesActualizados) => {
-      console.log("Socket nuevo-mensaje recibido:", mensajesActualizados);
-      // mensajesActualizados es un arreglo completo
+      console.log("📨 Socket nuevo-mensaje recibido:", mensajesActualizados?.length);
       if (Array.isArray(mensajesActualizados)) {
         setMensajes(mensajesActualizados);
       } else {
-        console.warn("Se esperaba un arreglo de mensajes pero no llegó así:", mensajesActualizados);
+        console.warn("⚠️ Se esperaba un arreglo de mensajes:", mensajesActualizados);
       }
     };
 
     const handleErrorMensaje = (msg) => {
-      console.log("Socket error-mensaje:", msg);
+      console.error("❌ Socket error-mensaje:", msg);
       setError(msg);
     };
 
@@ -47,39 +61,55 @@ export default function useChat(token, usuarioId) {
     socketRef.current.on("error-mensaje", handleErrorMensaje);
 
     return () => {
-      socketRef.current.off("chat-joined", handleChatJoined);
-      socketRef.current.off("nuevo-mensaje", handleNuevoMensaje);
-      socketRef.current.off("error-mensaje", handleErrorMensaje);
-      socketRef.current.disconnect();
-      console.log("Socket desconectado");
+      if (socketRef.current) {
+        socketRef.current.off("chat-joined", handleChatJoined);
+        socketRef.current.off("nuevo-mensaje", handleNuevoMensaje);
+        socketRef.current.off("error-mensaje", handleErrorMensaje);
+        socketRef.current.disconnect();
+        console.log("🔌 Socket desconectado");
+      }
     };
-  }, [token]);
+  }, [token, usuarioId]);
 
   const joinChat = (otherUserId) => {
-    console.log("Solicitando join-chat con userId:", usuarioId, "y otherUserId:", otherUserId);
-    if (socketRef.current && socketRef.current.connected) {
-      socketRef.current.emit("join-chat", {
-        userId: usuarioId,
-        otherUserId,
-      });
-      setError(null);
-    } else {
-      console.log("Socket no conectado para join-chat");
-      setError("Conexión de socket no disponible");
+    console.log("🔄 Solicitando join-chat:", { userId: usuarioId, otherUserId });
+    
+    if (!socketRef.current) {
+      console.error("❌ Socket ref no existe");
+      setError("Conexión no disponible");
+      return;
     }
+
+    if (!socketRef.current.connected) {
+      console.error("❌ Socket no conectado");
+      setError("Esperando conexión...");
+      return;
+    }
+
+    socketRef.current.emit("join-chat", {
+      userId: usuarioId,
+      otherUserId,
+    });
+    setError(null);
   };
 
   const sendMessage = (roomIdToSend, texto, emisorId) => {
-    console.log("Enviando mensaje:", { roomIdToSend, texto, emisorId });
-    if (!texto.trim() || !roomIdToSend) return;
-    if (!socketRef.current || !socketRef.current.connected) {
-      console.log("Socket desconectado, no se puede enviar mensaje");
-      setError("Socket desconectado, no se puede enviar el mensaje.");
+    console.log("📤 Enviando mensaje:", { roomId: roomIdToSend, texto: texto.substring(0, 20) });
+    
+    if (!texto.trim() || !roomIdToSend) {
+      console.warn("⚠️ Mensaje vacío o sin roomId");
       return;
     }
+
+    if (!socketRef.current || !socketRef.current.connected) {
+      console.error("❌ Socket desconectado");
+      setError("Socket desconectado, reconectando...");
+      return;
+    }
+
     socketRef.current.emit("enviar-mensaje", {
       roomId: roomIdToSend,
-      texto,
+      texto: texto.trim(),
       emisor: emisorId,
     });
   };
@@ -90,5 +120,6 @@ export default function useChat(token, usuarioId) {
     error,
     joinChat,
     sendMessage,
+    socketRef
   };
 }

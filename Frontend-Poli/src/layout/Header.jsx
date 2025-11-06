@@ -98,8 +98,8 @@ const Header = () => {
                     <div className="flex items-center gap-2 flex-col sm:flex-row w-full sm:w-auto">
                         {(rol === 'estudiante' || rol === 'admin' || rol === 'vendedor') && <NotificacionesAdmin />}
 
-                        {/* Botón de chat (solo visible si el rol NO es null) */}
-                        {rol !== null && (
+                        {/* Botón de chat (solo visible si hay TOKEN y rol válido) */}
+                        {token && (rol === 'estudiante' || rol === 'admin' || rol === 'vendedor') && (
                             <>
                                 <button
                                     onClick={() => setOpen(!open)}
