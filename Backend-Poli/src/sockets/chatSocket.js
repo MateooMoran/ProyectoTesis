@@ -149,8 +149,9 @@ const initSocket = (server) => {
 
                 conversacion.ultimoMensaje = nuevoMensaje._id;
                 conversacion.updatedAt = new Date();
+                // 🔥 Remover al RECEPTOR del array ocultadaPor para que el chat le aparezca de nuevo
                 conversacion.ocultadaPor = conversacion.ocultadaPor.filter(
-                    id => id.toString() !== socket.userId
+                    id => id.toString() !== otroMiembro.toString()
                 );
 
                 // Incrementar contador para el otro usuario
@@ -202,6 +203,11 @@ const initSocket = (server) => {
                     mensajesNoLeidos: 1
                 });
 
+                // 🔥 Forzar recarga si el chat estaba oculto
+                io.to(`user:${otroMiembro}`).emit('conversacion:restaurada', {
+                    conversacionId
+                });
+
                 console.log(`✅ Mensaje enviado correctamente en ${conversacionId} por ${socket.userId}`);
                 
                 // Confirmar al emisor
@@ -246,8 +252,9 @@ const initSocket = (server) => {
 
                 conversacion.ultimoMensaje = nuevoMensaje._id;
                 conversacion.updatedAt = new Date();
+                // 🔥 Remover al RECEPTOR del array ocultadaPor para que el chat le aparezca de nuevo
                 conversacion.ocultadaPor = conversacion.ocultadaPor.filter(
-                    id => id.toString() !== socket.userId
+                    id => id.toString() !== otroMiembro.toString()
                 );
 
                 // Incrementar contador

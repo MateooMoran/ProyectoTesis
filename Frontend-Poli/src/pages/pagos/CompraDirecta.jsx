@@ -71,7 +71,6 @@ const FormularioStripe = ({ productoId, cantidad, metodoPagoVendedorId, lugarRet
             const data = await response.json();
             if (!response.ok) throw new Error(data.msg);
 
-            toast.success('¡Pago procesado exitosamente!');
             onSuccess();
         } catch (error) {
             toast.error(error.message || 'Error al procesar el pago');
@@ -377,7 +376,6 @@ const CompraDirecta = () => {
             const data = await response.json();
             if (!response.ok) throw new Error(data.msg);
 
-            toast.success('¡Comprobante subido! Tu orden está pendiente de confirmación');
             setTimeout(() => navigate('/dashboard/estudiante/historial-pagos'), 2000);
         } catch (error) {
             toast.error(error.message || 'Error al subir comprobante');
@@ -388,7 +386,6 @@ const CompraDirecta = () => {
 
     // Pago exitoso con Stripe
     const handlePagoStripeExitoso = () => {
-        toast.success('¡Pago completado exitosamente!');
         setTimeout(() => navigate('/dashboard/estudiante/historial-pagos'), 2000);
     };
 

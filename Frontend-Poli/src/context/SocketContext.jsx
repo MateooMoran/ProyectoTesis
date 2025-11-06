@@ -22,6 +22,7 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [contadorMensajes, setContadorMensajes] = useState(0);
+  const [conversacionRestaurada, setConversacionRestaurada] = useState(null);
   const token = storeAuth(state => state.token);
 
   useEffect(() => {
@@ -82,6 +83,14 @@ export const SocketProvider = ({ children }) => {
       setContadorMensajes(prev => prev + mensajesNoLeidos);
     });
 
+    socketInstance.on('conversacion:restaurada', ({ conversacionId }) => {
+      console.log('🔄 Conversación restaurada:', conversacionId);
+      // Recargar el contador de mensajes no leídos
+      fetchContadorInicial(token);
+      // Notificar que se restauró una conversación
+      setConversacionRestaurada(conversacionId);
+    });
+
     socketInstance.on('notificacion:nueva', () => {
       console.log('🔔 Nueva notificación');
       // Aquí puedes agregar lógica para notificaciones
@@ -123,6 +132,7 @@ export const SocketProvider = ({ children }) => {
     socket,
     isConnected,
     contadorMensajes,
+    conversacionRestaurada,
     resetearContador
   };
 
@@ -144,33 +154,3 @@ function getUserIdFromToken(token) {
   }
 }
 
-/**
- * Uso en App.jsx:
- * 
- * import { SocketProvider } from './context/SocketContext';
- * 
- * function App() {
- *   return (
- *     <SocketProvider>
- *       <Router>
- *         // ... tus rutas
- *       </Router>
- *     </SocketProvider>
- *   );
- * }
- * 
- * Uso en componentes:
- * 
- * import { useSocket } from '../context/SocketContext';
- * 
- * const MiComponente = () => {
- *   const { socket, isConnected, contadorMensajes } = useSocket();
- *   
- *   return (
- *     <div>
- *       {isConnected ? '🟢 Conectado' : '🔴 Desconectado'}
- *       <span>Mensajes: {contadorMensajes}</span>
- *     </div>
- *   );
- * };
- */
