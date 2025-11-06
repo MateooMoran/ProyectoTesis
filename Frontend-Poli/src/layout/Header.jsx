@@ -95,7 +95,9 @@ const Header = () => {
 
                     {/* Botones */}
                     <div className="flex items-center gap-2 flex-col sm:flex-row w-full sm:w-auto">
-                        {(rol === 'estudiante' || rol === 'admin' || rol === 'vendedor') && <NotificacionesAdmin />}
+                        {/* Notificaciones- Solo para usuarios autenticados */}
+
+                        {token && (rol === 'estudiante' || rol === 'admin' || rol === 'vendedor') && <NotificacionesAdmin />}
 
                         {/* Chat Badge - Solo para usuarios autenticados */}
                         {token && (rol === 'estudiante' || rol === 'admin' || rol === 'vendedor') && <ChatBadge />}
@@ -242,10 +244,10 @@ const Header = () => {
                         )}
                     </div>
                 </div>
-            </header>
+            </header >
 
             {/* Espacio para compensar header fijo */}
-            <div className="h-18 sm:h-1" />
+            < div className="h-18 sm:h-1" />
         </>
     );
 };
