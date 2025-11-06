@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import storeProfile from '../../context/storeProfile';
 import storeAuth from '../../context/storeAuth';
 import storeProductos from '../../context/storeProductos';
@@ -8,7 +7,6 @@ import Carrusel from '../../layout/CarruselBanner';
 import CarruselProductos from '../productosGeneral/CarruselProductos';
 import CarruselCategorias from '../productosGeneral/CarruselCategorias';
 import Header from '../../layout/Header';
-import Footer from '../../layout/Footer';
 
 
 const Productos = () => {
