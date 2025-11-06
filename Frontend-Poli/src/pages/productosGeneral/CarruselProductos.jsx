@@ -82,9 +82,12 @@ const ProductCarousel = ({
     const { isFavorite, toggleFavorite, token } = useFavorites();
     const navigate = useNavigate();
 
-    const getProductLink = (id) => {
-        return token ? `/dashboard/productos/${id}` : `/productos/${id}`;
+    const getProductoLink = (productoId) => {
+        return token ? `/dashboard/productos/${productoId}` : `/productos/${productoId}`;
     };
+
+    console.log(productos);
+
 
     const settings = {
         dots: showDots,
@@ -120,7 +123,7 @@ const ProductCarousel = ({
                     <Slider {...settings} className="mx-[-10px]">
                         {productos.map((producto) => {
                             const fav = isFavorite(producto._id);
-                            const productLink = getProductLink(producto._id);
+                            const productLink = getProductoLink(producto._id);
 
                             return (
                                 <div key={producto._id} className="px-2">
@@ -155,7 +158,7 @@ const ProductCarousel = ({
 
                                         <div className="flex gap-2 mb-3">
                                             <Link
-                                                to={`/dashboard/productos/${producto._id}`}
+                                                to={getProductoLink(producto._id)}
                                                 className="flex-1 bg-blue-800 hover:bg-blue-900 text-white text-sm font-semibold py-2 px-3 rounded-md flex items-center justify-center gap-1 hover:scale-105 transition-all duration-300"
                                             >
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
