@@ -56,7 +56,7 @@ const Favoritos = () => {
     return (
         <>
             <Header />
-            <div className="pt-12 sm:pt-14 min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+            <div className="pt-18 sm:pt-14 min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
                 <div className="max-w-7xl mx-auto px-4 py-8">
 
                     {/* Header */}
