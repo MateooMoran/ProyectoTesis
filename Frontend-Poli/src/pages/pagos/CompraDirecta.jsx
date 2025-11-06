@@ -9,7 +9,8 @@ import {
     Package,
     Loader2,
     Check,
-    ChevronRight
+    ChevronRight,
+    ShieldCheck
 } from 'lucide-react';
 import Header from '../../layout/Header';
 import useFetch from '../../hooks/useFetch';
@@ -81,27 +82,39 @@ const FormularioStripe = ({ productoId, cantidad, metodoPagoVendedorId, lugarRet
 
     return (
         <form onSubmit={handlePagoStripe} className="space-y-6">
-            {/* Card con diseño limpio */}
-            <div className="bg-white rounded-lg border-2 border-gray-200 shadow-md">
-                <div className="p-6">
-                    {/* Header con icono */}
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="bg-blue-600 p-3 rounded-lg shadow-sm">
-                            <CreditCard className="w-6 h-6 text-white" />
-                        </div>
+            {/* Card principal */}
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+                <div className="p-8">
+                    {/* Header con sombra e indicador de seguridad */}
+                    <div className="flex items-center gap-4 mb-8">
+
                         <div>
-                            <h3 className="text-lg font-bold text-gray-800">Información de la tarjeta</h3>
-                            <p className="text-xs text-gray-600">Pago seguro procesado por Stripe</p>
+                            <h3 className="text-lg font-semibold text-gray-800">
+                                Información de pago
+                            </h3>
+                            <div className="flex items-center gap-2 mt-1">
+                                <ShieldCheck className="w-5 h-5 text-blue-600" />
+                                <p className="text-sm text-gray-600 font-medium">
+                                    Transacción encriptada (Stripe)
+                                </p>
+                            </div>
+
                         </div>
                     </div>
 
-                    {/* Campo de tarjeta */}
-                    <div className="bg-gray-50 rounded-lg border-2 border-gray-300 hover:border-blue-400 transition-colors focus-within:border-blue-500">
-                        <div className="p-4">
+                    {/* Campo de tarjeta sin hover llamativo */}
+                    <div className="mb-6">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Detalles de la tarjeta
+                        </label>
+
+                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                             {!stripe ? (
-                                <div className="py-6 text-center">
-                                    <Loader2 className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-3" />
-                                    <p className="text-sm font-medium text-gray-600">Cargando formulario de pago...</p>
+                                <div className="py-10 text-center">
+                                    <Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-600 mb-2" />
+                                    <p className="text-sm text-gray-600">
+                                        Cargando formulario de pago...
+                                    </p>
                                 </div>
                             ) : (
                                 <CardElement
@@ -110,54 +123,76 @@ const FormularioStripe = ({ productoId, cantidad, metodoPagoVendedorId, lugarRet
                                             base: {
                                                 fontSize: '16px',
                                                 color: '#1f2937',
-                                                fontFamily: 'system-ui, -apple-system, sans-serif',
-                                                '::placeholder': { 
-                                                    color: '#9ca3af'
-                                                },
-                                                iconColor: '#3b82f6',
+                                                fontFamily:
+                                                    '"Inter", "SF Pro Display", system-ui, sans-serif',
+                                                '::placeholder': { color: '#9ca3af' },
                                             },
-                                            invalid: { 
-                                                color: '#ef4444',
-                                                iconColor: '#ef4444'
-                                            },
-                                            complete: {
-                                                iconColor: '#10b981'
-                                            }
-                                        }
+                                            invalid: { color: '#dc2626' },
+                                            complete: { color: '#059669' },
+                                        },
                                     }}
                                 />
                             )}
                         </div>
                     </div>
 
-                    {/* Íconos de seguridad */}
-                    <div className="mt-4 flex items-center justify-center gap-4 text-xs text-gray-500">
-                        <div className="flex items-center gap-1">
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                            </svg>
-                            <span className="font-medium">Conexión segura</span>
+                    {/* Logos de tarjetas con hover suave */}
+                    <div className="mb-6 flex items-center justify-center gap-3">
+                        <span className="text-xs font-semibold text-gray-500">
+                            Aceptamos:
+                        </span>
+                        <div className="flex gap-2.5">
+                            {/* Visa */}
+                            <div className="w-12 h-8 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 rounded-md flex items-center justify-center shadow-md transition-transform duration-200 hover:scale-105">
+                                <span className="text-white text-[11px] font-bold tracking-wider">
+                                    VISA
+                                </span>
+                            </div>
+                            {/* Mastercard */}
+                            <div className="w-12 h-8 bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 rounded-md flex items-center justify-center shadow-md transition-transform duration-200 hover:scale-105">
+                                <div className="flex gap-[1px]">
+                                    <div className="w-2.5 h-2.5 bg-gradient-to-br from-red-500 to-red-600 rounded-full"></div>
+                                    <div className="w-2.5 h-2.5 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full -ml-1"></div>
+                                </div>
+                            </div>
+                            {/* Amex */}
+                            <div className="w-12 h-8 bg-gradient-to-br from-blue-800 via-blue-900 to-slate-900 rounded-md flex items-center justify-center shadow-md transition-transform duration-200 hover:scale-105">
+                                <span className="text-white text-[10px] font-bold tracking-wide">
+                                    AMEX
+                                </span>
+                            </div>
+                            {/* Discover */}
+                            <div className="w-12 h-8 bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 rounded-md flex items-center justify-center shadow-md transition-transform duration-200 hover:scale-105">
+                                <span className="text-white text-[9px] font-bold tracking-wide">
+                                    DISCOVER
+                                </span>
+                            </div>
                         </div>
-                        <span>•</span>
-                        <span className="font-medium">SSL Encriptado</span>
+                    </div>
+
+                    {/* Badge de seguridad */}
+                    <div className="flex items-center justify-center text-sm text-green-600">
+                        <CheckCircle className="w-5 h-5 mr-1" />
+                        <span>Pagos seguros</span>
                     </div>
                 </div>
             </div>
 
-            {/* Botones con estilo consistente */}
-            <div className="flex gap-3">
+            {/* Botones */}
+            <div className="flex gap-4">
                 <button
                     type="button"
                     onClick={onRegresar}
-                    className="w-1/3 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition flex items-center justify-center gap-2"
+                    className="w-1/3 bg-gray-100 text-gray-700 py-3 rounded-lg font-medium border border-gray-300 flex items-center justify-center gap-2"
                 >
                     <ChevronRight className="w-5 h-5 rotate-180" />
                     Regresar
                 </button>
+
                 <button
                     type="submit"
                     disabled={!stripe || loading}
-                    className="w-2/3 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="w-2/3 bg-blue-600 text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                     {loading ? (
                         <>
@@ -176,14 +211,6 @@ const FormularioStripe = ({ productoId, cantidad, metodoPagoVendedorId, lugarRet
                         </>
                     )}
                 </button>
-            </div>
-
-            {/* Badge de confianza */}
-            <div className="text-center">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                    <span className="text-xs font-semibold text-green-700">Pago 100% seguro y confiable</span>
-                </div>
             </div>
         </form>
     );
@@ -229,17 +256,17 @@ const CompraDirecta = () => {
                             `${import.meta.env.VITE_BACKEND_URL}/vendedor/pago?vendedorId=${dataProducto.vendedor._id}`,
                             { method: 'GET', config: { headers: { Authorization: `Bearer ${token}` } } }
                         );
-                        
+
                         console.log('✅ Respuesta del backend:', responseMetodos);
-                        
+
                         const metodos = responseMetodos?.metodos || [];
-                        
+
                         setMetodosPago(metodos);
-                        
+
                         // Verificar si tiene retiro disponible
                         const metodoRetiro = metodos.find(m => m.tipo === 'retiro');
                         setTieneRetiro(!!metodoRetiro);
-                        
+
                         if (metodos.length === 0) {
                             console.warn(` El vendedor ${dataProducto.vendedor.nombre} (ID: ${dataProducto.vendedor._id}) no tiene métodos de pago configurados`);
                         } else {
@@ -311,8 +338,8 @@ const CompraDirecta = () => {
                         metodoPagoVendedorId: metodoPagoSeleccionado,
                         lugarRetiro: lugarRetiro || undefined
                     },
-                    config: { 
-                        headers: { Authorization: `Bearer ${token}` } 
+                    config: {
+                        headers: { Authorization: `Bearer ${token}` }
                     }
                 }
             );
@@ -382,7 +409,7 @@ const CompraDirecta = () => {
     return (
         <>
             <Header />
-            <div className="container mx-auto px-4 py-8 max-w-6xl">
+            <div className="container mx-auto px-4 py-8 max-w-6xl mt-12">
                 {/* Steps Indicator */}
                 <div className="mb-8">
                     <div className="flex items-center justify-between">
@@ -423,7 +450,7 @@ const CompraDirecta = () => {
                     {/* Contenido Principal */}
                     <div className="lg:col-span-2">
                         <div className="bg-white rounded-lg shadow-md p-6">
-                            
+
                             {/* PASO 1: Detalle del Pedido */}
                             {currentStep === 1 && (
                                 <Paso1DetalleDelPedido
@@ -462,45 +489,49 @@ const CompraDirecta = () => {
 
                             {/* PASO 4: Subir Comprobante o Mensaje Final */}
                             {currentStep === 4 && (
-  <div>
-    {metodoPagoSeleccionado === 'stripe' ? (
-      <>
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-          <CreditCard className="w-6 h-6" />
-          Pagar con Tarjeta
-        </h2>
+                                <div>
+                                    {metodoPagoSeleccionado === 'stripe' ? (
+                                        <>
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-2.5 rounded-lg">
+                                                    <CreditCard className="w-6 h-6 text-white" />
+                                                </div>
+                                                <h2 className="text-xl font-bold text-gray-900">
+                                                    Pago Seguro con Tarjeta
+                                                </h2>
+                                            </div>
 
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <p className="text-sm"><strong>Total a pagar:</strong> <span className="text-lg font-bold text-blue-600">${total}</span></p>
-          {lugarRetiro && (
-            <p className="text-sm mt-2"><strong>Lugar de retiro:</strong> {lugarRetiro}</p>
-          )}
-        </div>
+                                            <div className=" border border-gray-200 rounded-lg p-4 mb-6">
+                                                <p className="text-sm"><strong>Total a pagar:</strong> <span className="text-lg font-bold text-blue-600">${total}</span></p>
+                                                {lugarRetiro && (
+                                                    <p className="text-sm mt-2"><strong>Lugar de retiro:</strong> {lugarRetiro}</p>
+                                                )}
+                                            </div>
 
-        <Elements stripe={stripePromise}>
-          <FormularioStripe
-            productoId={productoId}
-            cantidad={cantidad}
-            metodoPagoVendedorId="stripe"
-            lugarRetiro={lugarRetiro}
-            onSuccess={handlePagoStripeExitoso}
-            onRegresar={() => setCurrentStep(3)}
-          />
-        </Elements>
-      </>
-    ) : (
-      <Paso4SubirComprobante
-        metodoPagoElegido={metodoPagoElegido}
-        total={total}
-        archivoComprobante={archivoComprobante}
-        onFileChange={(e) => setArchivoComprobante(e.target.files[0])}
-        onSubmit={subirComprobante}
-        onRegresar={() => setCurrentStep(3)}
-        loading={loading}
-      />
-    )}
-  </div>
-)}
+                                            <Elements stripe={stripePromise}>
+                                                <FormularioStripe
+                                                    productoId={productoId}
+                                                    cantidad={cantidad}
+                                                    metodoPagoVendedorId="stripe"
+                                                    lugarRetiro={lugarRetiro}
+                                                    onSuccess={handlePagoStripeExitoso}
+                                                    onRegresar={() => setCurrentStep(3)}
+                                                />
+                                            </Elements>
+                                        </>
+                                    ) : (
+                                        <Paso4SubirComprobante
+                                            metodoPagoElegido={metodoPagoElegido}
+                                            total={total}
+                                            archivoComprobante={archivoComprobante}
+                                            onFileChange={(e) => setArchivoComprobante(e.target.files[0])}
+                                            onSubmit={subirComprobante}
+                                            onRegresar={() => setCurrentStep(3)}
+                                            loading={loading}
+                                        />
+                                    )}
+                                </div>
+                            )}
 
                         </div>
                     </div>

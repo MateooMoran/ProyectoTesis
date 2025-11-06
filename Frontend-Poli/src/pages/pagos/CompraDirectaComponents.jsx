@@ -1,4 +1,3 @@
-import React from 'react';
 import {
     ShoppingBag,
     MapPin,
@@ -9,51 +8,79 @@ import {
     Loader2,
     FileText,
     Package,
-    AlertCircle
+    AlertCircle,
+    User,
 } from 'lucide-react';
 
 // ==================== PASO 1: DETALLE DEL PEDIDO ====================
 export const Paso1DetalleDelPedido = ({ producto, cantidad, total, onContinuar }) => {
     return (
-        <div>
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                <ShoppingBag className="w-6 h-6" />
-                Detalle del Pedido
-            </h2>
-            
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-                <div className="space-y-3">
-                    <div className="flex justify-between">
-                        <span className="text-gray-700">Producto:</span>
-                        <span className="font-semibold">{producto?.nombreProducto}</span>
+        <div className="max-w-2xl mx-auto space-y-6">
+            {/* Header */}
+            <div className="flex items-center gap-3">
+                <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-2.5 rounded-lg">
+                    <ShoppingBag className="w-5 h-5 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900">Detalle del Pedido</h2>
+            </div>
+
+            {/* Información del vendedor */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-5">
+                <div className="flex gap-3">
+                    <div className="bg-gray-50 p-2 rounded-lg h-fit">
+                        <User className="w-4 h-4 text-gray-600" />
                     </div>
-                    <div className="flex justify-between">
-                        <span className="text-gray-700">Precio unitario:</span>
-                        <span className="font-semibold">${producto?.precio.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span className="text-gray-700">Cantidad:</span>
-                        <span className="font-semibold">{cantidad}</span>
-                    </div>
-                    <div className="border-t-2 border-blue-300 pt-3 flex justify-between">
-                        <span className="text-lg font-bold text-gray-800">Total a pagar:</span>
-                        <span className="text-2xl font-bold text-blue-600">${total}</span>
+                    <div className="flex-1 space-y-1">
+                        <p className="text-sm font-medium text-gray-900">
+                            {producto?.vendedor?.nombre} {producto?.vendedor?.apellido}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                            Stock disponible: <span className="font-semibold text-green-600">{producto?.stock} unidades</span>
+                        </p>
                     </div>
                 </div>
             </div>
 
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-                <p className="text-sm text-gray-600">
-                    <strong>Vendedor:</strong> {producto?.vendedor?.nombre} {producto?.vendedor?.apellido}
-                </p>
-                <p className="text-sm text-gray-600 mt-1">
-                    <strong>Stock disponible:</strong> {producto?.stock} unidades
-                </p>
+            {/* Producto Card */}
+            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+                {/* Producto Info */}
+                <div className="p-6 space-y-5">
+                    <div>
+                        <p className="text-sm text-gray-500 mb-1">Producto</p>
+                        <p className="text-lg font-semibold text-gray-900">
+                            {producto?.nombreProducto}
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <p className="text-sm text-gray-500 mb-1">Precio unitario</p>
+                            <p className="text-lg font-semibold text-black">
+                                ${producto?.precio.toFixed(2)}
+                            </p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500 mb-1">Cantidad</p>
+                            <p className="text-lg font-semibold text-gray-900">{cantidad}</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Total Section */}
+                <div className="px-6 py-5 border-t border-gray-200">
+                    <div className="flex justify-between items-center">
+                        <span className="text-base font-medium text-gray-700">Total a pagar</span>
+                        <div className="bg-blue-600 px-6 py-2.5 rounded-lg">
+                            <span className="text-2xl font-bold text-white">${total}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
+            {/* Botón continuar */}
             <button
                 onClick={onContinuar}
-                className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center justify-center gap-2"
+                className="w-full bg-blue-600 text-white py-3.5 rounded-lg font-semibold flex items-center justify-center gap-2 shadow-md hover:bg-blue-700 transition"
             >
                 Continuar
                 <ChevronRight className="w-5 h-5" />
@@ -65,23 +92,31 @@ export const Paso1DetalleDelPedido = ({ producto, cantidad, total, onContinuar }
 // ==================== PASO 2: ELEGIR LUGAR DE RETIRO ====================
 export const Paso2LugarRetiro = ({ lugares, lugarRetiro, onSelectLugar, onContinuar, onRegresar }) => {
     return (
-        <div>
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                <MapPin className="w-6 h-6" />
-                Elige el Lugar de Retiro
-            </h2>
+        <div className="max-w-2xl mx-auto space-y-6">
+            {/* Header */}
+            <div className="flex items-center gap-3">
+                <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-2.5 rounded-lg">
+                    <MapPin className="w-5 h-5 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900">Lugar de Retiro</h2>
+            </div>
 
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-                <p className="text-sm text-gray-700 mb-4">
+            {/* Instrucción */}
+            <div className="bg-white border border-gray-200 rounded-xl p-5">
+                <p className="text-sm text-gray-600">
                     Selecciona el lugar donde recogerás tu producto:
                 </p>
-                
+            </div>
+
+            {/* Lugares de retiro */}
+            <div className="space-y-3">
                 {lugares?.map((lugar) => (
-                    <label 
-                        key={lugar} 
-                        className={`flex items-center gap-3 p-4 border-2 rounded-lg mb-3 cursor-pointer transition ${
-                            lugarRetiro === lugar ? 'border-blue-600 bg-blue-50' : 'border-gray-300 hover:border-blue-400'
-                        }`}
+                    <label
+                        key={lugar}
+                        className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all ${lugarRetiro === lugar
+                                ? 'border-blue-600 bg-blue-50'
+                                : 'border-gray-200 hover:border-gray-300 bg-white'
+                            }`}
                     >
                         <input
                             type="radio"
@@ -89,20 +124,24 @@ export const Paso2LugarRetiro = ({ lugares, lugarRetiro, onSelectLugar, onContin
                             value={lugar}
                             checked={lugarRetiro === lugar}
                             onChange={(e) => onSelectLugar(e.target.value)}
-                            className="w-5 h-5 text-blue-600"
+                            className="w-5 h-5 text-blue-600 focus:ring-2 focus:ring-blue-500"
                         />
-                        <span className="text-gray-800 font-medium">{lugar}</span>
+                        <span className={`flex-1 font-medium ${lugarRetiro === lugar ? 'text-blue-900' : 'text-gray-800'
+                            }`}>
+                            {lugar}
+                        </span>
                         {lugarRetiro === lugar && (
-                            <CheckCircle className="w-5 h-5 text-blue-600 ml-auto" />
+                            <CheckCircle className="w-5 h-5 text-blue-600" />
                         )}
                     </label>
                 ))}
             </div>
 
+            {/* Botones */}
             <div className="flex gap-3">
                 <button
                     onClick={onRegresar}
-                    className="w-1/3 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition flex items-center justify-center gap-2"
+                    className="w-1/3 bg-gray-200 text-gray-700 py-3.5 rounded-lg font-semibold hover:bg-gray-300 transition flex items-center justify-center gap-2"
                 >
                     <ChevronRight className="w-5 h-5 rotate-180" />
                     Regresar
@@ -110,7 +149,7 @@ export const Paso2LugarRetiro = ({ lugares, lugarRetiro, onSelectLugar, onContin
                 <button
                     onClick={onContinuar}
                     disabled={!lugarRetiro}
-                    className="w-2/3 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="w-2/3 bg-blue-600 text-white py-3.5 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md"
                 >
                     Continuar
                     <ChevronRight className="w-5 h-5" />
@@ -120,213 +159,252 @@ export const Paso2LugarRetiro = ({ lugares, lugarRetiro, onSelectLugar, onContin
     );
 };
 
+
 // ==================== PASO 3: MÉTODO DE PAGO ====================
-export const Paso3MetodoPago = ({ 
-    metodosPago, 
-    metodoPagoSeleccionado, 
-    onSelectMetodo, 
-    onContinuar, 
+export const Paso3MetodoPago = ({
+    metodosPago,
+    metodoPagoSeleccionado,
+    onSelectMetodo,
+    onContinuar,
     onRegresar,
     loading,
     tieneRetiro,
-    navigate 
+    navigate
 }) => {
     return (
-        <div>
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                <CreditCard className="w-6 h-6" />
-                Elige tu Método de Pago
-            </h2>
+        <div className="max-w-2xl mx-auto space-y-6">
+            {/* Header */}
+            <div className="flex items-center gap-3">
+                <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-2.5 rounded-lg">
+                    <CreditCard className="w-5 h-5 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900">Método de Pago</h2>
+            </div>
 
             {metodosPago.filter(m => m.tipo !== 'retiro').length === 0 ? (
-                <div className="text-center py-12">
-                    <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-                    <h3 className="text-xl font-bold text-gray-800 mb-2">Métodos de pago no disponibles</h3>
-                    <p className="text-gray-600 mb-2">Este vendedor aún no ha configurado métodos de pago.</p>
-                    <p className="text-sm text-gray-500 mb-4">Por favor, contacta al vendedor o selecciona otro producto.</p>
-                    <div className="flex gap-3 justify-center mt-6">
-                        <button
-                            onClick={() => navigate(-1)}
-                            className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
-                        >
-                            Volver al producto
-                        </button>
+                <div className="bg-white border border-gray-200 rounded-2xl p-8 text-center">
+                    <div className="bg-yellow-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <AlertCircle className="w-8 h-8 text-yellow-600" />
                     </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">Métodos de pago no disponibles</h3>
+                    <p className="text-gray-600 mb-1">Este vendedor aún no ha configurado métodos de pago.</p>
+                    <p className="text-sm text-gray-500 mb-6">Por favor, contacta al vendedor o selecciona otro producto.</p>
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition"
+                    >
+                        Volver al producto
+                    </button>
                 </div>
             ) : (
-                <div className="space-y-4 mb-6">
-                    {/* Métodos del vendedor (transferencia, QR) */}
-                    {metodosPago.filter(m => m.tipo !== 'retiro').map((metodo) => (
-                        <div
-                            key={metodo._id}
-                            onClick={() => onSelectMetodo(metodo._id)}
-                            className={`border-2 rounded-lg p-4 cursor-pointer transition ${
-                                metodoPagoSeleccionado === metodo._id
-                                    ? 'border-blue-600 bg-blue-50'
-                                    : 'border-gray-300 hover:border-blue-400'
-                            }`}
-                        >
-                            <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                    <h3 className="font-semibold text-lg flex items-center gap-2">
+                <>
+                    {/* Métodos de pago */}
+                    <div className="space-y-3">
+                        {/* Métodos del vendedor */}
+                        {metodosPago.filter(m => m.tipo !== 'retiro').map((metodo) => (
+                            <div
+                                key={metodo._id}
+                                onClick={() => onSelectMetodo(metodo._id)}
+                                className={`border-2 rounded-xl p-5 cursor-pointer transition-all ${metodoPagoSeleccionado === metodo._id
+                                        ? 'border-blue-600 bg-blue-50'
+                                        : 'border-gray-200 hover:border-gray-300 bg-white'
+                                    }`}
+                            >
+                                <div className="flex items-center justify-between gap-4">
+                                    <div className="flex-1">
+                                        <h3 className={`font-semibold text-lg ${metodoPagoSeleccionado === metodo._id ? 'text-blue-900' : 'text-gray-900'
+                                            }`}>
+                                            {metodo.tipo === 'transferencia' && 'Transferencia Bancaria'}
+                                            {metodo.tipo === 'qr' && 'Código QR'}
+                                        </h3>
                                         {metodo.tipo === 'transferencia' && (
-                                            <>
-                                                <FileText className="w-5 h-5 text-blue-600" />
-                                                Transferencia Bancaria
-                                            </>
+                                            <div className="mt-2 space-y-1 text-sm">
+                                                <p className="text-gray-600">
+                                                    <span className="font-semibold text-gray-900 ">Banco:</span> {metodo.banco}
+                                                </p>
+                                                <p className="text-gray-600">
+                                                    <span className="font-semibold text-gray-900 ">Cuenta:</span> {metodo.numeroCuenta}
+                                                </p>
+                                                <p className="text-gray-600">
+                                                    <span className="font-semibold text-gray-900 ">Titular:</span> {metodo.titular}
+                                                </p>
+                                            </div>
                                         )}
-                                        {metodo.tipo === 'qr' && (
-                                            <>
-                                                <Package className="w-5 h-5 text-purple-600" />
-                                                Código QR
-                                            </>
+                                        {metodo.tipo === 'qr' && metodo.imagenComprobante && (
+                                            <div className="mt-3">
+                                                <img
+                                                    src={metodo.imagenComprobante}
+                                                    alt="QR"
+                                                    className="w-40 h-40 object-contain border border-gray-200 rounded-lg bg-gray-50"
+                                                />
+                                            </div>
                                         )}
-                                    </h3>
-                                    {metodo.tipo === 'transferencia' && (
-                                        <div className="mt-2 text-sm text-gray-600 space-y-1">
-                                            <p><strong>Banco:</strong> {metodo.banco}</p>
-                                            <p><strong>Cuenta:</strong> {metodo.numeroCuenta}</p>
-                                            <p><strong>Titular:</strong> {metodo.titular}</p>
-                                        </div>
-                                    )}
-                                    {metodo.tipo === 'qr' && metodo.imagenComprobante && (
-                                        <img 
-                                            src={metodo.imagenComprobante} 
-                                            alt="QR" 
-                                            className="mt-3 w-48 h-48 object-contain border border-gray-300 rounded-lg"
-                                        />
+                                    </div>
+                                    {metodoPagoSeleccionado === metodo._id && (
+                                        <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0" />
                                     )}
                                 </div>
-                                {metodoPagoSeleccionado === metodo._id && (
-                                    <CheckCircle className="w-6 h-6 text-blue-600" />
+                            </div>
+                        ))}
+
+                        {/* Opción Stripe */}
+                        <div
+                            onClick={() => onSelectMetodo('stripe')}
+                            className={`border-2 rounded-xl p-5 cursor-pointer transition-all ${metodoPagoSeleccionado === 'stripe'
+                                    ? 'border-blue-600 bg-blue-50'
+                                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                                }`}
+                        >
+                            <div className="flex items-center justify-between gap-4">
+                                <div className="flex-1">
+                                    <h3 className={`font-semibold text-lg ${metodoPagoSeleccionado === 'stripe' ? 'text-blue-900' : 'text-gray-900'
+                                        }`}>
+                                        Pagar con Tarjeta
+                                    </h3>
+                                    <p className="text-sm text-gray-600 mt-1">Pago seguro procesado por Stripe</p>
+                                </div>
+                                {metodoPagoSeleccionado === 'stripe' && (
+                                    <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0" />
                                 )}
                             </div>
                         </div>
-                    ))}
-
-                    {/* Opción de pago con tarjeta Stripe */}
-                    <div
-                        onClick={() => onSelectMetodo('stripe')}
-                        className={`border-2 rounded-lg p-4 cursor-pointer transition ${
-                            metodoPagoSeleccionado === 'stripe'
-                                ? 'border-blue-600 bg-blue-50'
-                                : 'border-gray-300 hover:border-blue-400'
-                        }`}
-                    >
-                        <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                                <h3 className="font-semibold text-lg flex items-center gap-2">
-                                    <CreditCard className="w-5 h-5 text-green-600" />
-                                    Pagar con Tarjeta
-                                </h3>
-                                <p className="text-sm text-gray-600 mt-1">Pago seguro procesado por Stripe</p>
-                            </div>
-                            {metodoPagoSeleccionado === 'stripe' && (
-                                <CheckCircle className="w-6 h-6 text-blue-600" />
-                            )}
-                        </div>
                     </div>
-                </div>
-            )}
 
-            <div className="flex gap-3">
-                <button
-                    onClick={onRegresar}
-                    className="w-1/3 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition flex items-center justify-center gap-2"
-                >
-                    <ChevronRight className="w-5 h-5 rotate-180" />
-                    Regresar
-                </button>
-                {metodoPagoSeleccionado && (
-                    <button
-                        onClick={onContinuar}
-                        disabled={loading}
-                        className="w-2/3 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
-                    >
-                        {loading ? (
-                            <>
-                                <Loader2 className="w-5 h-5 animate-spin" />
-                                Procesando...
-                            </>
-                        ) : (
-                            <>
-                                Continuar
-                                <ChevronRight className="w-5 h-5" />
-                            </>
+                    {/* Botones */}
+                    <div className="flex gap-3">
+                        <button
+                            onClick={onRegresar}
+                            className="w-1/3 bg-gray-200 text-gray-700 py-3.5 rounded-lg font-semibold hover:bg-gray-300 transition flex items-center justify-center gap-2"
+                        >
+                            <ChevronRight className="w-5 h-5 rotate-180" />
+                            Regresar
+                        </button>
+                        {metodoPagoSeleccionado && (
+                            <button
+                                onClick={onContinuar}
+                                disabled={loading}
+                                className="w-2/3 bg-blue-600 text-white py-3.5 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md"
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        Procesando...
+                                    </>
+                                ) : (
+                                    <>
+                                        Continuar
+                                        <ChevronRight className="w-5 h-5" />
+                                    </>
+                                )}
+                            </button>
                         )}
-                    </button>
-                )}
-            </div>
+                    </div>
+                </>
+            )}
         </div>
     );
 };
 
 // ==================== PASO 4: SUBIR COMPROBANTE ====================
-export const Paso4SubirComprobante = ({ 
-    metodoPagoElegido, 
-    total, 
-    archivoComprobante, 
-    onFileChange, 
+export const Paso4SubirComprobante = ({
+    metodoPagoElegido,
+    total,
+    archivoComprobante,
+    onFileChange,
     onSubmit,
     onRegresar,
-    loading 
+    loading
 }) => {
     return (
-        <div>
-            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                <Upload className="w-6 h-6" />
-                Subir Comprobante de Pago
-            </h2>
+        <div className="max-w-2xl mx-auto space-y-6">
+            {/* Header */}
+            <div className="flex items-center gap-3">
+                <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-2.5 rounded-lg">
+                    <Upload className="w-5 h-5 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900">Subir Comprobante</h2>
+            </div>
 
+            {/* Info Transferencia */}
             {metodoPagoElegido?.tipo === 'transferencia' && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                    <h3 className="font-semibold mb-2 flex items-center gap-2">
-                        <FileText className="w-5 h-5" />
-                        Recuerda transferir a:
+                <div className="bg-white border border-gray-200 rounded-2xl p-5">
+                    <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                        <FileText className="w-5 h-5 text-blue-600" />
+                        Datos para la transferencia
                     </h3>
-                    <div className="space-y-1 text-sm">
-                        <p><strong>Banco:</strong> {metodoPagoElegido.banco}</p>
-                        <p><strong>Número de cuenta:</strong> {metodoPagoElegido.numeroCuenta}</p>
-                        <p><strong>Titular:</strong> {metodoPagoElegido.titular}</p>
-                        <p><strong>Monto:</strong> <span className="text-lg font-bold text-blue-600">${total}</span></p>
+                    <div className="space-y-2 text-sm">
+                        <p className="text-gray-600">
+                            <span className="font-medium text-gray-900">Banco:</span> {metodoPagoElegido.banco}
+                        </p>
+                        <p className="text-gray-600">
+                            <span className="font-medium text-gray-900">Número de cuenta:</span> {metodoPagoElegido.numeroCuenta}
+                        </p>
+                        <p className="text-gray-600">
+                            <span className="font-medium text-gray-900">Titular:</span> {metodoPagoElegido.titular}
+                        </p>
+                        <div className="pt-2 border-t border-gray-200 mt-3">
+                            <p className="text-gray-600">
+                                <span className="font-medium text-gray-900">Monto a transferir:</span> <span className="text-lg font-bold text-blue-600">${total}</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
             )}
 
+            {/* Info QR */}
             {metodoPagoElegido?.tipo === 'qr' && metodoPagoElegido.imagenComprobante && (
-                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6 text-center">
-                    <h3 className="font-semibold mb-3">Escanea el código QR para pagar:</h3>
-                    <img 
-                        src={metodoPagoElegido.imagenComprobante} 
-                        alt="QR" 
-                        className="mx-auto w-64 h-64 object-contain border-2 border-purple-300 rounded-lg"
-                    />
-                    <p className="mt-3 text-sm"><strong>Monto:</strong> <span className="text-lg font-bold text-purple-600">${total}</span></p>
+                <div className="bg-white border border-gray-200 rounded-2xl p-6 text-center">
+                    <h3 className="font-semibold text-gray-900 mb-4">Escanea el código QR para pagar</h3>
+                    <div className="inline-block p-4 bg-gray-50 rounded-xl">
+                        <img
+                            src={metodoPagoElegido.imagenComprobante}
+                            alt="QR"
+                            className="w-64 h-64 object-contain"
+                        />
+                    </div>
+                    <div className="mt-4">
+                        <p className="text-sm text-gray-600">
+                            Monto a pagar: <span className="text-lg font-bold text-purple-600">${total}</span>
+                        </p>
+                    </div>
                 </div>
             )}
 
-            <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+            {/* Upload Comprobante */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-5">
+                <label className="block text-sm font-medium text-gray-900 mb-3">
                     Subir Comprobante de Pago *
                 </label>
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={onFileChange}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                />
-                {archivoComprobante && (
-                    <p className="mt-2 text-sm text-green-600 flex items-center gap-1">
-                        <CheckCircle className="w-4 h-4" />
-                        {archivoComprobante.name}
-                    </p>
-                )}
+                <div className="flex items-center gap-3">
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={onFileChange}
+                        className="hidden"
+                        id="file-upload-input"
+                    />
+                    <label
+                        htmlFor="file-upload-input"
+                        className="px-4 py-2 bg-blue-50 text-blue-700 text-sm font-semibold rounded-lg hover:bg-blue-100 cursor-pointer transition"
+                    >
+                        Seleccionar archivo
+                    </label>
+                    {archivoComprobante ? (
+                        <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 px-3 py-2 rounded-lg">
+                            <CheckCircle className="w-4 h-4" />
+                            <span className="font-medium">{archivoComprobante.name}</span>
+                        </div>
+                    ) : (
+                        <span className="text-sm text-gray-500">Ningún archivo seleccionado</span>
+                    )}
+                </div>
             </div>
 
+            {/* Botones */}
             <div className="flex gap-3">
                 <button
                     onClick={onRegresar}
-                    className="w-1/3 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition flex items-center justify-center gap-2"
+                    className="w-1/3 bg-gray-200 text-gray-700 py-3.5 rounded-lg font-semibold hover:bg-gray-300 transition flex items-center justify-center gap-2"
                 >
                     <ChevronRight className="w-5 h-5 rotate-180" />
                     Regresar
@@ -334,7 +412,7 @@ export const Paso4SubirComprobante = ({
                 <button
                     onClick={onSubmit}
                     disabled={loading || !archivoComprobante}
-                    className="w-2/3 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                    className="w-2/3 bg-blue-600 text-white py-3.5 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md"
                 >
                     {loading ? (
                         <>

@@ -1,20 +1,22 @@
-import React from 'react';
 import { Package, CheckCircle } from 'lucide-react';
 
 const ResumenCompra = ({ producto, cantidad, total, currentStep, onCantidadChange }) => {
     if (!producto) return null;
 
     return (
-        <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-blue-800">
-                <Package className="w-5 h-5" />
-                Resumen de Compra
-            </h3>
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 sticky top-4">
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-4">
+                <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-2.5 rounded-lg">
+                    <Package className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Resumen de Compra</h3>
+            </div>
             
             <img
                 src={producto.imagen || '/placeholder.jpg'}
                 alt={producto.nombreProducto}
-                className="w-full h-48 object-cover rounded-lg mb-4 shadow-sm"
+                className="w-full h-48 object-cover rounded-lg mb-4"
             />
 
             {/* Info del Producto */}
