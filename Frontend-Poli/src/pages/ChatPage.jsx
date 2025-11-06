@@ -303,7 +303,7 @@ const scrollToBottom = () => {
   };
 
   return (
-    <div className="flex h-[90vh] bg-gradient-to-br from-gray-50 to-gray-100 flex-col md:flex-row mt-31 md:mt-11 border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+  <div className="flex flex-col md:flex-row bg-gradient-to-br from-gray-50 to-gray-100 mt-31 md:mt-11 border border-gray-200 rounded-xl shadow-lg overflow-hidden h-screen md:h-[90vh]">
       <ToastContainer/>
       {/* Panel lateral - Conversaciones */}
       <div className="w-full md:w-80 bg-white border-r border-gray-200 flex flex-col max-h-60 md:max-h-full">
@@ -415,7 +415,7 @@ const scrollToBottom = () => {
       </div>
 
       {/* Área principal de chat */}
-      <div className="flex-1 flex flex-col w-full" >
+  <div className="flex-1 flex flex-col w-full min-h-0 relative" >
         {conversacionActiva ? (
           <>
             {/* Header del chat */}
@@ -434,7 +434,10 @@ const scrollToBottom = () => {
             </div>
 
             {/* Área de mensajes */}
-            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-3 md:space-y-4">
+            <div 
+              className="flex-1 overflow-y-scroll p-4 md:p-6 space-y-3 md:space-y-4 min-h-0 max-h-[calc(100vh-180px)] md:max-h-[calc(90vh-120px)]"
+              style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain', msOverflowStyle: 'auto', scrollbarWidth: 'thin' }}
+            >
               {mensajes.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full">
                   <div className="bg-white p-4 rounded-full mb-3">
@@ -493,7 +496,7 @@ const scrollToBottom = () => {
             </div>
 
             {/* Input de mensaje */}
-            <div className="bg-white border-t border-gray-200 p-3 md:p-4">
+            <div className="bg-white border-t border-gray-200 p-3 md:p-4 w-full sticky bottom-0 left-0 z-10">
               <div className="flex items-center gap-3">
                 <label className="cursor-pointer">
                   <input

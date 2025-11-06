@@ -18,17 +18,22 @@ export const actualizarPerfil = async (req, res) => {
 
   const estudianteBDD = await Estudiante.findById(id)
   if (!estudianteBDD) return res.status(404).json({ msg: `Lo sentimos, no existe el estudiante ${id}` });
-  if (estudianteBDD.email != email) {
+  
+  // Validar email solo si se envió Y es diferente al actual
+  if (email && email.trim() !== "" && estudianteBDD.email !== email) {
     const estudianteBDDMail = await Estudiante.findOne({ email })
     if (estudianteBDDMail) {
       return res.status(404).json({ msg: 'Lo sentimos el email ya se encuentra registrado' })
     }
+    estudianteBDD.email = email.trim()
   }
-  estudianteBDD.nombre = nombre ?? estudianteBDD.nombre
-  estudianteBDD.apellido = apellido ?? estudianteBDD.apellido
-  estudianteBDD.telefono = telefono ?? estudianteBDD.telefono
-  estudianteBDD.direccion = direccion ?? estudianteBDD.direccion
-  estudianteBDD.email = email ?? estudianteBDD.email
+  
+  // Solo actualizar si el campo tiene valor (no vacío ni solo espacios)
+  if (nombre && nombre.trim() !== "") estudianteBDD.nombre = nombre.trim()
+  if (apellido && apellido.trim() !== "") estudianteBDD.apellido = apellido.trim()
+  if (telefono && telefono.trim() !== "") estudianteBDD.telefono = telefono.trim()
+  if (direccion && direccion.trim() !== "") estudianteBDD.direccion = direccion.trim()
+  
   await estudianteBDD.save()
   res.status(200).json(estudianteBDD)
 }
