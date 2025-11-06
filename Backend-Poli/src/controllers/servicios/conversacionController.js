@@ -67,3 +67,18 @@ export const conversacionLectura = async (req, res) => {
         res.status(500).json({ message: "Error interno del servidor" });
     }
 };
+
+export const eliminarConversacion = async (req, res) => {
+    const conversacionId = req.params.id;
+    try {
+        const conversacion = await Conversacion.findByIdAndDelete(conversacionId);
+        if (!conversacion) {
+            return res.status(404).json({ message: "Conversación no encontrada" });
+        }
+        res.json({ message: "Conversación eliminada correctamente" });
+    }
+    catch (error) {
+        console.error("Error eliminando conversación:", error);
+        res.status(500).json({ message: "Error interno del servidor" });
+    }
+};
