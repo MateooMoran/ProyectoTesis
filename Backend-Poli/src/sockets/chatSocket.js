@@ -35,8 +35,15 @@ const initSocket = (server) => {
     io.on('connection', (socket) => {
         console.log('🔌 Usuario conectado:', socket.userId);
         
-        // Unirse a sala personal para notificaciones
-        socket.join(`user:${socket.userId}`);
+        // Unirse a sala personal para notificaciones (formato: user-{userId})
+        socket.join(`user-${socket.userId}`);
+        console.log(`✅ Usuario ${socket.userId} unido a sala: user-${socket.userId}`);
+
+        // Evento para unirse a sala personal (por si se llama desde el frontend)
+        socket.on('join-personal-room', (userId) => {
+            socket.join(`user-${userId}`);
+            console.log(`✅ Usuario ${userId} se unió a su sala personal`);
+        });
 
         // Unirse a una conversación
         socket.on('join-chat', async ({ conversacionId }) => {
@@ -176,15 +183,17 @@ const initSocket = (server) => {
 
                 console.log('✅ Conversación actualizada');
 
-                // Crear notificación
-                await Notificacion.create({
+                // Crear notificación y emitir en tiempo real
+                const notificacion = await Notificacion.create({
                     usuario: otroMiembro,
                     mensaje: 'Tienes un nuevo mensaje',
                     tipo: 'mensaje',
                     leido: false
                 });
 
-                console.log('✅ Notificación creada');
+                // Emitir notificación en tiempo real
+                io.to(`user-${otroMiembro}`).emit('notificacion:nueva', notificacion);
+                console.log('✅ Notificación creada y emitida a user-' + otroMiembro);
 
                 // Emitir eventos
                 console.log('📡 Emitiendo mensaje a sala:', conversacionId);
@@ -197,14 +206,14 @@ const initSocket = (server) => {
                 console.log('📡 Mensaje emitido a la sala');
 
                 // Notificar actualización de chat al otro usuario
-                io.to(`user:${otroMiembro}`).emit('chat:updated', {
+                io.to(`user-${otroMiembro}`).emit('chat:updated', {
                     conversacionId,
                     ultimoMensaje: mensajePopulado,
                     mensajesNoLeidos: 1
                 });
 
                 // 🔥 Forzar recarga si el chat estaba oculto
-                io.to(`user:${otroMiembro}`).emit('conversacion:restaurada', {
+                io.to(`user-${otroMiembro}`).emit('conversacion:restaurada', {
                     conversacionId
                 });
 
@@ -277,20 +286,24 @@ const initSocket = (server) => {
                 conversacion.mensajesNoLeidos = mensajesNoLeidosActualizado;
                 await conversacion.save();
 
-                // Crear notificación
-                await Notificacion.create({
+                // Crear notificación y emitir en tiempo real
+                const notificacionImagen = await Notificacion.create({
                     usuario: otroMiembro,
                     mensaje: 'Te han enviado una imagen',
                     tipo: 'mensaje',
                     leido: false
                 });
 
+                // Emitir notificación en tiempo real
+                io.to(`user-${otroMiembro}`).emit('notificacion:nueva', notificacionImagen);
+                console.log('✅ Notificación de imagen emitida a user-' + otroMiembro);
+
                 // Emitir eventos
                 io.to(conversacionId).emit('message:new', {
                     mensaje: nuevoMensaje
                 });
 
-                io.to(`user:${otroMiembro}`).emit('chat:updated', {
+                io.to(`user-${otroMiembro}`).emit('chat:updated', {
                     conversacionId,
                     ultimoMensaje: nuevoMensaje,
                     mensajesNoLeidos: 1

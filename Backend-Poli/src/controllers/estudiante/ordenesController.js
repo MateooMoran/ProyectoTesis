@@ -9,12 +9,24 @@ import { promises as fs } from 'fs';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Para crear notificaciones
-const crearNotificacion = async (usuario, mensaje, tipo) => {
-  await Notificacion.create({ usuario, mensaje, tipo });
+// Helper para crear notificaciones con Socket.IO
+const crearNotificacion = async (usuario, mensaje, tipo, req) => {
+  try {
+    const notificacion = await Notificacion.create({ usuario, mensaje, tipo });
+    
+    const io = req?.app?.get('io');
+    if (io) {
+      io.to(`user-${usuario}`).emit('notificacion:nueva', notificacion);
+      console.log(`🔔 Notificación emitida a usuario: ${usuario}`);
+    }
+    
+    return notificacion;
+  } catch (error) {
+    console.error('Error creando notificación:', error);
+  }
 };
 
-// Crear orden (Compra directa)
+// Crear orden 
 export const crearOrden = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -23,30 +35,39 @@ export const crearOrden = async (req, res) => {
     const { productoId, cantidad, metodoPagoVendedorId, lugarRetiro } = req.body;
 
     // Validar producto y stock
-    const producto = await Producto.findById(productoId);
+    const producto = await Producto.findById(productoId).session(session);
     if (!producto) {
+      await session.abortTransaction();
       return res.status(404).json({ msg: "Producto no encontrado" });
     }
     if (producto.stock < cantidad) {
-      return res.status(400).json({ msg: "Stock insuficiente" });
+      await session.abortTransaction();
+      return res.status(400).json({ msg: `Stock insuficiente. Solo hay ${producto.stock} unidades disponibles` });
+    }
+    if (!producto.activo || producto.estado !== "disponible") {
+      await session.abortTransaction();
+      return res.status(400).json({ msg: "Producto no disponible para compra" });
     }
 
     // Validar método de pago del vendedor
     const metodoPago = await MetodoPagoVendedor.findOne({
       _id: metodoPagoVendedorId,
       vendedor: producto.vendedor
-    });
+    }).session(session);
 
     if (!metodoPago) {
+      await session.abortTransaction();
       return res.status(400).json({ msg: "Método de pago inválido para este vendedor" });
     }
 
     if (metodoPago.tipo === "retiro") {
       if (!lugarRetiro) {
+        await session.abortTransaction();
         return res.status(400).json({ msg: "Debes seleccionar un lugar de retiro" });
       }
 
       if (!metodoPago.lugares || !metodoPago.lugares.includes(lugarRetiro)) {
+        await session.abortTransaction();
         return res.status(400).json({ msg: "El lugar de retiro seleccionado no es válido" });
       }
     }
@@ -69,9 +90,6 @@ export const crearOrden = async (req, res) => {
 
     await orden.save({ session });
 
-    // Actualizar stock
-    producto.stock -= cantidad;
-    await producto.save({ session });
 
     const mensajeNotificacion = lugarRetiro
       ? `Nueva orden de ${cantidad} unidad(es) de "${producto.nombreProducto}" - Retiro en: ${lugarRetiro}`
@@ -80,7 +98,8 @@ export const crearOrden = async (req, res) => {
     await crearNotificacion(
       producto.vendedor,
       mensajeNotificacion,
-      "venta"
+      "venta",
+      req
     );
 
     await session.commitTransaction();
@@ -104,24 +123,29 @@ export const subirComprobante = async (req, res) => {
   session.startTransaction();
 
   try {
-    const orden = await Orden.findById(req.params.id);
+    const orden = await Orden.findById(req.params.id).session(session);
     if (!orden) {
+      await session.abortTransaction();
       return res.status(404).json({ msg: "Orden no encontrada" });
     }
     if (!orden.comprador.equals(req.estudianteBDD._id)) {
+      await session.abortTransaction();
       return res.status(403).json({ msg: "No autorizado" });
     }
     if (orden.estado !== "pendiente_pago") {
+      await session.abortTransaction();
       return res.status(400).json({ msg: "La orden no está en estado pendiente de pago" });
     }
 
     if (!req.files?.comprobante) {
+      await session.abortTransaction();
       return res.status(400).json({ msg: "Debe subir un comprobante de pago" });
     }
 
     const file = req.files.comprobante;
     if (!file.mimetype.startsWith("image/")) {
       if (file.tempFilePath) await fs.unlink(file.tempFilePath);
+      await session.abortTransaction();
       return res.status(400).json({ msg: "Solo se permiten archivos de imagen" });
     }
 
@@ -142,7 +166,8 @@ export const subirComprobante = async (req, res) => {
     await crearNotificacion(
       orden.vendedor,
       `El comprador ha subido el comprobante de pago para la orden ${orden._id}`,
-      "venta"
+      "venta",
+      req
     );
 
     await session.commitTransaction();
@@ -170,19 +195,24 @@ export const procesarPagoTarjeta = async (req, res) => {
 
     let orden;
 
-    // Si no hay ordenId, crear la orden primero
     if (!ordenId) {
       if (!productoId || !cantidad) {
         return res.status(400).json({ msg: "Faltan datos para crear la orden (productoId, cantidad)" });
       }
 
       // Validar producto y stock
-      const producto = await Producto.findById(productoId);
+      const producto = await Producto.findById(productoId).session(session);
       if (!producto) {
+        await session.abortTransaction();
         return res.status(404).json({ msg: "Producto no encontrado" });
       }
       if (producto.stock < cantidad) {
-        return res.status(400).json({ msg: "Stock insuficiente" });
+        await session.abortTransaction();
+        return res.status(400).json({ msg: `Stock insuficiente. Solo hay ${producto.stock} unidades disponibles` });
+      }
+      if (!producto.activo || producto.estado !== "disponible") {
+        await session.abortTransaction();
+        return res.status(400).json({ msg: "Producto no disponible para compra" });
       }
 
       let metodoPagoId = null;
@@ -191,17 +221,20 @@ export const procesarPagoTarjeta = async (req, res) => {
         const metodoPago = await MetodoPagoVendedor.findOne({
           _id: metodoPagoVendedorId,
           vendedor: producto.vendedor
-        });
+        }).session(session);
 
         if (!metodoPago) {
+          await session.abortTransaction();
           return res.status(400).json({ msg: "Método de pago inválido para este vendedor" });
         }
 
         if (metodoPago.tipo === "retiro") {
           if (!lugarRetiro) {
+            await session.abortTransaction();
             return res.status(400).json({ msg: "Debes seleccionar un lugar de retiro" });
           }
           if (!metodoPago.lugares || !metodoPago.lugares.includes(lugarRetiro)) {
+            await session.abortTransaction();
             return res.status(400).json({ msg: "El lugar de retiro seleccionado no es válido" });
           }
         }
@@ -221,27 +254,26 @@ export const procesarPagoTarjeta = async (req, res) => {
         subtotal,
         total: subtotal,
         metodoPagoVendedor: metodoPagoId,
-        tipoPago: "tarjeta", // 🔥 Siempre es tarjeta cuando usa Stripe
+        tipoPago: "tarjeta", 
         lugarRetiroSeleccionado: lugarRetiro || null,
         estado: "pendiente_pago"
       });
 
       await orden.save({ session });
 
-      // Actualizar stock
-      producto.stock -= cantidad;
-      await producto.save({ session });
-
     } else {
-      // Si ya existe la orden, buscarla
-      orden = await Orden.findById(ordenId);
+      // Si ya existe la orden se busca
+      orden = await Orden.findById(ordenId).session(session);
       if (!orden) {
+        await session.abortTransaction();
         return res.status(404).json({ msg: "Orden no encontrada" });
       }
       if (!orden.comprador.equals(req.estudianteBDD._id)) {
+        await session.abortTransaction();
         return res.status(403).json({ msg: "No autorizado" });
       }
       if (orden.estado !== "pendiente_pago") {
+        await session.abortTransaction();
         return res.status(400).json({ msg: "La orden no está en estado pendiente de pago" });
       }
     }
@@ -268,7 +300,8 @@ export const procesarPagoTarjeta = async (req, res) => {
     await crearNotificacion(
       orden.vendedor,
       `Se ha procesado un pago con tarjeta para la orden ${orden._id}`,
-      "venta"
+      "venta",
+      req
     );
 
     await session.commitTransaction();
@@ -293,14 +326,17 @@ export const confirmarEntrega = async (req, res) => {
   session.startTransaction();
 
   try {
-    const orden = await Orden.findById(req.params.id);
+    const orden = await Orden.findById(req.params.id).session(session);
     if (!orden) {
+      await session.abortTransaction();
       return res.status(404).json({ msg: "Orden no encontrada" });
     }
     if (!orden.comprador.equals(req.estudianteBDD._id)) {
+      await session.abortTransaction();
       return res.status(403).json({ msg: "No autorizado" });
     }
     if (orden.estado !== "pago_confirmado_vendedor") {
+      await session.abortTransaction();
       return res.status(400).json({ msg: "El vendedor aún no ha confirmado el pago" });
     }
 
@@ -309,11 +345,14 @@ export const confirmarEntrega = async (req, res) => {
     orden.fechaCompletada = new Date();
     await orden.save({ session });
 
-    // Actualizar stock del producto
-    const producto = await Producto.findById(orden.producto);
+    // Actualizar stock Y vendidos del producto
+    const producto = await Producto.findById(orden.producto).session(session);
     if (producto) {
-      producto.stock -= orden.cantidad;
-      producto.vendidos += orden.cantidad;
+      const nuevoStock = Math.max(0, producto.stock - orden.cantidad);
+      const nuevosVendidos = producto.vendidos + orden.cantidad;
+
+      producto.stock = nuevoStock;
+      producto.vendidos = nuevosVendidos;
 
       if (producto.stock <= 0) {
         producto.estado = "no disponible";
@@ -321,7 +360,8 @@ export const confirmarEntrega = async (req, res) => {
         await crearNotificacion(
           producto.vendedor,
           `Tu producto "${producto.nombreProducto}" se ha agotado.`,
-          "sistema"
+          "sistema",
+          req
         );
       }
       await producto.save({ session });
@@ -331,7 +371,8 @@ export const confirmarEntrega = async (req, res) => {
     await crearNotificacion(
       orden.vendedor,
       `El comprador ha confirmado la entrega de la orden ${orden._id}`,
-      "venta"
+      "venta",
+      req
     );
 
     await session.commitTransaction();
@@ -346,17 +387,23 @@ export const confirmarEntrega = async (req, res) => {
 
 // Cancelar orden
 export const cancelarOrden = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    const orden = await Orden.findById(req.params.id);
+    const orden = await Orden.findById(req.params.id).session(session);
     if (!orden) {
+      await session.abortTransaction();
       return res.status(404).json({ msg: "Orden no encontrada" });
     }
 
     if (!orden.comprador.equals(req.estudianteBDD._id)) {
+      await session.abortTransaction();
       return res.status(403).json({ msg: "No autorizado" });
     }
 
     if (orden.estado !== "pendiente_pago") {
+      await session.abortTransaction();
       return res.status(400).json({ msg: "Solo se pueden cancelar órdenes en estado pendiente de pago" });
     }
 
@@ -366,20 +413,34 @@ export const cancelarOrden = async (req, res) => {
     });
 
     if (canceladas >= 2) {
+      await session.abortTransaction();
       return res.status(400).json({ msg: "Has alcanzado el límite de 2 órdenes canceladas" });
     }
 
     // Cancelar la orden
     orden.estado = "cancelada";
-    await orden.save();
+    await orden.save({ session });
 
+    // Notificar al vendedor
+    await crearNotificacion(
+      orden.vendedor,
+      `El comprador ha cancelado la orden ${orden._id}`,
+      "venta",
+      req
+    );
+
+    await session.commitTransaction();
     res.json({ msg: "Orden cancelada correctamente", orden });
 
   } catch (error) {
+    await session.abortTransaction();
     res.status(500).json({ msg: "Error cancelando orden", error: error.message });
+  } finally {
+    session.endSession();
   }
 };
 
+// Ver ordenes del estudiante
 export const verOrdenes = async (req, res) => {
   try {
     if (!req.estudianteBDD || !req.estudianteBDD._id) {

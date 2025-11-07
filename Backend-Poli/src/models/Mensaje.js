@@ -32,7 +32,7 @@ const mensajeSchema = new Schema(
       }
     },
     imagenPublicId: {
-      type: String // Para eliminar de Cloudinary
+      type: String 
     },
     eliminado: {
       type: Boolean,

@@ -58,6 +58,6 @@ export const generarYEnviarRecomendaciones = async (estudianteId) => {
     await sendMailRecomendaciones(estudiante.email, estudiante.nombre, topRecomendaciones);
 
   } catch (error) {
-    console.error("❌ Error generando recomendaciones:", error.message);
+    console.error("Error generando recomendaciones:", error.message);
   }
 };

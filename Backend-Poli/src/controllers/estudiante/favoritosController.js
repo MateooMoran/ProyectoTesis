@@ -1,5 +1,6 @@
 import Estudiante from "../../models/Estudiante.js";
 import mongoose from "mongoose";
+import { generarYEnviarRecomendaciones } from "./recomendacionesController.js";
 
 // Agregar o quitar favorito (toggle)
 export const seleccionarFavorito = async (req, res) => {
@@ -21,9 +22,12 @@ export const seleccionarFavorito = async (req, res) => {
 
     const index = estudiante.favoritos.findIndex(favId => favId.toString() === productoId);
 
+    let agregado = false;
     let msg;
+
     if (index === -1) {
       estudiante.favoritos.push(productoId);
+      agregado = true;
       msg = "Producto agregado a favoritos";
     } else {
       estudiante.favoritos.splice(index, 1);
@@ -31,6 +35,13 @@ export const seleccionarFavorito = async (req, res) => {
     }
 
     await estudiante.save();
+
+    //  Solo generar recomendaciones si se agregó
+    if (agregado) {
+      generarYEnviarRecomendaciones(estudianteId)
+        .catch(err => console.error("Error al enviar recomendaciones:", err));
+    }
+
     res.status(200).json({ msg, favoritos: estudiante.favoritos });
 
   } catch (error) {

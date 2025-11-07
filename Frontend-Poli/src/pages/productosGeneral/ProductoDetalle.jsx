@@ -116,7 +116,7 @@ const ProductoDetalle = () => {
       <Header />
       <div className="mt-40 md:mt-19"></div>
       <div className="min-h-screen bg-gray-50 mt-24 md:mt-10">
-        <section className="py-3 sm:pb-8 bg-blue-50">
+        <section className="py-4 sm:py-10 bg-blue-50">
           <div className="max-w-7xl mx-auto px-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 
@@ -167,28 +167,27 @@ const ProductoDetalle = () => {
                     <span className="text-xl text-gray-500 line-through">${(producto.precio * 1.2).toFixed(2)}</span>
                   )}
                   {/* Rating y cantidad de reseñas dinámico */}
-{estadisticasResenas ? (
-  <div className="flex items-center gap-1 ml-auto">
-    {[...Array(5)].map((_, i) => (
-      <FaStar
-        key={i}
-        className={`w-5 h-5 ${
-          i < Math.round(estadisticasResenas.promedio)
-            ? "text-yellow-400"
-            : "text-gray-300"
-        }`}
-      />
-    ))}
-    <span className="ml-2 text-gray-600">({estadisticasResenas.total} reseñas)</span>
-  </div>
-) : (
-  <div className="flex items-center gap-1 ml-auto">
-    {[...Array(5)].map((_, i) => (
-      <FaStar key={i} className="w-5 h-5 text-gray-300" />
-    ))}
-    <span className="ml-2 text-gray-400">(Sin reseñas)</span>
-  </div>
-)}
+                  {estadisticasResenas ? (
+                    <div className="flex items-center gap-1 ml-auto">
+                      {[...Array(5)].map((_, i) => (
+                        <FaStar
+                          key={i}
+                          className={`w-5 h-5 ${i < Math.round(estadisticasResenas.promedio)
+                              ? "text-yellow-400"
+                              : "text-gray-300"
+                            }`}
+                        />
+                      ))}
+                      <span className="ml-2 text-gray-600">({estadisticasResenas.total} reseñas)</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1 ml-auto">
+                      {[...Array(5)].map((_, i) => (
+                        <FaStar key={i} className="w-5 h-5 text-gray-300" />
+                      ))}
+                      <span className="ml-2 text-gray-400">(Sin reseñas)</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* DESCRIPCIÓN */}
@@ -256,14 +255,14 @@ const ProductoDetalle = () => {
             </div>
           </div>
         </section>
-        
+
         {/* 🔥 2. RESEÑAS ABAJO */}
         <SeccionResenas
           productoId={id}
           onEstadisticas={setEstadisticasResenas}
         />
 
-      
+
 
         {/* 🔥 3. PRODUCTOS RELACIONADOS */}
         {productosRelacionados.length > 0 && (

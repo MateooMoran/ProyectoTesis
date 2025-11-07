@@ -130,7 +130,7 @@ export const visualizarMetodosPago = async (req, res) => {
 // ELIMINAR UN LUGAR ESPECÍFICO DE RETIRO
 export const eliminarLugarRetiro = async (req, res) => {
   try {
-    const { lugar } = req.body; // El nombre del lugar a eliminar
+    const { lugar } = req.body; 
     
     if (!lugar) {
       return res.status(400).json({ msg: "Se requiere el nombre del lugar a eliminar" });
@@ -188,7 +188,6 @@ export const eliminarMetodoPago = async (req, res) => {
       return res.status(404).json({ msg: "Método de pago no encontrado" });
     }
 
-    // Elimina imagen de Cloudinary si aplica
     if (metodoPago.imagenID) {
       await cloudinary.uploader.destroy(metodoPago.imagenID);
     }

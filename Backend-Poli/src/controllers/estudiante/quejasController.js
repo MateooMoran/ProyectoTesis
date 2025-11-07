@@ -11,17 +11,31 @@ export const crearQuejasSugerencias = async (req, res) => {
 
     const nueva = new QuejasSugerencias({ tipo, mensaje, usuario: req.estudianteBDD._id });
 
-    const notificacion = new Notificacion({ usuario: req.estudianteBDD._id, mensaje: `Tu ${tipo} ha sido registrada correctamente.`, tipo: "sistema" });
-
-    const admin = await Estudiante.findOne({ rol: "admin" });
-    const notificacionAdmin = new Notificacion({
-      usuario: admin._id,
-      mensaje: `Nuevo mensaje recibido del tipo (${tipo.toUpperCase()}) del usuario: ${req.estudianteBDD.nombre} ${req.estudianteBDD.apellido}`,
-      tipo: "sistema"
+    // Notificación al usuario con Socket.IO
+    const notificacion = await Notificacion.create({ 
+      usuario: req.estudianteBDD._id, 
+      mensaje: `Tu ${tipo} ha sido registrada correctamente.`, 
+      tipo: "sistema" 
     });
 
-    await notificacionAdmin.save();
-    await notificacion.save();
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`user-${req.estudianteBDD._id}`).emit('notificacion:nueva', notificacion);
+    }
+
+    const admin = await Estudiante.findOne({ rol: "admin" });
+    if (admin) {
+      const notificacionAdmin = await Notificacion.create({
+        usuario: admin._id,
+        mensaje: `Nuevo mensaje recibido del tipo (${tipo.toUpperCase()}) del usuario: ${req.estudianteBDD.nombre} ${req.estudianteBDD.apellido}`,
+        tipo: "sistema"
+      });
+
+      if (io) {
+        io.to(`user-${admin._id}`).emit('notificacion:nueva', notificacionAdmin);
+      }
+    }
+
     await nueva.save();
 
     res.status(200).json({ msg: "Queja/Sugerencia enviada correctamente" });

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { X, CheckCircle, Trash2, Bell } from "lucide-react";
 import useFetch from "../../hooks/useFetch";
+import { useSocket } from "../../context/SocketContext";
 
 export default function NotificacionesAdmin() {
   const [open, setOpen] = useState(false);
@@ -9,6 +10,7 @@ export default function NotificacionesAdmin() {
   const dropdownRef = useRef(null);
 
   const { fetchDataBackend } = useFetch();
+  const { nuevaNotificacion, contadorNotificaciones, decrementarContadorNotificaciones } = useSocket();
 
   const storedUser = JSON.parse(localStorage.getItem("auth-token"));
   const token = storedUser?.state?.token || "";
@@ -69,6 +71,14 @@ export default function NotificacionesAdmin() {
     }
   }, [open]);
 
+  // 🔥 Escuchar nuevas notificaciones en tiempo real
+  useEffect(() => {
+    if (nuevaNotificacion) {
+      console.log('🔔 Agregando nueva notificación:', nuevaNotificacion);
+      setNotificaciones(prev => [nuevaNotificacion, ...prev]);
+    }
+  }, [nuevaNotificacion]);
+
   const marcarLeida = async (id) => {
     try {
       const url = `${API_URL}/notificaciones/leida/${id}`;
@@ -84,6 +94,8 @@ export default function NotificacionesAdmin() {
       setNotificaciones((prev) =>
         prev.map((n) => (n._id === id || n.id === id ? { ...n, leido: true } : n))
       );
+      // Decrementar contador
+      decrementarContadorNotificaciones();
     } catch (error) {
       console.error("Error al marcar notificación como leída:", error);
     }
@@ -91,6 +103,7 @@ export default function NotificacionesAdmin() {
 
   const eliminarNotificacion = async (id) => {
     try {
+      const notif = notificaciones.find(n => (n._id === id || n.id === id));
       const url = `${API_URL}/notificaciones/${id}`;
       await fetchDataBackend(url, {
         method: "DELETE",
@@ -102,12 +115,17 @@ export default function NotificacionesAdmin() {
         },
       });
       setNotificaciones((prev) => prev.filter((n) => n._id !== id && n.id !== id));
+      // Si era no leída, decrementar contador
+      if (notif && !notif.leido) {
+        decrementarContadorNotificaciones();
+      }
     } catch (error) {
       console.error("Error al eliminar notificación:", error);
     }
   };
 
-  const noLeidasCount = notificaciones.filter((n) => !n.leido).length;
+  // Usar el contador del contexto (Socket.IO)
+  const noLeidasCount = contadorNotificaciones;
 
   return (
     <div

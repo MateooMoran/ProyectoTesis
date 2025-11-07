@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../../layout/Header';
-import Footer from '../../layout/Footer';
 import { FaTrash, FaEye } from 'react-icons/fa';
 import useFavoritos from '../../hooks/useFavoritos';
 import storeProductos from '../../context/storeProductos';
@@ -33,6 +32,17 @@ const Favoritos = () => {
     useEffect(() => {
         recargarFavoritos();
     }, []);
+
+    const handleNavigateProducto = (productoId) => {
+        const storedData = JSON.parse(localStorage.getItem('auth-token'));
+        const token = storedData?.state?.token;
+
+        if (token) {
+            navigate(`/dashboard/productos/${productoId}`);
+        } else {
+            navigate(`/productos/${productoId}`);
+        }
+    };
 
     // Combinar ❤️
     useEffect(() => {
@@ -141,7 +151,7 @@ const Favoritos = () => {
                                     {/* Acciones */}
                                     <div className="flex flex-col gap-2">
                                         <button
-                                            onClick={() => navigate(`/dashboard/productos/${producto._id}`)}
+                                            onClick={() => handleNavigateProducto(producto._id)}
                                             className="p-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md hover:shadow-lg transition-all cursor-pointer"
                                             title="Ver detalle"
                                         >
@@ -191,7 +201,6 @@ const Favoritos = () => {
                     )}
                 </div>
             </div>
-            <Footer />
         </>
     );
 };

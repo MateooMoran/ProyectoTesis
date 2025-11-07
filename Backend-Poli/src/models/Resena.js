@@ -30,7 +30,6 @@ const resenaSchema = new Schema(
   }
 );
 
-// Índice compuesto para evitar reseñas duplicadas
 resenaSchema.index({ producto: 1, usuario: 1 }, { unique: true });
 
 export default model("Resena", resenaSchema);

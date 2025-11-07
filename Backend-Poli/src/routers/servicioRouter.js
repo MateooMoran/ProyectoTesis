@@ -38,12 +38,15 @@ router.post('/servicios/chat/mensaje/imagen', verifyTokenJWT, tieneRol('estudian
 router.delete('/servicios/chat/mensaje/:mensajeId', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), eliminarMensaje);
 router.put('/servicios/chat/mensajes/:conversacionId/leer', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), marcarMensajesLeidos);
 
+// RUTA PARA NOTIFICACIONES
 router.get('/notificaciones', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), listarNotificaciones);
 router.put('/notificaciones/leida/:id', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), marcarNotificacionLeida);
 router.delete('/notificaciones/:id', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), eliminarNotificacion);
 
+// RUTA PARA LOGIN/REGISTRO CON GOOGLE
 router.get('/auth/google', loginGoogle);
 router.get('/auth/google/callback', callbackGoogle);
 router.get('/auth/usuario', verifyTokenJWT, obtenerUsuario);
 router.get('/auth/logout', logout);
+
 export default router;

@@ -137,7 +137,7 @@ export const crearActualizarResena = async (req, res) => {
 export const visualizarResenasProducto = async (req, res) => {
   try {
     const { productoId } = req.params;
-    const { estrellas } = req.query; // Filtro opcional por estrellas
+    const { estrellas } = req.query; 
 
     if (!mongoose.Types.ObjectId.isValid(productoId)) {
       return res.status(400).json({ msg: "ID de producto no válido" });

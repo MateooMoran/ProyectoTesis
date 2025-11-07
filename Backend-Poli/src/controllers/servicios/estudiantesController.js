@@ -1,7 +1,6 @@
 import Estudiante from "../../models/Estudiante.js";
 
 // Buscar estudiantes por nombre para el chat
-// Los administradores, estudiantes y vendedores pueden usar el chat
 // PERO los administradores NO aparecen en los resultados de búsqueda
 export const buscarEstudiantePorNombre = async (req, res) => {
     try {
@@ -14,7 +13,7 @@ export const buscarEstudiantePorNombre = async (req, res) => {
         // Buscar usuarios excluyendo a los admins de los resultados
         const estudiantes = await Estudiante.find({
             nombre: { $regex: nombre, $options: 'i' },
-            rol: { $ne: 'admin' } // Excluir administradores de la búsqueda
+            rol: { $ne: 'admin' } 
         }).select('nombre apellido rol');
 
         if (!estudiantes.length) {

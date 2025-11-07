@@ -33,11 +33,17 @@ export const responderQuejaSugerencia = async (req, res) => {
     queja.respuesta = respuesta;
     queja.estado = "resuelto";
 
-    await Notificacion.create({
+    // Crear notificación y emitir en tiempo real
+    const notificacion = await Notificacion.create({
       usuario: queja.usuario,
       mensaje: `Tu ${queja.tipo} ha sido respondida: "${respuesta}"`,
       tipo: "sistema"
     });
+
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`user-${queja.usuario}`).emit('notificacion:nueva', notificacion);
+    }
 
     await queja.save();
     res.status(200).json({ msg: "Respuesta enviada correctamente" });

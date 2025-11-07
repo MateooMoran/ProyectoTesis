@@ -4,7 +4,7 @@ import Notificacion from "../../models/Notificacion.js";
 import mongoose from "mongoose";
 import { v2 as cloudinary } from "cloudinary";
 
-// 📤 Enviar mensaje de texto
+// Enviar mensaje de texto
 export const enviarMensajeTexto = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -63,13 +63,20 @@ export const enviarMensajeTexto = async (req, res) => {
 
     await conversacion.save({ session });
 
-    // Crear notificación para el otro usuario
-    await Notificacion.create([{
+    // Crear notificación para el otro usuario y emitir en tiempo real
+    const [notificacion] = await Notificacion.create([{
       usuario: otroMiembro,
       mensaje: "Tienes un nuevo mensaje",
       tipo: "mensaje",
       leido: false
     }], { session });
+
+    // Emitir notificación en tiempo real
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`user-${otroMiembro}`).emit('notificacion:nueva', notificacion);
+      console.log('Notificación de mensaje emitida a user-' + otroMiembro);
+    }
 
     await session.commitTransaction();
 
@@ -90,7 +97,7 @@ export const enviarMensajeTexto = async (req, res) => {
   }
 };
 
-// 📷 Enviar mensaje con imagen
+// Enviar mensaje con imagen
 export const enviarMensajeImagen = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -99,7 +106,7 @@ export const enviarMensajeImagen = async (req, res) => {
     const { conversacionId } = req.body;
     const emisorId = req.estudianteBDD._id;
 
-    console.log('🖼️ Recibiendo imagen:', { conversacionId, emisorId });
+    console.log(' Recibiendo imagen:', { conversacionId, emisorId });
 
     if (!conversacionId) {
       return res.status(400).json({ msg: "Conversación requerida" });
@@ -164,8 +171,8 @@ export const enviarMensajeImagen = async (req, res) => {
 
     await conversacion.save({ session });
 
-    // Notificación
-    await Notificacion.create([{
+    // Crear notificación y emitir en tiempo real
+    const [notificacionImagen] = await Notificacion.create([{
       usuario: otroMiembro,
       mensaje: "Te han enviado una imagen",
       tipo: "mensaje",
@@ -174,17 +181,24 @@ export const enviarMensajeImagen = async (req, res) => {
 
     await session.commitTransaction();
 
+    // Emitir notificación en tiempo real
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`user-${otroMiembro}`).emit('notificacion:nueva', notificacionImagen);
+      console.log('🔔 Notificación de imagen emitida a user-' + otroMiembro);
+    }
+
     const mensajeConDatos = await Mensaje.findById(nuevoMensaje._id)
       .populate("emisor", "nombre apellido rol");
 
-    // Emitir evento de socket
-    const io = req.app.get('io');
-    if (io) {
-      io.to(conversacionId).emit('message:new', {
+    // Emitir evento de socket (después de commit para tener los datos)
+    const ioSocket = req.app.get('io');
+    if (ioSocket) {
+      ioSocket.to(conversacionId).emit('message:new', {
         mensaje: mensajeConDatos
       });
       
-      io.to(`user:${otroMiembro}`).emit('chat:updated', {
+      ioSocket.to(`user-${otroMiembro}`).emit('chat:updated', {
         conversacionId,
         ultimoMensaje: mensajeConDatos
       });
@@ -204,7 +218,7 @@ export const enviarMensajeImagen = async (req, res) => {
   }
 };
 
-// 📜 Obtener mensajes de una conversación
+//  Obtener mensajes de una conversación
 export const obtenerMensajes = async (req, res) => {
   try {
     const { conversacionId } = req.params;
@@ -237,7 +251,7 @@ export const obtenerMensajes = async (req, res) => {
       .lean();
 
     res.status(200).json({ 
-      mensajes: mensajes.reverse(), // Más antiguos primero
+      mensajes: mensajes.reverse(), 
       total: await Mensaje.countDocuments({ conversacion: conversacionId, eliminado: false })
     });
 
@@ -247,7 +261,7 @@ export const obtenerMensajes = async (req, res) => {
   }
 };
 
-// 🗑️ Eliminar mensaje (solo el autor)
+//  Eliminar mensaje (solo el autor)
 export const eliminarMensaje = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -309,7 +323,7 @@ export const eliminarMensaje = async (req, res) => {
   }
 };
 
-// ✅ Marcar mensajes como leídos
+// Marcar mensajes como leídos
 export const marcarMensajesLeidos = async (req, res) => {
   try {
     const { conversacionId } = req.params;

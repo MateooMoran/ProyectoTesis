@@ -28,7 +28,7 @@ export const actualizarPerfil = async (req, res) => {
     estudianteBDD.email = email.trim()
   }
   
-  // Solo actualizar si el campo tiene valor (no vacío ni solo espacios)
+  // Solo actualizar si el campo tiene valor 
   if (nombre && nombre.trim() !== "") estudianteBDD.nombre = nombre.trim()
   if (apellido && apellido.trim() !== "") estudianteBDD.apellido = apellido.trim()
   if (telefono && telefono.trim() !== "") estudianteBDD.telefono = telefono.trim()

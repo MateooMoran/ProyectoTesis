@@ -51,12 +51,18 @@ export const confirmarPagoVenta = async (req, res) => {
     
     await orden.save({ session });
 
-    // Notificar al comprador
-    await Notificacion.create({
+    // Notificar al comprador con Socket.IO
+    const notificacion = await Notificacion.create({
       usuario: orden.comprador,
       mensaje: `El vendedor ha confirmado tu pago para la orden ${orden._id}`,
       tipo: "venta"
     });
+
+    const io = req?.app?.get('io');
+    if (io) {
+      io.to(`user-${orden.comprador}`).emit('notificacion:nueva', notificacion);
+      console.log(`Notificación emitida a comprador: ${orden.comprador}`);
+    }
 
     await session.commitTransaction();
     res.json({ msg: 'Pago confirmado correctamente', orden });

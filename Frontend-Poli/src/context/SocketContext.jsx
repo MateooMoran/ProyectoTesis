@@ -23,6 +23,8 @@ export const SocketProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [contadorMensajes, setContadorMensajes] = useState(0);
   const [conversacionRestaurada, setConversacionRestaurada] = useState(null);
+  const [contadorNotificaciones, setContadorNotificaciones] = useState(0);
+  const [nuevaNotificacion, setNuevaNotificacion] = useState(null);
   const token = storeAuth(state => state.token);
 
   useEffect(() => {
@@ -91,15 +93,17 @@ export const SocketProvider = ({ children }) => {
       setConversacionRestaurada(conversacionId);
     });
 
-    socketInstance.on('notificacion:nueva', () => {
-      console.log('🔔 Nueva notificación');
-      // Aquí puedes agregar lógica para notificaciones
+    socketInstance.on('notificacion:nueva', (notificacion) => {
+      console.log('🔔 Nueva notificación recibida:', notificacion);
+      setNuevaNotificacion(notificacion);
+      setContadorNotificaciones(prev => prev + 1);
     });
 
     setSocket(socketInstance);
 
     // Obtener contador inicial
     fetchContadorInicial(token);
+    fetchContadorNotificacionesInicial(token);
 
     // Cleanup
     return () => {
@@ -124,8 +128,34 @@ export const SocketProvider = ({ children }) => {
     }
   };
 
+  const fetchContadorNotificacionesInicial = async (token) => {
+    try {
+      const URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000/api';
+      const response = await fetch(`${URL}/notificaciones`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const notificaciones = Array.isArray(data) ? data : (data.notificaciones || []);
+        const noLeidas = notificaciones.filter(n => !n.leido).length;
+        setContadorNotificaciones(noLeidas);
+      }
+    } catch (error) {
+      console.error('Error obteniendo contador de notificaciones:', error);
+    }
+  };
+
   const resetearContador = () => {
     setContadorMensajes(0);
+  };
+
+  const resetearContadorNotificaciones = () => {
+    setContadorNotificaciones(0);
+  };
+
+  const decrementarContadorNotificaciones = () => {
+    setContadorNotificaciones(prev => Math.max(0, prev - 1));
   };
 
   const value = {
@@ -133,7 +163,11 @@ export const SocketProvider = ({ children }) => {
     isConnected,
     contadorMensajes,
     conversacionRestaurada,
-    resetearContador
+    contadorNotificaciones,
+    nuevaNotificacion,
+    resetearContador,
+    resetearContadorNotificaciones,
+    decrementarContadorNotificaciones
   };
 
   return (
