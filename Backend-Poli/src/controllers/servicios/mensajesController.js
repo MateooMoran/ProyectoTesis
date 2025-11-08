@@ -1,6 +1,7 @@
 import Mensaje from "../../models/Mensaje.js";
 import Conversacion from "../../models/Conversacion.js";
 import Notificacion from "../../models/Notificacion.js";
+import { crearNotificacionSocket } from "../../utils/notificaciones.js";
 import mongoose from "mongoose";
 import { v2 as cloudinary } from "cloudinary";
 
@@ -64,24 +65,12 @@ export const enviarMensajeTexto = async (req, res) => {
     await conversacion.save({ session });
 
     // Crear notificación para el otro usuario y emitir en tiempo real
-    const [notificacion] = await Notificacion.create([{
-      usuario: otroMiembro,
-      mensaje: "Tienes un nuevo mensaje",
-      tipo: "mensaje",
-      leido: false
-    }], { session });
-
-    // Emitir notificación en tiempo real
-    const io = req.app.get('io');
-    if (io) {
-      io.to(`user-${otroMiembro}`).emit('notificacion:nueva', notificacion);
-      console.log('Notificación de mensaje emitida a user-' + otroMiembro);
-    }
+    await crearNotificacionSocket(req, otroMiembro, "Tienes un nuevo mensaje", "mensaje");
 
     await session.commitTransaction();
 
     const mensajeConDatos = await Mensaje.findById(nuevoMensaje._id)
-      .populate("emisor", "nombre apellido rol");
+      .populate("emisor", "nombre apellido rol email");
 
     res.status(201).json({ 
       msg: "Mensaje enviado", 
@@ -172,12 +161,7 @@ export const enviarMensajeImagen = async (req, res) => {
     await conversacion.save({ session });
 
     // Crear notificación y emitir en tiempo real
-    const [notificacionImagen] = await Notificacion.create([{
-      usuario: otroMiembro,
-      mensaje: "Te han enviado una imagen",
-      tipo: "mensaje",
-      leido: false
-    }], { session });
+    await crearNotificacionSocket(req, otroMiembro, "Te han enviado una imagen", "mensaje");
 
     await session.commitTransaction();
 

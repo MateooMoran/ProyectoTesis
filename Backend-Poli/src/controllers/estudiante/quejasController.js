@@ -1,6 +1,7 @@
 import QuejasSugerencias from "../../models/QuejasSugerencias.js";
 import Estudiante from "../../models/Estudiante.js";
 import Notificacion from "../../models/Notificacion.js";
+import { crearNotificacionSocket } from "../../utils/notificaciones.js";
 import mongoose from "mongoose";
 
 // Crear queja o sugerencia
@@ -12,28 +13,11 @@ export const crearQuejasSugerencias = async (req, res) => {
     const nueva = new QuejasSugerencias({ tipo, mensaje, usuario: req.estudianteBDD._id });
 
     // Notificación al usuario con Socket.IO
-    const notificacion = await Notificacion.create({ 
-      usuario: req.estudianteBDD._id, 
-      mensaje: `Tu ${tipo} ha sido registrada correctamente.`, 
-      tipo: "sistema" 
-    });
-
-    const io = req.app.get('io');
-    if (io) {
-      io.to(`user-${req.estudianteBDD._id}`).emit('notificacion:nueva', notificacion);
-    }
+    await crearNotificacionSocket(req, req.estudianteBDD._id, `Tu ${tipo} ha sido registrada correctamente.`, "sistema");
 
     const admin = await Estudiante.findOne({ rol: "admin" });
     if (admin) {
-      const notificacionAdmin = await Notificacion.create({
-        usuario: admin._id,
-        mensaje: `Nuevo mensaje recibido del tipo (${tipo.toUpperCase()}) del usuario: ${req.estudianteBDD.nombre} ${req.estudianteBDD.apellido}`,
-        tipo: "sistema"
-      });
-
-      if (io) {
-        io.to(`user-${admin._id}`).emit('notificacion:nueva', notificacionAdmin);
-      }
+      await crearNotificacionSocket(req, admin._id, `Nuevo mensaje recibido del tipo (${tipo.toUpperCase()}) del usuario: ${req.estudianteBDD.nombre} ${req.estudianteBDD.apellido}`, "sistema");
     }
 
     await nueva.save();

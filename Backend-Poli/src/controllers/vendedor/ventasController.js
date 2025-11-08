@@ -1,6 +1,7 @@
 import Orden from "../../models/Orden.js";
 import mongoose from "mongoose";
 import Notificacion from "../../models/Notificacion.js";
+import { crearNotificacionSocket } from "../../utils/notificaciones.js";
 
 // Visualizar historial de ventas del vendedor
 export const visualizarHistorialVentasVendedor = async (req, res) => {
@@ -52,17 +53,7 @@ export const confirmarPagoVenta = async (req, res) => {
     await orden.save({ session });
 
     // Notificar al comprador con Socket.IO
-    const notificacion = await Notificacion.create({
-      usuario: orden.comprador,
-      mensaje: `El vendedor ha confirmado tu pago para la orden ${orden._id}`,
-      tipo: "venta"
-    });
-
-    const io = req?.app?.get('io');
-    if (io) {
-      io.to(`user-${orden.comprador}`).emit('notificacion:nueva', notificacion);
-      console.log(`Notificación emitida a comprador: ${orden.comprador}`);
-    }
+    await crearNotificacionSocket(req, orden.comprador, `El vendedor ha confirmado tu pago para la orden ${orden._id}`, "venta");
 
     await session.commitTransaction();
     res.json({ msg: 'Pago confirmado correctamente', orden });

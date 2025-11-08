@@ -13,6 +13,9 @@ const initSocket = (server) => {
         },
     });
 
+    // Mapa para rastrear usuarios conectados
+    const usuariosConectados = new Map(); // { socketId: userId }
+
     // Middleware de autenticación
     io.use((socket, next) => {
         const token = socket.handshake.auth.token;
@@ -35,9 +38,30 @@ const initSocket = (server) => {
     io.on('connection', (socket) => {
         console.log('🔌 Usuario conectado:', socket.userId);
         
+        // Agregar usuario al mapa de conectados
+        usuariosConectados.set(socket.id, socket.userId);
+        
+        // Obtener lista única de IDs de usuarios conectados
+        const idsConectados = [...new Set(usuariosConectados.values())];
+        
+        // Notificar a todos que este usuario se conectó
+        io.emit('usuario-conectado', { usuarioId: socket.userId });
+        console.log('📡 Emitiendo usuario-conectado:', socket.userId);
+        
         // Unirse a sala personal para notificaciones (formato: user-{userId})
         socket.join(`user-${socket.userId}`);
         console.log(`✅ Usuario ${socket.userId} unido a sala: user-${socket.userId}`);
+
+        // Enviar lista de usuarios conectados al cliente que se acaba de conectar
+        socket.emit('usuarios-conectados', idsConectados);
+        console.log('📡 Enviando lista de usuarios conectados:', idsConectados);
+
+        // Evento para obtener usuarios conectados manualmente
+        socket.on('obtener-usuarios-conectados', () => {
+            const idsConectados = [...new Set(usuariosConectados.values())];
+            socket.emit('usuarios-conectados', idsConectados);
+            console.log('📡 Enviando lista de usuarios conectados:', idsConectados);
+        });
 
         // Evento para unirse a sala personal (por si se llama desde el frontend)
         socket.on('join-personal-room', (userId) => {
@@ -142,7 +166,7 @@ const initSocket = (server) => {
 
                 // Populate el mensaje
                 const mensajePopulado = await Mensaje.findById(nuevoMensaje._id)
-                    .populate('emisor', 'nombre apellido rol');
+                    .populate('emisor', 'nombre apellido rol email');
 
                 console.log('✅ Mensaje populado:', mensajePopulado);
                 console.log('✅ Actualizando conversación...');
@@ -370,6 +394,13 @@ const initSocket = (server) => {
         // Desconexión
         socket.on('disconnect', () => {
             console.log('🔌 Usuario desconectado:', socket.userId || socket.id);
+            
+            // Remover usuario del mapa
+            usuariosConectados.delete(socket.id);
+            
+            // Notificar a todos que este usuario se desconectó
+            io.emit('usuario-desconectado', { usuarioId: socket.userId });
+            console.log('📡 Emitiendo usuario-desconectado:', socket.userId);
         });
     });
 

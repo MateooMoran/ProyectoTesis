@@ -114,8 +114,8 @@ const ProductoDetalle = () => {
   return (
     <>
       <Header />
-      <div className="mt-40 md:mt-19"></div>
-      <div className="min-h-screen bg-gray-50 mt-24 md:mt-10">
+      {!token && <div className="mt-40 md:mt-19"></div>}
+      <div className="min-h-screen bg-gray-50 mt-14 sm:mt-12">
         <section className="py-4 sm:py-10 bg-blue-50">
           <div className="max-w-7xl mx-auto px-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
@@ -173,8 +173,8 @@ const ProductoDetalle = () => {
                         <FaStar
                           key={i}
                           className={`w-5 h-5 ${i < Math.round(estadisticasResenas.promedio)
-                              ? "text-yellow-400"
-                              : "text-gray-300"
+                            ? "text-yellow-400"
+                            : "text-gray-300"
                             }`}
                         />
                       ))}

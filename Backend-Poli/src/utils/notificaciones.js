@@ -1,25 +1,21 @@
 import Notificacion from "../models/Notificacion.js";
 
 
-export const crearNotificacionConSocket = async (io, usuario, mensaje, tipo) => {
+
+
+export const crearNotificacionSocket = async (ioOrReq, usuarioId, mensaje, tipo = "sistema") => {
   try {
-    // Crear notificación en la base de datos
-    const notificacion = await Notificacion.create({ usuario, mensaje, tipo });
-    
-    // Emitir evento de Socket.IO para actualización en tiempo real
+    const notificacion = await Notificacion.create({ usuario: usuarioId, mensaje, tipo });
+    const io = ioOrReq?.app?.get?.("io") || ioOrReq;
+
     if (io) {
-      io.to(`user-${usuario}`).emit('notificacion:nueva', notificacion);
-      console.log(`🔔 Notificación emitida a usuario: ${usuario}`);
+      io.to(`user-${usuarioId}`).emit("notificacion:nueva", notificacion);
+      console.log(` Notificación emitida a user-${usuarioId}`);
     }
-    
+
     return notificacion;
   } catch (error) {
-    console.error('Error creando notificación:', error);
-    throw error;
+    console.error(" Error creando notificación:", error);
   }
 };
 
-
-export const crearNotificacion = async (usuario, mensaje, tipo) => {
-  return await Notificacion.create({ usuario, mensaje, tipo });
-};

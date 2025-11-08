@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyTokenJWT } from "../middlewares/JWT.js";
-import { esAdmin, esEstudianteOrVendedor, esVendedor, esVendedorOrAdmin } from "../middlewares/roles.js";
+import { esAdmin, esVendedor, esVendedorOrAdmin, tieneRol } from "../middlewares/roles.js";
 
 import { crearCategoria, listarCategorias, eliminarCategoria } from "../controllers/vendedor/categoriaController.js";
 import { crearProducto, listarProducto, actualizarProducto, eliminarProducto, visualizarProductoCategoria, reactivarProducto, verProductosEliminados } from "../controllers/vendedor/productoController.js";
@@ -38,8 +38,8 @@ router.post("/vendedor/pago/transferencia", verifyTokenJWT, esVendedor, validarT
 router.post("/vendedor/pago/qr", verifyTokenJWT, esVendedor, validarArchivoImagen, crearActualizarQR);
 router.post("/vendedor/pago/retiro", verifyTokenJWT, esVendedor, validarLugarRetiro, handleValidationErrors, crearActualizarLugarRetiro);
 router.delete("/vendedor/pago/retiro/lugar", verifyTokenJWT, esVendedor, eliminarLugarRetiro);
-router.get("/vendedor/pago/:tipo", verifyTokenJWT, esEstudianteOrVendedor, visualizarMetodosPago);
-router.get("/vendedor/pago", verifyTokenJWT, esEstudianteOrVendedor, visualizarMetodosPago);
+router.get("/vendedor/pago/:tipo", verifyTokenJWT,  tieneRol('estudiante', 'admin', 'vendedor'), visualizarMetodosPago);
+router.get("/vendedor/pago", verifyTokenJWT,  tieneRol('estudiante', 'admin', 'vendedor'), visualizarMetodosPago);
 router.delete("/vendedor/pago/:id", verifyTokenJWT, esVendedor, eliminarMetodoPago);
 
 

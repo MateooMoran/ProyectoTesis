@@ -11,7 +11,7 @@ export const obtenerConversacionesRecientes = async (req, res) => {
             miembros: userId,
             ocultadaPor: { $ne: userId }
         })
-            .populate('miembros', 'nombre apellido rol')
+            .populate('miembros', 'nombre apellido rol email')
             .populate({
                 path: 'ultimoMensaje',
                 populate: {
@@ -149,7 +149,7 @@ export const crearObtenerConversacion = async (req, res) => {
         let conversacion = await Conversacion.findOne({
             miembros: { $all: [usuarioId, otroUsuarioId] }
         })
-            .populate('miembros', 'nombre apellido rol')
+            .populate('miembros', 'nombre apellido rol email')
             .populate({
                 path: 'ultimoMensaje',
                 populate: {
@@ -169,7 +169,7 @@ export const crearObtenerConversacion = async (req, res) => {
                 ocultadaPor: []
             });
 
-            await conversacion.populate('miembros', 'nombre apellido rol');
+            await conversacion.populate('miembros', 'nombre apellido rol email');
         } else {
             // Si el usuario que inicia había ocultado la conversación, removerlo
             if (conversacion.ocultadaPor.some(id => id.toString() === usuarioId.toString())) {

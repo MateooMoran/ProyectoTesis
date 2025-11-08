@@ -95,7 +95,7 @@ export const visualizarMetodosPago = async (req, res) => {
 
     if (req.estudianteBDD.rol === "vendedor") {
       idBusqueda = req.estudianteBDD._id;
-    } else if (req.estudianteBDD.rol === "estudiante") {
+    } else if (req.estudianteBDD.rol === "estudiante" || req.estudianteBDD.rol === "admin") {
       const { vendedorId } = req.query;
       if (!vendedorId)
         return res.status(400).json({ msg: "Falta vendedorId" });

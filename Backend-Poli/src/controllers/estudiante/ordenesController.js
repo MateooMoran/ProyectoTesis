@@ -2,6 +2,7 @@ import Orden from "../../models/Orden.js";
 import Producto from "../../models/Producto.js";
 import MetodoPagoVendedor from "../../models/MetodoPagoVendedor.js";
 import Notificacion from "../../models/Notificacion.js";
+import { crearNotificacionSocket } from "../../utils/notificaciones.js";
 import Stripe from 'stripe';
 import mongoose from "mongoose";
 import { v2 as cloudinary } from 'cloudinary';
@@ -9,22 +10,7 @@ import { promises as fs } from 'fs';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Helper para crear notificaciones con Socket.IO
-const crearNotificacion = async (usuario, mensaje, tipo, req) => {
-  try {
-    const notificacion = await Notificacion.create({ usuario, mensaje, tipo });
-    
-    const io = req?.app?.get('io');
-    if (io) {
-      io.to(`user-${usuario}`).emit('notificacion:nueva', notificacion);
-      console.log(`🔔 Notificación emitida a usuario: ${usuario}`);
-    }
-    
-    return notificacion;
-  } catch (error) {
-    console.error('Error creando notificación:', error);
-  }
-};
+
 
 // Crear orden 
 export const crearOrden = async (req, res) => {
@@ -95,12 +81,7 @@ export const crearOrden = async (req, res) => {
       ? `Nueva orden de ${cantidad} unidad(es) de "${producto.nombreProducto}" - Retiro en: ${lugarRetiro}`
       : `Nueva orden de ${cantidad} unidad(es) de "${producto.nombreProducto}"`;
 
-    await crearNotificacion(
-      producto.vendedor,
-      mensajeNotificacion,
-      "venta",
-      req
-    );
+    await crearNotificacionSocket(req, producto.vendedor, mensajeNotificacion, "venta");
 
     await session.commitTransaction();
     res.status(201).json({
@@ -163,12 +144,7 @@ export const subirComprobante = async (req, res) => {
     await orden.save({ session });
 
     // Notificar al vendedor
-    await crearNotificacion(
-      orden.vendedor,
-      `El comprador ha subido el comprobante de pago para la orden ${orden._id}`,
-      "venta",
-      req
-    );
+    await crearNotificacionSocket(req, orden.vendedor, `El comprador ha subido el comprobante de pago para la orden ${orden._id}`, "venta");
 
     await session.commitTransaction();
     res.json({ msg: "Comprobante subido correctamente", orden });
@@ -297,12 +273,7 @@ export const procesarPagoTarjeta = async (req, res) => {
     await orden.save({ session });
 
     // Notificar al vendedor
-    await crearNotificacion(
-      orden.vendedor,
-      `Se ha procesado un pago con tarjeta para la orden ${orden._id}`,
-      "venta",
-      req
-    );
+    await crearNotificacionSocket(req, orden.vendedor, `Se ha procesado un pago con tarjeta para la orden ${orden._id}`, "venta");
 
     await session.commitTransaction();
     res.json({
@@ -357,23 +328,13 @@ export const confirmarEntrega = async (req, res) => {
       if (producto.stock <= 0) {
         producto.estado = "no disponible";
         producto.activo = false;
-        await crearNotificacion(
-          producto.vendedor,
-          `Tu producto "${producto.nombreProducto}" se ha agotado.`,
-          "sistema",
-          req
-        );
+        await crearNotificacionSocket(req, producto.vendedor, `Tu producto "${producto.nombreProducto}" se ha agotado.`, "sistema");
       }
       await producto.save({ session });
     }
 
     // Notificar al vendedor
-    await crearNotificacion(
-      orden.vendedor,
-      `El comprador ha confirmado la entrega de la orden ${orden._id}`,
-      "venta",
-      req
-    );
+    await crearNotificacionSocket(req, orden.vendedor, `El comprador ha confirmado la entrega de la orden ${orden._id}`, "venta");
 
     await session.commitTransaction();
     res.json({ msg: "Entrega confirmada correctamente", orden });
@@ -422,12 +383,7 @@ export const cancelarOrden = async (req, res) => {
     await orden.save({ session });
 
     // Notificar al vendedor
-    await crearNotificacion(
-      orden.vendedor,
-      `El comprador ha cancelado la orden ${orden._id}`,
-      "venta",
-      req
-    );
+    await crearNotificacionSocket(req, orden.vendedor, `El comprador ha cancelado la orden ${orden._id}`, "venta");
 
     await session.commitTransaction();
     res.json({ msg: "Orden cancelada correctamente", orden });

@@ -1,5 +1,6 @@
 import QuejasSugerencias from "../../models/QuejasSugerencias.js";
 import Notificacion from "../../models/Notificacion.js";
+import { crearNotificacionSocket } from "../../utils/notificaciones.js";
 import mongoose from "mongoose";
 
 // Listar todas las quejas y sugerencias
@@ -34,16 +35,7 @@ export const responderQuejaSugerencia = async (req, res) => {
     queja.estado = "resuelto";
 
     // Crear notificación y emitir en tiempo real
-    const notificacion = await Notificacion.create({
-      usuario: queja.usuario,
-      mensaje: `Tu ${queja.tipo} ha sido respondida: "${respuesta}"`,
-      tipo: "sistema"
-    });
-
-    const io = req.app.get('io');
-    if (io) {
-      io.to(`user-${queja.usuario}`).emit('notificacion:nueva', notificacion);
-    }
+    await crearNotificacionSocket(req, queja.usuario, `Tu ${queja.tipo} ha sido respondida: "${respuesta}"`, "sistema");
 
     await queja.save();
     res.status(200).json({ msg: "Respuesta enviada correctamente" });

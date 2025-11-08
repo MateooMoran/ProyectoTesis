@@ -41,7 +41,6 @@ function GestionarQuejasSugerencias() {
 
   const responderQueja = async (id, respuesta) => {
     if (!respuesta || respuesta.trim() === "") {
-      toast.error("La respuesta no puede estar vacía");
       return;
     }
     try {
@@ -57,11 +56,8 @@ function GestionarQuejasSugerencias() {
         body,
         config: { headers },
       });
-      toast.success("Respuesta guardada");
-      // Opcional: recargar o actualizar estado local
     } catch (error) {
       console.error("Error al responder la queja/sugerencia", error);
-      toast.error("Error al guardar la respuesta");
     }
   };
 

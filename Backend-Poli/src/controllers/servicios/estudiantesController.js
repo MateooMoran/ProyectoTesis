@@ -14,7 +14,7 @@ export const buscarEstudiantePorNombre = async (req, res) => {
         const estudiantes = await Estudiante.find({
             nombre: { $regex: nombre, $options: 'i' },
             rol: { $ne: 'admin' } 
-        }).select('nombre apellido rol');
+        }).select('nombre apellido rol email');
 
         if (!estudiantes.length) {
             return res.status(404).json({ msg: "No se encontraron estudiantes con ese nombre" });

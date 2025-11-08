@@ -7,7 +7,7 @@ const useChat = () => {
   const [contadorMensajesNoLeidos, setContadorMensajesNoLeidos] = useState(0);
 
   useEffect(() => {
-    const token = localStorage.getItem('token'); // O donde guardes el token
+    const token = localStorage.getItem('token'); 
     
     if (!token) return;
 
@@ -22,11 +22,8 @@ const useChat = () => {
 
     // Escuchar actualizaciones de chat
     socketInstance.on('chat:updated', () => {
-      // Incrementar contador
       setContadorMensajesNoLeidos(prev => prev + 1);
       
-      // También puedes actualizar el estado global aquí
-      // Por ejemplo usando Zustand o Context
     });
 
     // Escuchar nuevas notificaciones
@@ -35,12 +32,11 @@ const useChat = () => {
     });
 
     socketInstance.on('disconnect', () => {
-      console.log('❌ Desconectado del chat');
+      console.log(' Desconectado del chat');
     });
 
     setSocket(socketInstance);
 
-    // Obtener contador inicial
     fetchContadorInicial();
 
     return () => {
