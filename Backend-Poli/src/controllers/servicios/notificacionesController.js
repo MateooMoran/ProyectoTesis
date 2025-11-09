@@ -53,3 +53,15 @@ export const eliminarNotificacion = async (req, res) => {
         res.status(500).json({ msg: 'Error del servidor' });
     }
 };
+
+// Eliminar todas las notificaciones 
+export const eliminarTodasNotificaciones = async (req, res) => {
+    try {
+        const usuarioId = req.estudianteBDD._id;
+        await Notificacion.deleteMany({ usuario: usuarioId });
+        res.status(200).json({ msg: 'Todas las notificaciones han sido eliminadas' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: 'Error del servidor' });
+    }
+};

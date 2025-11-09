@@ -24,7 +24,7 @@ export default function Categorias() {
   const cargarCategorias = async () => {
     try {
       setLoading(true);
-      const url = `${import.meta.env.VITE_BACKEND_URL}/vendedor/visualizar/categoria`;
+      const url = `${import.meta.env.VITE_BACKEND_URL}/admin/visualizar/categoria`;
       const data = await fetchDataBackend(url, {
         method: "GET",
         config: { headers },
@@ -46,7 +46,7 @@ export default function Categorias() {
 
     setGuardando(true);
     try {
-      const url = `${import.meta.env.VITE_BACKEND_URL}/vendedor/crear/categoria`;
+      const url = `${import.meta.env.VITE_BACKEND_URL}/admin/crear/categoria`;
       await fetchDataBackend(url, {
         method: "POST",
         body: { nombreCategoria: nombreCategoria.trim() },
@@ -64,7 +64,7 @@ export default function Categorias() {
   const eliminarCategoria = async (id) => {
     if (!window.confirm("¿Eliminar esta categoría?")) return;
     try {
-      const url = `${import.meta.env.VITE_BACKEND_URL}/vendedor/eliminar/categoria/${id}`;
+      const url = `${import.meta.env.VITE_BACKEND_URL}/admin/eliminar/categoria/${id}`;
       await fetchDataBackend(url, {
         method: "DELETE",
         config: { headers },

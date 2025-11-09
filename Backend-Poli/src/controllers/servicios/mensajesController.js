@@ -1,6 +1,5 @@
 import Mensaje from "../../models/Mensaje.js";
 import Conversacion from "../../models/Conversacion.js";
-import Notificacion from "../../models/Notificacion.js";
 import { crearNotificacionSocket } from "../../utils/notificaciones.js";
 import mongoose from "mongoose";
 import { v2 as cloudinary } from "cloudinary";

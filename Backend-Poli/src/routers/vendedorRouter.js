@@ -1,8 +1,7 @@
 import { Router } from "express";
 import { verifyTokenJWT } from "../middlewares/JWT.js";
-import { esAdmin, esVendedor, esVendedorOrAdmin, tieneRol } from "../middlewares/roles.js";
+import { esVendedor, tieneRol } from "../middlewares/roles.js";
 
-import { crearCategoria, listarCategorias, eliminarCategoria } from "../controllers/vendedor/categoriaController.js";
 import { crearProducto, listarProducto, actualizarProducto, eliminarProducto, visualizarProductoCategoria, reactivarProducto, verProductosEliminados } from "../controllers/vendedor/productoController.js";
 import { generarModelo3DParaProducto } from "../controllers/vendedor/modelo3DController.js";
 import { confirmarPagoVenta, visualizarHistorialVentasVendedor } from "../controllers/vendedor/ventasController.js";
@@ -10,14 +9,8 @@ import {crearActualizarLugarRetiro, crearActualizarQR, crearActualizarTransferen
 import { validarArchivoImagen, validarLugarRetiro, validarTransferencia } from "../validations/validadorPagos.js";
 import handleValidationErrors from "../middlewares/handleValidationErrors.js";
 import { validarProducto } from "../validations/validadorProducto.js";
-import { validarCategoria } from "../validations/validatorCategoria.js";
 
 const router = Router();
-
-//  CATEGORÍAS 
-router.post('/vendedor/crear/categoria', verifyTokenJWT, esAdmin,validarCategoria,handleValidationErrors, crearCategoria);
-router.get('/vendedor/visualizar/categoria', verifyTokenJWT, esVendedorOrAdmin, listarCategorias);
-router.delete('/vendedor/eliminar/categoria/:id', verifyTokenJWT, esAdmin, eliminarCategoria);
 
 //  PRODUCTOS 
 router.post('/vendedor/crear/producto', verifyTokenJWT, esVendedor,validarProducto, handleValidationErrors, crearProducto);

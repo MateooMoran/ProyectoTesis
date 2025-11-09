@@ -2,21 +2,9 @@ import { Router } from "express";
 import { verifyTokenJWT } from "../middlewares/JWT.js";
 import { tieneRol } from "../middlewares/roles.js";
 import { buscarEstudiantePorNombre } from "../controllers/servicios/estudiantesController.js";
-import { 
-    conversacionLectura, 
-    crearObtenerConversacion, 
-    eliminarConversacion, 
-    obtenerConversacionesRecientes, 
-    obtenerContadorMensajesNoLeidos 
-} from "../controllers/servicios/conversacionController.js";
-import { 
-    eliminarMensaje, 
-    enviarMensajeImagen, 
-    enviarMensajeTexto, 
-    marcarMensajesLeidos, 
-    obtenerMensajes 
-} from "../controllers/servicios/mensajesController.js";
-import { eliminarNotificacion, listarNotificaciones, marcarNotificacionLeida } from "../controllers/servicios/notificacionesController.js";
+import { conversacionLectura, crearObtenerConversacion, eliminarConversacion, obtenerConversacionesRecientes, obtenerContadorMensajesNoLeidos } from "../controllers/servicios/conversacionController.js";
+import { eliminarMensaje, enviarMensajeImagen, enviarMensajeTexto, marcarMensajesLeidos, obtenerMensajes } from "../controllers/servicios/mensajesController.js";
+import { eliminarNotificacion, eliminarTodasNotificaciones, listarNotificaciones, marcarNotificacionLeida } from "../controllers/servicios/notificacionesController.js";
 import { callbackGoogle, loginGoogle, logout, obtenerUsuario } from "../controllers/servicios/authController.js";
 
 const router = Router();
@@ -42,6 +30,7 @@ router.put('/servicios/chat/mensajes/:conversacionId/leer', verifyTokenJWT, tien
 router.get('/notificaciones', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), listarNotificaciones);
 router.put('/notificaciones/leida/:id', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), marcarNotificacionLeida);
 router.delete('/notificaciones/:id', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), eliminarNotificacion);
+router.delete('/notificaciones', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), eliminarTodasNotificaciones)
 
 // RUTA PARA LOGIN/REGISTRO CON GOOGLE
 router.get('/auth/google', loginGoogle);

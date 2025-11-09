@@ -1,5 +1,4 @@
 import QuejasSugerencias from "../../models/QuejasSugerencias.js";
-import Notificacion from "../../models/Notificacion.js";
 import { crearNotificacionSocket } from "../../utils/notificaciones.js";
 import mongoose from "mongoose";
 
@@ -25,23 +24,39 @@ export const responderQuejaSugerencia = async (req, res) => {
     const { id } = req.params;
     const { respuesta } = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ msg: "ID de queja/sugerencia no válido" });
-    if (!respuesta || respuesta.trim() === "") return res.status(400).json({ msg: "La respuesta no puede estar vacía" });
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ msg: "El ID de la queja/sugerencia no es válido." });
+    }
+
+    if (!respuesta || respuesta.trim() === "") {
+      return res.status(400).json({ msg: "La respuesta no puede estar vacía." });
+    }
 
     const queja = await QuejasSugerencias.findById(id);
-    if (!queja) return res.status(404).json({ msg: "Queja/Sugerencia no encontrada" });
+    if (!queja) {
+      return res.status(404).json({ msg: "La queja/sugerencia no fue encontrada." });
+    }
 
-    queja.respuesta = respuesta;
+    if (queja.estado === "resuelto") {
+      return res.status(400).json({ msg: "La queja/sugerencia ya fue resuelta." });
+    }
+
+    // Actualizar estado y respuesta
+    queja.respuesta = respuesta.trim();
     queja.estado = "resuelto";
+    await queja.save();
 
-    // Crear notificación y emitir en tiempo real
+    // Crear notificación y emitir en tiempo real (después de guardar)
     await crearNotificacionSocket(req, queja.usuario, `Tu ${queja.tipo} ha sido respondida: "${respuesta}"`, "sistema");
 
-    await queja.save();
-    res.status(200).json({ msg: "Respuesta enviada correctamente" });
+
+    return res.status(200).json({ msg: "Respuesta enviada correctamente." });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: "Error respondiendo queja/sugerencia", error: error.message });
+    console.error("Error en responderQuejaSugerencia:", error);
+    return res.status(500).json({
+      msg: "Error al responder la queja/sugerencia.",
+      error: error.message,
+    });
   }
 };
 
@@ -52,14 +67,14 @@ export const eliminarQuejaSugerencia = async (req, res) => {
     const { id } = req.params;
 
     // Validar que sea un ObjectId válido
-    if (!mongoose.Types.ObjectId.isValid(id)) 
+    if (!mongoose.Types.ObjectId.isValid(id))
       return res.status(400).json({ msg: "ID de queja/sugerencia no válido" });
 
     const queja = await QuejasSugerencias.findById(id);
     if (!queja) return res.status(404).json({ msg: "Queja/Sugerencia no encontrada" });
 
     // Validar que esté resuelta
-    if (queja.estado !== "resuelto") 
+    if (queja.estado !== "resuelto")
       return res.status(400).json({ msg: "Solo se pueden eliminar quejas/sugerencias resueltas" });
 
     await QuejasSugerencias.findByIdAndDelete(id);
