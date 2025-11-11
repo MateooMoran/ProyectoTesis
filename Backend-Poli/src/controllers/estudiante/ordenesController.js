@@ -46,13 +46,21 @@ export const crearOrden = async (req, res) => {
       return res.status(400).json({ msg: "Método de pago inválido para este vendedor" });
     }
 
+    // VALIDACIÓN CRÍTICA: Si es retiro, DEBE tener lugares configurados
     if (metodoPago.tipo === "retiro") {
+      if (!metodoPago.lugares || metodoPago.lugares.length === 0) {
+        await session.abortTransaction();
+        return res.status(400).json({ 
+          msg: "El vendedor no ha configurado lugares de retiro. No se puede procesar la compra" 
+        });
+      }
+
       if (!lugarRetiro) {
         await session.abortTransaction();
         return res.status(400).json({ msg: "Debes seleccionar un lugar de retiro" });
       }
 
-      if (!metodoPago.lugares || !metodoPago.lugares.includes(lugarRetiro)) {
+      if (!metodoPago.lugares.includes(lugarRetiro)) {
         await session.abortTransaction();
         return res.status(400).json({ msg: "El lugar de retiro seleccionado no es válido" });
       }
@@ -76,6 +84,16 @@ export const crearOrden = async (req, res) => {
 
     await orden.save({ session });
 
+    //  RESERVAR STOCK: Descontar inmediatamente al crear la orden
+    producto.stock = producto.stock - cantidad;
+    
+    // Si se agota el stock, marcar como no disponible
+    if (producto.stock <= 0) {
+      producto.estado = "no disponible";
+      producto.activo = false;
+    }
+    
+    await producto.save({ session });
 
     const mensajeNotificacion = lugarRetiro
       ? `Nueva orden de ${cantidad} unidad(es) de "${producto.nombreProducto}" - Retiro en: ${lugarRetiro}`
@@ -113,6 +131,8 @@ export const subirComprobante = async (req, res) => {
       await session.abortTransaction();
       return res.status(403).json({ msg: "No autorizado" });
     }
+    
+    // RESTAURADA: Validar que la orden esté en estado pendiente_pago
     if (orden.estado !== "pendiente_pago") {
       await session.abortTransaction();
       return res.status(400).json({ msg: "La orden no está en estado pendiente de pago" });
@@ -205,11 +225,19 @@ export const procesarPagoTarjeta = async (req, res) => {
         }
 
         if (metodoPago.tipo === "retiro") {
+          if (!metodoPago.lugares || metodoPago.lugares.length === 0) {
+            await session.abortTransaction();
+            return res.status(400).json({ 
+              msg: "El vendedor no ha configurado lugares de retiro. No se puede procesar la compra" 
+            });
+          }
+
           if (!lugarRetiro) {
             await session.abortTransaction();
             return res.status(400).json({ msg: "Debes seleccionar un lugar de retiro" });
           }
-          if (!metodoPago.lugares || !metodoPago.lugares.includes(lugarRetiro)) {
+          
+          if (!metodoPago.lugares.includes(lugarRetiro)) {
             await session.abortTransaction();
             return res.status(400).json({ msg: "El lugar de retiro seleccionado no es válido" });
           }
@@ -236,6 +264,17 @@ export const procesarPagoTarjeta = async (req, res) => {
       });
 
       await orden.save({ session });
+
+      // RESERVAR STOCK: Descontar inmediatamente al crear la orden con Stripe
+      producto.stock = producto.stock - cantidad;
+      
+      // Si se agota el stock, marcar como no disponible
+      if (producto.stock <= 0) {
+        producto.estado = "no disponible";
+        producto.activo = false;
+      }
+      
+      await producto.save({ session });
 
     } else {
       // Si ya existe la orden se busca
@@ -271,6 +310,13 @@ export const procesarPagoTarjeta = async (req, res) => {
     orden.confirmadoPagoVendedor = true;
     orden.fechaPagoConfirmado = new Date();
     await orden.save({ session });
+
+    // INCREMENTAR vendidos después del pago con Stripe
+    const productoVendido = await Producto.findById(orden.producto).session(session);
+    if (productoVendido) {
+      productoVendido.vendidos = productoVendido.vendidos + orden.cantidad;
+      await productoVendido.save({ session });
+    }
 
     // Notificar al vendedor
     await crearNotificacionSocket(req, orden.vendedor, `Se ha procesado un pago con tarjeta para la orden ${orden._id}`, "venta");
@@ -316,22 +362,8 @@ export const confirmarEntrega = async (req, res) => {
     orden.fechaCompletada = new Date();
     await orden.save({ session });
 
-    // Actualizar stock Y vendidos del producto
-    const producto = await Producto.findById(orden.producto).session(session);
-    if (producto) {
-      const nuevoStock = Math.max(0, producto.stock - orden.cantidad);
-      const nuevosVendidos = producto.vendidos + orden.cantidad;
-
-      producto.stock = nuevoStock;
-      producto.vendidos = nuevosVendidos;
-
-      if (producto.stock <= 0) {
-        producto.estado = "no disponible";
-        producto.activo = false;
-        await crearNotificacionSocket(req, producto.vendedor, `Tu producto "${producto.nombreProducto}" se ha agotado.`, "sistema");
-      }
-      await producto.save({ session });
-    }
+    // Stock se reservó al crear la orden
+    // Vendidos se incrementó cuando el vendedor confirmó el pago
 
     // Notificar al vendedor
     await crearNotificacionSocket(req, orden.vendedor, `El comprador ha confirmado la entrega de la orden ${orden._id}`, "venta");
@@ -363,9 +395,9 @@ export const cancelarOrden = async (req, res) => {
       return res.status(403).json({ msg: "No autorizado" });
     }
 
-    if (orden.estado !== "pendiente_pago") {
+    if (orden.estado !== "pendiente_pago" && orden.estado !== "comprobante_subido") {
       await session.abortTransaction();
-      return res.status(400).json({ msg: "Solo se pueden cancelar órdenes en estado pendiente de pago" });
+      return res.status(400).json({ msg: "Solo se pueden cancelar órdenes en estado pendiente de pago o con comprobante subido" });
     }
 
     const canceladas = await Orden.countDocuments({
@@ -376,6 +408,20 @@ export const cancelarOrden = async (req, res) => {
     if (canceladas >= 2) {
       await session.abortTransaction();
       return res.status(400).json({ msg: "Has alcanzado el límite de 2 órdenes canceladas" });
+    }
+
+    // DEVOLVER STOCK: Al cancelar la orden, restaurar el stock reservado
+    const producto = await Producto.findById(orden.producto).session(session);
+    if (producto) {
+      producto.stock = producto.stock + orden.cantidad;
+      
+      // Si estaba agotado y ahora hay stock, reactivar
+      if (producto.stock > 0 && producto.estado === "no disponible") {
+        producto.estado = "disponible";
+        producto.activo = true;
+      }
+      
+      await producto.save({ session });
     }
 
     // Cancelar la orden

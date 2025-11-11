@@ -15,13 +15,11 @@ const productoSchema = new Schema(
       type: Number,
       default: 1,
       required: true,
-
     },
     descripcion: {
       type: String,
       trim: true,
       required: true,
-
     },
     imagenID: {
       type: String,
@@ -29,17 +27,16 @@ const productoSchema = new Schema(
     },
     imagen: {
       type: String,
-      trim: true
+      trim: true,
     },
     imagenIA: {
       type: String,
-      trim: true
+      trim: true,
     },
     categoria: {
       type: Schema.Types.ObjectId,
       ref: "Categoria",
-      required: true
-
+      required: true,
     },
     vendedor: {
       type: Schema.Types.ObjectId,
@@ -57,11 +54,11 @@ const productoSchema = new Schema(
     },
     eliminadoPorVendedor: {
       type: Boolean,
-      default: false, 
+      default: false,
     },
     vendidos: {
       type: Number,
-      default: 0
+      default: 0,
     },
     modelo_url: {
       type: String,
@@ -73,29 +70,52 @@ const productoSchema = new Schema(
     },
     embedding: {
       type: [Number],
-      default: []
+      default: [],
     },
     promedioCalificacion: {
       type: Number,
       default: 0,
       min: 0,
-      max: 5
+      max: 5,
     },
     totalResenas: {
       type: Number,
-      default: 0
+      default: 0,
     },
     distribucionEstrellas: {
       5: { type: Number, default: 0 },
       4: { type: Number, default: 0 },
       3: { type: Number, default: 0 },
       2: { type: Number, default: 0 },
-      1: { type: Number, default: 0 }
-    }
+      1: { type: Number, default: 0 },
+    },
+
+    nombreNormalizado: {
+      type: String,
+      index: true, 
+    },
+    descripcionNormalizada: {
+      type: String,
+      index: true,
+    },
   },
   {
     timestamps: true,
   }
 );
+
+// Middleware para normalizar texto antes de guardar
+productoSchema.pre("save", function (next) {
+  const normalizar = (t) =>
+    t?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+  if (this.nombreProducto)
+    this.nombreNormalizado = normalizar(this.nombreProducto);
+
+  if (this.descripcion)
+    this.descripcionNormalizada = normalizar(this.descripcion);
+
+  next();
+});
 
 export default model("Producto", productoSchema);

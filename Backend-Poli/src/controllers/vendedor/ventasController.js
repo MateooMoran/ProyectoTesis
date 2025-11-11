@@ -1,6 +1,6 @@
 import Orden from "../../models/Orden.js";
+import Producto from "../../models/Producto.js";
 import mongoose from "mongoose";
-import Notificacion from "../../models/Notificacion.js";
 import { crearNotificacionSocket } from "../../utils/notificaciones.js";
 
 // Visualizar historial de ventas del vendedor
@@ -33,16 +33,19 @@ export const confirmarPagoVenta = async (req, res) => {
     const orden = await Orden.findOne({
       _id: req.params.id,
       vendedor: req.estudianteBDD._id
-    });
+    }).populate('producto').session(session);
 
     if (!orden) {
+      await session.abortTransaction();
       return res.status(404).json({ msg: 'Orden no encontrada' });
     }
 
     if(orden.estado === "pago_confirmado_vendedor"){
+      await session.abortTransaction();
       return res.status(400).json({ msg: 'El pago ya ha sido confirmado previamente' });
     }
     if (orden.estado !== 'comprobante_subido') {
+      await session.abortTransaction();
       return res.status(400).json({ msg: 'La orden no tiene comprobante subido' });
     }
 
@@ -51,6 +54,15 @@ export const confirmarPagoVenta = async (req, res) => {
     orden.fechaPagoConfirmado = new Date();
     
     await orden.save({ session });
+
+    //  INCREMENTAR vendidos cuando el vendedor confirma el pago
+    if (orden.producto) {
+      await Producto.findByIdAndUpdate(
+        orden.producto._id,
+        { $inc: { vendidos: orden.cantidad } },
+        { session }
+      );
+    }
 
     // Notificar al comprador con Socket.IO
     await crearNotificacionSocket(req, orden.comprador, `El vendedor ha confirmado tu pago para la orden ${orden._id}`, "venta");

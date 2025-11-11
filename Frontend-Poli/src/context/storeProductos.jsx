@@ -65,7 +65,7 @@ const storeProductos = create((set, get) => {
         let config = {};
 
         if (token && rol === 'vendedor') {
-          url = `${import.meta.env.VITE_BACKEND_URL}/vendedor/visualizar/categoria`;
+          url = `${import.meta.env.VITE_BACKEND_URL}/admin/visualizar/categoria`;
           config = { config: { headers: { Authorization: `Bearer ${token}` } } };
           console.log('Usando endpoint vendedor/categoria:', url);
         } else {

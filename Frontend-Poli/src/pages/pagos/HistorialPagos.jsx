@@ -1,5 +1,5 @@
 // src/pages/HistorialPagos.jsx
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +7,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import useFetch from '../../hooks/useFetch';
 import storeAuth from '../../context/storeAuth';
 import BotonRecibirProducto from '../../pages/pagos/BotonRecibirProducto';
+import BotonCancelarOrden from '../../pages/pagos/BotonCancelarOrden';
 import {
     CheckCircle,
     Clock,
@@ -133,6 +134,7 @@ const HistorialPagos = () => {
     const totalCompletadas = orders.filter(o => o.estado === 'completada').length;
     const totalPagoConfirmado = orders.filter(o => o.estado === 'pago_confirmado_vendedor').length;
     const totalPendientes = orders.filter(o => ['pendiente_pago', 'comprobante_subido'].includes(o.estado)).length;
+    const totalCanceladas = orders.filter(o => o.estado === 'cancelada').length;
 
     // Render panel
     const renderTabPanel = (tabKey, titulo) => {
@@ -277,6 +279,14 @@ const HistorialPagos = () => {
                                                 </a>
                                             )}
 
+                                            {/* Botón Cancelar Orden (solo si está pendiente o con comprobante subido) */}
+                                            {(order.estado === 'pendiente_pago' || order.estado === 'comprobante_subido') && (
+                                                <BotonCancelarOrden
+                                                    ordenId={order._id}
+                                                    onSuccess={fetchHistorial}
+                                                />
+                                            )}
+
                                             {/* Botón Recibir */}
                                             {order.estado === 'pago_confirmado_vendedor' && (
                                                 <BotonRecibirProducto
@@ -373,7 +383,7 @@ const HistorialPagos = () => {
     return (
         <>
             <ToastContainer />
-            <div className="mt-30 md:mt-8"></div>
+            <div className="mt-8 sm:mt-10"></div>
 
             <main className="py-4 lg:py-10 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
                 <div className="max-w-7xl mx-auto px-3 lg:px-4">
@@ -386,48 +396,59 @@ const HistorialPagos = () => {
                     </div>
 
                     {/* Estadísticas */}
-                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 lg:gap-6 mb-4 lg:mb-8">
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 lg:gap-4 mb-4 lg:mb-8">
                         <div className="bg-white rounded-lg lg:rounded-xl shadow-lg p-3 lg:p-6 border border-gray-200">
-                            <div className="flex items-center gap-3 lg:gap-4">
+                            <div className="flex items-center gap-2 lg:gap-4">
                                 <div className="bg-blue-100 p-2 lg:p-4 rounded-lg flex-shrink-0">
                                     <Package className="w-5 h-5 lg:w-8 lg:h-8 text-blue-600" />
                                 </div>
                                 <div className="min-w-0">
                                     <p className="text-xs lg:text-sm text-gray-600">Total</p>
-                                    <p className="text-2xl lg:text-3xl font-bold text-gray-800">{totalTodas}</p>
+                                    <p className="text-xl lg:text-3xl font-bold text-gray-800">{totalTodas}</p>
                                 </div>
                             </div>
                         </div>
                         <div className="bg-white rounded-lg lg:rounded-xl shadow-lg p-3 lg:p-6 border border-gray-200">
-                            <div className="flex items-center gap-3 lg:gap-4">
+                            <div className="flex items-center gap-2 lg:gap-4">
                                 <div className="bg-orange-100 p-2 lg:p-4 rounded-lg flex-shrink-0">
                                     <Clock className="w-5 h-5 lg:w-8 lg:h-8 text-orange-600" />
                                 </div>
                                 <div className="min-w-0">
                                     <p className="text-xs lg:text-sm text-gray-600">Pendientes</p>
-                                    <p className="text-2xl lg:text-3xl font-bold text-gray-800">{totalPendientes}</p>
+                                    <p className="text-xl lg:text-3xl font-bold text-gray-800">{totalPendientes}</p>
                                 </div>
                             </div>
                         </div>
                         <div className="bg-white rounded-lg lg:rounded-xl shadow-lg p-3 lg:p-6 border border-gray-200">
-                            <div className="flex items-center gap-3 lg:gap-4">
+                            <div className="flex items-center gap-2 lg:gap-4">
                                 <div className="bg-blue-100 p-2 lg:p-4 rounded-lg flex-shrink-0">
                                     <CreditCard className="w-5 h-5 lg:w-8 lg:h-8 text-blue-600" />
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-xs lg:text-sm text-gray-600">Pago Confirmado</p>
-                                    <p className="text-2xl lg:text-3xl font-bold text-gray-800">{totalPagoConfirmado}</p>
+                                    <p className="text-xs lg:text-sm text-gray-600">Confirmadas</p>
+                                    <p className="text-xl lg:text-3xl font-bold text-gray-800">{totalPagoConfirmado}</p>
                                 </div>
                             </div>
                         </div>
                         <div className="bg-white rounded-lg lg:rounded-xl shadow-lg p-3 lg:p-6 border border-gray-200">
-                            <div className="flex items-center gap-3 lg:gap-4">
+                            <div className="flex items-center gap-2 lg:gap-4">
                                 <div className="bg-emerald-100 p-2 lg:p-4 rounded-lg flex-shrink-0">
                                     <CheckCircle className="w-5 h-5 lg:w-8 lg:h-8 text-emerald-600" />
                                 </div>
                                 <div className="min-w-0">
                                     <p className="text-xs lg:text-sm text-gray-600">Completadas</p>
-                                    <p className="text-2xl lg:text-3xl font-bold text-gray-800">{totalCompletadas}</p>
+                                    <p className="text-xl lg:text-3xl font-bold text-gray-800">{totalCompletadas}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="bg-white rounded-lg lg:rounded-xl shadow-lg p-3 lg:p-6 border border-gray-200">
+                            <div className="flex items-center gap-2 lg:gap-4">
+                                <div className="bg-red-100 p-2 lg:p-4 rounded-lg flex-shrink-0">
+                                    <X className="w-5 h-5 lg:w-8 lg:h-8 text-red-600" />
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-xs lg:text-sm text-gray-600">Canceladas</p>
+                                    <p className="text-xl lg:text-3xl font-bold text-gray-800">{totalCanceladas}</p>
                                 </div>
                             </div>
                         </div>
@@ -452,7 +473,7 @@ const HistorialPagos = () => {
                                 <Tab className="flex-1 min-w-fit py-2 lg:py-3 px-2 lg:px-4 text-center font-semibold text-xs lg:text-sm text-gray-600 cursor-pointer hover:text-blue-600 hover:bg-blue-50 rounded-t-lg transition-colors whitespace-nowrap">
                                     <div className="flex items-center justify-center gap-1 lg:gap-2">
                                         <CreditCard className="w-3 h-3 lg:w-4 lg:h-4" />
-                                        <span>Pago Confirmado ({totalPagoConfirmado})</span>
+                                        <span>Confirmadas ({totalPagoConfirmado})</span>
                                     </div>
                                 </Tab>
                                 <Tab className="flex-1 min-w-fit py-2 lg:py-3 px-2 lg:px-4 text-center font-semibold text-xs lg:text-sm text-gray-600 cursor-pointer hover:text-emerald-600 hover:bg-emerald-50 rounded-t-lg transition-colors whitespace-nowrap">
@@ -461,12 +482,19 @@ const HistorialPagos = () => {
                                         <span>Completadas ({totalCompletadas})</span>
                                     </div>
                                 </Tab>
+                                <Tab className="flex-1 min-w-fit py-2 lg:py-3 px-2 lg:px-4 text-center font-semibold text-xs lg:text-sm text-gray-600 cursor-pointer hover:text-red-600 hover:bg-red-50 rounded-t-lg transition-colors whitespace-nowrap">
+                                    <div className="flex items-center justify-center gap-1 lg:gap-2">
+                                        <X className="w-3 h-3 lg:w-4 lg:h-4" />
+                                        <span>Canceladas ({totalCanceladas})</span>
+                                    </div>
+                                </Tab>
                             </TabList>
 
                             {renderTabPanel('todos', 'Órdenes')}
                             {renderTabPanel(['pendiente_pago', 'comprobante_subido'], 'Pendientes')}
-                            {renderTabPanel('pago_confirmado_vendedor', 'Pago Confirmado')}
+                            {renderTabPanel('pago_confirmado_vendedor', 'Confirmadas')}
                             {renderTabPanel('completada', 'Completadas')}
+                            {renderTabPanel('cancelada', 'Canceladas')}
                         </Tabs>
                     </div>
                 </div>

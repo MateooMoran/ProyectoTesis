@@ -10,10 +10,11 @@ import {
     Package,
     AlertCircle,
     User,
+    MessageCircle,
 } from 'lucide-react';
 
 // ==================== PASO 1: DETALLE DEL PEDIDO ====================
-export const Paso1DetalleDelPedido = ({ producto, cantidad, total, onContinuar }) => {
+export const Paso1DetalleDelPedido = ({ producto, cantidad, total, onContinuar, disabled = false }) => {
     return (
         <div className="max-w-2xl mx-auto space-y-6">
             {/* Header */}
@@ -77,20 +78,73 @@ export const Paso1DetalleDelPedido = ({ producto, cantidad, total, onContinuar }
                 </div>
             </div>
 
-            {/* Botón continuar */}
-            <button
-                onClick={onContinuar}
-                className="w-full bg-blue-600 text-white py-3.5 rounded-lg font-semibold flex items-center justify-center gap-2 shadow-md hover:bg-blue-700 transition"
-            >
-                Continuar
-                <ChevronRight className="w-5 h-5" />
-            </button>
+            {/* Botón continuar - DESHABILITABLE */}
+            {!disabled && (
+                <button
+                    onClick={onContinuar}
+                    className="w-full bg-blue-600 text-white py-3.5 rounded-lg font-semibold flex items-center justify-center gap-2 shadow-md hover:bg-blue-700 transition"
+                >
+                    Continuar
+                    <ChevronRight className="w-5 h-5" />
+                </button>
+            )}
         </div>
     );
 };
 
 // ==================== PASO 2: ELEGIR LUGAR DE RETIRO ====================
-export const Paso2LugarRetiro = ({ lugares, lugarRetiro, onSelectLugar, onContinuar, onRegresar }) => {
+export const Paso2LugarRetiro = ({ lugares, lugarRetiro, onSelectLugar, onContinuar, onRegresar, navigate }) => {
+    //  Si no hay lugares disponibles, mostrar mensaje 
+    if (!lugares || lugares.length === 0) {
+        return (
+            <div className="max-w-2xl mx-auto space-y-6">
+                {/* Header */}
+                <div className="flex items-center gap-3">
+                    <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 p-2.5 rounded-lg">
+                        <AlertCircle className="w-5 h-5 text-white" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900">Lugar de Retiro No Disponible</h2>
+                </div>
+
+                {/* Mensaje de advertencia */}
+                <div className="bg-white border-2 border-yellow-200 rounded-2xl p-8 text-center">
+                    <div className="bg-yellow-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <MapPin className="w-10 h-10 text-yellow-600" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">
+                        El vendedor no ha configurado lugares de retiro
+                    </h3>
+                    <p className="text-gray-600 mb-2">
+                        Para continuar con tu compra, necesitas contactar al vendedor para coordinar un lugar de retiro.
+                    </p>
+                    <p className="text-sm text-gray-500 mb-6">
+                        Usa el chat para comunicarte directamente con el vendedor.
+                    </p>
+
+                    {/* Botones */}
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                        <button
+                            onClick={onRegresar}
+                            className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition flex items-center justify-center gap-2"
+                        >
+                            <ChevronRight className="w-5 h-5 rotate-180" />
+                            Regresar
+                        </button>
+                        <button
+                            onClick={() => navigate('/dashboard/chat')}
+                            className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-md"
+                        >
+                            <MessageCircle className="w-5 h-5" />
+                            Contactar al Vendedor
+                        </button>
+                    </div>
+                    {/* Botón continuar deshabilitado y oculto */}
+                    <button disabled className="hidden" />
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="max-w-2xl mx-auto space-y-6">
             {/* Header */}
@@ -171,6 +225,14 @@ export const Paso3MetodoPago = ({
     tieneRetiro,
     navigate
 }) => {
+    // Filtrar métodos válidos del vendedor 
+    const metodosVendedorValidos = metodosPago.filter(m => {
+        if (m.tipo === 'retiro') return false;
+        if (m.tipo === 'transferencia') return m.banco && m.numeroCuenta && m.titular && m.cedula;
+        if (m.tipo === 'qr') return m.imagenComprobante;
+        return false;
+    });
+
     return (
         <div className="max-w-2xl mx-auto space-y-6">
             {/* Header */}
@@ -181,27 +243,37 @@ export const Paso3MetodoPago = ({
                 <h2 className="text-2xl font-bold text-gray-900">Método de Pago</h2>
             </div>
 
-            {metodosPago.filter(m => m.tipo !== 'retiro').length === 0 ? (
-                <div className="bg-white border border-gray-200 rounded-2xl p-8 text-center">
-                    <div className="bg-yellow-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <AlertCircle className="w-8 h-8 text-yellow-600" />
+            {metodosVendedorValidos.length === 0 ? (
+                <div className="bg-white border-2 border-yellow-300 rounded-2xl p-8 text-center">
+                    <div className="bg-yellow-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <AlertCircle className="w-10 h-10 text-yellow-600" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Métodos de pago no disponibles</h3>
-                    <p className="text-gray-600 mb-1">Este vendedor aún no ha configurado métodos de pago.</p>
-                    <p className="text-sm text-gray-500 mb-6">Por favor, contacta al vendedor o selecciona otro producto.</p>
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition"
-                    >
-                        Volver al producto
-                    </button>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">Métodos de pago no disponibles</h3>
+                    <p className="text-gray-700 mb-2">Este vendedor aún no ha configurado métodos de pago.</p>
+                    <p className="text-sm text-gray-600 mb-6">Por favor, contacta al vendedor o selecciona otro producto.</p>
+                    
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                        <button
+                            onClick={() => navigate('/dashboard/chat')}
+                            className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-md"
+                        >
+                            <MessageCircle className="w-5 h-5" />
+                            Ir al chat
+                        </button>
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition flex items-center justify-center gap-2"
+                        >
+                            Volver al producto
+                        </button>
+                    </div>
                 </div>
             ) : (
                 <>
                     {/* Métodos de pago */}
                     <div className="space-y-3">
                         {/* Métodos del vendedor */}
-                        {metodosPago.filter(m => m.tipo !== 'retiro').map((metodo) => (
+                        {metodosVendedorValidos.map((metodo) => (
                             <div
                                 key={metodo._id}
                                 onClick={() => onSelectMetodo(metodo._id)}

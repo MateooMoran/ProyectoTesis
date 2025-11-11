@@ -40,7 +40,7 @@ export const verProductoPorId = async (req, res) => {
       .populate('categoria', 'nombreCategoria _id')
       .populate({ path: "vendedor", select: "_id nombre apellido" })
       .select("-createdAt -updatedAt -__v");
-  
+
 
     if (!producto) return res.status(404).json({ msg: "Producto no encontrado o sin stock" });
     res.status(200).json(producto);
@@ -50,27 +50,39 @@ export const verProductoPorId = async (req, res) => {
   }
 };
 
-// Buscar productos por query
+// Buscar productos por texto normalizado
 export const buscarProductos = async (req, res) => {
   try {
     const { query } = req.query;
-    if (!query) return res.status(400).json({ msg: "Consulta de búsqueda requerida" });
+
+    if (!query) {
+      return res.status(400).json({ msg: "Consulta de búsqueda requerida" });
+    }
+
+    const normalizar = (t) =>
+      t?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+    const queryNormalizada = normalizar(query);
 
     const productos = await Producto.find({
-      $or: [
-        { nombreProducto: new RegExp(query, 'i') },
-        { descripcion: new RegExp(query, 'i') }
-      ],
       estado: "disponible",
       stock: { $gt: 0 },
-      activo: true
+      activo: true,
+      $or: [
+        { nombreNormalizado: { $regex: queryNormalizada, $options: "i" } },
+        { descripcionNormalizada: { $regex: queryNormalizada, $options: "i" } },
+      ],
     })
-      .select('nombreProducto precio imagen stock categoria estado descripcion')
-      .populate('categoria', 'nombreCategoria _id');
+      .select("nombreProducto precio imagen stock categoria estado descripcion")
+      .populate("categoria", "nombreCategoria _id")
+
+    if (!productos || productos.length === 0) {
+      return res.status(404).json({ msg: `Sin resultados para "${query}"` });
+    }
 
     res.status(200).json(productos);
   } catch (error) {
-    console.error(error);
+    console.error("Error buscando productos:", error);
     res.status(500).json({ msg: "Error buscando productos", error: error.message });
   }
 };

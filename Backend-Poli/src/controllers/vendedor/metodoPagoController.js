@@ -110,13 +110,27 @@ export const visualizarMetodosPago = async (req, res) => {
       filtro.tipo = tipo;
     }
 
-
-    const metodos = await MetodoPagoVendedor.find(filtro)
+    let metodos = await MetodoPagoVendedor.find(filtro)
       .select("-vendedor -createdAt -updatedAt -__v");
 
+    metodos = metodos.filter(metodo => {
+      if (metodo.tipo === "retiro") {
+        return metodo.lugares && metodo.lugares.length > 0;
+      }
+      
+      if (metodo.tipo === "transferencia") {
+        return metodo.banco && metodo.numeroCuenta && metodo.titular && metodo.cedula;
+      }
+      
+      if (metodo.tipo === "qr") {
+        return metodo.imagenComprobante;
+      }
+      
+      return false;
+    });
 
     if (metodos.length === 0) {
-      return res.status(404).json({ msg: "No se encontraron métodos de pago" });
+      return res.status(404).json({msg: "El vendedor no tiene métodos de pago válidos configurados"});
     }
 
     res.json({ metodos });

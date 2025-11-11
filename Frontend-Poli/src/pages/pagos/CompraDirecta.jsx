@@ -10,7 +10,9 @@ import {
     Loader2,
     Check,
     ChevronRight,
-    ShieldCheck
+    ShieldCheck,
+    AlertCircle,
+    MessageCircle
 } from 'lucide-react';
 import Header from '../../layout/Header';
 import useFetch from '../../hooks/useFetch';
@@ -233,6 +235,8 @@ const CompraDirecta = () => {
     const [ordenCreada, setOrdenCreada] = useState(null);
     const [archivoComprobante, setArchivoComprobante] = useState(null);
     const [tieneRetiro, setTieneRetiro] = useState(false);
+    const [metodosPagoValidos, setMetodosPagoValidos] = useState(true);
+    const [tipoBloqueo, setTipoBloqueo] = useState(null); // 'sin-metodos' o 'sin-retiro'
 
     // Cargar producto y métodos de pago
     useEffect(() => {
@@ -260,24 +264,49 @@ const CompraDirecta = () => {
 
                         const metodos = responseMetodos?.metodos || [];
 
-                        setMetodosPago(metodos);
-
-                        // Verificar si tiene retiro disponible
-                        const metodoRetiro = metodos.find(m => m.tipo === 'retiro');
-                        setTieneRetiro(!!metodoRetiro);
-
+                        // ✅ CASO 1: NO HAY NINGÚN MÉTODO DE PAGO
                         if (metodos.length === 0) {
-                            console.warn(` El vendedor ${dataProducto.vendedor.nombre} (ID: ${dataProducto.vendedor._id}) no tiene métodos de pago configurados`);
-                        } else {
-                            console.log(`Métodos de pago configurados:`, metodos.map(m => ({ tipo: m.tipo, id: m._id })));
+                            console.error('❌ EL VENDEDOR NO TIENE NINGÚN MÉTODO DE PAGO CONFIGURADO');
+                            setMetodosPago([]);
+                            setTieneRetiro(false);
+                            setMetodosPagoValidos(false);
+                            setTipoBloqueo('sin-metodos');
+                            return;
                         }
+
+                        // ✅ CASO 2: VALIDAR SI HAY LUGARES DE RETIRO
+                        const metodoRetiro = metodos.find(m => m.tipo === 'retiro');
+                        const tieneRetiroConLugares = metodoRetiro?.lugares?.length > 0;
+                        
+                        if (!tieneRetiroConLugares) {
+                            console.error('❌ NO HAY LUGARES DE RETIRO CONFIGURADOS - BLOQUEANDO COMPRA');
+                            setMetodosPago(metodos);
+                            setTieneRetiro(false);
+                            setMetodosPagoValidos(false);
+                            setTipoBloqueo('sin-retiro');
+                            return;
+                        }
+
+                        // ✅ TODO ESTÁ BIEN
+                        setMetodosPago(metodos);
+                        setTieneRetiro(true);
+                        setMetodosPagoValidos(true);
+                        setTipoBloqueo(null);
+
+                        console.log('✅ MÉTODOS DE PAGO VÁLIDOS - PERMITIR COMPRA');
+                        console.log(`✅ Métodos de pago configurados:`, metodos.map(m => ({ tipo: m.tipo, id: m._id })));
                     } catch (errorMetodos) {
+                        console.error('❌ Error al cargar métodos:', errorMetodos);
                         setMetodosPago([]);
                         setTieneRetiro(false);
+                        setMetodosPagoValidos(false);
+                        setTipoBloqueo('sin-metodos');
                     }
                 } else {
                     setMetodosPago([]);
                     setTieneRetiro(false);
+                    setMetodosPagoValidos(false);
+                    setTipoBloqueo('sin-metodos');
                 }
 
             } catch (error) {
@@ -295,6 +324,12 @@ const CompraDirecta = () => {
 
     // Continuar desde paso 1 (Ver detalle)
     const continuarDesdePaso1 = () => {
+        // ✅ SI NO HAY MÉTODOS VÁLIDOS, IR AL PASO 2 PARA MOSTRAR BLOQUEO
+        if (!metodosPagoValidos) {
+            setCurrentStep(2); // Ir a paso 2 (bloqueado)
+            return;
+        }
+
         if (tieneRetiro) {
             setCurrentStep(2); // Ir a elegir lugar de retiro
         } else {
@@ -311,23 +346,36 @@ const CompraDirecta = () => {
         setCurrentStep(3); // Ir a métodos de pago
     };
 
-    // Crear orden después de seleccionar método de pago
+    // Crear orden y RESERVAR stock al seleccionar método de pago
     const crearOrdenConPago = async () => {
         if (!metodoPagoSeleccionado) {
             toast.error('Selecciona un método de pago');
             return;
         }
 
-        // Si es Stripe, no crear orden todavía, ir directo al formulario de pago
+        // Si es Stripe, no crear orden aquí (se crea al procesar el pago)
         if (metodoPagoSeleccionado === 'stripe') {
             setCurrentStep(4);
             return;
         }
 
-        // Para QR y Transferencia, crear la orden primero
+        // ✅ Para QR y Transferencia: NO crear orden todavía, solo avanzar al paso 4
+        // La orden se creará cuando se suba el comprobante
+        setCurrentStep(4);
+    };
+
+    // Subir comprobante (para QR y Transferencia)
+    const subirComprobante = async () => {
+        if (!archivoComprobante) {
+            toast.error('Selecciona un comprobante de pago');
+            return;
+        }
+
         try {
             setLoading(true);
-            const data = await fetchDataBackend(
+
+            // ✅ PRIMERO: Crear la orden con el método de pago seleccionado
+            const dataOrden = await fetchDataBackend(
                 `${import.meta.env.VITE_BACKEND_URL}/estudiante/orden`,
                 {
                     method: 'POST',
@@ -343,29 +391,14 @@ const CompraDirecta = () => {
                 }
             );
 
-            setOrdenCreada(data.orden);
-            setCurrentStep(4); // Ir a subir comprobante
-        } catch (error) {
-            toast.error(error.message || 'Error al crear la orden');
-        } finally {
-            setLoading(false);
-        }
-    };
+            const ordenId = dataOrden.orden._id;
 
-    // Subir comprobante (para QR y Transferencia)
-    const subirComprobante = async () => {
-        if (!archivoComprobante) {
-            toast.error('Selecciona un comprobante de pago');
-            return;
-        }
-
-        try {
-            setLoading(true);
+            // ✅ SEGUNDO: Subir el comprobante a la orden recién creada
             const formData = new FormData();
             formData.append('comprobante', archivoComprobante);
 
             const response = await fetch(
-                `${import.meta.env.VITE_BACKEND_URL}/estudiante/orden/${ordenCreada._id}/comprobante`,
+                `${import.meta.env.VITE_BACKEND_URL}/estudiante/orden/${ordenId}/comprobante`,
                 {
                     method: 'POST',
                     headers: { Authorization: `Bearer ${token}` },
@@ -376,9 +409,10 @@ const CompraDirecta = () => {
             const data = await response.json();
             if (!response.ok) throw new Error(data.msg);
 
+            toast.success('¡Orden creada y comprobante subido correctamente!');
             setTimeout(() => navigate('/dashboard/estudiante/historial-pagos'), 2000);
         } catch (error) {
-            toast.error(error.message || 'Error al subir comprobante');
+            toast.error(error.message || 'Error al procesar la orden');
         } finally {
             setLoading(false);
         }
@@ -407,7 +441,8 @@ const CompraDirecta = () => {
         <>
             <Header />
             <div className="container mx-auto px-4 py-8 max-w-6xl mt-12">
-                {/* Steps Indicator */}
+                
+                {/* Steps Indicator - SIEMPRE MOSTRAR */}
                 <div className="mb-8">
                     <div className="flex items-center justify-between">
                         {[
@@ -419,7 +454,7 @@ const CompraDirecta = () => {
                             <React.Fragment key={step.num}>
                                 <div className="flex flex-col items-center">
                                     <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg
-                                        ${currentStep >= step.num ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'}`}>
+                                ${currentStep >= step.num ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'}`}>
                                         {currentStep > step.num ? <Check className="w-6 h-6" /> : step.num}
                                     </div>
                                     <span className="text-xs mt-2 text-center">{step.label}</span>
@@ -433,7 +468,7 @@ const CompraDirecta = () => {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Resumen del Producto */}
+                    {/* Resumen del Producto - SIEMPRE MOSTRAR */}
                     <div className="lg:col-span-1">
                         <ResumenCompra
                             producto={producto}
@@ -448,30 +483,95 @@ const CompraDirecta = () => {
                     <div className="lg:col-span-2">
                         <div className="bg-white rounded-lg shadow-md p-6">
 
-                            {/* PASO 1: Detalle del Pedido */}
+                            {/* PASO 1: Detalle del Pedido - SIEMPRE HABILITADO */}
                             {currentStep === 1 && (
                                 <Paso1DetalleDelPedido
                                     producto={producto}
                                     cantidad={cantidad}
                                     total={total}
                                     onContinuar={continuarDesdePaso1}
+                                    disabled={false} // ← SIEMPRE HABILITADO
                                 />
                             )}
 
-                            {/* PASO 2: Elegir Lugar de Retiro (solo si tiene retiro) */}
-                            {currentStep === 2 && tieneRetiro && (
+                            {/* PASO 2: BLOQUEO - Mostrar alerta cuando NO hay métodos válidos */}
+                            {currentStep === 2 && !metodosPagoValidos && (
+                                <div className="max-w-2xl mx-auto space-y-6">
+                                    {tipoBloqueo === 'sin-metodos' ? (
+                                        // 🔴 SIN MÉTODOS DE PAGO
+                                        <div className="bg-white border border-gray-200 rounded-2xl p-8 text-center">
+                                            <div className="bg-yellow-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                <AlertCircle className="w-8 h-8 text-yellow-600" />
+                                            </div>
+                                            <h3 className="text-xl font-bold text-gray-900 mb-2">Métodos de pago no disponibles</h3>
+                                            <p className="text-gray-600 mb-1">Este vendedor aún no ha configurado métodos de pago.</p>
+                                            <p className="text-sm text-gray-500 mb-6">Por favor, contacta al vendedor o selecciona otro producto.</p>
+                                            
+                                            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                                                <button
+                                                    onClick={() => setCurrentStep(1)}
+                                                    className="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition"
+                                                >
+                                                    Regresar
+                                                </button>
+                                                <button
+                                                    onClick={() => navigate(-1)}
+                                                    className="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition"
+                                                >
+                                                    Volver al producto
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        // 🟡 SIN LUGARES DE RETIRO
+                                        <div className="bg-white border border-gray-200 rounded-2xl p-8 text-center">
+                                            <div className="bg-orange-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                <AlertCircle className="w-8 h-8 text-orange-600" />
+                                            </div>
+                                            <h3 className="text-xl font-bold text-gray-900 mb-2">Lugares de retiro no disponibles</h3>
+                                            <p className="text-gray-600 mb-1">Este vendedor no ha configurado lugares de retiro.</p>
+                                            <p className="text-sm text-gray-500 mb-6">Contacta al vendedor para coordinar el lugar de entrega.</p>
+                                            
+                                            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                                                <button
+                                                    onClick={() => setCurrentStep(1)}
+                                                    className="px-6 py-2.5 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition"
+                                                >
+                                                    Regresar
+                                                </button>
+                                                <button
+                                                    onClick={() => navigate('/dashboard/chat')}
+                                                    className="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition flex items-center justify-center gap-2"
+                                                >
+                                                    <MessageCircle className="w-5 h-5" />
+                                                    Ir al chat
+                                                </button>
+                                                <button
+                                                    onClick={() => navigate(-1)}
+                                                    className="px-6 py-2.5 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition"
+                                                >
+                                                    Volver al producto
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* PASO 2: Elegir Lugar de Retiro (solo si tiene retiro Y métodos válidos) */}
+                            {currentStep === 2 && tieneRetiro && metodosPagoValidos && (
                                 <Paso2LugarRetiro
                                     lugares={metodosPago.find(m => m.tipo === 'retiro')?.lugares}
                                     lugarRetiro={lugarRetiro}
                                     onSelectLugar={setLugarRetiro}
                                     onContinuar={continuarDesdePaso2}
                                     onRegresar={() => setCurrentStep(1)}
+                                    navigate={navigate}
                                 />
                             )}
 
-
                             {/* PASO 3: Elegir Método de Pago */}
-                            {currentStep === 3 && (
+                            {currentStep === 3 && metodosPagoValidos && (
                                 <Paso3MetodoPago
                                     metodosPago={metodosPago}
                                     metodoPagoSeleccionado={metodoPagoSeleccionado}
@@ -485,7 +585,7 @@ const CompraDirecta = () => {
                             )}
 
                             {/* PASO 4: Subir Comprobante o Mensaje Final */}
-                            {currentStep === 4 && (
+                            {currentStep === 4 && metodosPagoValidos && (
                                 <div>
                                     {metodoPagoSeleccionado === 'stripe' ? (
                                         <>

@@ -60,7 +60,7 @@ export default function ProductosVendedor() {
         const cargarCategorias = async () => {
             try {
                 setLoadingCategorias(true);
-                const urlCat = `${import.meta.env.VITE_BACKEND_URL}/vendedor/visualizar/categoria`;
+                const urlCat = `${import.meta.env.VITE_BACKEND_URL}/admin/visualizar/categoria`;
                 const catData = await fetchDataBackend(urlCat, {
                     method: "GET",
                     config: { headers },

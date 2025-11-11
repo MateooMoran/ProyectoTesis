@@ -115,7 +115,7 @@ const useFavoritos = () => {
         if (token) {
             try {
                 await fetchDataBackend(
-                    `${import.meta.env.VITE_BACKEND_URL}/estudiante/favoritas/id`,
+                    `${import.meta.env.VITE_BACKEND_URL}/estudiante/favoritos`,
                     {
                         method: 'DELETE',
                         config: { headers: { Authorization: `Bearer ${token}` } },
