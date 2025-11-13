@@ -168,7 +168,6 @@ const HistorialPagos = () => {
                                 <option value="todos">Todos los métodos</option>
                                 <option value="transferencia">Transferencia</option>
                                 <option value="tarjeta">Tarjeta</option>
-                                <option value="retiro">Retiro en local</option>
                             </select>
                         </div>
                     </div>
@@ -399,17 +398,6 @@ const HistorialPagos = () => {
                     <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 lg:gap-4 mb-4 lg:mb-8">
                         <div className="bg-white rounded-lg lg:rounded-xl shadow-lg p-3 lg:p-6 border border-gray-200">
                             <div className="flex items-center gap-2 lg:gap-4">
-                                <div className="bg-blue-100 p-2 lg:p-4 rounded-lg flex-shrink-0">
-                                    <Package className="w-5 h-5 lg:w-8 lg:h-8 text-blue-600" />
-                                </div>
-                                <div className="min-w-0">
-                                    <p className="text-xs lg:text-sm text-gray-600">Total</p>
-                                    <p className="text-xl lg:text-3xl font-bold text-gray-800">{totalTodas}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="bg-white rounded-lg lg:rounded-xl shadow-lg p-3 lg:p-6 border border-gray-200">
-                            <div className="flex items-center gap-2 lg:gap-4">
                                 <div className="bg-orange-100 p-2 lg:p-4 rounded-lg flex-shrink-0">
                                     <Clock className="w-5 h-5 lg:w-8 lg:h-8 text-orange-600" />
                                 </div>
@@ -425,7 +413,7 @@ const HistorialPagos = () => {
                                     <CreditCard className="w-5 h-5 lg:w-8 lg:h-8 text-blue-600" />
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-xs lg:text-sm text-gray-600">Confirmadas</p>
+                                    <p className="text-xs lg:text-sm text-gray-600">Por Confirmar</p>
                                     <p className="text-xl lg:text-3xl font-bold text-gray-800">{totalPagoConfirmado}</p>
                                 </div>
                             </div>
@@ -458,12 +446,6 @@ const HistorialPagos = () => {
                     <div className="bg-white rounded-lg lg:rounded-2xl shadow-xl border border-gray-200 p-3 lg:p-6">
                         <Tabs onSelect={() => setPaginaActual(1)}>
                             <TabList className="flex border-b-2 border-gray-200 mb-4 lg:mb-6 gap-1 lg:gap-2 overflow-x-auto">
-                                <Tab className="flex-1 min-w-fit py-2 lg:py-3 px-2 lg:px-4 text-center font-semibold text-xs lg:text-sm text-gray-600 cursor-pointer hover:text-blue-600 hover:bg-blue-50 rounded-t-lg transition-colors whitespace-nowrap">
-                                    <div className="flex items-center justify-center gap-1 lg:gap-2">
-                                        <Package className="w-3 h-3 lg:w-4 lg:h-4" />
-                                        <span>Todas ({totalTodas})</span>
-                                    </div>
-                                </Tab>
                                 <Tab className="flex-1 min-w-fit py-2 lg:py-3 px-2 lg:px-4 text-center font-semibold text-xs lg:text-sm text-gray-600 cursor-pointer hover:text-orange-600 hover:bg-orange-50 rounded-t-lg transition-colors whitespace-nowrap">
                                     <div className="flex items-center justify-center gap-1 lg:gap-2">
                                         <Clock className="w-3 h-3 lg:w-4 lg:h-4" />
@@ -473,7 +455,7 @@ const HistorialPagos = () => {
                                 <Tab className="flex-1 min-w-fit py-2 lg:py-3 px-2 lg:px-4 text-center font-semibold text-xs lg:text-sm text-gray-600 cursor-pointer hover:text-blue-600 hover:bg-blue-50 rounded-t-lg transition-colors whitespace-nowrap">
                                     <div className="flex items-center justify-center gap-1 lg:gap-2">
                                         <CreditCard className="w-3 h-3 lg:w-4 lg:h-4" />
-                                        <span>Confirmadas ({totalPagoConfirmado})</span>
+                                        <span>Confirmación y Reseña ({totalPagoConfirmado})</span>
                                     </div>
                                 </Tab>
                                 <Tab className="flex-1 min-w-fit py-2 lg:py-3 px-2 lg:px-4 text-center font-semibold text-xs lg:text-sm text-gray-600 cursor-pointer hover:text-emerald-600 hover:bg-emerald-50 rounded-t-lg transition-colors whitespace-nowrap">
@@ -490,7 +472,6 @@ const HistorialPagos = () => {
                                 </Tab>
                             </TabList>
 
-                            {renderTabPanel('todos', 'Órdenes')}
                             {renderTabPanel(['pendiente_pago', 'comprobante_subido'], 'Pendientes')}
                             {renderTabPanel('pago_confirmado_vendedor', 'Confirmadas')}
                             {renderTabPanel('completada', 'Completadas')}

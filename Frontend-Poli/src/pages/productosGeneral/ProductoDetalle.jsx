@@ -7,7 +7,7 @@ import storeAuth from '../../context/storeAuth';
 import CarruselProductos from '../productosGeneral/CarruselProductos';
 import BotonFavorito from '../../components/BotonFavorito';
 import { FaStar, FaCheckCircle, FaCube, FaCreditCard, FaUser } from 'react-icons/fa';
-import { Banknote, CreditCardIcon, DollarSign, QrCode, X, HandCoins, ShoppingCart } from 'lucide-react';
+import { Banknote, CreditCardIcon, DollarSign, QrCode, X, HandCoins, ShoppingCart, Lock } from 'lucide-react';
 import useFetch from '../../hooks/useFetch';
 import Header from '../../layout/Header';
 import Footer from '../../layout/Footer';
@@ -148,7 +148,7 @@ const ProductoDetalle = () => {
                 {producto?.modelo_url && (
                   <button
                     onClick={toggle3D}
-                    className="mt-4 h-14 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-3 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-300 shadow-lg p-3 w-full max-w-md"
+                    className="w-full mt-4 h-14 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-3 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-300 shadow-lg p-3"
                   >
                     <FaCube className="w-6 h-6" />
                     {ver3D ? 'Regresar a la Imagen' : 'Ver modelo 3D'}
@@ -221,7 +221,7 @@ const ProductoDetalle = () => {
                     productoId={producto._id}
                     variant="icon"
                     size="lg"
-                    className="h-14 w-full sm:w-14 shadow-lg"
+                    className="h-14 w-full sm:w-15 shadow-lg flex justify-center items-center"
                   />
                 </div>
 
@@ -354,8 +354,10 @@ const ProductoDetalle = () => {
                   {/* SIN MÉTODOS */}
                   {!metodosPago.transferencia && !metodosPago.qr?.imagenComprobante && !metodosPago.retiro?.lugares?.length && (
                     <div className="text-center py-12 w-full">
-                      <p className="text-gray-400 italic">El vendedor aún no ha configurado métodos de pago.</p>
-                    </div>
+                      <p className="text-gray-400 italic flex items-center gap-2">
+                        <Lock className="w-5 h-5 text-gray-400" />
+                        Debes iniciar sesión para ver los métodos de pago.
+                      </p>                    </div>
                   )}
                 </div>
               )}

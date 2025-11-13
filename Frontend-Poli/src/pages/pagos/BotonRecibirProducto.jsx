@@ -1,4 +1,4 @@
-// src/components/orden/BotonRecibirProducto.jsx
+
 import { useState } from 'react';
 import useFetch from '../../hooks/useFetch';
 import storeAuth from '../../context/storeAuth';

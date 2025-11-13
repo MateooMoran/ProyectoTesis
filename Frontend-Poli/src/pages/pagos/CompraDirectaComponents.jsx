@@ -156,11 +156,17 @@ export const Paso2LugarRetiro = ({ lugares, lugarRetiro, onSelectLugar, onContin
             </div>
 
             {/* Instrucción */}
-            <div className="bg-white border border-gray-200 rounded-xl p-5">
-                <p className="text-sm text-gray-600">
+            <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+                <p className="text-gray-700 text-base font-medium">
                     Selecciona el lugar donde recogerás tu producto:
                 </p>
             </div>
+
+            <p className="mt-3 text-sm text-red-500 font-medium">
+                No olvides coordinar la hora de entrega con el vendedor.
+                Usa el chat para comunicarte directamente con él.
+            </p>
+
 
             {/* Lugares de retiro */}
             <div className="space-y-3">
@@ -168,8 +174,8 @@ export const Paso2LugarRetiro = ({ lugares, lugarRetiro, onSelectLugar, onContin
                     <label
                         key={lugar}
                         className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all ${lugarRetiro === lugar
-                                ? 'border-blue-600 bg-blue-50'
-                                : 'border-gray-200 hover:border-gray-300 bg-white'
+                            ? 'border-blue-600 bg-blue-50'
+                            : 'border-gray-200 hover:border-gray-300 bg-white'
                             }`}
                     >
                         <input
@@ -251,10 +257,10 @@ export const Paso3MetodoPago = ({
                     <h3 className="text-xl font-bold text-gray-900 mb-3">Métodos de pago no disponibles</h3>
                     <p className="text-gray-700 mb-2">Este vendedor aún no ha configurado métodos de pago.</p>
                     <p className="text-sm text-gray-600 mb-6">Por favor, contacta al vendedor o selecciona otro producto.</p>
-                    
+
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
                         <button
-                            onClick={() => navigate('/dashboard/chat')}
+                            onClick={() => navigate('/dashboard/chat', { replace: true })}
                             className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-md"
                         >
                             <MessageCircle className="w-5 h-5" />
@@ -278,8 +284,8 @@ export const Paso3MetodoPago = ({
                                 key={metodo._id}
                                 onClick={() => onSelectMetodo(metodo._id)}
                                 className={`border-2 rounded-xl p-5 cursor-pointer transition-all ${metodoPagoSeleccionado === metodo._id
-                                        ? 'border-blue-600 bg-blue-50'
-                                        : 'border-gray-200 hover:border-gray-300 bg-white'
+                                    ? 'border-blue-600 bg-blue-50'
+                                    : 'border-gray-200 hover:border-gray-300 bg-white'
                                     }`}
                             >
                                 <div className="flex items-center justify-between gap-4">
@@ -323,8 +329,8 @@ export const Paso3MetodoPago = ({
                         <div
                             onClick={() => onSelectMetodo('stripe')}
                             className={`border-2 rounded-xl p-5 cursor-pointer transition-all ${metodoPagoSeleccionado === 'stripe'
-                                    ? 'border-blue-600 bg-blue-50'
-                                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                                ? 'border-blue-600 bg-blue-50'
+                                : 'border-gray-200 hover:border-gray-300 bg-white'
                                 }`}
                         >
                             <div className="flex items-center justify-between gap-4">
