@@ -3,6 +3,8 @@ import Conversacion from "../../models/Conversacion.js";
 import { crearNotificacionSocket } from "../../utils/notificaciones.js";
 import mongoose from "mongoose";
 import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
+import path from "path";
 
 // Enviar mensaje de texto
 export const enviarMensajeTexto = async (req, res) => {
@@ -94,8 +96,6 @@ export const enviarMensajeImagen = async (req, res) => {
     const { conversacionId } = req.body;
     const emisorId = req.estudianteBDD._id;
 
-    console.log(' Recibiendo imagen:', { conversacionId, emisorId });
-
     if (!conversacionId) {
       return res.status(400).json({ msg: "Conversación requerida" });
     }
@@ -125,6 +125,13 @@ export const enviarMensajeImagen = async (req, res) => {
       resource_type: "image"
     });
 
+    // Eliminar archivo temporal
+    try {
+      fs.unlinkSync(file.tempFilePath);
+    } catch (err) {
+      console.warn("No se pudo eliminar el archivo temporal:", err.message);
+    }
+
     // Crear mensaje
     const nuevoMensaje = new Mensaje({
       conversacion: conversacionId,
@@ -138,7 +145,7 @@ export const enviarMensajeImagen = async (req, res) => {
 
     // Actualizar conversación
     const otroMiembro = conversacion.miembros.find(m => m.toString() !== emisorId.toString());
-    
+
     const mensajesNoLeidosActualizado = conversacion.mensajesNoLeidos.map(item => {
       if (item.usuario.toString() === otroMiembro.toString()) {
         return { usuario: item.usuario, cantidad: item.cantidad + 1 };
@@ -159,47 +166,52 @@ export const enviarMensajeImagen = async (req, res) => {
 
     await conversacion.save({ session });
 
-    // Crear notificación y emitir en tiempo real
+    await session.commitTransaction();
+    await session.endSession();
+
     await crearNotificacionSocket(req, otroMiembro, "Te han enviado una imagen", "mensaje");
 
-    await session.commitTransaction();
-
-    // Emitir notificación en tiempo real
     const io = req.app.get('io');
-    if (io) {
-      io.to(`user-${otroMiembro}`).emit('notificacion:nueva', notificacionImagen);
-      console.log('🔔 Notificación de imagen emitida a user-' + otroMiembro);
-    }
-
     const mensajeConDatos = await Mensaje.findById(nuevoMensaje._id)
       .populate("emisor", "nombre apellido rol");
 
-    // Emitir evento de socket (después de commit para tener los datos)
-    const ioSocket = req.app.get('io');
-    if (ioSocket) {
-      ioSocket.to(conversacionId).emit('message:new', {
+    if (io) {
+      io.to(`user-${otroMiembro}`).emit('notificacion:nueva', {
+        titulo: "Nuevo mensaje",
+        cuerpo: "Te han enviado una imagen",
+        tipo: "mensaje",
+      });
+
+      io.to(conversacionId).emit('message:new', {
         mensaje: mensajeConDatos
       });
-      
-      ioSocket.to(`user-${otroMiembro}`).emit('chat:updated', {
+
+      io.to(`user-${otroMiembro}`).emit('chat:updated', {
         conversacionId,
         ultimoMensaje: mensajeConDatos
       });
     }
 
-    res.status(201).json({ 
-      msg: "Imagen enviada", 
-      mensaje: mensajeConDatos 
+    return res.status(201).json({
+      msg: "Imagen enviada correctamente",
+      mensaje: mensajeConDatos
     });
 
   } catch (error) {
-    await session.abortTransaction();
+    if (session.inTransaction()) {
+      try {
+        await session.abortTransaction();
+      } catch (abortError) {
+        console.warn("La transacción ya había sido finalizada, no se abortó.");
+      }
+    }
+    await session.endSession();
+
     console.error("Error enviando imagen:", error);
-    res.status(500).json({ msg: "Error enviando imagen", error: error.message });
-  } finally {
-    session.endSession();
+    return res.status(500).json({ msg: "Error enviando imagen" });
   }
 };
+
 
 //  Obtener mensajes de una conversación
 export const obtenerMensajes = async (req, res) => {
@@ -277,7 +289,6 @@ export const eliminarMensaje = async (req, res) => {
         await cloudinary.uploader.destroy(mensaje.imagenPublicId);
       } catch (cloudinaryError) {
         console.error("Error eliminando imagen de Cloudinary:", cloudinaryError);
-        // No fallar la transacción por esto
       }
     }
 

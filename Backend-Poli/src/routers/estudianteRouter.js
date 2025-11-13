@@ -8,6 +8,7 @@ import { crearQuejasSugerencias, eliminarQuejaSugerencia, visualizarQuejasSugere
 import handleValidationErrors from "../middlewares/handleValidationErrors.js";
 import { quejasValidations } from "../validations/validatorQuejas.js";
 import { crearActualizarResena, visualizarMisResenas, visualizarResenasProducto,obtenerMiResena,verificarPuedeResenar} from "../controllers/estudiante/resenaController.js";
+import { resenaValidations } from "../validations/validadorResenas.js";
 
 const router = Router()
 // PRODUCTOS
@@ -37,10 +38,10 @@ router.get('/estudiante/quejas-sugerencias', verifyTokenJWT, esEstudianteOrVende
 router.delete('/estudiante/quejas-sugerencias/:id', verifyTokenJWT, esEstudianteOrVendedor, eliminarQuejaSugerencia);
 
 // RESEÑAS
-router.post('/estudiante/resena', verifyTokenJWT, esEstudiante, crearActualizarResena);
+router.post('/estudiante/resena', verifyTokenJWT, esEstudiante, resenaValidations,handleValidationErrors,crearActualizarResena);
+router.get('/estudiante/puede-resenar/:productoId', verifyTokenJWT, esEstudiante, verificarPuedeResenar);
 router.get('/estudiante/resenas/producto/:productoId', visualizarResenasProducto);
 router.get('/estudiante/mis-resenas', verifyTokenJWT, esEstudiante, visualizarMisResenas);
 router.get('/estudiante/mi-resena/:productoId', verifyTokenJWT, esEstudiante, obtenerMiResena);
-router.get('/estudiante/puede-resenar/:productoId', verifyTokenJWT, esEstudiante, verificarPuedeResenar);
 export default router
 

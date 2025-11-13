@@ -3,11 +3,30 @@ import { v2 as cloudinary } from 'cloudinary';
 import mongoose from 'mongoose';
 import fs from 'fs-extra';
 import { generarEmbedding } from "../../utils/embeddings.js";
+import Categoria from "../../models/Categoria.js";
+
+// Helper para eliminar archivos temporales
+const safeUnlink = async (path) => {
+  try {
+    if (!path) return;
+    const exists = await fs.pathExists(path);
+    if (exists) await fs.unlink(path);
+  } catch (err) {
+    console.warn(`No se pudo eliminar archivo temporal ${path}:`, err.message || err);
+  }
+};
 
 // Crear un producto
 export const crearProducto = async (req, res) => {
   try {
-    const { nombreProducto } = req.body;
+    const { nombreProducto, categoria } = req.body;
+
+    if (!mongoose.isValidObjectId(categoria)) return res.status(400).json({ msg: "ID de categoría no válido" });
+    // Validar que la categoria exista en la base de datos
+    const categoriaExistente = await Categoria.findById(categoria);
+    if (!categoriaExistente) {
+      return res.status(400).json({ msg: "La categoría proporcionada no existe" });
+    }
 
     // Validar nombre único en toda la DB
     const existeProducto = await Producto.findOne({ nombreProducto: nombreProducto.trim() });
@@ -24,10 +43,17 @@ export const crearProducto = async (req, res) => {
 
     // Imagen normal
     if (req.files?.imagen) {
-      const { secure_url, public_id } = await cloudinary.uploader.upload(req.files.imagen.tempFilePath, { folder: 'ImagenesProductos' })
-      nuevoProducto.imagen = secure_url
-      nuevoProducto.imagenID = public_id
-      await fs.unlink(req.files.imagen.tempFilePath)
+      const tempPath = req.files.imagen.tempFilePath;
+      try {
+        const { secure_url, public_id } = await cloudinary.uploader.upload(tempPath, { folder: 'ImagenesProductos' });
+        nuevoProducto.imagen = secure_url;
+        nuevoProducto.imagenID = public_id;
+      } catch (err) {
+        console.error("Error subiendo imagen a Cloudinary:", err);
+        throw err;
+      } finally {
+        await safeUnlink(tempPath);
+      }
     }
 
     // Imagen IA
@@ -63,7 +89,11 @@ export const crearProducto = async (req, res) => {
 export const actualizarProducto = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombreProducto } = req.body;
+    const { nombreProducto,categoria } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ msg: "ID de producto inválido" });
+    }
 
     const producto = await Producto.findOne({ _id: id, vendedor: req.estudianteBDD._id });
     if (!producto) return res.status(403).json({ msg: "Producto no encontrado o sin permisos" });
@@ -75,6 +105,10 @@ export const actualizarProducto = async (req, res) => {
         return res.status(400).json({ msg: "Ya existe un producto con ese nombre" });
       }
       producto.nombreProducto = nombreProducto.trim();
+    }
+    const categoriaExistente = await Categoria.findById(categoria);
+    if (!categoriaExistente) {
+      return res.status(400).json({ msg: "La categoría proporcionada no existe" });
     }
 
     // Actualizar otros campos
@@ -98,11 +132,25 @@ export const actualizarProducto = async (req, res) => {
 
     // Imagen normal
     if (req.files?.imagen) {
-      if (producto.imagenID) await cloudinary.uploader.destroy(producto.imagenID);
-      const { secure_url, public_id } = await cloudinary.uploader.upload(req.files.imagen.tempFilePath, { folder: 'ImagenesProductos' });
-      producto.imagen = secure_url;
-      producto.imagenID = public_id;
-      await fs.unlink(req.files.imagen.tempFilePath);
+      const tempPath = req.files.imagen.tempFilePath;
+      try {
+        if (producto.imagenID) {
+          try {
+            await cloudinary.uploader.destroy(producto.imagenID);
+          } catch (e) {
+            console.warn(`No se pudo destruir imagen anterior en Cloudinary ${producto.imagenID}:`, e.message || e);
+          }
+        }
+
+        const { secure_url, public_id } = await cloudinary.uploader.upload(tempPath, { folder: 'ImagenesProductos' });
+        producto.imagen = secure_url;
+        producto.imagenID = public_id;
+      } catch (err) {
+        console.error("Error subiendo imagen a Cloudinary:", err);
+        throw err;
+      } finally {
+        await safeUnlink(tempPath);
+      }
     }
 
     // Imagen IA
@@ -141,40 +189,27 @@ export const actualizarProducto = async (req, res) => {
 export const eliminarProducto = async (req, res) => {
   try {
     const { id } = req.params;
-    const producto = await Producto.findOne({ _id: id, vendedor: req.estudianteBDD._id });
-    if (!producto) return res.status(404).json({ msg: "Producto no encontrado" });
 
-    if (producto.eliminadoPorVendedor) {
-      return res.status(400).json({ msg: "El producto ya fue eliminado previamente" });
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ msg: "ID de producto inválido" });
+    }
+    const producto = await Producto.findOne({ _id: id, vendedor: req.estudianteBDD._id });
+    if (!producto) return res.status(404).json({ msg: "Producto no encontrado o sin autorización para eliminar" });
+
+    try {
+      if (producto.imagenID) {
+        await cloudinary.uploader.destroy(producto.imagenID, { resource_type: 'image' });
+      }
+    } catch (err) {
+      console.warn(`No se pudo eliminar asset Cloudinary ${producto.imagenID}:`, err.message || err);
     }
 
-    await producto.updateOne({
-      $set: { activo: false, eliminadoPorVendedor: true, estado: "no disponible" },
-    });
+    await producto.deleteOne();
 
-    res.status(200).json({ msg: "Producto eliminado correctamente" });
+    return res.status(200).json({ msg: "Producto eliminado correctamente" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Error eliminando producto", error: error.message });
-  }
-};
-
-// Reactivar producto
-export const reactivarProducto = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const producto = await Producto.findOne({ _id: id, vendedor: req.estudianteBDD._id });
-    if (!producto) return res.status(404).json({ msg: "Producto no encontrado" });
-    if (!producto.eliminadoPorVendedor) return res.status(400).json({ msg: "Producto ya está activo" });
-
-    await producto.updateOne({
-      $set: { activo: true, eliminadoPorVendedor: false, estado: "disponible" },
-    });
-
-    res.status(200).json({ msg: "Producto reactivado correctamente" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: "Error reactivando producto", error: error.message });
   }
 };
 
@@ -185,10 +220,10 @@ export const listarProducto = async (req, res) => {
       vendedor: req.estudianteBDD._id,
       $or: [
         { eliminadoPorVendedor: false },
-        { eliminadoPorVendedor: { $exists: false } } 
+        { eliminadoPorVendedor: { $exists: false } }
       ]
     })
-      .select("-__v -createdAt -updatedAt")
+      .select("-__v -createdAt -updatedAt -embedding -descripcionNormalizada -nombreNormalizado")
       .populate("categoria", "nombreCategoria")
       .sort({ createdAt: -1 });
 
@@ -203,40 +238,3 @@ export const listarProducto = async (req, res) => {
   }
 };
 
-
-// Listar productos por categoría
-export const visualizarProductoCategoria = async (req, res) => {
-  try {
-    const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ msg: "ID de categoría no válido" });
-
-    const productos = await Producto.find({ vendedor: req.estudianteBDD._id, categoria: id }).populate('categoria', 'nombreCategoria');
-    if (!productos.length) return res.status(404).json({ msg: "No hay productos en esta categoría" });
-
-    res.status(200).json(productos);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: "Error listando productos por categoría", error: error.message });
-  }
-};
-
-// Listar productos eliminados
-export const verProductosEliminados = async (req, res) => {
-  try {
-    const productos = await Producto.find({
-      vendedor: req.estudianteBDD._id,
-      eliminadoPorVendedor: true
-    })
-      .select("-__v -createdAt -updatedAt")
-      .populate("categoria", "nombreCategoria");
-
-    if (!productos.length) {
-      return res.status(404).json({ msg: "No hay productos eliminados" });
-    }
-
-    res.status(200).json(productos);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: "Error obteniendo productos eliminados", error: error.message });
-  }
-};

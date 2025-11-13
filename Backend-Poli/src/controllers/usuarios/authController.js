@@ -42,14 +42,14 @@ export const confirmarMail = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ msg: "Debes llenar todos los campos." });
+    if (!email || !password) return res.status(400).json({ msg: "Debes llenar todos los campos" });
 
     const estudianteBDD = await Estudiante.findOne({ email }).select("-__v -updatedAt -createdAt");
-    if (!estudianteBDD) return res.status(404).json({ msg: "Correo no registrado." });
-    if (!estudianteBDD.emailConfirmado) return res.status(403).json({ msg: "Debes confirmar tu cuenta antes de iniciar sesión." });
+    if (!estudianteBDD) return res.status(404).json({ msg: "Correo no registrado" });
+    if (!estudianteBDD.emailConfirmado) return res.status(403).json({ msg: "Debes confirmar tu cuenta antes de iniciar sesión" });
 
     const verificarPassword = await estudianteBDD.matchPassword(password);
-    if (!verificarPassword) return res.status(401).json({ msg: "Contraseña incorrecta." });
+    if (!verificarPassword) return res.status(401).json({ msg: "Contraseña incorrecta" });
 
     const token = createTokenJWT(estudianteBDD._id, estudianteBDD.rol);
     res.status(200).json({

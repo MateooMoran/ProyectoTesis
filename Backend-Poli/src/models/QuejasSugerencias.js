@@ -10,11 +10,13 @@ const quejaSugerenciaSchema = new Schema(
     tipo: {
       type: String,
       enum: ["queja", "sugerencia"],
-      required: true,
+      required: true, 
+      trim: true
     },
     mensaje: {
       type: String,
       required: true,
+      trim: true
     },
     respuesta: {
       type: String,

@@ -193,8 +193,14 @@ export const eliminarLugarRetiro = async (req, res) => {
 // ELIMINAR MÉTODO COMPLETO
 export const eliminarMetodoPago = async (req, res) => {
   try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ msg: "ID de método de pago inválido" });
+    }
+
     const metodoPago = await MetodoPagoVendedor.findOneAndDelete({
-      _id: req.params.id,
+      _id: id,
       vendedor: req.estudianteBDD._id,
     });
 
@@ -202,6 +208,7 @@ export const eliminarMetodoPago = async (req, res) => {
       return res.status(404).json({ msg: "Método de pago no encontrado" });
     }
 
+    // Eliminar imagen en Cloudinary si existe
     if (metodoPago.imagenID) {
       await cloudinary.uploader.destroy(metodoPago.imagenID);
     }
@@ -209,6 +216,6 @@ export const eliminarMetodoPago = async (req, res) => {
     res.json({ msg: "Método eliminado correctamente" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ msg: "Error al eliminar método de pago"});
+    res.status(500).json({ msg: "Error al eliminar método de pago" });
   }
 };

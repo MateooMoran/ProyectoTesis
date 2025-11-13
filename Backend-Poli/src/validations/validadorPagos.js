@@ -1,6 +1,6 @@
 import { body, param } from "express-validator";
 
-const textoValidoRegex = /^(?!.*([a-zA-Z0-9])\1{3,})(?!.*[<>@])([a-zA-Z0-9]+(\s[a-zA-Z0-9]+)*)$/;
+const textoValidoRegex = /^(?!.*([a-zA-ZáéíóúÁÉÍÓÚñÑ])\1{3,})(?!.*[<>@])([a-zA-ZáéíóúÁÉÍÓÚñÑ]+(\s[a-zA-ZáéíóúÁÉÍÓÚñÑ]+)*)$/;
 const soloNumerosRegex = /^(?!.*(\d)\1{3,})\d+$/;
 
 // Validación para TRANSFERENCIA

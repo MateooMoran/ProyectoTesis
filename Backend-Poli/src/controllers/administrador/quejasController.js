@@ -25,20 +25,20 @@ export const responderQuejaSugerencia = async (req, res) => {
     const { respuesta } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ msg: "El ID de la queja/sugerencia no es válido." });
+      return res.status(400).json({ msg: "El ID de la queja/sugerencia no es válido" });
     }
 
     if (!respuesta || respuesta.trim() === "") {
-      return res.status(400).json({ msg: "La respuesta no puede estar vacía." });
+      return res.status(400).json({ msg: "La respuesta no puede estar vacía" });
     }
 
     const queja = await QuejasSugerencias.findById(id);
     if (!queja) {
-      return res.status(404).json({ msg: "La queja/sugerencia no fue encontrada." });
+      return res.status(404).json({ msg: "La queja/sugerencia no fue encontrada" });
     }
 
     if (queja.estado === "resuelto") {
-      return res.status(400).json({ msg: "La queja/sugerencia ya fue resuelta." });
+      return res.status(400).json({ msg: "La queja/sugerencia ya fue resuelta" });
     }
 
     // Actualizar estado y respuesta
@@ -50,11 +50,11 @@ export const responderQuejaSugerencia = async (req, res) => {
     await crearNotificacionSocket(req, queja.usuario, `Tu ${queja.tipo} ha sido respondida: "${respuesta}"`, "sistema");
 
 
-    return res.status(200).json({ msg: "Respuesta enviada correctamente." });
+    return res.status(200).json({ msg: "Respuesta enviada correctamente" });
   } catch (error) {
     console.error("Error en responderQuejaSugerencia:", error);
     return res.status(500).json({
-      msg: "Error al responder la queja/sugerencia.",
+      msg: "Error al responder la queja/sugerencia",
       error: error.message,
     });
   }

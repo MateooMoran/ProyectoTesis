@@ -28,5 +28,6 @@ const conversacionSchema = new Schema(
 // Índice compuesto para búsqueda rápida
 conversacionSchema.index({ miembros: 1 });
 conversacionSchema.index({ updatedAt: -1 });
+conversacionSchema.index({ ultimoMensaje: -1 });
 
 export default model("Conversacion", conversacionSchema);

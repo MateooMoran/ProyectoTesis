@@ -2,7 +2,6 @@ import { body } from "express-validator";
 import Producto from "../models/Producto.js";
 import mongoose from "mongoose";
 
-// Regex para nombre y descripción
 const textoValidoRegex = /^(?!.*([a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ])\1{3,})(?!.*[<>@])[\wáéíóúüñÁÉÍÓÚÜÑ.,;:!?\s-]+$/;
 
 export const validarProducto = [

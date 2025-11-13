@@ -37,25 +37,15 @@ const recalcularEstadisticasProducto = async (productoId) => {
 // Crear o actualizar reseña
 export const crearActualizarResena = async (req, res) => {
   try {
-    const { productoId, estrellas, comentario } = req.body;
+    let { productoId, estrellas, comentario } = req.body;
     const usuarioId = req.estudianteBDD._id;
 
-    // Validaciones básicas
-    if (!productoId || !estrellas) {
-      return res.status(400).json({ msg: "Producto y estrellas son obligatorios" });
-    }
+    comentario = comentario?.trim() || "";
 
     if (!mongoose.Types.ObjectId.isValid(productoId)) {
       return res.status(400).json({ msg: "ID de producto no válido" });
     }
 
-    if (estrellas < 1 || estrellas > 5) {
-      return res.status(400).json({ msg: "Las estrellas deben estar entre 1 y 5" });
-    }
-
-    if (comentario && comentario.length > 250) {
-      return res.status(400).json({ msg: "El comentario no puede superar los 250 caracteres" });
-    }
 
     // Verificar que el producto existe y está visible
     const producto = await Producto.findById(productoId);

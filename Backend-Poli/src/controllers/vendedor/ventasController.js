@@ -39,7 +39,14 @@ export const confirmarPagoVenta = async (req, res) => {
       await session.abortTransaction();
       return res.status(404).json({ msg: 'Orden no encontrada' });
     }
-
+    if(orden.estado === "cancelada"){
+      await session.abortTransaction();
+      return res.status(400).json({ msg: 'La orden ha sido cancelada y no puede ser confirmada' });
+    }
+    if(orden.estado === "completada"){
+      await session.abortTransaction();
+      return res.status(400).json({ msg: 'La orden ya ha sido completada' });
+    }
     if(orden.estado === "pago_confirmado_vendedor"){
       await session.abortTransaction();
       return res.status(400).json({ msg: 'El pago ya ha sido confirmado previamente' });

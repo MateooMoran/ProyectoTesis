@@ -7,25 +7,25 @@ import mongoose from "mongoose";
 // Crear queja o sugerencia
 export const crearQuejasSugerencias = async (req, res) => {
   try {
-    const { tipo, mensaje } = req.body;
-    if (!tipo || !mensaje) return res.status(400).json({ msg: "Todos los campos son obligatorios" });
+    let  { tipo, mensaje } = req.body;
+    tipo = tipo?.trim().toLowerCase();
 
     const nueva = new QuejasSugerencias({ tipo, mensaje, usuario: req.estudianteBDD._id });
 
+    await nueva.save();
     // Notificación al usuario con Socket.IO
-    await crearNotificacionSocket(req, req.estudianteBDD._id, `Tu ${tipo} ha sido registrada correctamente.`, "sistema");
+    await crearNotificacionSocket(req, req.estudianteBDD._id, `Tu ${tipo} ha sido registrada correctamente`, "sistema");
 
     const admin = await Estudiante.findOne({ rol: "admin" });
     if (admin) {
       await crearNotificacionSocket(req, admin._id, `Nuevo mensaje recibido del tipo (${tipo.toUpperCase()}) del usuario: ${req.estudianteBDD.nombre} ${req.estudianteBDD.apellido}`, "sistema");
     }
 
-    await nueva.save();
 
-    res.status(200).json({ msg: "Queja/Sugerencia enviada correctamente" });
+    res.status(200).json({ msg: 'Queja o sugerencia enviada correctamente' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ msg: "Error creando queja/sugerencia", error: error.message });
+    res.status(500).json({ msg: 'Error interno del servidor al crear la queja/sugerencia' });
   }
 };
 
@@ -39,7 +39,7 @@ export const visualizarQuejasSugerencias = async (req, res) => {
     res.status(200).json(datos);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ msg: "Error obteniendo quejas/sugerencias", error: error.message });
+    res.status(500).json({ msg: "Error obteniendo quejas/sugerencias" });
   }
 };
 
@@ -49,15 +49,20 @@ export const eliminarQuejaSugerencia = async (req, res) => {
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ msg: "ID inválido" });
 
-    const queja = await QuejasSugerencias.findById(id);
-    if (!queja) return res.status(404).json({ msg: "Queja/Sugerencia no encontrada" });
-    if (queja.estado === "resuelto") return res.status(404).json({ msg: "Queja/Sugerencia no se puede eliminar si esta resuelta" })
-    if (!queja.usuario.equals(req.estudianteBDD._id)) return res.status(403).json({ msg: "No autorizado para eliminar esta queja/sugerencia" });
+    const queja = await QuejasSugerencias.findOne({_id: id, usuario: req.estudianteBDD._id});
+
+    if (!queja) {
+      return res.status(404).json({ msg: "Queja/Sugerencia no encontrada o no autorizada" });
+    }
+
+    if (queja.estado === "resuelto") {
+      return res.status(400).json({ msg: "No se puede eliminar una queja/sugerencia ya resuelta" });
+    }
 
     await queja.deleteOne();
     res.status(200).json({ msg: "Queja/Sugerencia eliminada correctamente" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ msg: "Error eliminando queja/sugerencia", error: error.message });
+    res.status(500).json({ msg: "Error eliminando queja/sugerencia" });
   }
 };
