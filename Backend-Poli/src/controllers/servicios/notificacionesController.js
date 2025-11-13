@@ -11,9 +11,6 @@ export const listarNotificaciones = async (req, res) => {
       .populate("usuario", "nombre apellido telefono rol")
       .sort({ createdAt: -1 });
 
-    if (!notificaciones.length) {
-      return res.status(200).json({ msg: "No tienes notificaciones", data: [] });
-    }
 
     res.status(200).json({ data: notificaciones });
   } catch (error) {
@@ -79,10 +76,6 @@ export const eliminarTodasNotificaciones = async (req, res) => {
   try {
     const usuarioId = req.estudianteBDD._id;
     const resultado = await Notificacion.deleteMany({ usuario: usuarioId });
-
-    if (resultado.deletedCount === 0) {
-      return res.status(200).json({ msg: "No hay notificaciones para eliminar" });
-    }
 
     res.status(200).json({
       msg: `Se eliminaron ${resultado.deletedCount} notificaciones`
