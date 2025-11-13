@@ -80,10 +80,6 @@ export const eliminarTodasNotificaciones = async (req, res) => {
     const usuarioId = req.estudianteBDD._id;
     const resultado = await Notificacion.deleteMany({ usuario: usuarioId });
 
-    if (resultado.deletedCount === 0) {
-      return res.status(200).json({ msg: "No hay notificaciones para eliminar" });
-    }
-
     res.status(200).json({
       msg: `Se eliminaron ${resultado.deletedCount} notificaciones`
     });
