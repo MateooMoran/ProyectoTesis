@@ -9,12 +9,16 @@ import banner1 from '../assets/banner3d.png';
 import banner2 from '../assets/banner2.png';
 import banner3 from '../assets/banner3.png';
 import banner4 from '../assets/bannerIA.png';
+import banner5 from '../assets/banner5.png';
+
 
 const bannerImages = [
     { id: 1, src: banner1, alt: 'Mira los productos en 3D' },
-    { id: 2, src: banner2, alt: 'Nuevos Productos' },
+    { id: 2, src: banner2, alt: 'Proximamente...' },
     { id: 3, src: banner3, alt: 'Grandes Descuentos' },
     { id: 4, src: banner4, alt: 'Nueva implementación de la IA' },
+    { id: 5, src: banner5, alt: 'Conecta con la comunidad' },
+
 ];
 
 // ASOCIACIONES UNIVERSITARIAS 
