@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Star, Edit2, Filter } from 'lucide-react';
-import { toast } from 'react-toastify';
+import { alert } from '../../utils/alerts';
 import useFetch from '../../hooks/useFetch';
 import storeAuth from '../../context/storeAuth';
 
 const SeccionResenas = ({ productoId, onEstadisticas }) => {
   const { fetchDataBackend } = useFetch();
-  const { token } = storeAuth();
+  const { token, rol } = storeAuth();
 
   const [resenas, setResenas] = useState([]);
   const [estadisticas, setEstadisticas] = useState(null);
@@ -49,7 +49,10 @@ const SeccionResenas = ({ productoId, onEstadisticas }) => {
   };
 
   const verificarPermisos = async () => {
-    if (!token) return;
+    if (!token || rol !== 'estudiante') {
+      setPuedeResenar(false);
+      return;
+    }
 
     try {
       const data = await fetchDataBackend(
@@ -78,14 +81,15 @@ const SeccionResenas = ({ productoId, onEstadisticas }) => {
   useEffect(() => {
     cargarResenas();
     verificarPermisos();
-  }, [productoId]);
+  }, [productoId, token, rol]);
 
   const enviarResena = async (e) => {
     e.preventDefault();
 
-    if (!token) return toast.error('Debes iniciar sesión para reseñar');
+    if (!token) return alert({ icon: 'error', title: 'Debes iniciar sesión para reseñar' });
+    if (rol !== 'estudiante') return alert({ icon: 'error', title: 'Solo estudiantes pueden reseñar' });
     if (formData.comentario.length > 250)
-      return toast.error('El comentario no puede superar 250 caracteres');
+      return alert({ icon: 'error', title: 'El comentario no puede superar 250 caracteres' });
 
     setEnviando(true);
 

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Search, Send, Image as ImageIcon, Trash2, X, MessageCircle, User, ArrowLeft } from 'lucide-react';
 import { useSocket } from '../context/SocketContext';
 import storeAuth from '../context/storeAuth';
-import { ToastContainer } from 'react-toastify';
+// ChatPage previously used ToastContainer; now using SweetAlert2 helper where required
 
 const ChatPage = () => {
   const { socket, resetearContador, conversacionRestaurada } = useSocket();
@@ -362,7 +362,7 @@ const ChatPage = () => {
 
   return (
     <div className="flex h-[82.5vh] sm:h-[97vh] bg-white mt-18 sm:mt-0">
-      <ToastContainer />
+            
 
       {/* Sidebar de conversaciones - Oculto en móvil cuando hay chat activo */}
       <div className={`${conversacionActiva ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-96 border-r border-gray-200 mt-18 sm:mt-10`}>

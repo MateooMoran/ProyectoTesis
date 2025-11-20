@@ -7,16 +7,17 @@ import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import { useState, useEffect } from 'react';
 import useFetch from '../../hooks/useFetch';
 import storeAuth from '../../context/storeAuth';
-import { toast } from 'react-toastify';
+import getImageUrl from '../../utils/imageSrc';
 
 const useFavorites = () => {
     const [favorites, setFavorites] = useState([]);
-    const { token } = storeAuth();
+    const { token, rol } = storeAuth();
     const { fetchDataBackend } = useFetch();
 
     useEffect(() => {
         const loadFavorites = async () => {
-            if (token) {
+            // Favoritos sólo para estudiantes autenticados
+            if (token && rol === 'estudiante') {
                 try {
                     const data = await fetchDataBackend(`${import.meta.env.VITE_BACKEND_URL}/estudiante/favoritos`, {
                         method: 'GET',
@@ -24,16 +25,20 @@ const useFavorites = () => {
                     });
                     setFavorites(data.favoritos || []);
                 } catch { }
-            } else {
+            } else if (!token) {
                 const localFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
                 setFavorites(localFavs);
+            } else {
+                // usuario autenticado pero no estudiante (ej. vendedor/admin): no favorites
+                setFavorites([]);
             }
         };
         loadFavorites();
-    }, [token]);
+    }, [token, rol]);
 
     const toggleFavorite = async (productId) => {
-        if (token) {
+        // Only call backend for estudiantes
+        if (token && rol === 'estudiante') {
             try {
                 const response = await fetchDataBackend(`${import.meta.env.VITE_BACKEND_URL}/estudiante/favorito/${productId}`, {
                     method: 'PATCH',
@@ -49,10 +54,8 @@ const useFavorites = () => {
             let localFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
             if (localFavs.includes(productId)) {
                 localFavs = localFavs.filter(id => id !== productId);
-                toast.success('Producto removido de favoritos');
             } else {
                 localFavs.push(productId);
-                toast.success('Producto agregado a favoritos');
             }
             localStorage.setItem('favorites', JSON.stringify(localFavs));
             setFavorites(localFavs);
@@ -60,11 +63,12 @@ const useFavorites = () => {
     };
 
     const isFavorite = (productId) => {
-        if (token) {
+        if (token && rol === 'estudiante') {
             return favorites.some(fav => fav._id === productId);
-        } else {
+        } else if (!token) {
             return favorites.includes(productId);
         }
+        return false;
     };
 
     return { favorites, isFavorite, toggleFavorite, token };
@@ -130,11 +134,11 @@ const ProductCarousel = ({
                                     <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 p-4">
                                         <div className="relative mb-3">
                                             <Link to={productLink} className="block">
-                                                <img
-                                                    src={producto.imagen}
-                                                    alt={producto.nombreProducto}
-                                                    className="w-full h-48 object-contain rounded-md hover:shadow-md transition-shadow duration-300"
-                                                />
+                                                    <img
+                                                        src={getImageUrl(producto)}
+                                                        alt={producto.nombreProducto}
+                                                        className="w-full h-48 object-contain rounded-md hover:shadow-md transition-shadow duration-300"
+                                                    />
                                             </Link>
                                             {producto.stock <= 5 && (
                                                 <span className="absolute top-2 left-2 bg-red-800 text-white text-xs font-semibold px-2 py-1 rounded">

@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import useFetch from "../hooks/useFetch";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { alert } from '../utils/alerts';
+// react-toastify styles removed; using SweetAlert2 helper instead
 import storeAuth from "../context/storeAuth";
 
 const Login = () => {
@@ -25,7 +25,7 @@ const Login = () => {
         setRol(response.rol);
         navigate("/dashboard");
       } else {
-        toast.error(response?.msg || "Error al iniciar sesión");
+        alert({ icon: 'error', title: response?.msg || "Error al iniciar sesión" });
       }
     } catch (error) {
       console.log(error);
@@ -37,7 +37,7 @@ const Login = () => {
 
   return (
     <div className="flex flex-col sm:flex-row h-screen">
-      <ToastContainer />
+      
 
       <div
         className="hidden sm:block sm:w-1/2 h-screen bg-[url('/src/assets/imgLogin.jpeg')] 

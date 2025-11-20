@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { alert } from '../utils/alerts';
 import confirmImage from '../assets/logo.png';
 
 export const Confirm = () => {
@@ -12,25 +11,9 @@ export const Confirm = () => {
         try {
             const url = `${import.meta.env.VITE_BACKEND_URL}/confirmar/${token}`;
             const respuesta = await axios.get(url);
-            toast.success(respuesta?.data?.msg, {
-                position: 'top-right',
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
+            alert({ icon: 'success', title: respuesta?.data?.msg });
         } catch (error) {
-            toast.error(error?.response?.data?.msg || 'Error al confirmar cuenta', {
-                position: 'top-right',
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
+            alert({ icon: 'error', title: error?.response?.data?.msg || 'Error al confirmar cuenta' });
         }
     };
 
@@ -40,7 +23,7 @@ export const Confirm = () => {
 
     return (
         <div className="flex flex-col items-center justify-center h-screen bg-gray-100 px-4">
-            <ToastContainer />
+            
 
             {/* Imagen de confirmación */}
             <img

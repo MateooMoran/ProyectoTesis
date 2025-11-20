@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from '../utils/alerts';
 import logo from '../assets/logo.png';
 import storeProfile from '../context/storeProfile';
 import storeAuth from '../context/storeAuth';
@@ -62,7 +62,6 @@ export const Home = () => {
 
   return (
     <>
-      <ToastContainer />
       {/* Header */}
       <header className="bg-white shadow-md py-4 fixed top-0 left-0 right-0 z-50">
         <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">

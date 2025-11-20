@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { toast } from 'react-toastify';
+import { alert } from '../../utils/alerts';
 import {
     CreditCard,
     CheckCircle,
@@ -42,7 +42,7 @@ const FormularioStripe = ({ productoId, cantidad, metodoPagoVendedorId, lugarRet
     const handlePagoStripe = async (e) => {
         e.preventDefault();
         if (!stripe || !elements) {
-            toast.error('Stripe no está listo. Por favor espera un momento.');
+            alert({ icon: 'error', title: 'Stripe no está listo. Por favor espera un momento.' });
             return;
         }
 
@@ -75,7 +75,7 @@ const FormularioStripe = ({ productoId, cantidad, metodoPagoVendedorId, lugarRet
 
             onSuccess();
         } catch (error) {
-            toast.error(error.message || 'Error al procesar el pago');
+            alert({ icon: 'error', title: error.message || 'Error al procesar el pago' });
         } finally {
             setLoading(false);
         }
@@ -311,7 +311,7 @@ const CompraDirecta = () => {
 
             } catch (error) {
                 console.error('Error al cargar datos:', error);
-                toast.error(error.message || 'Error al cargar los datos del producto');
+                alert({ icon: 'error', title: error.message || 'Error al cargar los datos del producto' });
             } finally {
                 setLoading(false);
             }
@@ -340,7 +340,7 @@ const CompraDirecta = () => {
     // Continuar desde paso 2 (Elegir retiro)
     const continuarDesdePaso2 = () => {
         if (!lugarRetiro) {
-            toast.error('Selecciona un lugar de retiro');
+            alert({ icon: 'error', title: 'Selecciona un lugar de retiro' });
             return;
         }
         setCurrentStep(3); // Ir a métodos de pago
@@ -349,7 +349,7 @@ const CompraDirecta = () => {
     // Crear orden y RESERVAR stock al seleccionar método de pago
     const crearOrdenConPago = async () => {
         if (!metodoPagoSeleccionado) {
-            toast.error('Selecciona un método de pago');
+            alert({ icon: 'error', title: 'Selecciona un método de pago' });
             return;
         }
 
@@ -367,7 +367,7 @@ const CompraDirecta = () => {
     // Subir comprobante (para QR y Transferencia)
     const subirComprobante = async () => {
         if (!archivoComprobante) {
-            toast.error('Selecciona un comprobante de pago');
+            alert({ icon: 'error', title: 'Selecciona un comprobante de pago' });
             return;
         }
 
@@ -409,10 +409,10 @@ const CompraDirecta = () => {
             const data = await response.json();
             if (!response.ok) throw new Error(data.msg);
 
-            toast.success('¡Orden creada y comprobante subido correctamente!');
+            alert({ icon: 'success', title: '¡Orden creada y comprobante subido correctamente!' });
             setTimeout(() => navigate('/dashboard/estudiante/historial-pagos'), 2000);
         } catch (error) {
-            toast.error(error.message || 'Error al procesar la orden');
+            alert({ icon: 'error', title: error.message || 'Error al procesar la orden' });
         } finally {
             setLoading(false);
         }

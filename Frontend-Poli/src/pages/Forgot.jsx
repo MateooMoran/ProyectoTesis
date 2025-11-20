@@ -1,8 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import useFetch from '../hooks/useFetch';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from '../utils/alerts';
 import forgotImage from '../assets/forgot.webp'; 
 
 export const Forgot = () => {
@@ -21,7 +20,7 @@ export const Forgot = () => {
 
     return (
         <div className="flex flex-col items-center justify-center h-screen bg-blue-50 px-4">
-            <ToastContainer />
+            
 
             {/* Contenedor del formulario */}
             <div className="w-full max-w-sm sm:max-w-md bg-white p-6 sm:p-10 rounded-lg shadow-lg">

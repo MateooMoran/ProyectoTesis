@@ -123,7 +123,7 @@ const Carrusel = () => {
                 <div className="mb-10">
                     <Slider {...bannerSettings}>
                         {bannerImages.map((banner) => (
-                            <div key={banner.id} className="relative w-full h-[300px] md:h-[400px] lg:h-[690px]">
+                            <div key={banner.id} className="relative w-full h-[300px] md:h-[400px] lg:h-[720px]">
                                 <img
                                     src={banner.src}
                                     alt={banner.alt}

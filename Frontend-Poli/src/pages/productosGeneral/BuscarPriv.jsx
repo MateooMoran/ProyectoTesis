@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import getImageUrl from '../../utils/imageSrc';
 import useFetch from '../../hooks/useFetch';
 import Header from '../../layout/Header';
 import Footer from '../../layout/Footer';
@@ -15,7 +15,8 @@ const SamplePrevArrow = (props) => {
     const { className, style, onClick } = props;
     return (
         <div
-            className={`${className} ${style} custom-arrow custom-prev-arrow`}
+            className={`${className} custom-arrow custom-prev-arrow`}
+            style={{ ...style }}
             onClick={onClick}
         />
     );
@@ -25,7 +26,8 @@ const SampleNextArrow = (props) => {
     const { className, style, onClick } = props;
     return (
         <div
-            className={`${className} ${style} custom-arrow custom-next-arrow`}
+            className={`${className} custom-arrow custom-next-arrow`}
+            style={{ ...style }}
             onClick={onClick}
         />
     );
@@ -111,7 +113,7 @@ const BuscarPriv = () => {
     }, [query]);
 
     const handleClickProducto = (producto) => {
-        toast.success(`Producto ${producto.nombreProducto} seleccionado`);
+        // acción de navegación/selección sin mostrar toast
     };
 
     return (
@@ -140,11 +142,11 @@ const BuscarPriv = () => {
                                             {/* IMAGEN + STOCK ARRIBA DERECHA */}
                                             <div className="relative mb-3">
                                                 <Link to={`/dashboard/productos/${producto._id}`} className="block">
-                                                    <img
-                                                        src={producto.imagen || placeholderImage}
-                                                        alt={producto.nombreProducto}
-                                                        className="w-full h-48 object-contain rounded-md hover:shadow-md transition-shadow duration-300"
-                                                    />
+                                                        <img
+                                                            src={getImageUrl(producto)}
+                                                            alt={producto.nombreProducto}
+                                                            className="w-full h-40 object-contain rounded-md hover:shadow-md transition-shadow duration-300"
+                                                        />
                                                 </Link>
 
                                                 {/* Alerta stock bajo */}

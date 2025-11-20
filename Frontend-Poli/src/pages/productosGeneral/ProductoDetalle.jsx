@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { alert } from '../../utils/alerts';
+import getImageUrl from '../../utils/imageSrc';
 import storeProductos from '../../context/storeProductos';
 import storeProfile from '../../context/storeProfile';
 import storeAuth from '../../context/storeAuth';
@@ -36,7 +37,7 @@ const ProductoDetalle = () => {
 
   const handleComprarAhora = () => {
     if (!token) {
-      toast.error('Debes iniciar sesión para comprar');
+      alert({ icon: 'error', title: 'Debes iniciar sesión para comprar' });
       navigate('/prepago');
       return;
     }
@@ -75,7 +76,7 @@ const ProductoDetalle = () => {
       setMetodosPago(resultados);
     } catch (err) {
       console.error('Error general:', err);
-      toast.error('No se pudieron cargar los métodos de pago');
+      alert({ icon: 'error', title: 'No se pudieron cargar los métodos de pago' });
     } finally {
       setLoadingMetodos(false);
     }
@@ -140,7 +141,7 @@ const ProductoDetalle = () => {
                   />
                 ) : (
                   <img
-                    src={producto.imagen}
+                    src={getImageUrl(producto)}
                     alt={producto.nombreProducto}
                     className="w-full max-w-md h-auto object-contain rounded-2xl shadow-2xl"
                   />

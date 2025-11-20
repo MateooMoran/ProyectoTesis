@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from '../utils/alerts';
 import storeProfile from '../context/storeProfile';
 import storeAuth from '../context/storeAuth';
 import Header from '../layout/Header';
@@ -84,7 +83,7 @@ const Perfil = () => {
 
   return (
     <>
-      <ToastContainer />
+      
       <Header />
       <div className="mt-24 md:mt-8"></div>
       <main className="py-10 bg-blue-50 min-h-screen">

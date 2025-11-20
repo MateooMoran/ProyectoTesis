@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Trash2, Send, AlertTriangle, Lightbulb, FileText, CheckCircle, Clock } from "lucide-react";
-import { toast, ToastContainer } from "react-toastify";
+import { alert } from '../utils/alerts';
 import useFetch from "../hooks/useFetch";
 import { useNavigate } from "react-router-dom";
 import Header from "../layout/Header";
@@ -15,13 +15,24 @@ export default function QuejasSugerenciasEstudiante() {
     const [loading, setLoading] = useState(true);
     const [enviando, setEnviando] = useState(false);
 
+    const sortedLista = useMemo(() => {
+        return [...lista].sort((a, b) => {
+            const aPend = a.estado !== 'resuelto';
+            const bPend = b.estado !== 'resuelto';
+            if (aPend === bPend) {
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            }
+            return aPend ? -1 : 1;
+        });
+    }, [lista]);
+
     useEffect(() => {
         const storedUser = JSON.parse(localStorage.getItem("auth-token"));
         const token = storedUser?.state?.token || null;
         const rol = storedUser?.state?.rol || null;
 
         if (!token) {
-            toast.error("Debes iniciar sesión");
+            alert({ icon: 'error', title: 'Debes iniciar sesión' });
             navigate("/login");
             return;
         }
@@ -51,14 +62,14 @@ export default function QuejasSugerenciasEstudiante() {
         e.preventDefault();
 
         if (!mensaje.trim()) {
-            toast.error("El mensaje no puede estar vacío");
+            alert({ icon: 'error', title: 'El mensaje no puede estar vacío' });
             return;
         }
 
         const storedUser = JSON.parse(localStorage.getItem("auth-token"));
         const token = storedUser?.state?.token || null;
         if (!token) {
-            toast.error("Token no disponible, inicia sesión de nuevo");
+            alert({ icon: 'error', title: 'Token no disponible, inicia sesión de nuevo' });
             navigate("/login");
             return;
         }
@@ -88,7 +99,7 @@ export default function QuejasSugerenciasEstudiante() {
         const storedUser = JSON.parse(localStorage.getItem("auth-token"));
         const token = storedUser?.state?.token || null;
         if (!token) {
-            toast.error("Token no disponible, inicia sesión de nuevo");
+            alert({ icon: 'error', title: 'Token no disponible, inicia sesión de nuevo' });
             navigate("/login");
             return;
         }
@@ -100,7 +111,7 @@ export default function QuejasSugerenciasEstudiante() {
             setLista((prev) => prev.filter((item) => item._id !== id));
         } catch (error) {
             console.error(error);
-            toast.error("Error al eliminar");
+            alert({ icon: 'error', title: 'Error al eliminar' });
         }
     };
 
@@ -117,7 +128,7 @@ export default function QuejasSugerenciasEstudiante() {
 
     return (
         <>
-            <ToastContainer />
+            
             <Header />
             <div className="mt-24 md:mt-5"></div>
             <main className="py-10 bg-blue-50 min-h-screen">
@@ -182,7 +193,7 @@ export default function QuejasSugerenciasEstudiante() {
                                     <p className="text-center text-gray-500 py-8">No tienes quejas o sugerencias enviadas</p>
                                 ) : (
                                     <div className="space-y-4 max-h-[600px] overflow-y-auto">
-                                        {lista.map((item) => (
+                                        {sortedLista.map((item) => (
                                             <div key={item._id} className="bg-gray-50 rounded-xl p-4 border border-gray-200 hover:shadow-md transition-shadow">
                                                 <div className="flex justify-between items-start gap-3">
                                                     <div className="flex-1">

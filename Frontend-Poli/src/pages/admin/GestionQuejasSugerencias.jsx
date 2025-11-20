@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import useFetch from "../../hooks/useFetch";
-import { ToastContainer, toast } from "react-toastify";
+import { alert } from '../../utils/alerts';
 import { MessageSquare, AlertCircle, Lightbulb, Clock, CheckCircle, Save, ChevronLeft, ChevronRight, Filter } from "lucide-react";
 
 function GestionarQuejasSugerencias() {
@@ -30,8 +30,8 @@ function GestionarQuejasSugerencias() {
         setQuejas(response);
         setCurrentPage(1);
       } catch (error) {
-        console.error("Error al obtener quejas/sugerencias", error);
-        toast.error("Error al cargar quejas");
+      console.error("Error al obtener quejas/sugerencias", error);
+      alert({ icon: 'error', title: 'Error al cargar quejas' });
       } finally {
         setLoading(false);
       }
@@ -56,8 +56,13 @@ function GestionarQuejasSugerencias() {
         body,
         config: { headers },
       });
+      // Actualizar estado local: marcar como resuelto, guardar la respuesta y fecha de resolución
+      const fechaNow = new Date().toISOString();
+      setQuejas((prev) => prev.map((q) => q._id === id ? { ...q, respuesta, estado: 'resuelto', fechaResuelto: fechaNow } : q));
+      alert({ icon: 'success', title: 'Respuesta enviada', text: 'La queja/sugerencia fue marcada como resuelta.' });
     } catch (error) {
       console.error("Error al responder la queja/sugerencia", error);
+      alert({ icon: 'error', title: 'Error', text: 'No se pudo guardar la respuesta.' });
     }
   };
 
@@ -72,10 +77,21 @@ function GestionarQuejasSugerencias() {
   };
 
   const getQuejasFiltradas = (estadoTab) => {
-    return quejas.filter(q =>
+    const filtradas = quejas.filter(q =>
       (estadoTab === 'todos' || q.estado === estadoTab) &&
       (filtroTipo === 'todos' || q.tipo === filtroTipo)
     );
+
+    // Si estamos mostrando las resueltas, ordenar por fecha de resolución descendente
+    if (estadoTab === 'resuelto') {
+      return filtradas.sort((a, b) => {
+        const dateA = new Date(a.fechaResuelto || a.updatedAt || a.createdAt || 0).getTime();
+        const dateB = new Date(b.fechaResuelto || b.updatedAt || b.createdAt || 0).getTime();
+        return dateB - dateA;
+      });
+    }
+
+    return filtradas;
   };
 
   const totalQuejas = quejas.filter(q => q.tipo === 'queja').length;
@@ -276,58 +292,91 @@ function GestionarQuejasSugerencias() {
     );
   };
 
-  if (loading) {
+  if (loading)
     return (
-      <div className="min-h-screen bg-blue-50 flex items-center justify-center py-4 lg:py-10">
+      <div className="min-h-screen flex items-center justify-center bg-blue-50">
         <div className="text-center">
-          <svg className="animate-spin h-12 w-12 text-blue-600 mx-auto mb-4" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <p className="text-gray-700 text-sm lg:text-lg">Cargando quejas...</p>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <p className="text-gray-500 text-sm lg:text-base">Cargando quejas...</p>
         </div>
       </div>
     );
-  }
 
   return (
     <>
-      <ToastContainer />
-      <div className="mt-34 md:mt-14"></div>
-      <main className="py-4 lg:py-10 bg-blue-50 min-h-screen">
+      <div className="mt-8 md:mt-8"></div>
+
+      <main className="py-6 lg:py-12 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
         <div className="max-w-7xl mx-auto px-3 lg:px-4">
-          {/* Título y descripción */}
-          <div className="text-center mb-6 lg:mb-12">
+          {/* Header */}
+          <div className="text-center mb-6 lg:mb-10">
             <div className="flex items-center justify-center gap-2 lg:gap-3 mb-2 lg:mb-3">
-              <h1 className="text-2xl lg:text-4xl font-bold text-gray-800">
-                Gestión de Quejas y Sugerencias
-              </h1>
+              <h1 className="text-2xl lg:text-4xl font-bold text-gray-800">Gestión de Quejas y Sugerencias</h1>
             </div>
-            <p className="text-xs lg:text-base text-gray-600">
-              Responde y gestiona todas las quejas y sugerencias de los usuarios
-            </p>
+            <p className="text-xs lg:text-base text-gray-600">Responde y gestiona todas las quejas y sugerencias de los usuarios</p>
           </div>
 
-          {/* TABS */}
-          <Tabs>
-            <TabList className="flex border-b-2 border-gray-300 gap-0 overflow-x-auto bg-transparent mb-4 lg:mb-6">
-              <Tab className="flex-1 py-2.5 lg:py-4 px-2 lg:px-6 text-center font-semibold text-xs lg:text-base text-gray-600 cursor-pointer transition-all hover:text-blue-800 focus:outline-none whitespace-nowrap">
-                <div className="flex items-center justify-center gap-1 lg:gap-2">
-                  <Clock className="w-4 h-4 lg:w-5 lg:h-5" />
-                  Pendientes ({totalPendientes})
+          {/* Stats */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-6 mb-6 lg:mb-8">
+            <div className="bg-white rounded-lg lg:rounded-xl shadow-lg p-3 lg:p-6 border border-gray-200">
+              <div className="flex items-center gap-3 lg:gap-4">
+                <div className="bg-blue-100 p-2 lg:p-3 rounded-lg flex-shrink-0">
+                  <MessageSquare className="w-5 h-5 lg:w-6 lg:h-6 text-blue-600" />
                 </div>
-              </Tab>
-              <Tab className="flex-1 py-2.5 lg:py-4 px-2 lg:px-6 text-center font-semibold text-xs lg:text-base text-gray-600 cursor-pointer transition-all hover:text-green-600 focus:outline-none whitespace-nowrap">
-                <div className="flex items-center justify-center gap-1 lg:gap-2">
-                  <CheckCircle className="w-4 h-4 lg:w-5 lg:h-5" />
-                  Resueltos ({totalResueltos})
+                <div className="min-w-0">
+                  <p className="text-xs lg:text-sm text-gray-600">Total</p>
+                  <p className="text-2xl lg:text-3xl font-bold text-gray-800">{quejas.length}</p>
                 </div>
-              </Tab>
-            </TabList>
+              </div>
+            </div>
 
-            {renderQuejasTab('pendiente', 'Pendientes', <Clock className="w-4 h-4 lg:w-5 lg:h-5" />)}
-            {renderQuejasTab('resuelto', 'Resueltos', <CheckCircle className="w-4 h-4 lg:w-5 lg:h-5" />)}
-          </Tabs>
+            <div className="bg-white rounded-lg lg:rounded-xl shadow-lg p-3 lg:p-6 border border-gray-200">
+              <div className="flex items-center gap-3 lg:gap-4">
+                <div className="bg-yellow-100 p-2 lg:p-3 rounded-lg flex-shrink-0">
+                  <Clock className="w-5 h-5 lg:w-6 lg:h-6 text-yellow-600" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs lg:text-sm text-gray-600">Pendientes</p>
+                  <p className="text-2xl lg:text-3xl font-bold text-gray-800">{totalPendientes}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg lg:rounded-xl shadow-lg p-3 lg:p-6 border border-gray-200">
+              <div className="flex items-center gap-3 lg:gap-4">
+                <div className="bg-green-100 p-2 lg:p-3 rounded-lg flex-shrink-0">
+                  <CheckCircle className="w-5 h-5 lg:w-6 lg:h-6 text-green-600" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs lg:text-sm text-gray-600">Resueltos</p>
+                  <p className="text-2xl lg:text-3xl font-bold text-gray-800">{totalResueltos}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Tabs container */}
+          <div className="bg-white rounded-lg lg:rounded-2xl shadow-xl border border-gray-200 p-3 lg:p-6">
+            <Tabs onSelect={() => setCurrentPage(1)}>
+              <TabList className="flex border-b-2 border-gray-200 mb-4 lg:mb-6 gap-1 lg:gap-2 overflow-x-auto">
+                <Tab className="flex-1 min-w-fit py-2 lg:py-3 px-2 lg:px-4 text-center font-semibold text-xs lg:text-sm text-gray-600 cursor-pointer hover:text-blue-600 hover:bg-blue-50 rounded-t-lg transition-colors whitespace-nowrap focus:outline-none focus:ring-0">
+                  <div className="flex items-center justify-center gap-1 lg:gap-2">
+                    <Clock className="w-3 h-3 lg:w-4 lg:h-4" />
+                    <span>Pendientes</span>
+                  </div>
+                </Tab>
+                <Tab className="flex-1 min-w-fit py-2 lg:py-3 px-2 lg:px-4 text-center font-semibold text-xs lg:text-sm text-gray-600 cursor-pointer hover:text-green-600 hover:bg-green-50 rounded-t-lg transition-colors whitespace-nowrap focus:outline-none focus:ring-0">
+                  <div className="flex items-center justify-center gap-1 lg:gap-2">
+                    <CheckCircle className="w-3 h-3 lg:w-4 lg:h-4" />
+                    <span>Resueltos</span>
+                  </div>
+                </Tab>
+              </TabList>
+
+              {renderQuejasTab('pendiente', 'Pendientes', <Clock className="w-4 h-4 lg:w-5 lg:h-5" />)}
+              {renderQuejasTab('resuelto', 'Resueltos', <CheckCircle className="w-4 h-4 lg:w-5 lg:h-5" />)}
+            </Tabs>
+          </div>
         </div>
       </main>
     </>

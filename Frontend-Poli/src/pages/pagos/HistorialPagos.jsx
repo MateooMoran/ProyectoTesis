@@ -3,7 +3,7 @@ import  { useState, useEffect } from 'react';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import { useNavigate } from 'react-router-dom';
-import { toast, ToastContainer } from 'react-toastify';
+import { alert } from '../../utils/alerts';
 import useFetch from '../../hooks/useFetch';
 import storeAuth from '../../context/storeAuth';
 import BotonRecibirProducto from '../../pages/pagos/BotonRecibirProducto';
@@ -26,6 +26,7 @@ import {
     AlertCircle,
     FileCheck
 } from 'lucide-react';
+import getImageUrl from '../../utils/imageSrc';
 
 const HistorialPagos = () => {
     const [orders, setOrders] = useState([]);
@@ -58,7 +59,7 @@ const HistorialPagos = () => {
             setError(null);
         } catch (err) {
             setError(err.message || 'Error al cargar el historial');
-            toast.error(err.message || 'Error al cargar el historial');
+            alert({ icon: 'error', title: err.message || 'Error al cargar el historial' });
         } finally {
             setLoading(false);
         }
@@ -210,7 +211,7 @@ const HistorialPagos = () => {
                                         <div className="p-3 lg:p-4">
                                             <div className="flex items-center gap-2 lg:gap-3 p-2 lg:p-3 bg-gray-50 rounded-lg">
                                                 <img
-                                                    src={order.producto?.imagen || 'https://via.placeholder.com/100'}
+                                                    src={getImageUrl(order.producto)}
                                                     alt={order.producto?.nombreProducto}
                                                     className="w-14 h-14 lg:w-16 lg:h-16 rounded-lg object-cover border border-gray-200 flex-shrink-0"
                                                 />
@@ -220,6 +221,7 @@ const HistorialPagos = () => {
                                                     </p>
                                                     <p className="text-xs text-gray-500">Cantidad: {order.cantidad}</p>
                                                     <p className="text-xs text-gray-500">Precio: ${order.producto?.precio || 0}</p>
+                                                    <p className="text-xs text-gray-500">Orden ID: {order.producto?._id || 0}</p>
                                                 </div>
                                                 <div className="text-right flex-shrink-0">
                                                     <p className="text-xs text-gray-500">Subtotal</p>
@@ -381,7 +383,7 @@ const HistorialPagos = () => {
 
     return (
         <>
-            <ToastContainer />
+            
             <div className="mt-8 sm:mt-10"></div>
 
             <main className="py-4 lg:py-10 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
@@ -395,7 +397,7 @@ const HistorialPagos = () => {
                     </div>
 
                     {/* Estadísticas */}
-                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 lg:gap-4 mb-4 lg:mb-8">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-4 mb-4 lg:mb-8">
                         <div className="bg-white rounded-lg lg:rounded-xl shadow-lg p-3 lg:p-6 border border-gray-200">
                             <div className="flex items-center gap-2 lg:gap-4">
                                 <div className="bg-orange-100 p-2 lg:p-4 rounded-lg flex-shrink-0">
@@ -449,25 +451,25 @@ const HistorialPagos = () => {
                                 <Tab className="flex-1 min-w-fit py-2 lg:py-3 px-2 lg:px-4 text-center font-semibold text-xs lg:text-sm text-gray-600 cursor-pointer hover:text-orange-600 hover:bg-orange-50 rounded-t-lg transition-colors whitespace-nowrap">
                                     <div className="flex items-center justify-center gap-1 lg:gap-2">
                                         <Clock className="w-3 h-3 lg:w-4 lg:h-4" />
-                                        <span>Pendientes ({totalPendientes})</span>
+                                        <span>Pendientes</span>
                                     </div>
                                 </Tab>
                                 <Tab className="flex-1 min-w-fit py-2 lg:py-3 px-2 lg:px-4 text-center font-semibold text-xs lg:text-sm text-gray-600 cursor-pointer hover:text-blue-600 hover:bg-blue-50 rounded-t-lg transition-colors whitespace-nowrap">
                                     <div className="flex items-center justify-center gap-1 lg:gap-2">
                                         <CreditCard className="w-3 h-3 lg:w-4 lg:h-4" />
-                                        <span>Confirmación y Reseña ({totalPagoConfirmado})</span>
+                                        <span>Confirmación y Reseña</span>
                                     </div>
                                 </Tab>
                                 <Tab className="flex-1 min-w-fit py-2 lg:py-3 px-2 lg:px-4 text-center font-semibold text-xs lg:text-sm text-gray-600 cursor-pointer hover:text-emerald-600 hover:bg-emerald-50 rounded-t-lg transition-colors whitespace-nowrap">
                                     <div className="flex items-center justify-center gap-1 lg:gap-2">
                                         <CheckCircle className="w-3 h-3 lg:w-4 lg:h-4" />
-                                        <span>Completadas ({totalCompletadas})</span>
+                                        <span>Completadas</span>
                                     </div>
                                 </Tab>
                                 <Tab className="flex-1 min-w-fit py-2 lg:py-3 px-2 lg:px-4 text-center font-semibold text-xs lg:text-sm text-gray-600 cursor-pointer hover:text-red-600 hover:bg-red-50 rounded-t-lg transition-colors whitespace-nowrap">
                                     <div className="flex items-center justify-center gap-1 lg:gap-2">
                                         <X className="w-3 h-3 lg:w-4 lg:h-4" />
-                                        <span>Canceladas ({totalCanceladas})</span>
+                                        <span>Canceladas</span>
                                     </div>
                                 </Tab>
                             </TabList>

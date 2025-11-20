@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
+import { alert } from '../utils/alerts';
 
 const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -12,21 +12,21 @@ const Register = () => {
         try {
             const url = `${import.meta.env.VITE_BACKEND_URL}/registro`;
             const respuesta = await axios.post(url, data);
-            toast.success(respuesta.data.msg);
+            alert({ icon: 'success', title: respuesta.data.msg });
         } catch (error) {
             if (error.response?.data?.errores && Array.isArray(error.response.data.errores)) {
                 error.response.data.errores.forEach(({ msg }) => {
-                    toast.error(msg);
+                    alert({ icon: 'error', title: msg });
                 });
             } else {
-                toast.error(error.response?.data?.msg || 'Error en el registro');
+                alert({ icon: 'error', title: error.response?.data?.msg || 'Error en el registro' });
             }
         }
     }
 
     return (
         <div className="flex flex-col sm:flex-row h-screen">
-            <ToastContainer />
+            
 
             {/* Contenedor del formulario a la izquierda */}
             <div className="w-full sm:w-1/2 h-screen bg-white flex justify-center items-center px-4 md:px-6 py-6">

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 import useFetch from "../../hooks/useFetch";
-import { toast, ToastContainer } from "react-toastify";
+import { alert } from '../../utils/alerts';
 import {
     ShoppingBag,
     Clock,
@@ -18,6 +18,7 @@ import {
     AlertCircle,
     XCircle
 } from "lucide-react";
+import getImageUrl from '../../utils/imageSrc';
 
 export default function HistorialVentas() {
     const { fetchDataBackend } = useFetch();
@@ -42,7 +43,7 @@ export default function HistorialVentas() {
             } catch (error) {
                 console.error("Error al cargar historial:", error);
                 if (!error.message.includes("No tienes ventas registradas")) {
-                    toast.error("Error al cargar historial de ventas");
+                    alert({ icon: 'error', title: 'Error al cargar historial de ventas' });
                 }
                 setOrdenes([]);
             } finally {
@@ -234,7 +235,7 @@ export default function HistorialVentas() {
                                     <div className="p-3 lg:p-4">
                                         <div className="flex items-center gap-2 lg:gap-3 p-2 lg:p-3 bg-gray-50 rounded-lg">
                                             <img
-                                                src={orden.producto?.imagen || "/placeholder.png"}
+                                                src={getImageUrl(orden.producto)}
                                                 alt={orden.producto?.nombreProducto || "Producto"}
                                                 className="w-14 h-14 lg:w-16 lg:h-16 rounded-lg object-cover border border-gray-200 flex-shrink-0"
                                             />
@@ -242,11 +243,14 @@ export default function HistorialVentas() {
                                                 <p className="font-medium text-xs lg:text-base text-gray-800 truncate">
                                                     {orden.producto?.nombreProducto || "Producto eliminado"}
                                                 </p>
-                                                <p className="text-xs text-gray-500">
+                                                <p className="text-xs text-gray-700">
                                                     Cantidad: {orden.cantidad}
                                                 </p>
-                                                <p className="text-xs text-gray-500">
+                                                <p className="text-xs text-gray-700">
                                                     Precio unitario: ${orden.producto?.precio || 0}
+                                                </p>
+                                                <p className="text-xs text-gray-700">
+                                                    Orden ID:{orden.producto?._id || 0}
                                                 </p>
                                             </div>
                                             <div className="text-right flex-shrink-0">
@@ -387,7 +391,7 @@ export default function HistorialVentas() {
 
     return (
         <>
-            <ToastContainer />
+            
             <div className="mt-30 md:mt-8"></div>
 
             <main className="py-4 lg:py-10 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
@@ -448,19 +452,19 @@ export default function HistorialVentas() {
                                 <Tab className="flex-1 min-w-fit py-2 lg:py-3 px-2 lg:px-4 text-center font-semibold text-xs lg:text-sm text-gray-600 cursor-pointer hover:text-blue-600 hover:bg-blue-50 rounded-t-lg transition-colors whitespace-nowrap">
                                     <div className="flex items-center justify-center gap-1 lg:gap-2">
                                         <ShoppingBag className="w-3 h-3 lg:w-4 lg:h-4" />
-                                        <span>Todas ({stats.total})</span>
+                                        <span>Todas</span>
                                     </div>
                                 </Tab>
                                 <Tab className="flex-1 min-w-fit py-2 lg:py-3 px-2 lg:px-4 text-center font-semibold text-xs lg:text-sm text-gray-600 cursor-pointer hover:text-yellow-600 hover:bg-yellow-50 rounded-t-lg transition-colors whitespace-nowrap">
                                     <div className="flex items-center justify-center gap-1 lg:gap-2">
                                         <Clock className="w-3 h-3 lg:w-4 lg:h-4" />
-                                        <span>Pendientes ({stats.pendientes})</span>
+                                        <span>Pendientes</span>
                                     </div>
                                 </Tab>
                                 <Tab className="flex-1 min-w-fit py-2 lg:py-3 px-2 lg:px-4 text-center font-semibold text-xs lg:text-sm text-gray-600 cursor-pointer hover:text-green-600 hover:bg-green-50 rounded-t-lg transition-colors whitespace-nowrap">
                                     <div className="flex items-center justify-center gap-1 lg:gap-2">
                                         <CheckCircle className="w-3 h-3 lg:w-4 lg:h-4" />
-                                        <span>Confirmadas ({stats.confirmadas})</span>
+                                        <span>Confirmadas</span>
                                     </div>
                                 </Tab>
                             </TabList>

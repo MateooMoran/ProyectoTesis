@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import useFetch from "../../hooks/useFetch";
-import { ToastContainer, toast } from 'react-toastify';
+import { alert } from '../../utils/alerts';
 import { Users, Filter, ChevronLeft, ChevronRight, CheckCircle, XCircle } from "lucide-react";
 
 function GestionarUsuario() {
@@ -28,7 +28,7 @@ function GestionarUsuario() {
                 setUsuarios(response);
                 setCurrentPage(1);
             } catch (err) {
-                toast.error('Error al cargar usuarios');
+                alert({ icon: 'error', title: 'Error al cargar usuarios' });
             } finally {
                 setLoading(false);
             }
@@ -58,7 +58,7 @@ function GestionarUsuario() {
                 )
             );
         } catch (err) {
-            toast.error('Error al actualizar rol');
+            alert({ icon: 'error', title: 'Error al actualizar rol' });
         }
     };
 
@@ -70,6 +70,10 @@ function GestionarUsuario() {
     const indexPrimerUsuario = indexUltimoUsuario - usuariosPorPagina;
     const usuariosActuales = usuariosFiltrados.slice(indexPrimerUsuario, indexUltimoUsuario);
     const totalPaginas = Math.ceil(usuariosFiltrados.length / usuariosPorPagina);
+
+    const totalUsers = usuarios.length;
+    const totalActive = usuarios.filter(u => u.estado).length;
+    const totalInactive = totalUsers - totalActive;
 
     const handlePageChange = (nuevaPagina) => {
         if (nuevaPagina >= 1 && nuevaPagina <= totalPaginas) {
@@ -92,9 +96,9 @@ function GestionarUsuario() {
     }
     return (
         <>
-            <ToastContainer />
-            <div className="mt-30 md:mt-12"></div>
-            <main className="py-4 lg:py-10 bg-blue-50 min-h-screen">
+      
+            <div className="mt-8 md:mt-8"></div>
+            <main className="py-6 lg:py-12 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
                 <div className="max-w-7xl mx-auto px-3 lg:px-4">
                     {/* Título y descripción */}
                     <div className="text-center mb-6 lg:mb-5">
@@ -106,6 +110,45 @@ function GestionarUsuario() {
                         <p className="text-xs lg:text-base text-gray-600">
                             Administra los usuarios y roles del sistema
                         </p>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-6 mb-6 lg:mb-8">
+                        <div className="bg-white rounded-lg lg:rounded-xl shadow-lg p-3 lg:p-6 border border-gray-200">
+                            <div className="flex items-center gap-3 lg:gap-4">
+                                <div className="bg-blue-100 p-2 lg:p-3 rounded-lg flex-shrink-0">
+                                    <Users className="w-5 h-5 lg:w-6 lg:h-6 text-blue-600" />
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-xs lg:text-sm text-gray-600">Total</p>
+                                    <p className="text-2xl lg:text-3xl font-bold text-gray-800">{totalUsers}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-lg lg:rounded-xl shadow-lg p-3 lg:p-6 border border-gray-200">
+                            <div className="flex items-center gap-3 lg:gap-4">
+                                <div className="bg-green-100 p-2 lg:p-3 rounded-lg flex-shrink-0">
+                                    <CheckCircle className="w-5 h-5 lg:w-6 lg:h-6 text-green-600" />
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-xs lg:text-sm text-gray-600">Activos</p>
+                                    <p className="text-2xl lg:text-3xl font-bold text-gray-800">{totalActive}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-lg lg:rounded-xl shadow-lg p-3 lg:p-6 border border-gray-200">
+                            <div className="flex items-center gap-3 lg:gap-4">
+                                <div className="bg-red-100 p-2 lg:p-3 rounded-lg flex-shrink-0">
+                                    <XCircle className="w-5 h-5 lg:w-6 lg:h-6 text-red-600" />
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-xs lg:text-sm text-gray-600">Inactivos</p>
+                                    <p className="text-2xl lg:text-3xl font-bold text-gray-800">{totalInactive}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {usuarios.length === 0 ? (

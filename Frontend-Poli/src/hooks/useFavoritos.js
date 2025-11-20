@@ -6,7 +6,7 @@ const useFavoritos = () => {
     const [favoritos, setFavoritos] = useState([]);
     const [favoritosIds, setFavoritosIds] = useState(new Set());
     const [loading, setLoading] = useState(true);
-    const { token } = storeAuth();
+    const { token, rol } = storeAuth();
     const { fetchDataBackend } = useFetch();
 
     // Cargar favoritos al inicio
@@ -14,7 +14,8 @@ const useFavoritos = () => {
         const cargarFavoritos = async () => {
             setLoading(true);
             try {
-                if (token) {
+                // Solo cargar favoritos desde backend si es estudiante autenticado
+                if (token && rol === 'estudiante') {
                     const data = await fetchDataBackend(
                         `${import.meta.env.VITE_BACKEND_URL}/estudiante/favoritos`,
                         {
@@ -36,7 +37,7 @@ const useFavoritos = () => {
         };
 
         cargarFavoritos();
-    }, [token]);
+    }, [token, rol]);
 
     // Verificar si un producto está en favoritos
     const esFavorito = useCallback(
@@ -46,7 +47,8 @@ const useFavoritos = () => {
 
     // Agregar o quitar favorito
     const toggleFavorito = async productoId => {
-        if (token) {
+        // Backend favorites only for authenticated estudiantes
+        if (token && rol === 'estudiante') {
             try {
                 await fetchDataBackend(
                     `${import.meta.env.VITE_BACKEND_URL}/estudiante/favorito/${productoId}`,
@@ -69,7 +71,7 @@ const useFavoritos = () => {
             } catch (err) {
                 console.error('Error al actualizar favorito:', err);
             }
-        } else {
+        } else if (!token) {
             let localFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
             const index = localFavs.indexOf(productoId);
 
@@ -78,12 +80,15 @@ const useFavoritos = () => {
 
             localStorage.setItem('favorites', JSON.stringify(localFavs));
             setFavoritosIds(new Set(localFavs));
+        } else {
+            // usuario autenticado pero no estudiante: no-op
+            return;
         }
     };
 
     // Eliminar un favorito específico
     const eliminarFavorito = async productoId => {
-        if (token) {
+        if (token && rol === 'estudiante') {
             try {
                 await fetchDataBackend(
                     `${import.meta.env.VITE_BACKEND_URL}/estudiante/favorito/${productoId}`,
@@ -102,17 +107,20 @@ const useFavoritos = () => {
             } catch (err) {
                 console.error('Error al eliminar favorito:', err);
             }
-        } else {
+        } else if (!token) {
             let localFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
             localFavs = localFavs.filter(id => id !== productoId);
             localStorage.setItem('favorites', JSON.stringify(localFavs));
             setFavoritosIds(new Set(localFavs));
+        } else {
+            // usuario autenticado pero no estudiante: no-op
+            return;
         }
     };
 
     // Vaciar todos los favoritos
     const vaciarFavoritos = async () => {
-        if (token) {
+        if (token && rol === 'estudiante') {
             try {
                 await fetchDataBackend(
                     `${import.meta.env.VITE_BACKEND_URL}/estudiante/favoritos`,
@@ -126,17 +134,20 @@ const useFavoritos = () => {
             } catch (err) {
                 console.error('Error al vaciar favoritos:', err);
             }
-        } else {
+        } else if (!token) {
             localStorage.removeItem('favorites');
             setFavoritos([]);
             setFavoritosIds(new Set());
+        } else {
+            // usuario autenticado pero no estudiante: no-op
+            return;
         }
     };
 
     // Recargar favoritos manualmente
     const recargarFavoritos = async () => {
         try {
-            if (token) {
+            if (token && rol === 'estudiante') {
                 const data = await fetchDataBackend(
                     `${import.meta.env.VITE_BACKEND_URL}/estudiante/favoritos`,
                     {
@@ -146,9 +157,12 @@ const useFavoritos = () => {
                 );
                 setFavoritos(data.favoritos || []);
                 setFavoritosIds(new Set((data.favoritos || []).map(f => f._id)));
-            } else {
+            } else if (!token) {
                 const localFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
                 setFavoritosIds(new Set(localFavs));
+            } else {
+                // usuario autenticado pero no estudiante: no-op
+                return;
             }
         } catch (err) {
             console.error('Error al recargar favoritos:', err);

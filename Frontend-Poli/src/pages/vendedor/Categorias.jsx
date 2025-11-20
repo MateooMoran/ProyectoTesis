@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Trash2, PlusCircle, ChevronLeft, ChevronRight } from "lucide-react";
-import { toast, ToastContainer } from "react-toastify";
+import { alert } from '../../utils/alerts';
 import { useForm } from "react-hook-form";
 import useFetch from "../../hooks/useFetch";
 import Header from "../../layout/Header";
@@ -31,7 +31,7 @@ export default function Categorias() {
       });
       setCategorias(data);
     } catch {
-      toast.error("Error al cargar categorías");
+      alert({ icon: 'error', title: 'Error al cargar categorías' });
     } finally {
       setLoading(false);
     }
@@ -89,7 +89,7 @@ export default function Categorias() {
 
   return (
     <>
-      <ToastContainer position="top-right" autoClose={3000} />
+      
       <Header />
       <div className="h-15 sm:h-7 mb-10" />
 

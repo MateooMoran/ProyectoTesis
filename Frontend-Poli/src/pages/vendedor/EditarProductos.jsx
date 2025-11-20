@@ -2,6 +2,7 @@ import React from "react";
 import { Trash2, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Header from '../../layout/Header';
+import getImageUrl from '../../utils/imageSrc';
 
 function EditarProductos({ productos, loading, onDelete }) {
     const navigate = useNavigate();
@@ -36,7 +37,7 @@ function EditarProductos({ productos, loading, onDelete }) {
                         >
                             {(p.imagenIA || p.imagen) && (
                                 <img
-                                    src={p.imagenIA || p.imagen}
+                                    src={getImageUrl(p)}
                                     alt={p.nombreProducto}
                                     className="w-full h-48 object-cover rounded-md mb-4"
                                 />

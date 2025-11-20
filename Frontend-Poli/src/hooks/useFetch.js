@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import { alert } from '../utils/alerts';
 
 function useFetch() {
   const fetchDataBackend = async (url, options = {}) => {
@@ -31,18 +31,18 @@ function useFetch() {
           throw new Error(`Método ${method} no soportado`);
       }
 
-      if (respuesta?.data?.msg) toast.success(respuesta.data.msg);
+      if (respuesta?.data?.msg) alert({ icon: 'success', title: respuesta.data.msg });
       return respuesta?.data;
 
     } catch (error) {
-      if (error.response?.data?.errores && Array.isArray(error.response.data.errores)) {
-        error.response.data.errores.forEach(({ msg }) => toast.error(msg));
+        if (error.response?.data?.errores && Array.isArray(error.response.data.errores)) {
+        error.response.data.errores.forEach(({ msg }) => alert({ icon: 'error', title: msg }));
         throw new Error('Errores en el formulario');
       }
 
       // Manejo del mensaje único de error
       const errorMsg = error.response?.data?.msg || 'Error desconocido';
-      toast.error(errorMsg);
+      alert({ icon: 'error', title: errorMsg });
       throw new Error(errorMsg);
     }
   };

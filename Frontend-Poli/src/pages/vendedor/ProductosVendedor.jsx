@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Trash2, PlusCircle, Pencil, Package, Image as ImageIcon } from "lucide-react";
-import { toast, ToastContainer } from "react-toastify";
+import { alert } from '../../utils/alerts';
+import getImageUrl from '../../utils/imageSrc';
 import useFetch from '../../hooks/useFetch';
 import { generateAvatar, convertBlobToBase64 } from "../../helpers/ConsultarAI";
 
@@ -66,8 +67,8 @@ export default function ProductosVendedor() {
                     config: { headers },
                 });
                 setCategorias(catData);
-            } catch (error) {
-                toast.error("Error al cargar categorías");
+                } catch (error) {
+                alert({ icon: 'error', title: 'Error al cargar categorías' });
             } finally {
                 setLoadingCategorias(false);
             }
@@ -90,7 +91,7 @@ export default function ProductosVendedor() {
 
     const generarImagenIA = async () => {
         if (!promptIA.trim()) {
-            toast.error("Debes ingresar un prompt para generar la imagen");
+            alert({ icon: 'error', title: 'Debes ingresar un prompt para generar la imagen' });
             return;
         }
         setGenerandoIA(true);
@@ -100,10 +101,10 @@ export default function ProductosVendedor() {
             const blob = await generateAvatar(promptIA);
             const base64 = await convertBlobToBase64(blob);
             setImagenIA(base64);
-            toast.success("Imagen IA generada");
+            alert({ icon: 'success', title: 'Imagen IA generada' });
         } catch (error) {
             console.error(error);
-            toast.error("Error al generar imagen IA");
+            alert({ icon: 'error', title: 'Error al generar imagen IA' });
         } finally {
             setGenerandoIA(false);
         }
@@ -135,11 +136,11 @@ export default function ProductosVendedor() {
             !form.descripcion.trim() ||
             !form.categoria
         ) {
-            toast.error("Todos los campos son obligatorios");
+            alert({ icon: 'error', title: 'Todos los campos son obligatorios' });
             return;
         }
         if (Number(form.precio) < 0 || Number(form.stock) < 0) {
-            toast.error("Precio y stock deben ser positivos");
+            alert({ icon: 'error', title: 'Precio y stock deben ser positivos' });
             return;
         }
 
@@ -211,7 +212,7 @@ export default function ProductosVendedor() {
         setImagenIA("");
         setPromptIA("");
         setPreviewUrl("");
-        setCurrentImage(p.imagenIA || p.imagen || "");
+        setCurrentImage(getImageUrl(p));
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -224,15 +225,15 @@ export default function ProductosVendedor() {
                 config: { headers },
             });
             setProductos(productos.filter((p) => p._id !== id));
-            toast.success("Producto eliminado");
+            alert({ icon: 'success', title: 'Producto eliminado' });
         } catch {
-            toast.error("Error al eliminar producto");
+            alert({ icon: 'error', title: 'Error al eliminar producto' });
         }
     };
 
     return (
         <>
-            <ToastContainer />
+            
             <div className="mt-35 md:mt-18"></div>
             <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
                 <div className="max-w-7xl mx-auto px-4">
@@ -378,7 +379,9 @@ export default function ProductosVendedor() {
                                                 Vista Previa
                                             </label>
                                             <img
-                                                src={imagenIA || previewUrl || currentImage}
+                                                src={
+                                                    imagenIA || previewUrl || currentImage || '/placeholder.png'
+                                                }
                                                 alt="Preview"
                                                 className="w-full h-40 object-cover rounded-lg border-2 border-gray-200"
                                             />
@@ -442,9 +445,9 @@ export default function ProductosVendedor() {
                                                 className="bg-white rounded-lg lg:rounded-xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 overflow-hidden group"
                                             >
                                                 <div className="relative">
-                                                    {(p.imagenIA || p.imagen) ? (
+                                                        {(p.imagenIA || p.imagen) ? (
                                                         <img
-                                                            src={p.imagenIA || p.imagen}
+                                                            src={getImageUrl(p)}
                                                             alt={p.nombreProducto}
                                                             className="w-full h-32 lg:h-40 object-cover"
                                                         />

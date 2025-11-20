@@ -5,6 +5,7 @@ import { FaTrash, FaEye } from 'react-icons/fa';
 import useFavoritos from '../../hooks/useFavoritos';
 import storeProductos from '../../context/storeProductos';
 import storeAuth from '../../context/storeAuth';
+import getImageUrl from '../../utils/imageSrc';
 import { Heart } from 'lucide-react';
 
 const Favoritos = () => {
@@ -106,11 +107,11 @@ const Favoritos = () => {
                                 >
                                     {/* Imagen */}
                                     <div className="relative">
-                                        <img
-                                            src={producto.imagen}
-                                            alt={producto.nombreProducto}
-                                            className="w-28 h-28 object-cover rounded-xl border-2 border-gray-200 group-hover:border-blue-400 transition-all"
-                                        />
+                                                                                        <img
+                                                                                            src={getImageUrl(producto)}
+                                                                                            alt={producto.nombreProducto}
+                                                                                            className="w-28 h-28 object-cover rounded-xl border-2 border-gray-200 group-hover:border-blue-400 transition-all"
+                                                                                        />
                                         {/* Badge de estado en la imagen */}
                                         <span className={`absolute -top-2 -right-2 text-xs font-bold px-2 py-1 rounded-full shadow-md
                                             ${producto.estado === 'disponible'

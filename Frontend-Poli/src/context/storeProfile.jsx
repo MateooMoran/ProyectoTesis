@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import { alert } from '../utils/alerts';
 import storeAuth from '../context/storeAuth';
 
 const storeProfile = create(
@@ -44,18 +44,18 @@ const storeProfile = create(
           });
 
           set({ user: respuesta.data });
-          toast.success('Actualizado correctamente');
+          alert({ icon: 'success', title: 'Actualizado correctamente' });
           return respuesta.data;
         } catch (error) {
           if (error.response?.data?.errores && Array.isArray(error.response.data.errores)) {
-            error.response.data.errores.forEach(({ msg }) => toast.error(msg));
+            error.response.data.errores.forEach(({ msg }) => alert({ icon: 'error', title: msg }));
             throw new Error('Errores en el formulario');
           }
           else if (error.response?.data?.msg) {
-            toast.error(error.response.data.msg);
+            alert({ icon: 'error', title: error.response.data.msg });
           }
           else {
-            toast.error('Error al actualizar el perfil');
+            alert({ icon: 'error', title: 'Error al actualizar el perfil' });
           }
           throw error;
         }
@@ -73,16 +73,16 @@ const storeProfile = create(
             },
           });
 
-          toast.success('Actualizado correctamente');
+          alert({ icon: 'success', title: 'Actualizado correctamente' });
           return respuesta.data;
         } catch (error) {
           if (error.response?.data?.errores && Array.isArray(error.response.data.errores)) {
-            error.response.data.errores.forEach(({ msg }) => toast.error(msg));
+            error.response.data.errores.forEach(({ msg }) => alert({ icon: 'error', title: msg }));
             throw new Error('Errores en el formulario');
           } else if (error.response?.data?.msg) {
-            toast.error(error.response.data.msg);
+            alert({ icon: 'error', title: error.response.data.msg });
           } else {
-            toast.error('Error al actualizar la contraseña');
+            alert({ icon: 'error', title: 'Error al actualizar la contraseña' });
           }
           throw error;
         }

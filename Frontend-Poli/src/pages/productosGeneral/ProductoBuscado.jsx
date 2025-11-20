@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import getImageUrl from '../../utils/imageSrc';
 import useFetch from '../../hooks/useFetch';
 import Header from '../../layout/Header';
 import Footer from '../../layout/Footer';
@@ -119,11 +119,11 @@ const ProductosBuscados = () => {
                       {/* IMAGEN */}
                       <div className="relative mb-3">
                         <Link to={`/productos/${producto._id}`} className="block">
-                          <img
-                            src={producto.imagen || '/placeholder.jpg'}
-                            alt={producto.nombreProducto}
-                            className="w-full h-48 object-contain rounded-md hover:shadow-md transition-shadow duration-300"
-                          />
+                            <img
+                              src={getImageUrl(producto)}
+                              alt={producto.nombreProducto}
+                              className="w-full h-40 object-contain rounded-md hover:shadow-md transition-shadow duration-300"
+                            />
                         </Link>
 
                         {producto.stock <= 5 && (

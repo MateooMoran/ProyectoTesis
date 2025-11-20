@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { alert } from '../../utils/alerts';
 import { CreditCard, QrCode, DollarSign, Plus, Trash2, Save, Eye, X, MapPin } from 'lucide-react';
 import storeAuth from '../../context/storeAuth';
 
@@ -67,7 +66,7 @@ const MetodoPagoVendedorForm = () => {
             if (tipoSeleccionado === 'transferencia') {
                 endpoint = '/vendedor/pago/transferencia';
                 if (!formData.banco || !formData.numeroCuenta || !formData.titular || !formData.cedula) {
-                    toast.error('Todos los campos son obligatorios');
+                    alert({ icon: 'error', title: 'Todos los campos son obligatorios' });
                     setGuardando(false);
                     return;
                 }
@@ -84,8 +83,8 @@ const MetodoPagoVendedorForm = () => {
                 body = new FormData();
                 if (qrFile?.[0]) {
                     body.append('comprobante', qrFile[0]);
-                } else {
-                    toast.error('Debes subir una imagen QR');
+                    } else {
+                    alert({ icon: 'error', title: 'Debes subir una imagen QR' });
                     setGuardando(false);
                     return;
                 }
@@ -96,8 +95,8 @@ const MetodoPagoVendedorForm = () => {
                     .map(l => l.lugar)
                     .filter(l => l?.trim());
 
-                if (lugares.length === 0) {
-                    toast.error('Debes agregar al menos un lugar de retiro');
+                    if (lugares.length === 0) {
+                    alert({ icon: 'error', title: 'Debes agregar al menos un lugar de retiro' });
                     setGuardando(false);
                     return;
                 }
@@ -114,23 +113,23 @@ const MetodoPagoVendedorForm = () => {
 
             const data = await res.json();
 
-            if (!res.ok) {
+                if (!res.ok) {
                 if (Array.isArray(data.errores) && data.errores.length > 0) {
-                    data.errores.forEach(err => toast.error(err.msg));
+                    data.errores.forEach(err => alert({ icon: 'error', title: err.msg }));
                 } else {
-                    toast.error(data.msg || 'Error al guardar el método de pago');
+                    alert({ icon: 'error', title: data.msg || 'Error al guardar el método de pago' });
                 }
                 setGuardando(false);
                 return;
             }
 
-            toast.success('Método de pago guardado correctamente');
+            alert({ icon: 'success', title: 'Método de pago guardado correctamente' });
             reset();
             cargarMetodos();
 
         } catch (err) {
             console.error(err);
-            toast.error('Error de conexión');
+            alert({ icon: 'error', title: 'Error de conexión' });
         } finally {
             setGuardando(false);
         }
@@ -144,7 +143,7 @@ const MetodoPagoVendedorForm = () => {
 
     return (
         <>
-            <ToastContainer />
+            
             <div className="mt-24 md:mt-10"></div>
 
             <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-4 lg:py-8 px-4">
@@ -204,7 +203,7 @@ const MetodoPagoVendedorForm = () => {
                                                 }}
                                                 className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg transition flex items-center justify-center gap-2 text-sm font-medium shadow"
                                             >
-                                                <Eye size={16} /> Ver Método Guardado
+                                                <Eye size={16} /> Ver Método 
                                             </button>
                                         )}
                                     </div>

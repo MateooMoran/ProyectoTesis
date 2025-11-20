@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { toast } from 'react-toastify';
+import { alert } from '../../utils/alerts';
 import { Loader2, X } from 'lucide-react';
 import storeAuth from '../../context/storeAuth';
 
@@ -33,14 +33,14 @@ const BotonCancelarOrden = ({ ordenId, onSuccess }) => {
                 throw new Error(data.msg || 'Error al cancelar la orden');
             }
 
-            toast.success('Orden cancelada correctamente');
+            alert({ icon: 'success', title: 'Orden cancelada correctamente' });
 
             // Llamar al callback para refrescar la lista
             if (onSuccess) {
                 onSuccess();
             }
         } catch (error) {
-            toast.error(error.message || 'Error al cancelar la orden');
+            alert({ icon: 'error', title: error.message || 'Error al cancelar la orden' });
         } finally {
             setLoading(false);
         }

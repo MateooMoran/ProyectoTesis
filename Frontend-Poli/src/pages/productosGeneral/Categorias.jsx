@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { toast } from '../../utils/alerts';
 import useFetch from '../../hooks/useFetch';
 import storeAuth from '../../context/storeAuth';
 import Slider from 'react-slick';
@@ -9,16 +9,18 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Header from '../../layout/Header';
 import Footer from '../../layout/Footer';
+import getImageUrl from '../../utils/imageSrc';
 
 // HOOK DE FAVORITOS
 const useFavorites = () => {
   const [favorites, setFavorites] = useState([]);
-  const { token } = storeAuth();
+  const { token, rol } = storeAuth();
   const { fetchDataBackend } = useFetch();
 
   useEffect(() => {
     const loadFavorites = async () => {
-      if (token) {
+      // Favoritos sólo para estudiantes autenticados
+      if (token && rol === 'estudiante') {
         try {
           const data = await fetchDataBackend(`${import.meta.env.VITE_BACKEND_URL}/estudiante/favoritos`, {
             method: 'GET',
@@ -26,16 +28,20 @@ const useFavorites = () => {
           });
           setFavorites(data.favoritos || []);
         } catch { }
-      } else {
+      } else if (!token) {
         const localFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
         setFavorites(localFavs);
+      } else {
+        // usuario autenticado pero no estudiante (ej. vendedor/admin): no favorites
+        setFavorites([]);
       }
     };
     loadFavorites();
-  }, [token]);
+  }, [token, rol]);
 
   const toggleFavorite = async (productId) => {
-    if (token) {
+    // Only call backend for estudiantes
+    if (token && rol === 'estudiante') {
       try {
         const response = await fetchDataBackend(`${import.meta.env.VITE_BACKEND_URL}/estudiante/favorito/${productId}`, {
           method: 'PATCH',
@@ -51,10 +57,8 @@ const useFavorites = () => {
       let localFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
       if (localFavs.includes(productId)) {
         localFavs = localFavs.filter(id => id !== productId);
-        toast.success('Producto removido de favoritos');
       } else {
         localFavs.push(productId);
-        toast.success('Producto agregado a favoritos');
       }
       localStorage.setItem('favorites', JSON.stringify(localFavs));
       setFavorites(localFavs);
@@ -62,11 +66,12 @@ const useFavorites = () => {
   };
 
   const isFavorite = (productId) => {
-    if (token) {
+    if (token && rol === 'estudiante') {
       return favorites.some(fav => fav._id === productId);
-    } else {
+    } else if (!token) {
       return favorites.includes(productId);
     }
+    return false;
   };
 
   return { favorites, isFavorite, toggleFavorite, token };
@@ -158,7 +163,6 @@ const CategoriaProductos = () => {
 
   const handleClickProducto = (producto) => {
     navigate(getProductoLink(producto._id));
-    toast.success(`Producto ${producto.nombreProducto} seleccionado`);
   };
 
   return (
@@ -188,7 +192,7 @@ const CategoriaProductos = () => {
                         {/* IMAGEN */}
                         <Link to={getProductoLink(producto._id)} className="block mb-2 lg:mb-3 flex-shrink-0">
                           <img
-                            src={producto.imagen}
+                            src={getImageUrl(producto) }
                             alt={producto.nombreProducto}
                             className="w-full h-32 lg:h-48 object-contain rounded-md hover:shadow-md transition-shadow duration-300"
                           />

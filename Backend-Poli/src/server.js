@@ -37,6 +37,8 @@ cloudinary.config({
 app.use(fileUpload({
     useTempFiles: true,
     tempFileDir: './uploads',
+    // Permitir archivos grandes (ajusta según tus necesidades)
+    limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB
 }))
 
 // CONFIGURAMOS
@@ -45,7 +47,9 @@ app.set('port', process.env.port || 3000)
 app.use(cors())
 
 //MIDDLEWARES
-app.use(express.json())
+// Aumentar límites para JSON y urlencoded en caso de que se envíen imágenes en base64
+app.use(express.json({ limit: '10mb' }))
+app.use(express.urlencoded({ limit: '10mb', extended: true }))
 
 
 //rutas

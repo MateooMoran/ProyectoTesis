@@ -1,10 +1,10 @@
 import logoReset from '../assets/reset.webp';
-import { ToastContainer, toast } from 'react-toastify';
+import { alert } from '../utils/alerts';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import useFetch from '../hooks/useFetch';
 import { useForm } from 'react-hook-form';
-import 'react-toastify/dist/ReactToastify.css';
+// react-toastify styles removed; using SweetAlert2 helper instead
 
 const Reset = () => {
     const { token } = useParams();
@@ -25,15 +25,7 @@ const Reset = () => {
 
         // Validar la longitud de la contraseña
         if (password.length < 4) {
-            toast.error('La contraseña debe tener al menos 4 caracteres.', {
-                position: 'top-right',
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
+            alert({ icon: 'error', title: 'La contraseña debe tener al menos 4 caracteres.' });
             return;
         }
 
@@ -67,7 +59,6 @@ const Reset = () => {
 
     return (
         <div className="flex flex-col items-center justify-center h-screen bg-blue-50 px-4">
-            <ToastContainer />
 
             <h1 className="text-3xl font-semibold mb-2 text-center uppercase text-blue-900">
                 Restablecer Contraseña

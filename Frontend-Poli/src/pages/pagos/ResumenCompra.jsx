@@ -1,4 +1,5 @@
 import { Package, CheckCircle } from 'lucide-react';
+import getImageUrl from '../../utils/imageSrc';
 
 const ResumenCompra = ({ producto, cantidad, total, currentStep, onCantidadChange }) => {
     if (!producto) return null;
@@ -14,7 +15,7 @@ const ResumenCompra = ({ producto, cantidad, total, currentStep, onCantidadChang
             </div>
             
             <img
-                src={producto.imagen || '/placeholder.jpg'}
+                src={getImageUrl(producto)}
                 alt={producto.nombreProducto}
                 className="w-full h-48 object-cover rounded-lg mb-4"
             />
