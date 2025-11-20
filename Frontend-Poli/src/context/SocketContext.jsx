@@ -137,7 +137,12 @@ export const SocketProvider = ({ children }) => {
       
       if (response.ok) {
         const data = await response.json();
-        const notificaciones = Array.isArray(data) ? data : (data.notificaciones || []);
+        // El backend puede devolver { data: [...] } o directamente un array
+        const notificaciones = Array.isArray(data)
+          ? data
+          : Array.isArray(data.data)
+            ? data.data
+            : (data.notificaciones || []);
         const noLeidas = notificaciones.filter(n => !n.leido).length;
         setContadorNotificaciones(noLeidas);
       }

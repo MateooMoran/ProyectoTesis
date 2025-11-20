@@ -4,7 +4,7 @@ import { tieneRol } from "../middlewares/roles.js";
 import { buscarEstudiantePorNombre } from "../controllers/servicios/estudiantesController.js";
 import { conversacionLectura, crearObtenerConversacion, eliminarConversacion, obtenerConversacionesRecientes, obtenerContadorMensajesNoLeidos } from "../controllers/servicios/conversacionController.js";
 import { eliminarMensaje, enviarMensajeImagen, enviarMensajeTexto, marcarMensajesLeidos, obtenerMensajes } from "../controllers/servicios/mensajesController.js";
-import { eliminarNotificacion, eliminarTodasNotificaciones, listarNotificaciones, marcarNotificacionLeida } from "../controllers/servicios/notificacionesController.js";
+import { eliminarNotificacion, eliminarTodasNotificaciones, listarNotificaciones, marcarNotificacionLeida, marcarTodasNotificaciones } from "../controllers/servicios/notificacionesController.js";
 import { callbackGoogle, loginGoogle, logout, obtenerUsuario } from "../controllers/servicios/authController.js";
 
 const router = Router();
@@ -29,6 +29,7 @@ router.put('/servicios/chat/mensajes/:conversacionId/leer', verifyTokenJWT, tien
 // RUTA PARA NOTIFICACIONES
 router.get('/notificaciones', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), listarNotificaciones);
 router.put('/notificaciones/leida/:id', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), marcarNotificacionLeida);
+router.put('/notificaciones/marcar-todas', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), marcarTodasNotificaciones);
 router.delete('/notificaciones/:id', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), eliminarNotificacion);
 router.delete('/notificaciones', verifyTokenJWT, tieneRol('estudiante', 'admin', 'vendedor'), eliminarTodasNotificaciones)
 

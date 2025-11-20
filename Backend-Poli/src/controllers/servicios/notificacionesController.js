@@ -85,3 +85,23 @@ export const eliminarTodasNotificaciones = async (req, res) => {
     res.status(500).json({ msg: "Error del servidor de notificaciones" });
   }
 };
+
+// Marcar todas las notificaciones del usuario como leídas
+export const marcarTodasNotificaciones = async (req, res) => {
+  try {
+    const usuarioId = req.estudianteBDD._id;
+
+    const resultado = await Notificacion.updateMany(
+      { usuario: usuarioId, leido: false },
+      { $set: { leido: true } }
+    );
+
+    res.status(200).json({
+      msg: `Se marcaron ${resultado.modifiedCount || resultado.nModified || 0} notificaciones como leídas`,
+      modifiedCount: resultado.modifiedCount || resultado.nModified || 0
+    });
+  } catch (error) {
+    console.error("Error marcando todas las notificaciones:", error);
+    res.status(500).json({ msg: "Error del servidor de notificaciones" });
+  }
+};

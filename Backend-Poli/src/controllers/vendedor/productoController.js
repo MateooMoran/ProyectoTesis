@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import fs from 'fs-extra';
 import { generarEmbedding } from "../../utils/embeddings.js";
 import Categoria from "../../models/Categoria.js";
+import Orden from "../../models/Orden.js";
 
 // Helper para eliminar archivos temporales
 const safeUnlink = async (path) => {
@@ -196,15 +197,21 @@ export const eliminarProducto = async (req, res) => {
     const producto = await Producto.findOne({ _id: id, vendedor: req.estudianteBDD._id });
     if (!producto) return res.status(404).json({ msg: "Producto no encontrado o sin autorización para eliminar" });
 
-    try {
-      if (producto.imagenID) {
-        await cloudinary.uploader.destroy(producto.imagenID, { resource_type: 'image' });
-      }
-    } catch (err) {
-      console.warn(`No se pudo eliminar asset Cloudinary ${producto.imagenID}:`, err.message || err);
+    // Verificar órdenes relacionadas al producto
+    const ordenes = await Orden.find({ producto: producto._id }).select('estado');
+
+    // Si existe alguna orden cuyo estado no sea 'completada', denegar eliminación
+    const existeNoCompletada = ordenes.some(o => o.estado !== 'completada');
+    if (existeNoCompletada) {
+      return res.status(400).json({ msg: "No se puede eliminar el producto porque existen órdenes no completadas" });
     }
 
-    await producto.deleteOne();
+    // Soft-delete: marcar como inactivo y eliminado por vendedor, no eliminar físicamente ni assets
+    producto.activo = false;
+    producto.eliminadoPorVendedor = true;
+    producto.estado = "no disponible";
+
+    await producto.save();
 
     return res.status(200).json({ msg: "Producto eliminado correctamente" });
   } catch (error) {

@@ -1,6 +1,7 @@
 import { check } from 'express-validator';
 
-const textoValidoRegex = /^(?!.*([a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ])\1{3,})[a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ\s.,;:!?-]+$/;
+const textoValidoRegex =
+/^(?!.*([a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ])\1{3,})[a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ\s.,;:!?-\u{1F300}-\u{1FAFF}\u{1F1E0}-\u{1F1FF}]+$/u;
 
 export const quejasValidations = [
   check('tipo')

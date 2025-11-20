@@ -1,7 +1,7 @@
 import { check } from "express-validator";
 
-const textoValidoRegex =
-  /^(?!.*([a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ])\1{3,})[a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ\s.,;:!?()'"-]*$/;
+const textoValidoConEmojisRegex =
+  /^(?!.*([a-zA-Z0-9\u00C0-\u024F\u1E00-\u1EFF\u{1F300}-\u{1FAFF}])\1{3,})[\p{L}\p{N}\p{Emoji}\s.,;:!?()'"-\u{1F300}-\u{1FAFF}]+$/u;
 
 export const resenaValidations = [
   check("productoId")
@@ -13,29 +13,29 @@ export const resenaValidations = [
     .isInt({ min: 1, max: 5 }).withMessage("Las estrellas deben estar entre 1 y 5"),
 
   check("comentario")
-    .optional({ nullable: true })
+    .notEmpty().withMessage("El comentario es obligatorio")
     .trim()
     .custom((value) => {
-      if (!value) return true;
+      const texto = value.trim();
 
-      if (value.trim().length === 0) {
+      if (texto.length === 0) {
         throw new Error("El comentario no puede estar vacío");
       }
 
-      if (/^\d+$/.test(value.trim())) {
+      if (/^\d+$/.test(texto)) {
         throw new Error("El comentario no puede contener solo números");
       }
 
-      if (/^[^\p{L}\p{N}]+$/u.test(value.trim())) {
+      if (/^[^\p{L}\p{N}\p{Emoji}]+$/u.test(texto)) {
         throw new Error("El comentario debe contener texto válido");
       }
 
-      if (value.trim().length > 250) {
-        throw new Error("El comentario no puede superar los 250 caracteres");
+      if (texto.length > 100) {
+        throw new Error("El comentario no puede superar los 100 caracteres");
       }
 
-      if (!textoValidoRegex.test(value.trim())) {
-        throw new Error("El comentario contiene caracteres inválidos o repetidos");
+      if (!textoValidoConEmojisRegex.test(texto)) {
+        throw new Error("El comentario contiene caracteres inválidos, emojis repetidos o patrones no permitidos");
       }
 
       return true;

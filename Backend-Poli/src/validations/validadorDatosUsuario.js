@@ -25,6 +25,6 @@ export const validarDatosPersona = [
   body("direccion")
     .optional({ checkFalsy: true })
     .trim()
-    .isLength({ max: 100, min: 10 }).withMessage("La dirección debe tener entre 10 y 100 caracteres")
+    .isLength({ max: 50 }).withMessage('La dirección no puede exceder los 50 caracteres')
     .matches(textoValidoRegex).withMessage("La dirección contiene caracteres inválidos"),
 ];
