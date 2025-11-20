@@ -7,22 +7,25 @@ export function getImageUrl(product) {
     return product;
   }
 
-  // Prefer explicit imagen
-  if (product.imagen) return product.imagen;
-
-  // imagenIA can be a string (url or base64) or an object (cloudinary)
+  // Priorizar imagenIA si existe (puede ser URL, data URL o objeto de Cloudinary)
   const ia = product.imagenIA;
-  if (!ia) return '/placeholder.png';
-
-  if (typeof ia === 'string') {
-    // if it's a data URL or an http(s) URL, return it
-    if (ia.startsWith('data:') || ia.startsWith('http://') || ia.startsWith('https://')) return ia;
-    // otherwise return as-is (may be base64 without prefix)
-    return ia;
+  if (ia) {
+    if (typeof ia === 'string') {
+      if (ia.trim() === '') {
+        // ignore empty
+      } else if (ia.startsWith('data:') || ia.startsWith('http://') || ia.startsWith('https://')) {
+        return ia;
+      } else {
+        return ia;
+      }
+    }
+    return ia.secure_url || ia.url || '/placeholder.png';
   }
 
-  // object form (e.g., Cloudinary upload result)
-  return ia.secure_url || ia.url || '/placeholder.png';
+  // Fallback a `imagen` si no hay imagenIA
+  if (product.imagen) return product.imagen;
+
+  return '/placeholder.png';
 }
 
 export default getImageUrl;

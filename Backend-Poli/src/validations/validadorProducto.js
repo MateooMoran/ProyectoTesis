@@ -33,7 +33,7 @@ export const validarProducto = [
   body("descripcion")
     .trim()
     .notEmpty().withMessage("Ingrese una descripción del producto")
-    .isLength({ min: 10, max: 250 }).withMessage("La descripción debe tener entre 10 y 250 caracteres")
+    .isLength({ min: 10, max: 500 }).withMessage("La descripción debe tener entre 10 y 500 caracteres")
     .matches(textoValidoRegex).withMessage(
       "La descripción contiene caracteres no permitidos o patrones repetitivos"
     ),

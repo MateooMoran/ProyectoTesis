@@ -61,7 +61,7 @@ export const crearProducto = async (req, res) => {
     if (req.body?.imagenIA) {
       const base64Data = req.body.imagenIA.replace(/^data:image\/\w+;base64,/, '')
       const buffer = Buffer.from(base64Data, 'base64')
-      const { secure_url } = await new Promise((resolve, reject) => {
+      const { secure_url, public_id } = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream({ folder: 'ImagenesProductosIA', resource_type: 'auto' }, (error, response) => {
           if (error) reject(error)
           else resolve(response)
@@ -69,6 +69,8 @@ export const crearProducto = async (req, res) => {
         stream.end(buffer)
       })
       nuevoProducto.imagenIA = secure_url
+      nuevoProducto.imagen = secure_url
+      nuevoProducto.imagenID = public_id
     }
 
     // Generar embedding
@@ -166,7 +168,9 @@ export const actualizarProducto = async (req, res) => {
         );
         stream.end(buffer);
       });
-      producto.imagenIA = secure_url;
+        // Guardar en ambos campos para asegurar que el frontend muestre la imagen IA
+        producto.imagenIA = secure_url;
+        producto.imagen = secure_url;
       producto.imagenID = public_id;
     }
 

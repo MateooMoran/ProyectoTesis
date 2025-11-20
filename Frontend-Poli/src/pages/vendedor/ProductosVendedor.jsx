@@ -165,14 +165,19 @@ export default function ProductosVendedor() {
                 },
             };
 
-            if (imagenArchivo) {
+            // Priorizar imagenIA si fue generada: enviar siempre imagenIA cuando exista
+            if (imagenIA) {
+                // Enviar JSON con imagenIA (base64)
+                bodyData.imagenIA = imagenIA;
+                body = JSON.stringify(bodyData);
+                config.headers["Content-Type"] = "application/json";
+            } else if (imagenArchivo) {
+                // Enviar FormData con archivo si no hay imagenIA
                 body = new FormData();
                 Object.entries(bodyData).forEach(([key, value]) => body.append(key, value));
                 body.append("imagen", imagenArchivo);
+                // No establecer Content-Type, axios lo hará para multipart
             } else {
-                if (imagenIA) {
-                    bodyData.imagenIA = imagenIA;
-                }
                 body = JSON.stringify(bodyData);
                 config.headers["Content-Type"] = "application/json";
             }
@@ -235,7 +240,7 @@ export default function ProductosVendedor() {
         <>
             
             <div className="mt-35 md:mt-18"></div>
-            <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+            <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 mb-10 sm:mb-30">
                 <div className="max-w-7xl mx-auto px-4">
                     {/* Header */}
                     <div className="text-center mb-8">
@@ -245,7 +250,7 @@ export default function ProductosVendedor() {
                         <p className="text-gray-600">Crea y administra tu catálogo de productos</p>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8 pb-8 lg:h-[calc(100vh-220px)]">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8 pb-8 lg:h-[calc(100vh-220px)] ">
                         {/* Columna Izquierda - Formulario */}
                         <div className="lg:col-span-1 order-1 lg:order-1">
                             <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 sticky top-6">
