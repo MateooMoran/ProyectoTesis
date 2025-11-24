@@ -26,6 +26,12 @@ export const crearOrden = async (req, res) => {
       await session.abortTransaction();
       return res.status(404).json({ msg: "Producto no encontrado" });
     }
+    
+    // Validar que vendedores no puedan comprar sus propios productos
+    if (req.estudianteBDD.rol === 'vendedor' && producto.vendedor.toString() === req.estudianteBDD._id.toString()) {
+      await session.abortTransaction();
+      return res.status(400).json({ msg: "No puedes comprar tu propio producto" });
+    }
     if (producto.stock < cantidad) {
       await session.abortTransaction();
       return res.status(400).json({ msg: `Stock insuficiente. Solo hay ${producto.stock} unidades disponibles` });

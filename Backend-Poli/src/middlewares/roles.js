@@ -40,3 +40,10 @@ export const tieneRol = (...rolesPermitidos) => {
     next();
   };
 };
+
+export const puedeComprar = (req, res, next) => {
+  if (req.estudianteBDD.rol !== 'estudiante' && req.estudianteBDD.rol !== 'vendedor' && req.estudianteBDD.rol !== 'admin') {
+    return res.status(403).json({ msg: 'Acceso denegado solo para estudiantes, vendedores y administradores' });
+  }
+  next();
+};

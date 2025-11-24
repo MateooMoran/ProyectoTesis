@@ -161,6 +161,13 @@ const Header = () => {
                                                 >
                                                     Creación de Categorías
                                                 </Link>
+                                                <Link
+                                                    to="/dashboard/estudiante/historial-pagos"
+                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
+                                                    onClick={() => setIsDropdownOpen(false)}
+                                                >
+                                                    Historial de Compras
+                                                </Link>
                                             </>
                                         )}
 
@@ -186,6 +193,13 @@ const Header = () => {
                                                     onClick={() => setIsDropdownOpen(false)}
                                                 >
                                                     Historial Ventas
+                                                </Link>
+                                                <Link
+                                                    to="/dashboard/estudiante/historial-pagos"
+                                                    className="block px-4 py-2 text-gray-800 hover:bg-blue-50"
+                                                    onClick={() => setIsDropdownOpen(false)}
+                                                >
+                                                    Historial de Compras
                                                 </Link>
                                                 <Link
                                                     to="/dashboard/vendedor/quejas-sugerencias"
