@@ -1,7 +1,6 @@
 import { body } from "express-validator";
 
-const textoValidoRegex =
-  /^(?!.*([a-zA-ZáéíóúÁÉÍÓÚñÑ])\1{2})(?!.*(\w{2,})\1)(?!.*[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s-]).+$/;
+const textoValidoRegex = /^(?!.*([a-zA-ZáéíóúÁÉÍÓÚñÑ])\1{2})[a-zA-ZáéíóúÁÉÍÓÚñÑ\s-]+$/;
 
 const soloNumerosRegex = /^(?!.*(\d)\1{3,})\d+$/;
 

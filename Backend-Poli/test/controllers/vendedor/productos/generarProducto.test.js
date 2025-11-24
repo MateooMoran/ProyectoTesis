@@ -1,0 +1,1 @@
+// Archivo creado intencionalmente vacío para pruebas de generación (según petición)

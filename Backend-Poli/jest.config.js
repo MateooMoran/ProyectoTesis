@@ -3,6 +3,9 @@ export default {
     "^.+\\.js$": "babel-jest",
   },
   testEnvironment: "node",
-  setupFilesAfterEnv: ["<rootDir>/test/setupTestDB.js"],
-  transformIgnorePatterns: ["/node_modules/"],
+  // Si renombrás la carpeta `__tests__` a `test`, actualizá esta ruta
+  setupFilesAfterEnv: ["<rootDir>/test/setup.js"],
+  transformIgnorePatterns: [
+    "/node_modules/(?!(node-fetch)/)"
+  ],
 };

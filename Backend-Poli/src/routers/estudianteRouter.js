@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyTokenJWT } from "../middlewares/JWT.js";
-import { esEstudiante, esEstudianteOrVendedor } from "../middlewares/roles.js";
+import { esEstudiante, esEstudianteOrVendedor, puedeComprar } from "../middlewares/roles.js";
 import { buscarProductos, verProductoPorId, verProductosPorCategoria, verCategorias, verProductos } from "../controllers/estudiante/categoriaProductoController.js";
 import { eliminarFavorito, eliminarTodosFavoritos, seleccionarFavorito, verFavoritos } from "../controllers/estudiante/favoritosController.js";
 import { crearOrden, subirComprobante, procesarPagoTarjeta,confirmarEntrega, verOrdenes, cancelarOrden } from "../controllers/estudiante/ordenesController.js";
@@ -25,12 +25,12 @@ router.delete("/estudiante/favorito/:id", verifyTokenJWT, esEstudiante, eliminar
 router.delete("/estudiante/favoritos",verifyTokenJWT,esEstudiante,eliminarTodosFavoritos)
 
 // ÓRDENES Y PAGOS
-router.post('/estudiante/orden', verifyTokenJWT, esEstudiante, crearOrden);
-router.post('/estudiante/orden/:id/comprobante', verifyTokenJWT, esEstudiante, subirComprobante);
-router.post('/estudiante/orden/pago-tarjeta', verifyTokenJWT, esEstudiante, procesarPagoTarjeta);
-router.put('/estudiante/orden/:id/confirmar-entrega', verifyTokenJWT, esEstudiante, confirmarEntrega);
-router.get('/estudiante/historial-pagos', verifyTokenJWT,esEstudiante,verOrdenes)
-router.put('/estudiante/orden/:id/cancelar', verifyTokenJWT, esEstudiante, cancelarOrden);
+router.post('/estudiante/orden', verifyTokenJWT, puedeComprar, crearOrden);
+router.post('/estudiante/orden/:id/comprobante', verifyTokenJWT, puedeComprar, subirComprobante);
+router.post('/estudiante/orden/pago-tarjeta', verifyTokenJWT, puedeComprar, procesarPagoTarjeta);
+router.put('/estudiante/orden/:id/confirmar-entrega', verifyTokenJWT, puedeComprar, confirmarEntrega);
+router.get('/estudiante/historial-pagos', verifyTokenJWT, puedeComprar, verOrdenes)
+router.put('/estudiante/orden/:id/cancelar', verifyTokenJWT, puedeComprar, cancelarOrden);
 
 // QUEJAS - SUGERENCIAS
 router.post('/estudiante/quejas-sugerencias', verifyTokenJWT, esEstudianteOrVendedor, quejasValidations, handleValidationErrors, crearQuejasSugerencias)

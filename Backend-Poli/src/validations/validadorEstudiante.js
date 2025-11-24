@@ -1,23 +1,48 @@
 import { check } from 'express-validator';
 
-const nombreApellidoRegex =
-  /^(?!.*([A-Za-zÁÉÍÓÚáéíóúÑñ])\1{2})(?!.*([A-Za-zÁÉÍÓÚáéíóúÑñ]{2,})\1)[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+const repeticionFuerte = /(.)\1{2,}/;
 
-const direccionRegex =
-  /^(?!.*([A-Za-zÁÉÍÓÚáéíóúÑñ0-9])\1{2})(?!.*([A-Za-zÁÉÍÓÚáéíóúÑñ0-9]{2,})\1)[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s#\-,./]+$/;
+function tienePatronRepetido(texto) {
+  const t = texto.toLowerCase().replace(/\s+/g, '').trim();
+
+  if (/^(.{1,3})\1{2,}$/.test(t)) return true;
+
+  for (let size = 2; size <= 4; size++) {
+    const base = t.slice(0, size);
+    let count = 0;
+
+    for (let i = 0; i < t.length; i += size) {
+      if (t.slice(i, i + size) === base) count++;
+    }
+
+    const repRatio = (count * size) / t.length;
+    if (repRatio >= 0.60) return true;
+  }
+
+  return false;
+}
 
 export const registroValidations = [
   check('nombre')
     .notEmpty().withMessage('El nombre es obligatorio')
     .isLength({ min: 2, max: 20 }).withMessage('El nombre debe tener entre 2 y 20 caracteres')
-    .matches(nombreApellidoRegex)
-    .withMessage('El nombre solo puede contener letras y espacios, sin repeticiones como "aaa" o patrones como "lelele"'),
+    .custom(valor => {
+      if (!soloLetras.test(valor)) throw new Error('El nombre solo puede contener letras y espacios');
+      if (repeticionFuerte.test(valor)) throw new Error('El nombre contiene repeticiones excesivas');
+      if (tienePatronRepetido(valor)) throw new Error('El nombre contiene patrones repetitivos');
+      return true;
+    }),
 
   check('apellido')
     .notEmpty().withMessage('El apellido es obligatorio')
     .isLength({ min: 2, max: 20 }).withMessage('El apellido debe tener entre 2 y 20 caracteres')
-    .matches(nombreApellidoRegex)
-    .withMessage('El apellido solo puede contener letras y espacios, sin repeticiones como "aaa" o patrones como "lelele"'),
+    .custom(valor => {
+      if (!soloLetras.test(valor)) throw new Error('El apellido solo puede contener letras y espacios');
+      if (repeticionFuerte.test(valor)) throw new Error('El apellido contiene repeticiones excesivas');
+      if (tienePatronRepetido(valor)) throw new Error('El apellido contiene patrones repetitivos');
+      return true;
+    }),
 
   check('telefono')
     .notEmpty().withMessage('El teléfono es obligatorio')
@@ -25,9 +50,7 @@ export const registroValidations = [
 
   check('direccion')
     .notEmpty().withMessage('La dirección es obligatoria')
-    .isLength({ max: 50 }).withMessage('La dirección no puede exceder los 50 caracteres')
-    .matches(direccionRegex)
-    .withMessage('La dirección contiene caracteres inválidos o patrones repetitivos'),
+    .isLength({ max: 50 }).withMessage('La dirección no puede exceder los 50 caracteres'),
 
   check('email')
     .notEmpty().withMessage('El email es obligatorio')
