@@ -22,12 +22,12 @@ const bannerImages = [
 ];
 
 // ASOCIACIONES UNIVERSITARIAS 
-import assoc1 from '../assets/esfot.png';
-import assoc2 from '../assets/ciencias.png';
-import assoc3 from '../assets/adepon.png';
-import assoc4 from '../assets/aefca.jpg';
-import assoc5 from '../assets/mecanica.jpg';
-import assoc6 from '../assets/quimica.jpeg';
+import assoc1 from '../assets/esfot.webp';
+import assoc2 from '../assets/ciencias.webp';
+import assoc3 from '../assets/adepon.webp';
+import assoc4 from '../assets/aefca.webp';
+import assoc5 from '../assets/mecanica.webp';
+import assoc6 from '../assets/quimica.webp';
 
 const asociaciones = [
     { id: 1, src: assoc1, alt: 'ESFOT' },

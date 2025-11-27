@@ -145,7 +145,7 @@ const BuscarPriv = () => {
                                                         <img
                                                             src={getImageUrl(producto)}
                                                             alt={producto.nombreProducto}
-                                                            className="w-full h-40 object-contain rounded-md hover:shadow-md transition-shadow duration-300"
+                                                            className="w-full h-40 object-cover rounded-md hover:shadow-md transition-shadow duration-300"
                                                         />
                                                 </Link>
 

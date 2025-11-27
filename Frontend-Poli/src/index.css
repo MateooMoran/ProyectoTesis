@@ -29,6 +29,22 @@ body {
     transform: scale(1.1) !important;
 }
 
+/* Animación para botón flotante */
+@keyframes slideUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.animate-slideUp {
+    animation: slideUp 0.4s ease-out;
+}
+
 .slick-prev:before, .slick-next:before {
     font-size: 0 !important; /* Oculta flecha default */
 }

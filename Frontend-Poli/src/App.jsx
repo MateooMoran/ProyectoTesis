@@ -37,6 +37,7 @@ import { useEffect, useRef } from 'react';
 import storeProfile from './context/storeProfile';
 import storeAuth from './context/storeAuth';
 import Favoritos from './pages/productosGeneral/Favoritos';
+import BotonFlotanteModelo3D from './components/BotonFlotanteModelo3D';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -101,6 +102,9 @@ function App() {
           </Route>
         </Route>
       </Routes>
+      
+      {/* Botón flotante de progreso 3D - visible en todas las páginas */}
+      <BotonFlotanteModelo3D />
     </BrowserRouter>
     </SocketProvider>
   );

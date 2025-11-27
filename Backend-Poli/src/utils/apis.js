@@ -19,6 +19,8 @@ export async function crearModelo3D(imagenCloudinary, imageId, req) {
   };
 
   try {
+    console.log("🚀 Enviando request a Meshy API...");
+    console.log("📸 Imagen URL:", imagenCloudinary);
     const response = await axios.post(
       `${process.env.URL_API_MESHY}image-to-3d`,
       payload,
@@ -27,7 +29,8 @@ export async function crearModelo3D(imagenCloudinary, imageId, req) {
 
     const taskId = response?.data?.result;
     if (!taskId) throw new Error("No se obtuvo el ID del modelo 3D");
-    console.log("Modelo 3D solicitado con task ID:", taskId);
+    console.log("✅ Modelo 3D solicitado con task ID:", taskId);
+    console.log("🔄 Iniciando proceso en background...");
 
     // Lanzar proceso en background para completar la tarea (no await)
     (async function backgroundProcess(taskIdInner, imageIdInner, reqContext) {
@@ -35,21 +38,27 @@ export async function crearModelo3D(imagenCloudinary, imageId, req) {
       let vendedorId = null;
 
       try {
+        console.log("⏳ Background process iniciado para task:", taskIdInner);
         // Obtener vendedorId si hay contexto de request
         if (reqContext?.estudianteBDD?._id) {
           vendedorId = reqContext.estudianteBDD._id;
+          console.log("👤 Vendedor ID en background:", vendedorId.toString());
         }
 
         // Notificar inicio de generación
         if (vendedorId && imageIdInner) {
           try {
+            console.log("📬 Enviando notificación de inicio...");
             await crearNotificacionSocket(reqContext, vendedorId, 
               "Generación de modelo 3D iniciada. Te notificaremos cuando esté listo.", 
               "sistema");
+            console.log("✅ Notificación de inicio enviada");
           } catch (notifError) {
-            console.error("Error enviando notificación de inicio:", notifError.message);
+            console.error("❌ Error enviando notificación de inicio:", notifError.message);
           }
         }
+
+        console.log("🔍 Iniciando verificación de status en Meshy...");
 
         const modeloFinal = await verificarStatusModelo3D(taskIdInner, imageIdInner, reqContext, vendedorId);
         const glbURL = modeloFinal.model_urls.glb;
@@ -164,7 +173,7 @@ export async function crearModelo3D(imagenCloudinary, imageId, req) {
 }
 
 // Polling para verificar el estado del modelo 3D en Meshy
-async function verificarStatusModelo3D(taskId, imageIdInner, reqContext, vendedorId, maxIntentos = 60, intervalo = 5000) {
+async function verificarStatusModelo3D(taskId, imageIdInner, reqContext, vendedorId, maxIntentos = 180, intervalo = 5000) {
   for (let i = 0; i < maxIntentos; i++) {
     try {
       const response = await axios.get(

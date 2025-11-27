@@ -8,9 +8,8 @@ function EditarProductos({ productos, loading, onDelete }) {
     const navigate = useNavigate();
 
     const handleEdit = (product) => {
-        // Navigate to the update route, passing the product ID in the URL
         navigate(`/vendedor/visualizar/producto`, {
-            state: { product }, // Pass product data via state for the update form
+            state: { product }, 
         });
     };
 

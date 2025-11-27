@@ -71,14 +71,7 @@ const Favoritos = () => {
                 <div className="max-w-7xl mx-auto px-4 py-8">
 
                     {/* Header */}
-                    <div className="text-center mb-4 lg:mb-8">
-                        <h1 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-2 lg:mb-3">
-                            Favoritos
-                        </h1>
-                        <p className="text-xs lg:text-base text-gray-600">
-                            {productosFavoritos.length}{' '}
-                            {productosFavoritos.length === 1 ? 'producto guardado' : 'productos guardados'}
-                        </p>
+                    <div className="text-center mb-15 lg:mb-10">
                     </div>
 
                     {/* Sin favoritos */}
@@ -107,11 +100,11 @@ const Favoritos = () => {
                                 >
                                     {/* Imagen */}
                                     <div className="relative">
-                                                                                        <img
-                                                                                            src={getImageUrl(producto)}
-                                                                                            alt={producto.nombreProducto}
-                                                                                            className="w-28 h-28 object-cover rounded-xl border-2 border-gray-200 group-hover:border-blue-400 transition-all"
-                                                                                        />
+                                        <img
+                                            src={getImageUrl(producto)}
+                                            alt={producto.nombreProducto}
+                                            className="w-28 h-28 object-cover rounded-xl border-2 border-gray-200 group-hover:border-blue-400 transition-all"
+                                        />
                                         {/* Badge de estado en la imagen */}
                                         <span className={`absolute -top-2 -right-2 text-xs font-bold px-2 py-1 rounded-full shadow-md
                                             ${producto.estado === 'disponible'

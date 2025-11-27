@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { alert } from '../../utils/alerts';
@@ -221,6 +221,7 @@ const FormularioStripe = ({ productoId, cantidad, metodoPagoVendedorId, lugarRet
 const CompraDirecta = () => {
     const { productoId } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const { fetchDataBackend } = useFetch();
     const { token } = storeAuth();
 
@@ -228,7 +229,10 @@ const CompraDirecta = () => {
     const [currentStep, setCurrentStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [producto, setProducto] = useState(null);
-    const [cantidad, setCantidad] = useState(1);
+    const [cantidad, setCantidad] = useState(() => {
+        // Prefer cantidad passed via navigation state, otherwise default 1
+        return (location && location.state && Number(location.state.cantidad)) ? Number(location.state.cantidad) : 1;
+    });
     const [metodoPagoSeleccionado, setMetodoPagoSeleccionado] = useState('');
     const [metodosPago, setMetodosPago] = useState([]);
     const [lugarRetiro, setLugarRetiro] = useState('');

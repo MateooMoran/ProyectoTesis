@@ -3,7 +3,7 @@ import { verifyTokenJWT } from "../middlewares/JWT.js";
 import { esVendedor, tieneRol } from "../middlewares/roles.js";
 
 import { crearProducto, listarProducto, actualizarProducto, eliminarProducto } from "../controllers/vendedor/productoController.js";
-import { generarModelo3DParaProducto } from "../controllers/vendedor/modelo3DController.js";
+import { generarModelo3DParaProducto, consultarEstadoModelo } from "../controllers/vendedor/modelo3DController.js";
 import { confirmarPagoVenta, visualizarHistorialVentasVendedor } from "../controllers/vendedor/ventasController.js";
 import {crearActualizarLugarRetiro, crearActualizarQR, crearActualizarTransferencia, eliminarLugarRetiro, eliminarMetodoPago, visualizarMetodosPago } from "../controllers/vendedor/metodoPagoController.js";
 import { validarArchivoImagen, validarLugarRetiro, validarTransferencia } from "../validations/validadorPagos.js";
@@ -18,6 +18,7 @@ router.get('/vendedor/visualizar/producto', verifyTokenJWT, esVendedor, listarPr
 router.put('/vendedor/actualizar/producto/:id', verifyTokenJWT, esVendedor,validarProducto, handleValidationErrors,actualizarProducto);
 router.delete('/vendedor/eliminar/producto/:id', verifyTokenJWT, esVendedor, eliminarProducto);
 router.post("/vendedor/producto/:id/generar-modelo", verifyTokenJWT, esVendedor, generarModelo3DParaProducto);
+router.get("/vendedor/producto/:id/progreso-modelo", verifyTokenJWT, esVendedor, consultarEstadoModelo);
 
 
 // MÉTODOS DE PAGO

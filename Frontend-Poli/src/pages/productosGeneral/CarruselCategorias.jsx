@@ -4,25 +4,31 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-import HogarImg from "../../assets/hogar.png";
-import MascotasImg from "../../assets/mscotas.jpg";
-import JuguetesImg from "../../assets/juguetes.jpg";
-import TecnologiaImg from "../../assets/tecno.jpg";
-import ComidaImg from "../../assets/comidaaa.jpg";
-import RopaImg from "../../assets/Ropa2.jpeg";
-import MaterialesImg from "../../assets/materiales.jpg";
-import LibrosImg from "../../assets/Libros.jpeg";
+import HogarImg from "../../assets/hogar.webp";
+import MascotasImg from "../../assets/mscotas.webp";
+import JuguetesImg from "../../assets/juguetes.webp";
+import TecnologiaImg from "../../assets/tecno.webp";
+import ComidaImg from "../../assets/comidaaa.webp";
+import RopaImg from "../../assets/Ropa2.webp";
+import MaterialesImg from "../../assets/materiales.webp";
+import LibrosImg from "../../assets/Libros.webp";
+import AutomotrizImg from "../../assets/automotriz.webp";
+import ZapatosImg from "../../assets/zapatoss.webp";
+import OtrosImg from "../../assets/otros.webp";
 import storeAuth from "../../context/storeAuth";
 
 const categoryImages = {
     Hogar: HogarImg,
     Mascotas: MascotasImg,
     Juguetes: JuguetesImg,
-    Tecnologia: TecnologiaImg,
+    Tecnología: TecnologiaImg,
     Comida: ComidaImg,
     Ropa: RopaImg,
     Materiales: MaterialesImg,
-    Libros: LibrosImg
+    Libros: LibrosImg,
+    Automotriz: AutomotrizImg,
+    Zapatos: ZapatosImg,
+    Otros: OtrosImg
 };
 
 const CategoriesCarousel = ({

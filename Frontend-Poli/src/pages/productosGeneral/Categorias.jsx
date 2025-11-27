@@ -194,7 +194,7 @@ const CategoriaProductos = () => {
                           <img
                             src={getImageUrl(producto) }
                             alt={producto.nombreProducto}
-                            className="w-full h-32 lg:h-48 object-contain rounded-md hover:shadow-md transition-shadow duration-300"
+                            className="w-full h-32 lg:h-48 object-cover rounded-md hover:shadow-md transition-shadow duration-300"
                           />
                         </Link>
 

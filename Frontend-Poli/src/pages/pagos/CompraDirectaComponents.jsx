@@ -313,7 +313,7 @@ export const Paso3MetodoPago = ({
                                                 <img
                                                     src={metodo.imagenComprobante}
                                                     alt="QR"
-                                                    className="w-40 h-40 object-contain border border-gray-200 rounded-lg bg-gray-50"
+                                                    className="w-40 h-40 object-cover border border-gray-200 rounded-lg bg-gray-50"
                                                 />
                                             </div>
                                         )}
@@ -437,7 +437,7 @@ export const Paso4SubirComprobante = ({
                         <img
                             src={metodoPagoElegido.imagenComprobante}
                             alt="QR"
-                            className="w-64 h-64 object-contain"
+                            className="w-64 h-64 object-cover"
                         />
                     </div>
                     <div className="mt-4">

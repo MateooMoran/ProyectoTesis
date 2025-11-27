@@ -11,11 +11,11 @@ import CarruselProductos from '../pages/productosGeneral/CarruselProductos';
 import Slider from 'react-slick';
 import CarruselCategorias from './productosGeneral/CarruselCategorias';
 import Header from '../layout/Header';
-import { User, LogOut, Search } from 'lucide-react';
+import { User, LogOut, Search, Heart } from 'lucide-react';
 
 export const Home = () => {
   const { user } = storeProfile();
-  const { token, clearToken } = storeAuth();
+  const { token, clearToken, rol } = storeAuth();
   const {
     productos,
     loadingProductos,
@@ -88,6 +88,13 @@ export const Home = () => {
 
           {/* Botones */}
           <div className="flex items-center gap-2 flex-col sm:flex-row w-full sm:w-auto text-center">
+            {/* Favoritos (visible incluso sin sesión) */}
+            {rol !== 'vendedor' && (
+              <Link to={token ? "/dashboard/favoritos" : "/favoritos"} className="inline-flex items-center gap-2 text-blue-800 font-semibold hover:text-red-800 transition-colors mr-3">
+                <Heart className="w-5 h-5" />
+                <span className="hidden md:inline">Favoritos</span>
+              </Link>
+            )}
             {/* Autenticación */}
             {token ? (
               <div className="relative" ref={userDropdownRef}>

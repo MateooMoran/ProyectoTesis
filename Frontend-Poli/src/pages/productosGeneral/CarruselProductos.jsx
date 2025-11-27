@@ -7,6 +7,7 @@ import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import { useState, useEffect } from 'react';
 import useFetch from '../../hooks/useFetch';
 import storeAuth from '../../context/storeAuth';
+import { alert } from '../../utils/alerts';
 import getImageUrl from '../../utils/imageSrc';
 
 const useFavorites = () => {
@@ -46,19 +47,26 @@ const useFavorites = () => {
                 });
                 if (response.msg.includes('agregado')) {
                     setFavorites(prev => [...prev, { _id: productId }]);
+                    try { alert({ icon: 'success', title: 'Agregado a favoritos' }); } catch {}
                 } else if (response.msg.includes('removido')) {
                     setFavorites(prev => prev.filter(p => p._id !== productId));
+                    try { alert({ icon: 'info', title: 'Eliminado de favoritos' }); } catch {}
                 }
             } catch { }
         } else {
             let localFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
-            if (localFavs.includes(productId)) {
+            const already = localFavs.includes(productId);
+            if (already) {
                 localFavs = localFavs.filter(id => id !== productId);
+                localStorage.setItem('favorites', JSON.stringify(localFavs));
+                setFavorites(localFavs);
+                try { alert({ icon: 'info', title: 'Eliminado de favoritos' }); } catch {}
             } else {
                 localFavs.push(productId);
+                localStorage.setItem('favorites', JSON.stringify(localFavs));
+                setFavorites(localFavs);
+                try { alert({ icon: 'success', title: 'Agregado a favoritos' }); } catch {}
             }
-            localStorage.setItem('favorites', JSON.stringify(localFavs));
-            setFavorites(localFavs);
         }
     };
 
@@ -84,6 +92,7 @@ const ProductCarousel = ({
     className = "my-12"
 }) => {
     const { isFavorite, toggleFavorite, token } = useFavorites();
+    const { rol } = storeAuth();
     const navigate = useNavigate();
 
     const getProductoLink = (productoId) => {
@@ -137,7 +146,7 @@ const ProductCarousel = ({
                                                     <img
                                                         src={getImageUrl(producto)}
                                                         alt={producto.nombreProducto}
-                                                        className="w-full h-48 object-contain rounded-md hover:shadow-md transition-shadow duration-300"
+                                                        className="w-full h-48 object-cover rounded-md hover:shadow-md transition-shadow duration-300"
                                                     />
                                             </Link>
                                             {producto.stock <= 5 && (
@@ -172,12 +181,14 @@ const ProductCarousel = ({
                                                 Ver Detalles
                                             </Link>
 
-                                            <button
-                                                onClick={() => toggleFavorite(producto._id)}
-                                                className={`p-2 rounded-md transition-all duration-300 hover:scale-110 ${fav ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-gray-200 hover:bg-red-500 hover:text-white'}`}
-                                            >
-                                                {fav ? <FaHeart className="w-5 h-5" /> : <FaRegHeart className="w-5 h-5" />}
-                                            </button>
+                                            {rol !== 'vendedor' && (
+                                                <button
+                                                    onClick={() => toggleFavorite(producto._id)}
+                                                    className={`p-2 rounded-md transition-all duration-300 hover:scale-110 ${fav ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-gray-200 hover:bg-red-500 hover:text-white'}`}
+                                                >
+                                                    {fav ? <FaHeart className="w-5 h-5" /> : <FaRegHeart className="w-5 h-5" />}
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

@@ -298,9 +298,21 @@ const HistorialPagos = () => {
 
                                             {/* Fecha completada */}
                                             {order.estado === 'completada' && order.fechaCompletada && (
-                                                <p className="text-xs text-emerald-600 text-center mt-2">
-                                                    Entrega confirmada: {formatDate(order.fechaCompletada)}
-                                                </p>
+                                                <div className="text-center mt-2">
+                                                    <p className="text-xs text-emerald-600">
+                                                        Entrega confirmada: {formatDate(order.fechaCompletada)}
+                                                    </p>
+                                                    {order.producto?._id && (
+                                                        <div className="mt-3">
+                                                            <button
+                                                                onClick={() => navigate(`/dashboard/productos/${order.producto._id}#resenas`)}
+                                                                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all"
+                                                            >
+                                                                Hacer reseña
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             )}
                                         </div>
                                     </div>

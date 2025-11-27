@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { alert } from '../../utils/alerts';
 import getImageUrl from '../../utils/imageSrc';
 import storeProductos from '../../context/storeProductos';
@@ -26,10 +26,13 @@ const ProductoDetalle = () => {
   const [estadisticasResenas, setEstadisticasResenas] = useState(null);
   const [loadingMetodos, setLoadingMetodos] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { productos } = storeProductos();
   const { user } = storeProfile();
   const { token } = storeAuth();
+
+  const esPropietario = user?.rol === 'vendedor' && producto?.vendedor?._id === user?._id;
 
   const productosRelacionados = productos
     .filter(p => p.categoria?._id === producto?.categoria?._id && p._id !== id)
@@ -41,7 +44,7 @@ const ProductoDetalle = () => {
       navigate('/prepago');
       return;
     }
-    navigate(`/dashboard/compra/${id}`);
+    navigate(`/dashboard/compra/${id}`, { state: { cantidad } });
   };
 
   const toggle3D = () => setVer3D(!ver3D);
@@ -106,7 +109,20 @@ const ProductoDetalle = () => {
       }
     };
     fetchProducto();
+    // Si la URL tiene #resenas, hacemos scroll cuando el producto cargue
+    // (se ejecutará después de que `producto` sea seteado por el fetch)
   }, [id]);
+
+  // Mostrar alerta informativa a vendedores (no pueden usar favoritos)
+  useEffect(() => {
+    if (producto && user?.rol === 'vendedor') {
+      try {
+        alert({ icon: 'info', title: 'Los vendedores no pueden usar Favoritos' });
+      } catch (e) {
+        console.warn('Alert failed', e);
+      }
+    }
+  }, [producto, user]);
 
   if (loading) return <div className="min-h-screen bg-gray-50"><p className="text-center text-gray-500 text-lg mt-20">Cargando producto...</p></div>;
   if (error) return <div className="min-h-screen bg-gray-50"><p className="text-center text-red-600 text-lg mt-20">Error: {error}</p></div>;
@@ -143,7 +159,8 @@ const ProductoDetalle = () => {
                   <img
                     src={getImageUrl(producto)}
                     alt={producto.nombreProducto}
-                    className="w-full max-w-md h-auto object-contain rounded-2xl shadow-2xl"
+                    className="w-full h-[500px] object-cover rounded-2xl shadow-2xl"
+                    style={{ width: '100%', height: '500px' }}
                   />
                 )}
                 {producto?.modelo_url && (
@@ -210,20 +227,24 @@ const ProductoDetalle = () => {
 
                 {/* ✅ BOTONES DE COMPRA */}
                 <div className="flex flex-col sm:flex-row gap-4 w-full">
-                  <button
-                    onClick={handleComprarAhora}
-                    className="flex-1 h-14 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-3 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-300 shadow-lg p-3"
-                  >
-                    <ShoppingCart className="w-6 h-6" /> Comprar Ahora
-                  </button>
+                  {!esPropietario && (
+                    <button
+                      onClick={handleComprarAhora}
+                      className="flex-1 h-14 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-3 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-300 shadow-lg p-3"
+                    >
+                      <ShoppingCart className="w-6 h-6" /> Comprar Ahora
+                    </button>
+                  )}
 
-                  {/* ❤️ BOTÓN FAVORITO REUTILIZABLE */}
-                  <BotonFavorito
-                    productoId={producto._id}
-                    variant="icon"
-                    size="lg"
-                    className="h-14 w-full sm:w-15 shadow-lg flex justify-center items-center"
-                  />
+                    {/* ❤️ BOTÓN FAVORITO REUTILIZABLE (oculto para vendedores) */}
+                    {user?.rol !== 'vendedor' && (
+                      <BotonFavorito
+                        productoId={producto._id}
+                        variant="icon"
+                        size="lg"
+                        className="h-14 w-full sm:w-15 shadow-lg flex justify-center items-center"
+                      />
+                    )}
                 </div>
 
                 {/* INFO ADICIONAL */}
@@ -258,10 +279,17 @@ const ProductoDetalle = () => {
         </section>
 
         {/* 🔥 2. RESEÑAS ABAJO */}
-        <SeccionResenas
-          productoId={id}
-          onEstadisticas={setEstadisticasResenas}
-        />
+        <div id="seccion-resenas">
+          <SeccionResenas
+            productoId={id}
+            onEstadisticas={setEstadisticasResenas}
+          />
+        </div>
+
+        {/* Si la URL incluye #resenas, hacer scroll a la sección */}
+        {location.hash === '#resenas' && (
+          <ScrollToResenas key={id} />
+        )}
 
 
 
@@ -372,3 +400,14 @@ const ProductoDetalle = () => {
 };
 
 export default ProductoDetalle;
+
+function ScrollToResenas() {
+  useEffect(() => {
+    const el = document.getElementById('seccion-resenas');
+    if (el) {
+      // pequeño delay para asegurar que el contenido esté renderizado
+      setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 150);
+    }
+  }, []);
+  return null;
+}
