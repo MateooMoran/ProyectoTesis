@@ -10,7 +10,8 @@ export const visualizarHistorialVentasVendedor = async (req, res) => {
       .populate("comprador", "nombre email telefono")
       .populate("producto", "nombreProducto precio imagen estado")
       .populate("metodoPagoVendedor", "tipo banco numeroCuenta lugares") 
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     if (!historial.length) {
       return res.status(404).json({ msg: "No tienes ventas registradas" });

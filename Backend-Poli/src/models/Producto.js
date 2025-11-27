@@ -68,6 +68,21 @@ const productoSchema = new Schema(
       type: String,
       trim: true,
     },
+    task_id: {
+      type: String,
+      trim: true,
+    },
+    intentosModelo3D: {
+      type: Number,
+      default: 0,
+      max: 3,
+    },
+    progreso: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100,
+    },
     embedding: {
       type: [Number],
       default: [],

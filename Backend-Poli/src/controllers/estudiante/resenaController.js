@@ -210,7 +210,7 @@ export const obtenerMiResena = async (req, res) => {
     const resena = await Resena.findOne({ 
       producto: productoId, 
       usuario: usuarioId 
-    }).populate("usuario", "nombre apellido");
+    }).populate("usuario", "nombre apellido").lean();
 
     if (!resena) {
       return res.status(404).json({ msg: "No has reseñado este producto" });
@@ -263,7 +263,7 @@ export const verificarPuedeResenar = async (req, res) => {
     const resenaExistente = await Resena.findOne({ 
       producto: productoId, 
       usuario: usuarioId 
-    });
+    }).lean();
 
     res.status(200).json({ 
       puedeResenar: true,

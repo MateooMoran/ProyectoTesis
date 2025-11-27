@@ -236,7 +236,8 @@ export const listarProducto = async (req, res) => {
     })
       .select("-__v -createdAt -updatedAt -embedding -descripcionNormalizada -nombreNormalizado")
       .populate("categoria", "nombreCategoria")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     if (!productos.length) {
       return res.status(404).json({ msg: "No hay productos registrados" });

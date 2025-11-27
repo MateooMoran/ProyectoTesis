@@ -111,7 +111,8 @@ export const visualizarMetodosPago = async (req, res) => {
     }
 
     let metodos = await MetodoPagoVendedor.find(filtro)
-      .select("-vendedor -createdAt -updatedAt -__v");
+      .select("-vendedor -createdAt -updatedAt -__v")
+      .lean();
 
     metodos = metodos.filter(metodo => {
       if (metodo.tipo === "retiro") {

@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 // Ver todas las categorías
 export const verCategorias = async (req, res) => {
   try {
-    const verCategoriasBDD = await Categoria.find().select('_id nombreCategoria');
+    const verCategoriasBDD = await Categoria.find().select('_id nombreCategoria').lean();
     res.status(200).json(verCategoriasBDD);
   } catch (error) {
     console.error(error);
@@ -17,7 +17,7 @@ export const verCategorias = async (req, res) => {
 export const verProductos = async (req, res) => {
   try {
     const productos = await Producto.find({ estado: "disponible", stock: { $gt: 0 }, activo: true })
-      .select('nombreProducto precio imagen stock categoria estado descripcion')
+      .select('nombreProducto precio imagen imagenIA modelo stock categoria estado descripcion')
       .populate('categoria', 'nombreCategoria _id')
       .populate({ path: "vendedor", select: "_id nombre apellido" })
       .sort({ createdAt: -1 });
@@ -39,7 +39,8 @@ export const verProductoPorId = async (req, res) => {
     const producto = await Producto.findOne({ _id: id, estado: "disponible", stock: { $gt: 0 }, activo: true })
       .populate('categoria', 'nombreCategoria _id')
       .populate({ path: "vendedor", select: "_id nombre apellido" })
-      .select("-createdAt -updatedAt -__v");
+      .select("-createdAt -updatedAt -__v")
+      .lean();
 
 
     if (!producto) return res.status(404).json({ msg: "Producto no encontrado o sin stock" });
@@ -75,6 +76,7 @@ export const buscarProductos = async (req, res) => {
     })
       .select("nombreProducto precio imagen stock categoria estado descripcion")
       .populate("categoria", "nombreCategoria _id")
+      .lean();
 
     if (!productos || productos.length === 0) {
       return res.status(404).json({ msg: `Sin resultados para "${query}"` });
@@ -103,7 +105,8 @@ export const verProductosPorCategoria = async (req, res) => {
       .select('nombreProducto precio imagen stock categoria estado descripcion')
       .populate('categoria', 'nombreCategoria _id')
       .populate({ path: "vendedor", select: "_id nombre apellido" })
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     res.status(200).json(productos);
   } catch (error) {

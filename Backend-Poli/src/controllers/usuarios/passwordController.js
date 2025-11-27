@@ -24,7 +24,7 @@ export const recuperarPassword = async (req, res) => {
 export const comprobarTokenPassword = async (req, res) => {
   try {
     const { token } = req.params;
-    const estudianteBDD = await Estudiante.findOne({ token });
+    const estudianteBDD = await Estudiante.findOne({ token }).lean();
     if (!estudianteBDD || estudianteBDD.token !== token)
       return res.status(404).json({ msg: "Token inválido o expirado" });
 

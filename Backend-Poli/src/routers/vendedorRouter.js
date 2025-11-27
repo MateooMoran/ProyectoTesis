@@ -17,7 +17,7 @@ router.post('/vendedor/crear/producto', verifyTokenJWT, esVendedor,validarProduc
 router.get('/vendedor/visualizar/producto', verifyTokenJWT, esVendedor, listarProducto);
 router.put('/vendedor/actualizar/producto/:id', verifyTokenJWT, esVendedor,validarProducto, handleValidationErrors,actualizarProducto);
 router.delete('/vendedor/eliminar/producto/:id', verifyTokenJWT, esVendedor, eliminarProducto);
-router.post("/vendedor/generar/producto/:id", verifyTokenJWT, esVendedor, generarModelo3DParaProducto);
+router.post("/vendedor/producto/:id/generar-modelo", verifyTokenJWT, esVendedor, generarModelo3DParaProducto);
 
 
 // MÉTODOS DE PAGO
