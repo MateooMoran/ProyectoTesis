@@ -49,7 +49,7 @@ const SeccionResenas = ({ productoId, onEstadisticas }) => {
   };
 
   const verificarPermisos = async () => {
-    if (!token || rol !== 'estudiante') {
+    if (!token ) {
       setPuedeResenar(false);
       return;
     }
@@ -87,7 +87,6 @@ const SeccionResenas = ({ productoId, onEstadisticas }) => {
     e.preventDefault();
 
     if (!token) return alert({ icon: 'error', title: 'Debes iniciar sesión para reseñar' });
-    if (rol !== 'estudiante') return alert({ icon: 'error', title: 'Solo estudiantes pueden reseñar' });
     if (formData.comentario.length > 250)
       return alert({ icon: 'error', title: 'El comentario no puede superar 250 caracteres' });
 

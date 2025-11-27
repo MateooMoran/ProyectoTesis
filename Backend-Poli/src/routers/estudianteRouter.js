@@ -38,10 +38,10 @@ router.get('/estudiante/quejas-sugerencias', verifyTokenJWT, esEstudianteOrVende
 router.delete('/estudiante/quejas-sugerencias/:id', verifyTokenJWT, esEstudianteOrVendedor, eliminarQuejaSugerencia);
 
 // RESEÑAS
-router.post('/estudiante/resena', verifyTokenJWT, esEstudiante, resenaValidations,handleValidationErrors,crearActualizarResena);
-router.get('/estudiante/puede-resenar/:productoId', verifyTokenJWT, esEstudiante, verificarPuedeResenar);
+router.post('/estudiante/resena', verifyTokenJWT, puedeComprar, resenaValidations,handleValidationErrors,crearActualizarResena);
+router.get('/estudiante/puede-resenar/:productoId', verifyTokenJWT, puedeComprar, verificarPuedeResenar);
 router.get('/estudiante/resenas/producto/:productoId', visualizarResenasProducto);
-router.get('/estudiante/mis-resenas', verifyTokenJWT, esEstudiante, visualizarMisResenas);
-router.get('/estudiante/mi-resena/:productoId', verifyTokenJWT, esEstudiante, obtenerMiResena);
+router.get('/estudiante/mis-resenas', verifyTokenJWT, puedeComprar, visualizarMisResenas);
+router.get('/estudiante/mi-resena/:productoId', verifyTokenJWT, puedeComprar, obtenerMiResena);
 export default router
 

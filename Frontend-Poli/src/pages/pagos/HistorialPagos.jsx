@@ -1,5 +1,5 @@
 // src/pages/HistorialPagos.jsx
-import  { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import { useNavigate } from 'react-router-dom';
@@ -203,7 +203,33 @@ const HistorialPagos = () => {
                                                     </p>
                                                     <p className="text-xs text-gray-500">{order.vendedor?.email}</p>
                                                 </div>
-                                                {getEstadoBadge(order.estado)}
+                                                <div>
+                                                    {/* Mobile: inline badge + button */}
+                                                    <div className="flex items-center gap-2 sm:hidden">
+                                                        {order.estado === 'completada' && order.producto?._id && (
+                                                            <button
+                                                                onClick={() => navigate(`/dashboard/productos/${order.producto._id}#resenas`)}
+                                                                className="inline-flex items-center gap-2 px-3 py-1.5 bg-zinc-700 text-white rounded-md font-semibold hover:bg-zinc-600 transition-all text-sm"
+                                                            >
+                                                                Hacer reseña
+                                                            </button>
+                                                        )}
+                                                        {getEstadoBadge(order.estado)}
+                                                    </div>
+
+                                                    {/* Desktop and up: stacked (badge above, button below) */}
+                                                    <div className="hidden sm:flex flex-col items-end gap-2">
+                                                        {getEstadoBadge(order.estado)}
+                                                        {order.estado === 'completada' && order.producto?._id && (
+                                                            <button
+                                                                onClick={() => navigate(`/dashboard/productos/${order.producto._id}#resenas`)}
+                                                                className="inline-flex w-full cursor-pointer sm:w-auto items-center justify-center gap-2 px-3 py-2 bg-zinc-700 text-white rounded-lg font-semibold hover:bg-zinc-600 transition-all text-sm"
+                                                            >
+                                                                Hacer reseña
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -302,16 +328,6 @@ const HistorialPagos = () => {
                                                     <p className="text-xs text-emerald-600">
                                                         Entrega confirmada: {formatDate(order.fechaCompletada)}
                                                     </p>
-                                                    {order.producto?._id && (
-                                                        <div className="mt-3">
-                                                            <button
-                                                                onClick={() => navigate(`/dashboard/productos/${order.producto._id}#resenas`)}
-                                                                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all"
-                                                            >
-                                                                Hacer reseña
-                                                            </button>
-                                                        </div>
-                                                    )}
                                                 </div>
                                             )}
                                         </div>
@@ -343,7 +359,7 @@ const HistorialPagos = () => {
                                                 className={`w-8 h-8 lg:w-10 lg:h-10 rounded-lg font-semibold text-xs lg:text-sm transition-all ${paginaActual === i + 1
                                                     ? 'bg-blue-600 text-white shadow-lg scale-110'
                                                     : 'bg-white border border-gray-300 hover:bg-gray-50 text-gray-700'
-                                                }`}
+                                                    }`}
                                             >
                                                 {i + 1}
                                             </button>
@@ -395,7 +411,7 @@ const HistorialPagos = () => {
 
     return (
         <>
-            
+
             <div className="mt-8 sm:mt-10"></div>
 
             <main className="py-4 lg:py-10 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">

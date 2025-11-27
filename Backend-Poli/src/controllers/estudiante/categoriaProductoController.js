@@ -74,7 +74,7 @@ export const buscarProductos = async (req, res) => {
         { descripcionNormalizada: { $regex: queryNormalizada, $options: "i" } },
       ],
     })
-      .select("nombreProducto precio imagen stock categoria estado descripcion")
+      .select('nombreProducto precio imagen imagenIA modelo stock categoria estado descripcion')
       .populate("categoria", "nombreCategoria _id")
       .lean();
 
@@ -102,7 +102,7 @@ export const verProductosPorCategoria = async (req, res) => {
       stock: { $gt: 0 },
       activo: true
     })
-      .select('nombreProducto precio imagen stock categoria estado descripcion')
+      .select('nombreProducto precio imagen imagenIA modelo stock categoria estado descripcion')
       .populate('categoria', 'nombreCategoria _id')
       .populate({ path: "vendedor", select: "_id nombre apellido" })
       .sort({ createdAt: -1 })

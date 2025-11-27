@@ -458,7 +458,7 @@ export const verOrdenes = async (req, res) => {
     const ordenes = await Orden.find({ comprador: req.estudianteBDD._id })
       .populate({
         path: "producto",
-        select: "nombreProducto precio stock descripcion categoria estado activo vendidos imagen",
+        select: "nombreProducto precio stock descripcion categoria estado activo vendidos imagenIA modelo imagen",
       })
       .populate({
         path: "metodoPagoVendedor",
