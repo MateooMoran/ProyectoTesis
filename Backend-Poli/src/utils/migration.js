@@ -79,4 +79,71 @@ export function similitudCoseno(vecA, vecB) {
     }
 
     return dot / (magA * magB);
+}  
+Actualiza y actualzoia este 
+import mongoose from "mongoose";
+import { generarEmbedding } from "./embeddings.js"; 
+import Producto from "../models/Producto.js";
+import "dotenv/config";
+
+await mongoose.connect(process.env.MONGODB_URI_LOCAL);
+
+console.log("🚀 Conectado a MongoDB... Migrando embeddings a 1024 dimensiones (Cohere)");
+
+// Buscar todos los productos (incluso sin embedding para regenerarlos)
+const productos = await Producto.find({});
+
+console.log(`📦 Total productos a procesar: ${productos.length}\n`);
+
+let exitosos = 0;
+let errores = 0;
+let sinNormalizar = 0;
+
+for (let i = 0; i < productos.length; i++) {
+    const prod = productos[i];
+    const num = i + 1;
+    
+    // Verificar que tenga campos normalizados
+    if (!prod.nombreNormalizado || !prod.descripcionNormalizada) {
+        console.log(`⚠️  ${num}/${productos.length} - SIN NORMALIZAR: ${prod.nombreProducto} - Guardando para normalizar...`);
+        try {
+            // El pre-save hook normalizará automáticamente
+            await prod.save();
+            sinNormalizar++;
+        } catch (err) {
+            console.log(`❌ ${num}/${productos.length} - Error normalizando ${prod.nombreProducto}:`, err.message);
+            errores++;
+            continue;
+        }
+    }
+    
+    const texto = `${prod.nombreNormalizado} ${prod.descripcionNormalizada}`;
+    
+    try {
+        const nuevoEmbedding = await generarEmbedding(texto);
+        prod.embedding = nuevoEmbedding;
+        await prod.save();
+        exitosos++;
+        console.log(`✅ ${num}/${productos.length} - OK: ${prod.nombreProducto}`);
+    } catch (err) {
+        errores++;
+        console.log(`❌ ${num}/${productos.length} - Error en ${prod.nombreProducto}:`, err.message);
+    }
+    
+    // Pequeña pausa para no saturar la API de Cohere
+    if (num % 10 === 0) {
+        console.log(`⏸️  Pausa de 1 segundo cada 10 productos...\n`);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
 }
+
+console.log("\n" + "=".repeat(60));
+console.log("🎉 ¡MIGRACIÓN COMPLETA!");
+console.log("=".repeat(60));
+console.log(`✅ Exitosos: ${exitosos}`);
+console.log(`❌ Errores: ${errores}`);
+console.log(`⚠️  Sin normalizar (ahora normalizados): ${sinNormalizar}`);
+console.log(`📊 Total procesados: ${productos.length}`);
+console.log("=".repeat(60));
+
+process.exit();

@@ -161,7 +161,7 @@ const sendMailRecomendaciones = async (email, nombre, productos) => {
         const cardsHTML = productos.map(p => `
       <div style="display: flex; background-color: #f8f9fa; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); overflow: hidden;">
           <div style="flex: 1; max-width: 150px;">
-              <img src="${p.imagen || `${process.env.URL_FRONTEND}/default.jpg`}" 
+              <img src="${p.imagen || p.imagenIA || `${process.env.URL_FRONTEND}/default.jpg`}" 
                    alt="${p.nombreProducto}" 
                    style="width: 100%; height: 100%; object-fit: cover;">
           </div>

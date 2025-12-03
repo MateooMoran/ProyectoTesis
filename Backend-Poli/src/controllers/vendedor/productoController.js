@@ -73,14 +73,18 @@ export const crearProducto = async (req, res) => {
       nuevoProducto.imagenID = public_id
     }
 
-    // Generar embedding
-    try {
-      nuevoProducto.embedding = await generarEmbedding(`${nuevoProducto.nombreProducto} ${nuevoProducto.descripcion}`);
-    } catch (err) {
-      console.warn("No se pudo generar embedding:", err.message)
-    }
+    await nuevoProducto.save(); // Pre-save hook normaliza los campos
 
-    await nuevoProducto.save();
+    // Generar embedding usando campos normalizados (ya están listos después del save)
+    try {
+      nuevoProducto.embedding = await generarEmbedding(`${nuevoProducto.nombreNormalizado} ${nuevoProducto.descripcionNormalizada}`);
+      console.log("Embedding generado para nuevo producto");
+      await nuevoProducto.save(); // Guardar con el embedding
+    } catch (err) {
+      console.warn("No se pudo generar embedding, usando vector vacío:", err.message);
+      nuevoProducto.embedding = new Array(1024).fill(0);
+      await nuevoProducto.save();
+    }
     res.status(200).json({ msg: "Producto creado correctamente" });
   } catch (error) {
     console.error("Error crearProducto:", error);
@@ -132,6 +136,9 @@ export const actualizarProducto = async (req, res) => {
       producto.activo = activo ?? producto.activo;
     }
 
+    // Detectar si cambió nombre o descripción (necesita nuevo embedding)
+    const cambioTexto = (nombreProducto && nombreProducto.trim() !== producto.nombreProducto) ||
+                        (req.body.descripcion && req.body.descripcion !== producto.descripcion);
 
     // Imagen normal
     if (req.files?.imagen) {
@@ -175,14 +182,23 @@ export const actualizarProducto = async (req, res) => {
     }
 
 
-    // Actualizar embedding
-    try {
-      producto.embedding = await generarEmbedding(`${producto.nombreProducto} ${producto.descripcion}`);
-    } catch (err) {
-      console.warn("No se pudo generar embedding:", err.message);
-    }
+    await producto.save(); // Pre-save hook normaliza los campos
 
-    await producto.save();
+    // Solo regenerar embedding si cambió nombre o descripción
+    if (cambioTexto) {
+      console.log("🔄 Detectado cambio en nombre/descripción, regenerando embedding...");
+      try {
+        producto.embedding = await generarEmbedding(`${producto.nombreNormalizado} ${producto.descripcionNormalizada}`);
+        console.log("✅ Embedding actualizado para producto");
+        await producto.save(); // Guardar con el embedding actualizado
+      } catch (err) {
+        console.warn("⚠️ No se pudo generar embedding, usando vector vacío:", err.message);
+        producto.embedding = new Array(1024).fill(0);
+        await producto.save();
+      }
+    } else {
+      console.log("⏭️ Sin cambios en nombre/descripción, conservando embedding existente");
+    }
     res.status(200).json({ msg: "Producto actualizado correctamente" });
   } catch (error) {
     console.error("Error actualizarProducto:", error);
