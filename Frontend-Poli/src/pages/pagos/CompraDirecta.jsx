@@ -412,8 +412,6 @@ const CompraDirecta = () => {
 
             const data = await response.json();
             if (!response.ok) throw new Error(data.msg);
-
-            alert({ icon: 'success', title: '¡Orden creada y comprobante subido correctamente!' });
             setTimeout(() => navigate('/dashboard/estudiante/historial-pagos'), 2000);
         } catch (error) {
             alert({ icon: 'error', title: error.message || 'Error al procesar la orden' });

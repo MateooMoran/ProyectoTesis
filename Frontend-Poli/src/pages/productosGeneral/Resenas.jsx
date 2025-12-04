@@ -83,6 +83,22 @@ const SeccionResenas = ({ productoId, onEstadisticas }) => {
     verificarPermisos();
   }, [productoId, token, rol]);
 
+  // Antes de mostrar el formulario, verificar que el producto tenga stock
+  const handleMostrarFormulario = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/estudiante/productos/${productoId}`);
+      if (!res.ok) throw new Error('No se pudo verificar el producto');
+      const data = await res.json();
+      if (data.stock <= 0) {
+        return alert({ icon: 'warning', title: 'Sin stock', text: 'No puedes reseñar un producto que está sin stock.' });
+      }
+      setMostrarFormulario(!mostrarFormulario);
+    } catch (err) {
+      console.error('Error verificando stock antes de reseñar:', err);
+      alert({ icon: 'error', title: 'Error', text: 'No se pudo verificar el estado del producto.' });
+    }
+  };
+
   const enviarResena = async (e) => {
     e.preventDefault();
 
@@ -202,15 +218,15 @@ const SeccionResenas = ({ productoId, onEstadisticas }) => {
             </div>
 
             {/* Botón para reseñar */}
-            {token && puedeResenar && (
-              <button
-                onClick={() => setMostrarFormulario(!mostrarFormulario)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition flex items-center justify-center gap-2"
-              >
-                <Edit2 className="w-5 h-5" />
-                {miResena ? 'Editar mi reseña' : 'Escribir reseña'}
-              </button>
-            )}
+                      {token && puedeResenar && (
+                        <button
+                          onClick={handleMostrarFormulario}
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition flex items-center justify-center gap-2"
+                        >
+                          <Edit2 className="w-5 h-5" />
+                          {miResena ? 'Editar mi reseña' : 'Escribir reseña'}
+                        </button>
+                      )}
           </div>
 
           {/* Columna Derecha: Reseñas */}

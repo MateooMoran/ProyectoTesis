@@ -71,7 +71,7 @@ const Favoritos = () => {
                 <div className="max-w-7xl mx-auto px-4 py-8">
 
                     {/* Header */}
-                    <div className="text-center mb-15 lg:mb-10">
+                    <div className="text-center mb-15 lg:mb-10  ">
                     </div>
 
                     {/* Sin favoritos */}

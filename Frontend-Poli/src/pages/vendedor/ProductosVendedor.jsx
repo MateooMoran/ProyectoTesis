@@ -635,26 +635,26 @@ export default function ProductosVendedor() {
                                         </button>
                                     </div>
 
+                                    {modalProduct.modelo_url && (
+                                        <div className="w-full flex items-center justify-center mb-4">
+                                            <div className="w-full max-w-4xl">
+                                                <model-viewer
+                                                    src={modalProduct.modelo_url}
+                                                    alt={modalProduct.nombreProducto}
+                                                    auto-rotate
+                                                    camera-controls
+                                                    style={{ width: '100%', maxWidth: '840px', height: '420px', margin: '0 auto', display: 'block' }}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div className="md:col-span-1 flex flex-col gap-3">
                                             <div className="bg-gray-50 rounded-lg p-2 flex items-center justify-center">
                                                 <img src={getImageUrl(modalProduct)} alt={modalProduct.nombreProducto} className="w-full h-56 object-cover rounded" />
                                             </div>
 
-                                            {modalProduct.modelo_url && (
-                                                <div className="w-full bg-gray-50 rounded-lg p-2">
-                                                    {/* Model viewer: if `model-viewer` is available it will render; otherwise show fallback link */}
-                                                    <model-viewer
-                                                        src={modalProduct.modelo_url}
-                                                        alt={modalProduct.nombreProducto}
-                                                        auto-rotate
-                                                        camera-controls
-                                                        style={{ width: '100%', height: '240px' }}
-                                                    />
-                                                    <p className="text-xs text-gray-500 mt-2">Puedes rotar y acercar el modelo (si tu navegador lo soporta)</p>
-
-                                                </div>
-                                            )}
+                                            {/* model-viewer moved to top to center across the modal */}
                                         </div>
 
                                         <div className="md:col-span-2 max-h-[60vh] overflow-auto pr-2">
@@ -666,7 +666,6 @@ export default function ProductosVendedor() {
                                             </div>
                                             <div className="mt-4 flex gap-2">
                                                 <button onClick={() => { setShowModal(false); setActiveTab('crear'); editarProducto(modalProduct); }} className="px-4 py-2 bg-blue-600 text-white rounded-md">Editar</button>
-                                                <button onClick={() => { setShowModal(false); }} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md">Cerrar</button>
                                             </div>
                                         </div>
                                     </div>
