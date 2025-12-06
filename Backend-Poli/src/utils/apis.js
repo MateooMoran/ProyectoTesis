@@ -199,7 +199,6 @@ async function verificarStatusModelo3D(taskId, imageIdInner, reqContext, vendedo
       }
 
       if (status === "FAILED") {
-        throw new Error(`La generación del modelo 3D falló: ${task_error?.message || "Error desconocido"}`);
       }
 
       if (status === "CANCELED") {
