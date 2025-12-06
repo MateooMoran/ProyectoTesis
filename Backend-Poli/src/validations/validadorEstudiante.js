@@ -1,36 +1,18 @@
 import { check } from 'express-validator';
 
-const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-const repeticionFuerte = /(.)\1{2,}/;
+const soloLetrasRegex = /^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]+$/;
 
-function tienePatronRepetido(texto) {
-  const t = texto.toLowerCase().replace(/\s+/g, '').trim();
-
-  if (/^(.{1,3})\1{2,}$/.test(t)) return true;
-
-  for (let size = 2; size <= 4; size++) {
-    const base = t.slice(0, size);
-    let count = 0;
-
-    for (let i = 0; i < t.length; i += size) {
-      if (t.slice(i, i + size) === base) count++;
-    }
-
-    const repRatio = (count * size) / t.length;
-    if (repRatio >= 0.60) return true;
-  }
-
-  return false;
-}
+const textoValidoRegex =
+  /^(?!.*([a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ])\1{3,})(?!.*[<>@])[a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ\s.,#°-]+$/;
 
 export const registroValidations = [
   check('nombre')
     .notEmpty().withMessage('El nombre es obligatorio')
     .isLength({ min: 2, max: 20 }).withMessage('El nombre debe tener entre 2 y 20 caracteres')
     .custom(valor => {
-      if (!soloLetras.test(valor)) throw new Error('El nombre solo puede contener letras y espacios');
-      if (repeticionFuerte.test(valor)) throw new Error('El nombre contiene repeticiones excesivas');
-      if (tienePatronRepetido(valor)) throw new Error('El nombre contiene patrones repetitivos');
+      if (!soloLetrasRegex.test(valor)) {
+        throw new Error('El nombre solo puede contener letras y espacios');
+      }
       return true;
     }),
 
@@ -38,9 +20,9 @@ export const registroValidations = [
     .notEmpty().withMessage('El apellido es obligatorio')
     .isLength({ min: 2, max: 20 }).withMessage('El apellido debe tener entre 2 y 20 caracteres')
     .custom(valor => {
-      if (!soloLetras.test(valor)) throw new Error('El apellido solo puede contener letras y espacios');
-      if (repeticionFuerte.test(valor)) throw new Error('El apellido contiene repeticiones excesivas');
-      if (tienePatronRepetido(valor)) throw new Error('El apellido contiene patrones repetitivos');
+      if (!soloLetrasRegex.test(valor)) {
+        throw new Error('El apellido solo puede contener letras y espacios');
+      }
       return true;
     }),
 
@@ -50,7 +32,13 @@ export const registroValidations = [
 
   check('direccion')
     .notEmpty().withMessage('La dirección es obligatoria')
-    .isLength({ max: 50 }).withMessage('La dirección no puede exceder los 50 caracteres'),
+    .isLength({ max: 50 }).withMessage('La dirección no puede exceder los 50 caracteres')
+    .custom(valor => {
+      if (!textoValidoRegex.test(valor)) {
+        throw new Error('La dirección contiene caracteres no permitidos o patrones inválidos');
+      }
+      return true;
+    }),
 
   check('email')
     .notEmpty().withMessage('El email es obligatorio')
@@ -58,5 +46,11 @@ export const registroValidations = [
 
   check('password')
     .notEmpty().withMessage('La contraseña es obligatoria')
-    .isLength({ min: 4 }).withMessage('La contraseña debe tener al menos 4 caracteres'),
+    .isLength({ min: 4 }).withMessage('La contraseña debe tener al menos 4 caracteres')
+    .custom(valor => {
+      if (!textoValidoRegex.test(valor)) {
+        throw new Error('La contraseña contiene caracteres no permitidos o repeticiones excesivas');
+      }
+      return true;
+    }),
 ];
