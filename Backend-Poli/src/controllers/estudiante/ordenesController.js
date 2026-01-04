@@ -1,12 +1,12 @@
 import Orden from "../../models/Orden.js";
 import Producto from "../../models/Producto.js";
 import MetodoPagoVendedor from "../../models/MetodoPagoVendedor.js";
-import Notificacion from "../../models/Notificacion.js";
 import { crearNotificacionSocket } from "../../utils/notificaciones.js";
 import Stripe from 'stripe';
 import mongoose from "mongoose";
 import { v2 as cloudinary } from 'cloudinary';
 import { promises as fs } from 'fs';
+import { generarYEnviarRecomendaciones } from './recomendacionesController.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -26,7 +26,7 @@ export const crearOrden = async (req, res) => {
       await session.abortTransaction();
       return res.status(404).json({ msg: "Producto no encontrado" });
     }
-    
+
     // Validar que vendedores no puedan comprar sus propios productos
     if (req.estudianteBDD.rol === 'vendedor' && producto.vendedor.toString() === req.estudianteBDD._id.toString()) {
       await session.abortTransaction();
@@ -56,8 +56,8 @@ export const crearOrden = async (req, res) => {
     if (metodoPago.tipo === "retiro") {
       if (!metodoPago.lugares || metodoPago.lugares.length === 0) {
         await session.abortTransaction();
-        return res.status(400).json({ 
-          msg: "El vendedor no ha configurado lugares de retiro. No se puede procesar la compra" 
+        return res.status(400).json({
+          msg: "El vendedor no ha configurado lugares de retiro. No se puede procesar la compra"
         });
       }
 
@@ -83,7 +83,7 @@ export const crearOrden = async (req, res) => {
       subtotal,
       total: subtotal,
       metodoPagoVendedor: metodoPago._id,
-      tipoPago: metodoPago.tipo, 
+      tipoPago: metodoPago.tipo,
       lugarRetiroSeleccionado: lugarRetiro || null,
       estado: "pendiente_pago"
     });
@@ -92,13 +92,13 @@ export const crearOrden = async (req, res) => {
 
     //  RESERVAR STOCK: Descontar inmediatamente al crear la orden
     producto.stock = producto.stock - cantidad;
-    
+
     // Si se agota el stock, marcar como no disponible
     if (producto.stock <= 0) {
       producto.estado = "no disponible";
       producto.activo = false;
     }
-    
+
     await producto.save({ session });
 
     const mensajeNotificacion = lugarRetiro
@@ -108,6 +108,13 @@ export const crearOrden = async (req, res) => {
     await crearNotificacionSocket(req, producto.vendedor, mensajeNotificacion, "venta");
 
     await session.commitTransaction();
+
+    try {
+      generarYEnviarRecomendaciones(req.estudianteBDD._id).catch(err => console.error('Error recomendaciones (crearOrden):', err));
+    } catch (err) {
+      console.error('Error iniciando recomendaciones (crearOrden):', err);
+    }
+
     res.status(201).json({
       msg: "Orden creada exitosamente",
       orden
@@ -137,7 +144,7 @@ export const subirComprobante = async (req, res) => {
       await session.abortTransaction();
       return res.status(403).json({ msg: "No autorizado" });
     }
-    
+
     // RESTAURADA: Validar que la orden esté en estado pendiente_pago
     if (orden.estado !== "pendiente_pago") {
       await session.abortTransaction();
@@ -233,8 +240,8 @@ export const procesarPagoTarjeta = async (req, res) => {
         if (metodoPago.tipo === "retiro") {
           if (!metodoPago.lugares || metodoPago.lugares.length === 0) {
             await session.abortTransaction();
-            return res.status(400).json({ 
-              msg: "El vendedor no ha configurado lugares de retiro. No se puede procesar la compra" 
+            return res.status(400).json({
+              msg: "El vendedor no ha configurado lugares de retiro. No se puede procesar la compra"
             });
           }
 
@@ -242,7 +249,7 @@ export const procesarPagoTarjeta = async (req, res) => {
             await session.abortTransaction();
             return res.status(400).json({ msg: "Debes seleccionar un lugar de retiro" });
           }
-          
+
           if (!metodoPago.lugares.includes(lugarRetiro)) {
             await session.abortTransaction();
             return res.status(400).json({ msg: "El lugar de retiro seleccionado no es válido" });
@@ -264,7 +271,7 @@ export const procesarPagoTarjeta = async (req, res) => {
         subtotal,
         total: subtotal,
         metodoPagoVendedor: metodoPagoId,
-        tipoPago: "tarjeta", 
+        tipoPago: "tarjeta",
         lugarRetiroSeleccionado: lugarRetiro || null,
         estado: "pendiente_pago"
       });
@@ -273,13 +280,13 @@ export const procesarPagoTarjeta = async (req, res) => {
 
       // RESERVAR STOCK: Descontar inmediatamente al crear la orden con Stripe
       producto.stock = producto.stock - cantidad;
-      
+
       // Si se agota el stock, marcar como no disponible
       if (producto.stock <= 0) {
         producto.estado = "no disponible";
         producto.activo = false;
       }
-      
+
       await producto.save({ session });
 
     } else {
@@ -328,6 +335,13 @@ export const procesarPagoTarjeta = async (req, res) => {
     await crearNotificacionSocket(req, orden.vendedor, `Se ha procesado un pago con tarjeta para la orden ${orden._id}`, "venta");
 
     await session.commitTransaction();
+
+    try {
+      generarYEnviarRecomendaciones(req.estudianteBDD._id).catch(err => console.error('Error recomendaciones (procesarPagoTarjeta):', err));
+    } catch (err) {
+      console.error('Error iniciando recomendaciones (procesarPagoTarjeta):', err);
+    }
+
     res.json({
       msg: "Pago con tarjeta procesado correctamente",
       orden,
@@ -420,13 +434,13 @@ export const cancelarOrden = async (req, res) => {
     const producto = await Producto.findById(orden.producto).session(session);
     if (producto) {
       producto.stock = producto.stock + orden.cantidad;
-      
+
       // Si estaba agotado y ahora hay stock, reactivar
       if (producto.stock > 0 && producto.estado === "no disponible") {
         producto.estado = "disponible";
         producto.activo = true;
       }
-      
+
       await producto.save({ session });
     }
 
