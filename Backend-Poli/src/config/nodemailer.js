@@ -1,15 +1,16 @@
-import sgMail from "@sendgrid/mail";
+import { Resend } from "resend";
 import dotenv from "dotenv";
 dotenv.config();
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-const sendMailToRegister = (nombre, userMail, token) => {
-    const msg = {
-        to: userMail,
-        from: `PoliVentas 🦉 <${process.env.FROM_EMAIL}>`,
-        subject: "🦉 PoliVentas - Confirmar tu cuenta",
-        html: `
+const sendMailToRegister = async (nombre, userMail, token) => {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: `PoliVentas 🦉 <${process.env.FROM_EMAIL}>`,
+      to: userMail,
+      subject: "🦉 PoliVentas - Confirmar tu cuenta",
+      html: `
     <div
         style="font-family: Arial, sans-serif; max-width: 600px; margin: 30px auto; padding: 20px; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: #fafafa; text-align: center;">
         <h2 style="font-size: 28px; color: #2C3E50; margin-bottom: 15px; line-height: 1.3;">
@@ -35,20 +36,28 @@ const sendMailToRegister = (nombre, userMail, token) => {
         </footer>
     </div>
     `
-    };
+    });
 
-    sgMail
-        .send(msg)
-        .then(info => console.log("Correo de registro enviado:", info[0]?.statusCode))
-        .catch(err => console.error("Error al enviar correo de registro:", err));
+    if (error) {
+      console.error("Error al enviar correo de registro:", error);
+      return false;
+    }
+
+    console.log("Correo de registro enviado:", data?.id);
+    return true;
+  } catch (err) {
+    console.error("Error al enviar correo de registro:", err);
+    return false;
+  }
 };
 
-const sendMailToRecoveryPassword = (userMail, token) => {
-    const msg = {
-        to: userMail,
-        from: `PoliVentas 🦉 <${process.env.FROM_EMAIL}>`,
-        subject: "🦉 PoliVentas - Recuperar tu contraseña",
-        html: `
+const sendMailToRecoveryPassword = async (userMail, token) => {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: `PoliVentas 🦉 <${process.env.FROM_EMAIL}>`,
+      to: userMail,
+      subject: "🦉 PoliVentas - Recuperar tu contraseña",
+      html: `
     <div
         style="font-family: Arial, sans-serif; max-width: 600px; margin: 30px auto; padding: 20px; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: #fafafa; text-align: center;">
         <h2 style="font-size: 26px; color: #2C3E50; margin-bottom: 15px;">
@@ -74,17 +83,24 @@ const sendMailToRecoveryPassword = (userMail, token) => {
         </footer>
     </div>
     `
-    };
+    });
 
-    sgMail
-        .send(msg)
-        .then(info => console.log("Correo de recuperación enviado:", info[0]?.statusCode))
-        .catch(err => console.error("Error al enviar correo de recuperación:", err));
+    if (error) {
+      console.error("Error al enviar correo de recuperación:", error);
+      return false;
+    }
+
+    console.log("Correo de recuperación enviado:", data?.id);
+    return true;
+  } catch (err) {
+    console.error("Error al enviar correo de recuperación:", err);
+    return false;
+  }
 };
 
-const sendMailToAssignSeller = (userMail, nombreVendedor, rol) => {
-    const mensajeHTML = rol === "vendedor"
-        ? `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 30px auto; padding: 20px; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: #fafafa; text-align: center;">
+const sendMailToAssignSeller = async (userMail, nombreVendedor, rol) => {
+  const mensajeHTML = rol === "vendedor"
+    ? `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 30px auto; padding: 20px; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: #fafafa; text-align: center;">
             <h2 style="font-size: 26px; color: #2C3E50; margin-bottom: 15px;">¡Felicidades, ${nombreVendedor}!</h2>
             <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Escuela_Polit%C3%A9cnica_Nacional.png" alt="Logo EPN" style="height: 100px; margin-top: 20px; margin-bottom: 20px;">
             <p style="font-size: 16px; color: #333; margin-bottom: 30px;">
@@ -98,7 +114,7 @@ const sendMailToAssignSeller = (userMail, nombreVendedor, rol) => {
             <hr style="border: none; border-top: 1px solid #ddd; margin: 40px 0 10px;">
             <footer style="font-size: 0.9em; color: #777;">El equipo de <strong>PoliVentas</strong> está para ayudarte.<br>© ${new Date().getFullYear()} PoliVentas - EPN</footer>
         </div>`
-        : `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 30px auto; padding: 20px; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: #fff8f8; text-align: center;">
+    : `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 30px auto; padding: 20px; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: #fff8f8; text-align: center;">
             <h2 style="font-size: 26px; color: #C0392B; margin-bottom: 15px;">Qué pena, ${nombreVendedor} 😢</h2>
             <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Escuela_Polit%C3%A9cnica_Nacional.png" alt="Logo EPN" style="height: 100px; margin-top: 20px; margin-bottom: 20px;">
             <p style="font-size: 16px; color: #333; margin-bottom: 30px;">Se te ha quitado el rol de <strong>vendedor</strong> en <strong>PoliVentas</strong>. Ahora tienes permisos como <strong>${rol}</strong>. Puedes seguir accediendo a tu cuenta, pero tus productos y ventas se encuentran inactivos.</p>
@@ -107,27 +123,36 @@ const sendMailToAssignSeller = (userMail, nombreVendedor, rol) => {
             <footer style="font-size: 0.9em; color: #777;">El equipo de <strong>PoliVentas</strong> sigue contigo 💪<br>© ${new Date().getFullYear()} PoliVentas - EPN</footer>
         </div>`;
 
-    const msg = {
-        to: userMail,
-        from: `PoliVentas 🦉 <${process.env.FROM_EMAIL}>`,
-        subject: rol === "vendedor"
-            ? "🦉 PoliVentas - Has sido asignado como Vendedor"
-            : "🦉 PoliVentas - Cambio de Rol",
-        html: mensajeHTML
-    };
+  try {
+    const { data, error } = await resend.emails.send({
+      from: `PoliVentas 🦉 <${process.env.FROM_EMAIL}>`,
+      to: userMail,
+      subject: rol === "vendedor"
+        ? "🦉 PoliVentas - Has sido asignado como Vendedor"
+        : "🦉 PoliVentas - Cambio de Rol",
+      html: mensajeHTML
+    });
 
-    sgMail
-        .send(msg)
-        .then(info => console.log("Correo de asignación enviado:", info[0]?.statusCode))
-        .catch(err => console.error("Error al enviar correo de asignación:", err));
+    if (error) {
+      console.error("Error al enviar correo de asignación:", error);
+      return false;
+    }
+
+    console.log("Correo de asignación enviado:", data?.id);
+    return true;
+  } catch (err) {
+    console.error("Error al enviar correo de asignación:", err);
+    return false;
+  }
 };
 
-const sendMailWelcomeWithPassword = (userMail, nombre, plainPassword) => {
-    const msg = {
-        to: userMail,
-        from: `PoliVentas 🦉 <${process.env.FROM_EMAIL}>`,
-        subject: "🦉 Bienvenido/a a PoliVentas - Tu clave de acceso",
-        html: `
+const sendMailWelcomeWithPassword = async (userMail, nombre, plainPassword) => {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: `PoliVentas 🦉 <${process.env.FROM_EMAIL}>`,
+      to: userMail,
+      subject: "🦉 Bienvenido/a a PoliVentas - Tu clave de acceso",
+      html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 30px auto; padding: 20px; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: #fafafa; text-align: center;">
         <h2 style="font-size: 26px; color: #2C3E50; margin-bottom: 15px;">¡Hola ${nombre}! 👋<br>Bienvenido/a a PoliVentas</h2>
         <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Escuela_Polit%C3%A9cnica_Nacional.png" alt="Logo EPN" style="height: 100px; margin-top: 20px; margin-bottom: 20px;">
@@ -143,22 +168,29 @@ const sendMailWelcomeWithPassword = (userMail, nombre, plainPassword) => {
         <footer style="font-size: 0.9em; color: #777;">El equipo de <strong>PoliVentas</strong> está para ayudarte.<br>© ${new Date().getFullYear()} PoliVentas - EPN</footer>
     </div>
     `
-    };
+    });
 
-    sgMail
-        .send(msg)
-        .then(info => console.log("Correo de bienvenida enviado:", info[0]?.statusCode))
-        .catch(err => console.error("Error al enviar correo de bienvenida:", err));
+    if (error) {
+      console.error("Error al enviar correo de bienvenida:", error);
+      return false;
+    }
+
+    console.log("Correo de bienvenida enviado:", data?.id);
+    return true;
+  } catch (err) {
+    console.error("Error al enviar correo de bienvenida:", err);
+    return false;
+  }
 };
 
 const sendMailRecomendaciones = async (email, nombre, productos) => {
-    if (!productos || productos.length === 0) {
-        console.log("⚠️ No hay productos para recomendar");
-        return;
-    }
+  if (!productos || productos.length === 0) {
+    console.log("No hay productos para recomendar");
+    return false;
+  }
 
-    try {
-        const cardsHTML = productos.map(p => `
+  try {
+    const cardsHTML = productos.map(p => `
       <div style="display: flex; background-color: #f8f9fa; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); overflow: hidden;">
           <div style="flex: 1; max-width: 150px;">
               <img src="${p.imagen || p.imagenIA || `${process.env.URL_FRONTEND}/default.jpg`}" 
@@ -177,7 +209,7 @@ const sendMailRecomendaciones = async (email, nombre, productos) => {
       </div>
     `).join("");
 
-        const html = `
+    const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 30px auto; padding: 20px; border-radius: 10px; background: #ffffff; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
           <h2 style="color: #0A2342; margin-bottom: 20px;">¡Hola ${nombre}! 👋</h2>
           <p style="color: #555; font-size: 16px; margin-bottom: 30px;">
@@ -198,31 +230,31 @@ const sendMailRecomendaciones = async (email, nombre, productos) => {
       </div>
     `;
 
-        const msg = {
-            to: email,
-            from: `PoliVentas 🦉 <${process.env.FROM_EMAIL}>`,
-            subject: "🦉 Tus recomendaciones personalizadas en PoliVentas",
-            html
-        };
+    const { data, error } = await resend.emails.send({
+      from: `PoliVentas 🦉 <${process.env.FROM_EMAIL}>`,
+      to: email,
+      subject: "🦉 Tus recomendaciones personalizadas en PoliVentas",
+      html
+    });
 
-        const info = await sgMail.send(msg);
-        console.log("✅ Correo de recomendaciones enviado:", info[0]?.statusCode);
-        return true;
-
-    } catch (error) {
-        console.error("❌ Error al enviar recomendaciones:", {
-            error: error.message,
-            code: error.code,
-            response: error.response?.body
-        });
-        return false;
+    if (error) {
+      console.error("Error al enviar recomendaciones:", error);
+      return false;
     }
+
+    console.log("Correo de recomendaciones enviado:", data?.id);
+    return true;
+
+  } catch (error) {
+    console.error("Error al enviar recomendaciones:", error);
+    return false;
+  }
 };
 
 const sendMailOrdenCompra = async (email, nombre, orden) => {
   if (!orden || !orden.productos || orden.productos.length === 0) {
     console.log("⚠️ No hay productos en la orden");
-    return;
+    return false;
   }
 
   try {
@@ -247,9 +279,9 @@ const sendMailOrdenCompra = async (email, nombre, orden) => {
       </tr>
     `).join("");
 
-    const msg = {
-      to: email,
+    const { data, error } = await resend.emails.send({
       from: `PoliVentas 🦉 <${process.env.FROM_EMAIL}>`,
+      to: email,
       subject: "🦉 PoliVentas - Factura de tu Orden",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 650px; margin: 20px auto; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
@@ -297,31 +329,28 @@ const sendMailOrdenCompra = async (email, nombre, orden) => {
           </div>
 
         </div>
-      `,
-    };
+      `
+    });
 
-    const info = await sgMail.send(msg);
-    console.log("✅ Correo de factura enviado:", info[0]?.statusCode);
+    if (error) {
+      console.error("Error al enviar correo de factura:", error);
+      return false;
+    }
+
+    console.log("Correo de factura enviado:", data?.id);
     return true;
 
   } catch (error) {
-    console.error("❌ Error al enviar correo de factura:", {
-      error: error.message,
-      code: error.code,
-      response: error.response?.body
-    });
+    console.error("Error al enviar correo de factura:", error);
     return false;
   }
 };
 
-
-
-
 export {
-    sendMailToRegister,
-    sendMailToRecoveryPassword,
-    sendMailToAssignSeller,
-    sendMailWelcomeWithPassword,
-    sendMailRecomendaciones,
-    sendMailOrdenCompra
+  sendMailToRegister,
+  sendMailToRecoveryPassword,
+  sendMailToAssignSeller,
+  sendMailWelcomeWithPassword,
+  sendMailRecomendaciones,
+  sendMailOrdenCompra
 };

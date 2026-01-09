@@ -1,6 +1,5 @@
 import Estudiante from "../../models/Estudiante.js";
 import mongoose from "mongoose";
-import { generarYEnviarRecomendaciones } from "./recomendacionesController.js";
 
 // Agregar o quitar favorito (toggle)
 export const seleccionarFavorito = async (req, res) => {
@@ -36,11 +35,6 @@ export const seleccionarFavorito = async (req, res) => {
 
     await estudiante.save();
 
-    //  Solo generar recomendaciones si se agregó
-    if (agregado) {
-      generarYEnviarRecomendaciones(estudianteId)
-        .catch(err => console.error("Error al enviar recomendaciones:", err));
-    }
 
     res.status(200).json({ msg, favoritos: estudiante.favoritos });
 
