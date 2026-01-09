@@ -15,6 +15,16 @@ beforeAll(() => {
     import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY = 'pk_test_mock';
 });
 
+// Mock de URL.createObjectURL (no implementado en jsdom por defecto)
+if (!global.URL) {
+    // jsdom debería definir URL, pero por si acaso
+    global.URL = {};
+}
+
+if (!global.URL.createObjectURL) {
+    global.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+}
+
 // Mock de window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
     writable: true,
