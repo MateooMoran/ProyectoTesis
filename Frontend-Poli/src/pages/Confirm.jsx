@@ -23,14 +23,17 @@ export const Confirm = () => {
 
     return (
         <div className="flex flex-col items-center justify-center h-screen bg-gray-100 px-4">
-            
 
             {/* Imagen de confirmación */}
-            <img
-                className="h-50 w-50 sm:h-48 sm:w-48 lg:h-60 lg:w-60"
-                src={confirmImage}
-                alt="Confirmación exitosa"
-            />
+            <div className="mb-6 flex items-center justify-center">
+                <div className="w-40 h-40 sm:w-48 sm:h-48 lg:w-60 lg:h-60">
+                    <img
+                        className="w-full h-full object-contain"
+                        src={confirmImage}
+                        alt="Confirmación exitosa"
+                    />
+                </div>
+            </div>
 
             {/* Mensaje de confirmación */}
             <div className="w-full max-w-lg bg-white p-10 rounded-lg shadow-lg text-center">
