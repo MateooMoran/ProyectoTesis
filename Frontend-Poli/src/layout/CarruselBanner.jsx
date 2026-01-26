@@ -123,11 +123,11 @@ const Carrusel = () => {
                 <div className="mb-10">
                     <Slider {...bannerSettings}>
                         {bannerImages.map((banner) => (
-                            <div key={banner.id} className="relative w-full h-[300px] md:h-[400px] lg:h-[720px]">
+                            <div key={banner.id} className="relative w-full h-56 sm:h-64 md:h-80 lg:h-[480px] xl:h-[640px]">
                                 <img
                                     src={banner.src}
                                     alt={banner.alt}
-                                    className="absolute inset-0 w-full h-full object-center"
+                                    className="absolute inset-0 w-full h-full object-cover object-center"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent flex items-end p-6">
                                     <div className="text-white ml-4">
@@ -150,7 +150,7 @@ const Carrusel = () => {
                                     <img
                                         src={assoc.src}
                                         alt={assoc.alt}
-                                        className="w-full h-24 object-contain rounded"
+                                        className="w-full h-20 sm:h-24 md:h-28 lg:h-32 object-contain rounded"
                                     />
                                     <p className="text-center text-sm font-semibold text-gray-800 mt-2 mb-6">{assoc.alt}</p>
                                 </div>

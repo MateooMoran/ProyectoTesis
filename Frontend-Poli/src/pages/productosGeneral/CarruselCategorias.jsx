@@ -91,7 +91,7 @@ const CategoriesCarousel = ({
                                 <img
                                     src={categoria.Imagen || categoryImages[categoria.nombreCategoria] || RopaImg}
                                     alt={categoria.nombreCategoria}
-                                    className="w-full h-[300px] object-cover"
+                                    className="w-full h-52 sm:h-60 md:h-[300px] object-cover"
                                 />
 
                                 {/* Botón “Ver más” ancho completo */}

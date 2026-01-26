@@ -143,11 +143,11 @@ const ProductCarousel = ({
                                     <div className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 p-4">
                                         <div className="relative mb-3">
                                             <Link to={productLink} className="block">
-                                                    <img
-                                                        src={getImageUrl(producto)}
-                                                        alt={producto.nombreProducto}
-                                                        className="w-full h-48 object-cover rounded-md hover:shadow-md transition-shadow duration-300"
-                                                    />
+                                                <img
+                                                    src={getImageUrl(producto)}
+                                                    alt={producto.nombreProducto}
+                                                    className="w-full h-56 sm:h-64 object-cover rounded-md hover:shadow-md transition-shadow duration-300"
+                                                />
                                             </Link>
                                             {producto.stock <= 5 && (
                                                 <span className="absolute top-2 left-2 bg-red-800 text-white text-xs font-semibold px-2 py-1 rounded">
