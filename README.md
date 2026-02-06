@@ -1,4 +1,5 @@
-# Proyecto **PoliVentas** 🦉  
+# Proyecto **PoliVentas** 🦉 
+Poliventas es una sistema Web que permite la compra y venta de articulos por y para los estudiantes de la Escuela Politécnica Nacional.
 
 <img src="https://github.com/user-attachments/assets/9d581326-80c7-4da6-8006-4e4e09c2595f" alt="Logo PoliVentas" width="200"/>
 
