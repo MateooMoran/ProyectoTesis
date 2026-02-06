@@ -6,16 +6,17 @@
 - **David Muela** – Backend  
 - **Mateo Moran** – Frontend
 
-## 📊 Resultados de Pruebas
+## 📬 Documentacion - Backend
 
-- **PageSpeed Insights** :  
-  [Ver análisis completo](https://pagespeed.web.dev/analysis/https-poliventa-netlify-app/qvlthbx5ai?form_factor=desktop&category=performance&category=accessibility&category=best-practices&category=seo&hl=es-419&utm_source=lh-chrome-ext)
 
-## 🚀 Despliegue
+## 📬 Documentacion - Frontend
 
-- 🔗 **Backend (Render):** [https://proyectotesis-t6t2.onrender.com](https://proyectotesis-t6t2.onrender.com)  
-- 🔗 **Frontend (Netlify):** [https://poliventa.netlify.app](https://poliventa.netlify.app)
+**Documento de tesis [Tesis_Mateo_Moran.pdf](https://github.com/user-attachments/files/25115164/Tesis_Mateo_Moran.pdf)
 
-## 📬 Documentación de la API
+**Documento F_AA_233 [F_AA_233.pdf](https://github.com/user-attachments/files/25115165/F_AA_233.pdf)
 
-- 🔗 [Documentación en Postman](https://documenter.getpostman.com/view/45748353/2sB2x6kX2Q)
+**Video: [https://www.youtube.com/watch?v=RA8YkOY7s7M]
+
+**Despliegue Frontend (Netlify):**[PoliVentas](https://poliventas.shop)
+
+
