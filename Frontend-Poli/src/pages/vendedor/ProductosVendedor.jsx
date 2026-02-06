@@ -68,19 +68,47 @@ export default function ProductosVendedor() {
         if (progresoModelo === 100 && !generandoModelo) {
             const recargarProductos = async () => {
                 try {
+                    console.log('🔄 [ProductosVendedor] Recargando productos tras completar modelo');
                     const urlProd = `${import.meta.env.VITE_BACKEND_URL}/vendedor/visualizar/producto`;
                     const prodData = await fetchDataBackend(urlProd, {
                         method: "GET",
                         config: { headers },
                     });
                     setProductos(prodData);
+                    console.log('✅ [ProductosVendedor] Productos recargados');
                 } catch (error) {
                     console.error('Error recargando productos:', error);
                 }
             };
             recargarProductos();
         }
-    }, [progresoModelo, generandoModelo, modeloUrl]);
+    }, [progresoModelo, generandoModelo]);
+
+    // Escuchar evento de modelo completado desde el botón flotante
+    useEffect(() => {
+        const handleModelo3DCompletado = async (event) => {
+            console.log('🎉 [ProductosVendedor] Evento modelo3DCompletado recibido:', event.detail);
+            try {
+                const urlProd = `${import.meta.env.VITE_BACKEND_URL}/vendedor/visualizar/producto`;
+                const prodData = await fetchDataBackend(urlProd, {
+                    method: "GET",
+                    config: { headers },
+                });
+                setProductos(prodData);
+                
+                // Si estamos editando ese producto, actualizar también su modelo en el formulario
+                if (editingId === event.detail.productoId) {
+                    setModeloUrl(event.detail.modelo_url);
+                }
+                console.log('✅ [ProductosVendedor] Productos actualizados tras evento');
+            } catch (error) {
+                console.error('Error recargando productos:', error);
+            }
+        };
+
+        window.addEventListener('modelo3DCompletado', handleModelo3DCompletado);
+        return () => window.removeEventListener('modelo3DCompletado', handleModelo3DCompletado);
+    }, [editingId]);
 
     // Cargar categorías
     useEffect(() => {

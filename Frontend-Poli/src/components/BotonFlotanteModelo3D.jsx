@@ -60,13 +60,18 @@ function BotonFlotanteModelo3D() {
                             const audio = new Audio('/notification.mp3');
                             audio.play().catch(() => {});
                         } catch (e) {}
+                        
+                        // Emitir evento personalizado para que ProductosVendedor recargue
+                        window.dispatchEvent(new CustomEvent('modelo3DCompletado', { 
+                            detail: { productoId, modelo_url } 
+                        }));
                     }
                     
-                    // Limpiar después de 3 segundos
+                    // Limpiar después de 5 segundos para que el usuario vea la notificación
                     setTimeout(() => {
                         cancelarGeneracion();
                         notificadoRef.current = false;
-                    }, 3000);
+                    }, 5000);
                 } else if (status === 'FAILED') {
                     console.log('❌ [Flotante] Generación falló');
                     cancelarGeneracion();
