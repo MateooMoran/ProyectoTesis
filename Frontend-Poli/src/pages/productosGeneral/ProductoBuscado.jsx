@@ -40,7 +40,7 @@ const ProductosBuscados = () => {
 
   const settings = {
     dots: false,
-    infinite: productos.length > 4,
+    infinite: productos.length > 1,
     speed: 700,
     slidesToShow: 4,
     slidesToScroll: 1,
@@ -51,11 +51,12 @@ const ProductosBuscados = () => {
     prevArrow: <SamplePrevArrow />,
     nextArrow: <SampleNextArrow />,
     responsive: [
-      { breakpoint: 1536, settings: { slidesToShow: 5 } },
-      { breakpoint: 1280, settings: { slidesToShow: 4 } },
-      { breakpoint: 1024, settings: { slidesToShow: 3 } },
-      { breakpoint: 768, settings: { slidesToShow: 2 } },
-      { breakpoint: 640, settings: { slidesToShow: 1 } },
+      { breakpoint: 1536, settings: { slidesToShow: 5, infinite: productos.length > 5 } },
+      { breakpoint: 1280, settings: { slidesToShow: 4, infinite: productos.length > 4 } },
+      { breakpoint: 1024, settings: { slidesToShow: 3, infinite: productos.length > 3 } },
+      { breakpoint: 768, settings: { slidesToShow: 2, infinite: productos.length > 2 } },
+      { breakpoint: 640, settings: { slidesToShow: 1, infinite: productos.length > 1, arrows: false } },
+      { breakpoint: 480, settings: { slidesToShow: 1, infinite: productos.length > 1, arrows: false } }
     ],
   };
 

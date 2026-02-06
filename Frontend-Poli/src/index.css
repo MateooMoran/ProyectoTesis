@@ -105,16 +105,25 @@ body {
     .slick-next { right: -10px !important; }
 }
 
-@media (max-width: 640px) { /* sm */
+@media (max-width: 640px) { /* sm - Ocultar flechas en móvil */
     .slick-prev, .slick-next {
-        width: 32px !important;
-        height: 32px !important;
+        display: none !important;
     }
-    .slick-prev:after, .slick-next:after {
-        width: 16px !important;
-        height: 16px !important;
-        padding: 1.5px !important;
+}
+
+@media (max-width: 480px) { /* xs - Móvil pequeño */
+    .slick-prev, .slick-next {
+        display: none !important;
     }
-    .slick-prev { left: -6px !important; }
-    .slick-next { right: -6px !important; }
+    
+    /* Asegurar que las cards no se aplasten */
+    .slick-slide > div {
+        padding: 0 4px !important;
+    }
+    
+    /* Mejorar espaciado de contenedores en móvil */
+    .slick-list {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
 }

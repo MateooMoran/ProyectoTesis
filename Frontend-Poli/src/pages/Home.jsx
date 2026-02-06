@@ -135,7 +135,7 @@ export const Home = () => {
       </header>
 
       {/* Contenido principal con padding para header fijo */}
-      <div className="pt-40 sm:pt-24 md:pt-20 lg:pt-16">
+      <div className="pt-55 sm:pt-24 md:pt-20 lg:pt-16">
         {/* Hero Section */}
         <Carrusel />
 
@@ -143,6 +143,7 @@ export const Home = () => {
         <main className="bg-white-50">
           <div className="container mx-auto px-4">
             <CarruselCategorias
+              key={`cat-${categorias.length}`}
               categorias={categorias}
               productos={productos}
               loadingCategorias={loadingCategorias}
@@ -151,6 +152,7 @@ export const Home = () => {
 
             {/* ✅ CARRUSEL 1: */}
             <CarruselProductos
+              key={`new-${productos.length}`}
               productos={productos}
               loading={loadingProductos}
               error={error}
@@ -160,6 +162,7 @@ export const Home = () => {
 
             {/* ✅ CARRUSEL 2: DESCUENTOS */}
             <CarruselProductos
+              key={`stock-${productos.filter(p => p.stock <= 5).length}`}
               productos={productos.filter(p => p.stock <= 5)}
               loading={loadingProductos}
               error={error}

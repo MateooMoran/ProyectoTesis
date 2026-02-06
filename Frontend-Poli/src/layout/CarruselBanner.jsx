@@ -111,8 +111,11 @@ const Carrusel = () => {
         pauseOnFocus: false,
         swipe: true,
         responsive: [
-            { breakpoint: 768, settings: { slidesToShow: 3, centerPadding: '10px' } },
-            { breakpoint: 480, settings: { slidesToShow: 2, centerPadding: '5px' } }
+            { breakpoint: 1280, settings: { slidesToShow: 4, centerPadding: '15px' } },
+            { breakpoint: 1024, settings: { slidesToShow: 3, centerPadding: '15px' } },
+            { breakpoint: 768, settings: { slidesToShow: 2, centerPadding: '10px', arrows: false } },
+            { breakpoint: 640, settings: { slidesToShow: 2, centerPadding: '5px', arrows: false } },
+            { breakpoint: 480, settings: { slidesToShow: 1, centerPadding: '5px', arrows: false } }
         ]
     };
 
@@ -123,11 +126,11 @@ const Carrusel = () => {
                 <div className="mb-10">
                     <Slider {...bannerSettings}>
                         {bannerImages.map((banner) => (
-                            <div key={banner.id} className="relative w-full h-56 sm:h-64 md:h-80 lg:h-[480px] xl:h-[640px]">
+                            <div key={banner.id} className="relative w-full h-[300px] md:h-[400px] lg:h-[720px]">
                                 <img
                                     src={banner.src}
                                     alt={banner.alt}
-                                    className="absolute inset-0 w-full h-full object-cover object-center"
+                                    className="absolute inset-0 w-full h-full object-center"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent flex items-end p-6">
                                     <div className="text-white ml-4">

@@ -46,7 +46,7 @@ const CategoriesCarousel = ({
 
     const settings = {
         dots: false,
-        infinite: true,
+        infinite: categorias.length > 1,
         speed: 700,
         slidesToShow: 6,
         slidesToScroll: 1,
@@ -54,10 +54,12 @@ const CategoriesCarousel = ({
         autoplaySpeed: 2000,
         arrows: false,
         responsive: [
-            { breakpoint: 1280, settings: { slidesToShow: 4 } },
-            { breakpoint: 1024, settings: { slidesToShow: 3 } },
-            { breakpoint: 768, settings: { slidesToShow: 2 } },
-            { breakpoint: 480, settings: { slidesToShow: 1 } },
+            { breakpoint: 1536, settings: { slidesToShow: 6, infinite: categorias.length > 6 } },
+            { breakpoint: 1280, settings: { slidesToShow: 5, infinite: categorias.length > 5 } },
+            { breakpoint: 1024, settings: { slidesToShow: 4, infinite: categorias.length > 4 } },
+            { breakpoint: 768, settings: { slidesToShow: 3, infinite: categorias.length > 3 } },
+            { breakpoint: 640, settings: { slidesToShow: 2, infinite: categorias.length > 2 } },
+            { breakpoint: 480, settings: { slidesToShow: 2, infinite: categorias.length > 2 } }
         ],
     };
 
