@@ -163,18 +163,28 @@ export const consultarEstadoModelo = async (req, res) => {
       const { status, progress = 0 } = progresoData;
       console.log("📊 Estado recibido de Meshy:", { status, progress });
 
-      // Si está completado pero no tiene modelo_url, el proceso background falló
-      if (status === 'SUCCEEDED' && progress === 100 && !producto.modelo_url) {
-        console.log("⚠️ Modelo completado en Meshy pero falta modelo_url, reseteando...");
-        producto.task_id = null;
-        producto.progreso = 0;
-        await producto.save();
-        
+      // Verificar si el modelo_url ya existe (proceso background completado)
+      if (producto.modelo_url) {
+        console.log("✅ modelo_url ya existe en BD:", producto.modelo_url);
+        // Limpiar task_id si aún no se limpió
+        if (producto.task_id) {
+          producto.task_id = null;
+          await producto.save();
+        }
         return res.status(200).json({
-          status: 'FAILED',
-          progress: 0,
-          modelo_url: null,
-          msg: 'Generación falló. Por favor intenta de nuevo.'
+          status: 'SUCCEEDED',
+          progress: 100,
+          modelo_url: producto.modelo_url
+        });
+      }
+
+      // Si está completado en Meshy pero no hay modelo_url, aún está procesando en background
+      if (status === 'SUCCEEDED' && progress === 100) {
+        console.log("⏳ Modelo completado en Meshy, esperando descarga/subida...");
+        return res.status(200).json({
+          status: 'IN_PROGRESS',
+          progress: 99, // Mostrar 99% para indicar que falta la subida
+          modelo_url: null
         });
       }
 

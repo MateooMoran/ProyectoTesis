@@ -107,11 +107,13 @@ export async function crearModelo3D(imagenCloudinary, imageId, req) {
                 modelo_url: uploadResult.secure_url,
                 model_id: uploadResult.public_id,
                 estadoModelo3D: 'completed',
-                mensajeError: null
+                mensajeError: null,
+                progreso: 100,
+                // NO eliminar task_id aquí, se eliminará después de notificación
               },
               { new: true }
             );
-            console.log(`Producto ${imageIdInner} actualizado con modelo 3D`);
+            console.log(`✅ Producto ${imageIdInner} actualizado con modelo 3D:`, uploadResult.secure_url);
 
             // Notificar éxito
             if (vendedorId && reqContext) {
@@ -119,12 +121,17 @@ export async function crearModelo3D(imagenCloudinary, imageId, req) {
                 await crearNotificacionSocket(reqContext, vendedorId, 
                   "¡Tu modelo 3D se ha generado exitosamente! Ya puedes visualizarlo.", 
                   "sistema");
+                console.log("✅ Notificación de éxito enviada");
               } catch (notifError) {
-                console.error("Error enviando notificación de éxito:", notifError.message);
+                console.error("❌ Error enviando notificación de éxito:", notifError.message);
               }
             }
+
+            // Ahora sí, limpiar task_id después de todo completado
+            await Producto.findByIdAndUpdate(imageIdInner, { task_id: null });
+            console.log(`🧹 task_id limpiado para producto ${imageIdInner}`);
           } catch (err) {
-            console.error("Error actualizando producto con modelo 3D:", err.message || err);
+            console.error("❌ Error actualizando producto con modelo 3D:", err.message || err);
             throw err;
           }
         }
